@@ -1,5 +1,5 @@
 name: Beta bug report / דיווח תקלה
-about: Use for testing the Android and desktop beta
+description: Report a beta issue in the Android app or original HTML browser source
 body:
   - type: markdown
     attributes:
@@ -9,14 +9,14 @@ body:
     id: platform
     attributes:
       label: פלטפורמה
-      options: [Android APK, Desktop Windows, Desktop macOS, Desktop Linux, PWA browser]
+      options: [Android APK, Original HTML in computer browser, Other]
     validations:
       required: true
   - type: input
     id: version
     attributes:
       label: גרסה
-      value: 1.3.0-beta.1
+      value: 1.3.3-beta
     validations:
       required: true
   - type: textarea
