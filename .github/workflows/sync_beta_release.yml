@@ -1,0 +1,37 @@
+name: Sync Android beta release notes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - BETA_RELEASE_NOTES_HE.md
+
+permissions:
+  contents: write
+
+jobs:
+  update-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update existing beta release description, preserving APK and tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: v1.3.3-beta
+        run: |
+          set -euo pipefail
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json tagName >/dev/null
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --notes-file BETA_RELEASE_NOTES_HE.md
+          python - <<'PY'
+          import json, os, pathlib, subprocess
+          tag = os.environ["RELEASE_TAG"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          raw = subprocess.check_output([
+              "gh", "release", "view", tag, "--repo", repo, "--json", "body"
+          ], text=True)
+          actual = json.loads(raw)["body"].replace("\r\n", "\n").rstrip("\n")
+          expected = pathlib.Path("BETA_RELEASE_NOTES_HE.md").read_text(encoding="utf-8").replace("\r\n", "\n").rstrip("\n")
+          if actual != expected:
+              raise SystemExit("Release description readback differs from BETA_RELEASE_NOTES_HE.md")
+          print("Release notes readback matched the canonical file.")
+          PY
