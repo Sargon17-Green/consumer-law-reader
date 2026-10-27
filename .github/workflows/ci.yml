@@ -1,0 +1,36 @@
+name: Source and web integrity
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  web-and-typed-sources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Python unit suite
+        run: python -m unittest discover -s tests -p 'test_typed_sources.py'
+      - name: Rebuild website from its bundled source
+        run: python scripts/build_web.py
+      - name: JavaScript syntax
+        run: |
+          node --check web/mobile.js
+          node --check web/mobile-sources.js
+          node --check web/mobile-topics.js
+      - name: Verify protected source content
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          e=json.loads(Path('evidence/content-manifest.json').read_text())
+          data=Path('original/Consumer_Protection_Law.html').read_bytes()
+          assert hashlib.sha256(data).hexdigest()==e['original_html_sha256']
+          print('Law source SHA256 preserved:',e['original_html_sha256'])
+          PY

@@ -1,0 +1,345 @@
+:root{--ink:#172b3b;--muted:#60717c;--accent:#086c69;--line:#dce3e4;--paper:#fff;--reading-size:19px;color-scheme:light}
+html{scroll-padding-top:100px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0!important;padding:80px 0 90px!important;direction:rtl;text-align:right!important;font:var(--reading-size)/1.75 Arial,sans-serif!important;background:#f5f6f4;color:var(--ink);overflow-wrap:anywhere}
+*{box-sizing:border-box}button,input,select{font:inherit}button,a{-webkit-tap-highlight-color:transparent}button{touch-action:manipulation;cursor:pointer}a{color:#075f89}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #0c8c84!important;outline-offset:2px}
+#frame{width:100%!important;max-width:900px!important;border:0!important;padding:8px 18px 30px!important;margin:0 auto!important;background:var(--paper)}
+.container{padding:0!important;margin:auto!important;width:100%!important;max-width:100%}
+table{max-width:100%;min-width:0}td,th{line-height:1.75!important;overflow-wrap:anywhere;min-width:0}tbody{display:table-row-group!important}
+td.title,.title{width:auto!important;max-width:100%;text-align:right!important}h1{max-width:100%}img{max-width:100%;height:auto}img.logo{height:50px!important;width:auto!important;max-width:30%}
+.head{padding:12px 0 22px!important;border-bottom:1px solid var(--line);text-align:center}.heading{font:600 13px/1.6 Arial,sans-serif!important;padding:3px 60px}.heading span{font-size:inherit!important}
+#law_name{font-size:29px!important;line-height:1.4!important;margin:28px 0 20px!important;letter-spacing:-.4px}#law_name .title{font-size:inherit!important;line-height:1.5!important;font-weight:700;text-align:right!important}
+.chapter_title{font-size:25px!important;margin:30px 0 18px!important;padding-top:18px;border-top:2px solid var(--ink)}.subchapter_title,.appendix_title,.subappendix_title{font-size:22px!important;line-height:1.6!important;margin:26px 0 16px!important}h1.delegated_legislation_title{font:700 23px/1.6 Arial,sans-serif!important;margin:20px 0!important;text-align:right!important}
+table.article,table.article_deleted{display:block!important;width:100%!important;max-width:100%;margin:0 0 24px!important;padding:14px 0 22px;border-bottom:1px solid var(--line);font-size:var(--reading-size)!important;scroll-margin-top:0}
+table.article>tbody,table.article_deleted>tbody{display:block!important}table.article>tbody>tr,table.article_deleted>tbody>tr{display:grid!important;grid-template-columns:2.1em minmax(0,1fr);gap:0 4px}
+table.article>tbody>tr>td.side_title,table.article_deleted>tbody>tr>td.side_title{grid-column:1/-1;width:100%!important;padding:0 0 10px!important;margin:0!important;font:700 .92em/1.5 Arial,sans-serif!important;color:var(--accent);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+table.article>tbody>tr>td.article_number,table.article_deleted>tbody>tr>td.article_number{width:auto!important;padding:0!important;font-size:1em!important;font-weight:700}
+table.article>tbody>tr>td:not(.side_title):not(.article_number),table.article_deleted>tbody>tr>td:not(.side_title):not(.article_number){min-width:0;width:auto!important;padding:0!important}
+table.article>tbody>tr>td:only-child{grid-column:1/-1}.subsection{display:table-row!important;margin:0!important}td.numbering{width:2.2em!important;min-width:2.2em;max-width:4em;padding:0 0 0 6px!important;font-size:inherit!important;white-space:normal!important}
+.definition{margin:8px 0 14px!important;line-height:1.75!important}.definition .definition{margin-inline-start:12px!important}.article p{margin:8px 0!important}.article table,.article td{font-size:inherit!important}.article .subsection>td{padding-bottom:10px!important}
+.side_title .m-article-actions{flex-shrink:0;border:1px solid var(--line);border-radius:20px;background:#f8faf9;color:var(--ink);font:600 13px Arial,sans-serif;padding:8px 13px;min-height:40px;margin-top:-4px}
+.defined{color:#075f89!important;text-decoration:underline dotted;text-underline-offset:4px;cursor:pointer}.defined .the_definition,.defined:hover>.the_definition,.defined:focus>.the_definition{display:none!important}
+.note_button{font:inherit!important;padding:8px 0!important;max-width:100%;list-style-position:inside}.note_button_text{font-size:.88em!important;color:#6b4d19;text-decoration:underline dotted;cursor:pointer}.note_div{font-size:.9em!important;line-height:1.7!important;padding:12px!important;background:#fcf8ed;max-width:100%!important;border:1px solid #e9ddc3!important}
+.note,.note td,.effective_date,.amendment_of_other_laws{font-size:.88em!important;line-height:1.6!important}.note .side_title{width:75px!important;padding-left:8px!important}.expired,.effective_date,.amendment_of_other_laws{color:#69757c!important}
+.done_accordingly{font:inherit!important;max-width:100%!important;padding:10px!important;border:1px solid #c9dcdf!important;background:#f0f7f7}.done_accordingly ul{padding-inline-start:20px!important}.done_accordingly .name{font-size:.95em!important;line-height:1.7!important;padding:7px 0;cursor:pointer}.didnt_done{font-size:.82em!important;color:var(--muted)}
+.delegated_legislation{width:100%!important;max-width:100%!important;padding:8px 10px!important;margin:12px 0!important;border:1px solid #b9ced3!important;background:#fff!important;user-select:text;font-family:Arial,sans-serif!important}.delegated_legislation .opening,.signature{font-size:14px!important;line-height:1.6!important}.delegated_legislation .chapter_title{font-size:22px!important}
+#index{display:block;margin:24px 0!important;padding:14px;border:1px solid var(--line);border-radius:12px;background:#f8faf9}#index>tbody{display:block!important}#index_title{font-size:19px!important;line-height:1.6!important;font-weight:700;cursor:pointer}#index_content{margin-top:12px}.chapter_link,.subchapter_link,.appendix_link{font-size:18px!important;line-height:1.7!important;padding-top:12px}.article_link,.subappendix_link{font-size:16px!important;line-height:1.8!important;padding-inline-start:12px!important}#index .note td{line-height:1.5!important;font-size:14px!important}
+#navigator,#contextMenu,#contextMenu_index,.sources_box,.bills_box,.protocols_box,.history_box{display:none!important}
+#pastafari_current_date_widget{position:static!important;max-width:100%!important;width:auto!important;margin:12px 0 0!important;font:13px/1.6 Arial,sans-serif!important;color:var(--muted)!important;white-space:normal!important;background:none!important;padding:0!important}
+.m-table-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;margin:12px 0;padding-bottom:8px;border:1px solid var(--line);border-radius:6px}.m-table-scroll>table{display:table!important;width:max(100%,var(--table-width,620px))!important;min-width:100%;max-width:none!important;table-layout:fixed!important}.m-table-scroll th,.m-table-scroll td{font-size:15px!important;line-height:1.6!important;padding:8px!important}.m-table-scroll .numbering{min-width:2.2em}
+footer{max-width:900px;margin:20px auto 0!important;padding:18px!important;font:14px/1.7 Arial,sans-serif!important;color:var(--muted)}footer span{font-size:inherit!important}
+.m-top{position:fixed;z-index:200;inset:0 0 auto;background:#142f41;color:#fff;padding:13px max(18px,env(safe-area-inset-right)) 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 2px 8px #10233220;font-family:Arial,sans-serif}
+.m-brand{font-size:19px;font-weight:700;line-height:1.4}.m-subtitle{display:block;font-size:12px;font-weight:400;color:#bdd0d9;margin-top:2px}.m-status{white-space:nowrap;font-size:11px;line-height:1.4;color:#cce8dd;border:1px solid #52756f;border-radius:20px;padding:5px 8px}
+.m-bottom{position:fixed;z-index:200;inset:auto 0 0;background:#fff;border-top:1px solid var(--line);padding:5px 8px max(6px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);box-shadow:0 -3px 16px #10233209}.m-bottom button{border:0;background:none;color:#51636e;padding:7px 2px;min-height:54px;font:12px/1.4 Arial,sans-serif;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px}.m-bottom button:active{background:#eaf4f2;border-radius:8px;color:var(--accent)}.m-bottom svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.m-sheet{position:fixed;inset:auto 0 0;margin:0 auto;width:min(100%,720px);max-width:100%;max-height:88vh;max-height:88dvh;border:0;border-radius:18px 18px 0 0;padding:0;background:#fff;color:var(--ink);font:17px/1.7 Arial,sans-serif;box-shadow:0 -12px 60px #10233230;overflow:auto;overscroll-behavior:contain;direction:rtl;text-align:right}.m-sheet::backdrop{background:#10233266}.m-sheet[open]{display:flex;flex-direction:column}.m-sheet-head{position:sticky;top:0;z-index:2;background:#fff;display:flex;gap:12px;align-items:center;justify-content:space-between;padding:16px 18px 12px;border-bottom:1px solid var(--line);flex-shrink:0}.m-sheet h2{font-size:20px;margin:0;line-height:1.5}.m-close{font:26px Arial,sans-serif;border:0;background:#eef2f2;border-radius:50%;width:40px;height:40px;flex-shrink:0;line-height:1}.m-sheet-body{padding:16px 18px calc(24px + env(safe-area-inset-bottom));overflow:auto;min-height:0;overscroll-behavior:contain}
+.m-sheet-body .m-definition{display:block!important;position:static!important;width:auto!important;max-width:100%!important;max-height:none!important;overflow:visible!important;padding:0!important;border:0!important;background:#fff!important;color:var(--ink)!important;font:inherit!important;box-shadow:none!important;white-space:normal!important}.m-sheet-body .definition_source{font-size:14px!important;line-height:1.6;color:var(--muted)}.m-sheet-body .version{margin:12px 0;padding:12px 0;border-top:1px solid var(--line)}.m-sheet-body ol{padding-inline-start:25px}.m-sheet-body li{padding:8px 0}.m-sheet-body table.article{font-size:17px!important}.m-sheet-body .side_title .m-article-actions{display:none}
+.m-action{display:block;text-align:right;width:100%;padding:14px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);margin:0 0 9px;font:17px/1.5 Arial,sans-serif;min-height:50px}.m-action:active{background:#eff6f4}.m-action small{display:block;color:var(--muted);font-size:13px;margin-top:4px}.m-section-label{font-size:13px;color:var(--muted);margin:18px 0 8px}.m-hint{font-size:14px;color:var(--muted);line-height:1.7;margin:8px 0 16px}.m-search-input{width:100%;border:1px solid #a8bdc4;background:#fafcfc;border-radius:10px;padding:12px;font-size:18px;min-height:49px;direction:rtl}.m-search-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:12px 0;font-size:14px;color:var(--muted)}.m-search-meta select{max-width:55%;padding:6px;border:1px solid var(--line);border-radius:6px;background:white;font-size:14px}.m-result{display:block;width:100%;text-align:right;padding:14px 0;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink)}.m-result strong{font-size:16px;display:block;color:#08645f}.m-result span{display:block;font-size:14px;line-height:1.65;margin-top:5px}.m-result small{font-size:12px;color:var(--muted)}mark{background:#fff1a6;color:#172b3b;padding:0 1px}.m-empty{font-size:16px;color:var(--muted);padding:22px 0}.m-target{outline:2px solid #4d9c93!important;outline-offset:5px;background-color:#f2f9ed!important}::highlight(law-search){background:#ffe798;color:#172b3b}
+.m-toc-link{display:block;padding:11px 0;border-bottom:1px solid var(--line);font-size:16px;line-height:1.6;text-decoration:none}.m-toc-link[data-kind=chapter]{font-weight:700;font-size:18px;margin-top:10px;color:var(--ink)}.m-toc-link[data-kind=subchapter]{font-weight:700}.m-toc-chapters .m-toc-link[data-kind=article]{display:none}.m-nav-title{font-size:16px;font-weight:700;padding:12px 0;margin-top:8px;color:var(--accent)}.m-size{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--line);border-radius:10px}.m-size button{background:#edf4f3;color:var(--accent);border:1px solid var(--line);border-radius:8px;min-width:46px;min-height:46px;font-size:22px}
+.m-toast{position:fixed;z-index:2147483647;bottom:94px;left:20px;right:20px;max-width:600px;margin:auto;background:#142f41;color:#fff;border-radius:10px;padding:12px 16px;font:15px/1.6 Arial,sans-serif;box-shadow:0 4px 14px #142f4133;pointer-events:none;text-align:center}.m-toast[hidden]{display:none}.m-install{background:#ecf6f1;color:#08645f;border:1px solid #b6d6cb}.m-top button{border:0;background:transparent;color:white;font-size:23px;min-height:40px;min-width:40px}
+.accessibility_div_wrap{max-width:100vw!important;max-height:80dvh!important;overflow:auto!important}.accessibility_component{z-index:180!important}#accessibility_button{bottom:85px!important}
+@media(min-width:700px){#frame{padding:18px 42px 40px!important}.m-bottom{padding-inline:calc((100% - 650px)/2)}:root{--reading-size:20px}.m-sheet{border-radius:18px 18px 0 0}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+@media print{body{padding:0!important;background:#fff;font-size:14px!important}.m-top,.m-bottom,.m-sheet,.m-toast,.m-article-actions,.accessibility_component{display:none!important}#frame{max-width:none!important;padding:0!important}.m-table-scroll{overflow:visible;border:0}.m-table-scroll>table{width:100%!important}.m-target{outline:0!important}}
+
+/* Keep structural appendix tables from adopting the intrinsic width of data tables. */
+table.appendix{table-layout:fixed!important;width:100%!important}.m-table-scroll{width:100%;max-width:100%!important}.m-sheet-body .m-source{width:100%;overflow-wrap:anywhere}.m-source table{table-layout:fixed}.m-source .history_box{position:static!important}
+
+html.m-underline #frame a{text-decoration:underline!important}html.m-no-motion *{animation:none!important;transition:none!important;scroll-behavior:auto!important}html.m-gray #frame img{filter:grayscale(1)!important}html.m-serif #frame{font-family:serif!important}html.m-contrast-dark body,html.m-contrast-dark #frame,html.m-contrast-dark .m-sheet,html.m-contrast-dark .m-sheet-head,html.m-contrast-dark .m-sheet-body,html.m-contrast-dark .m-definition{background:#111!important;color:#ffe869!important}html.m-contrast-dark #frame *,html.m-contrast-dark .m-sheet *{color:#ffe869!important;background-color:transparent!important}html.m-contrast-blue body,html.m-contrast-blue #frame,html.m-contrast-blue .m-sheet,html.m-contrast-blue .m-sheet-head{background:#d9edff!important;color:#000!important}html.m-contrast-blue #frame *,html.m-contrast-blue .m-sheet *{color:#000!important;background-color:transparent!important}.m-action[aria-pressed=true]{border-color:#086c69;background:#edf7f2}.defined[role=button]:focus-visible{outline:2px solid #086c69!important}
+
+/* A wrapping definition is one complete touch target, including line gaps. */
+.defined{display:inline-block!important;max-width:100%;min-height:32px;vertical-align:baseline;touch-action:manipulation}
+
+.appendix_title .m-article-actions{display:block;border:1px solid var(--line);border-radius:20px;background:#f8faf9;color:var(--ink);font:600 13px Arial,sans-serif;padding:8px 13px;min-height:40px;margin:10px 0}
+
+/* Explicit source access: no long press or undiscoverable context menu. */
+.m-bottom{grid-template-columns:repeat(5,minmax(0,1fr))}.m-bottom button{font-size:11px}
+table.article>tbody>tr>td.side_title,table.article_deleted>tbody>tr>td.side_title{flex-wrap:wrap}
+.m-source-tools{flex:0 0 100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:4px 0 0;font:14px Arial,sans-serif}
+.m-source-tools button,.m-source-tabs button{border:1px solid #b9cecf;background:#f1f7f6;color:#075f59;border-radius:8px;padding:9px 5px;min-height:44px;font:600 14px Arial,sans-serif;text-align:center}
+.m-source-tools button:disabled,.m-source-tabs button:disabled{opacity:.45;color:#59656a;background:#f2f3f3}
+.m-source-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:0 0 14px}.m-source-tabs button[aria-pressed=true]{background:#086c69;color:#fff;border-color:#086c69}
+.m-source{display:block!important;position:static!important;max-height:none!important;overflow:visible!important;width:100%!important;padding:0!important;background:transparent!important;color:inherit!important;font:inherit!important}
+.m-source>ol{padding-inline-start:24px}.m-source a{display:inline-block;min-height:36px;padding:4px 0;overflow-wrap:anywhere}.m-source label{white-space:normal;font:inherit}.m-source .version{display:block!important}.m-source table{max-width:100%!important}
+.m-typed-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.m-typed-filters select{min-width:0;padding:9px 5px;background:white;border:1px solid var(--line);border-radius:6px;font-size:14px}
+.m-typed-card{padding:16px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.m-typed-card h3{font-size:15px;line-height:1.6}.m-typed-snippet{font-size:16px;white-space:pre-wrap;line-height:1.7}.m-original-link{display:block;min-height:48px;padding:12px;background:#086c69;color:#fff;border-radius:8px;margin:12px 0;text-decoration:none;font-weight:700}.m-typed-card small{font-size:12px;color:var(--muted)}.m-typed-card details summary{cursor:pointer;padding:10px 0}.m-typed-card details p{border-top:1px solid var(--line);padding-top:12px}.m-typed-card .m-action{font-size:14px}
+@media(min-width:550px){.m-source-tools,.m-source-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media print{.m-source-tools{display:none!important}}
+
+/* v1.2.0: document-like mobile reading instead of a compressed control surface. */
+:root{--reading-size:18px;--ink:#202b3a;--muted:#516172;--accent:#174e6b;--line:#d9e0e7;--paper:#fff}
+body{background:#edf1f5!important;line-height:1.65!important}
+#frame{max-width:840px!important;padding:22px clamp(16px,4.3vw,42px) 44px!important;box-shadow:0 1px 16px #22354a0c;}
+.head{border-bottom:3px solid #243e5c!important;padding-bottom:20px!important;margin-bottom:18px!important}
+#law_name{font-size:clamp(24px,6vw,29px)!important;letter-spacing:normal!important}
+.chapter_title{color:#223e59!important;border-top:2px solid #243e5c!important}
+.subchapter_title,.appendix_title,.subappendix_title{color:#243e5c!important}
+table.article,table.article_deleted{margin-bottom:30px!important;padding-top:16px!important;border-bottom-color:#cfd8df!important}
+.m-top{background:#243e5c;box-shadow:none;border-bottom:2px solid #bdcbd8}
+.m-bottom{background:#fff;border-top:1px solid #bdcbd8;box-shadow:0 -4px 12px #243e5c12}
+.m-bottom button{font-size:12px;line-height:1.25;min-height:56px}
+.m-bottom svg{width:23px;height:23px}
+.m-brand{font-size:17px}.m-subtitle{font-size:12px}
+.m-sheet-head{background:#f9fbfd;border-bottom-color:#cdd8e1}
+.m-sheet{font-size:17px;line-height:1.65}
+.m-sheet-body{font-size:16px}
+.m-sheet .m-action{font-size:16px;min-height:48px}
+.m-sheet .m-typed-card .m-action{font-size:15px}
+.m-search-input{font-size:16px!important}
+.m-result strong{font-size:17px}.m-result span{font-size:15px}.m-result small{font-size:13px}
+.m-alignment{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.m-alignment button{min-height:48px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:8px;font:600 15px/1.4 Arial,sans-serif}
+.m-alignment button[aria-pressed=true]{border:2px solid #174e6b;background:#e9f2f7;color:#12374c}
+.m-reading-preview{background:#f8f9fb;padding:14px;border:1px solid var(--line);border-radius:8px;line-height:1.75}
+html.m-justify .m-reading-preview{text-align:justify;text-align-last:right}
+html.m-justify #frame table.article>tbody>tr>td:not(.side_title):not(.article_number):not(.numbering),
+html.m-justify #frame .definition,
+html.m-justify #frame .note_div,
+html.m-justify #frame .delegated_legislation .opening{text-align:justify!important;text-align-last:right!important}
+html.m-justify #frame table.article .subsection>td:not(.numbering){text-align:justify!important;text-align-last:right!important}
+.m-return{position:fixed;z-index:199;bottom:calc(86px + env(safe-area-inset-bottom));right:16px;max-width:calc(100vw - 32px);padding:11px 17px;min-height:48px;border:1px solid #174e6b;border-radius:24px;background:#243e5c;color:white;font:600 15px/1.4 Arial,sans-serif;box-shadow:0 4px 15px #152e4345}
+.m-return[hidden]{display:none}
+.m-topic-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.m-topic-toolbar .m-action{margin:0;text-align:center;font-size:15px}
+.m-topic-select{width:100%;min-height:48px;margin:10px 0;padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:16px;color:var(--ink)}
+.m-topic{padding:5px 0 8px 10px;margin:8px 0;border-right:3px solid #c6d4de;border-bottom:1px solid var(--line)}
+.m-topic .m-topic{margin-right:13px;border-right-color:#e0e6eb}
+.m-topic>summary{cursor:pointer;padding:9px 4px;font-weight:700;color:#24435b;overflow-wrap:anywhere}
+.m-topic-link{display:flex;align-items:start;gap:6px;margin:2px 0}
+.m-topic-link>.m-action:first-child{flex:1;border:0;border-radius:4px;background:transparent;padding:8px 6px;min-height:42px;font-weight:400;color:#174e6b}
+.m-topic-link>.m-action:not(:first-child){flex:0 0 auto;width:auto;font-size:13px;padding:8px}
+.m-topic-link>small{font-size:13px;color:#8d4835}
+.m-topic-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:4px 0}
+.m-topic-controls>.m-action{min-height:40px;font-size:13px;text-align:center;padding:8px 4px;margin:0;background:#f3f7fa}
+@media(max-width:360px){.m-bottom button{font-size:11px}.m-brand{font-size:15px}.m-subtitle{font-size:11px}.m-status{font-size:10px}}
+@media(min-width:700px){:root{--reading-size:19px}}
+@media print{body{background:#fff!important}#frame{box-shadow:none!important}.m-return{display:none!important}}
+
+
+/* 1.2.1: flow-first mobile typography; don't turn legal prose links into rigid inline islands. */
+body {overflow-wrap:break-word!important;word-break:normal!important}
+#frame td,#frame th {overflow-wrap:break-word!important;word-break:normal!important}
+#frame .defined,#frame .note_button_text,#frame .done_accordingly .name,
+#frame .article a[href^="#"],#frame .delegated_legislation a[href^="#"] {
+  display:inline!important;white-space:normal!important;word-break:normal!important;
+  overflow-wrap:break-word!important;box-decoration-break:clone;
+}
+#frame table.content {display:table!important;width:100%!important;table-layout:auto!important}
+#frame table.content tr,#frame table.article tr.subsection,#frame table.article tr.detail {
+  display:table-row!important;
+}
+#frame .article table:not(.article):not(.appendix){max-width:100%!important;table-layout:auto!important}
+#frame .m-article-actions,#frame .m-source-tools{display:none!important}
+.m-bottom {grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.m-bottom button {min-width:0}
+.m-global-context {font-size:14px;line-height:1.6;padding:10px 12px;
+  background:#edf3f7;border-inline-start:3px solid #174e6b;margin:0 0 10px}
+/* A linked regulation nested inside several table cells is read at viewport width,
+   not at the min-content width left over after several indentation levels. */
+#frame .delegated_legislation.m-regulation-open {
+  display:block!important;position:fixed!important;inset:80px 0 72px!important;
+  z-index:181!important;width:100vw!important;max-width:100vw!important;
+  height:auto!important;margin:0!important;padding:68px max(16px,env(safe-area-inset-right)) 32px max(16px,env(safe-area-inset-left))!important;
+  background:#fff!important;overflow-y:auto!important;overflow-x:hidden!important;
+  overscroll-behavior:contain;box-shadow:0 0 0 999px #142f4166;
+}
+html.m-regulation-mode body{overflow:hidden!important}
+.m-regulation-back{position:fixed;z-index:195;top:90px;right:15px;min-height:44px;
+  padding:8px 16px;border-radius:24px;border:1px solid #174e6b;
+  color:#fff;background:#243e5c;font:600 15px/1.4 Arial,sans-serif;
+  box-shadow:0 3px 14px #142f4135}
+.m-regulation-back[hidden]{display:none!important}
+/* Align prose in both margins by default but never justify headings or numbers. */
+html.m-justify #frame .article td:not(.article_number):not(.side_title):not(.numbering),
+html.m-justify #frame .delegated_legislation p.opening,
+html.m-justify #frame .done_accordingly,
+html.m-justify #frame .article .definition {
+  text-align:justify!important;text-align-last:right!important;
+}
+
+/* Two-column legal subsection lists are prose, never shrink-to-fit HTML tables. */
+#frame table.m-prose-table {display:block!important;width:100%!important;max-width:100%!important;table-layout:auto!important}
+#frame table.m-prose-table>tbody{display:block!important;width:100%!important}
+#frame table.m-prose-table>tbody>tr.subsection,
+#frame table.m-prose-table>tbody>tr.detail{display:grid!important;grid-template-columns:2em minmax(0,1fr)!important;gap:0 5px;align-items:start;width:100%!important}
+#frame table.m-prose-table>tbody>tr>td{display:block!important;min-width:0!important;width:auto!important;max-width:100%!important;padding:0!important}
+#frame table.m-prose-table>tbody>tr>td.numbering{grid-column:1!important;white-space:nowrap!important}
+#frame table.m-prose-table>tbody>tr>td:not(.numbering){grid-column:2!important}
+
+/* v1.2.2 legal document fidelity and navigation-highlight lifecycle */
+/* Section side-headings are part of the enacted text, not colored editorial labels.
+   Inline definitions inside the heading must flow as a normal phrase. */
+#frame table.article>tbody>tr>td.side_title,
+#frame table.article_deleted>tbody>tr>td.side_title,
+#frame .delegated_legislation table.article>tbody>tr>td.side_title {
+  display:block!important; color:var(--ink)!important;
+  font-size:1em!important; text-align:right!important;
+  font-weight:700!important; line-height:1.65!important;
+  white-space:normal!important; overflow-wrap:break-word!important;
+}
+#frame .side_title .defined,#frame .side_title a {color:inherit!important;}
+/* Section, chapter, appendix and internal division headings stay within the
+   typographic hierarchy of the legal document, centered as document headings. */
+#frame .chapter_title,#frame .subchapter_title,#frame .appendix_title,
+#frame .subappendix_title,#frame .intext_title,#frame .appendix_part,
+#frame .delegated_legislation_title {
+  text-align:center!important; color:var(--ink)!important;
+  max-width:100%!important; margin-inline:auto!important;
+  white-space:normal!important;
+}
+#frame .delegated_legislation .opening,
+#frame .delegated_legislation p.opening {
+  font-size:var(--reading-size)!important; line-height:1.75!important;
+  color:var(--ink)!important; font-weight:400!important;
+}
+/* One targeted block per navigation, with no persistent background. */
+#frame .m-target {outline:2px solid #4d9c93!important; outline-offset:3px;
+  background-color:#f2f9ed!important;}
+#frame a.m-link-return {font-weight:700!important;text-decoration-line:underline!important;
+  text-decoration-thickness:2px!important;text-underline-offset:3px;
+  background:transparent!important;}
+@media print {#frame .m-target{outline:0!important;background:transparent!important}}
+.m-alignment{grid-template-columns:1fr!important}
+@media(min-width:560px){.m-alignment{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+
+/* v1.2.3 — corrections requested after 1.2.2: justify ALL legal reading
+   prose at phone sizes; no implicit 479px switch to ragged-right. */
+html.m-justify #frame table.article>tbody>tr>td:not(.side_title):not(.article_number):not(.numbering),
+html.m-justify #frame table.article_deleted>tbody>tr>td:not(.side_title):not(.article_number):not(.numbering),
+html.m-justify #frame table.m-prose-table>tbody>tr>td:not(.numbering),
+html.m-justify #frame .delegated_legislation p.opening,
+html.m-justify #frame .delegated_legislation p:not(.opening):not(.intext_title),
+html.m-justify #frame .definition,
+html.m-justify #frame .note_div,
+html.m-justify #frame .done_accordingly {
+  text-align:justify!important;
+  text-align-last:right!important;
+  text-justify:inter-word;
+}
+/* Actual chapter/subchapter/appendix headings are TABLES.  Centering
+   just table.chapter_title does not center its child td.title, because
+   an old universal .title rule forces text-align:right!important. */
+#frame table.chapter_title,
+#frame table.subchapter_title,
+#frame table.appendix_title,
+#frame table.subappendix_title {
+  width:100%!important;
+  max-width:100%!important;
+  margin-inline:auto!important;
+  text-align:center!important;
+}
+#frame table.chapter_title td,
+#frame table.chapter_title th,
+#frame table.subchapter_title td,
+#frame table.subchapter_title th,
+#frame table.appendix_title td,
+#frame table.appendix_title th,
+#frame table.subappendix_title td,
+#frame table.subappendix_title th {
+  text-align:center!important;
+  text-align-last:center!important;
+}
+#frame .intext_title,
+#frame h1.delegated_legislation_title,
+#frame h2.delegated_legislation_title,
+#frame .appendix_part>.subappendix_title,
+#frame .appendix_part>td>.subappendix_title {
+  text-align:center!important;
+  text-align-last:center!important;
+}
+
+
+/* v1.2.4 — the enacted document's *main title* is a table, too.
+   The pre-existing #law_name .title and td.title rules align its TD right.
+   Keep this independent of paragraph justification and heading centering. */
+#frame #law_name,
+#frame #law_name > tbody > tr > td.title {
+  width:100%!important;
+  max-width:100%!important;
+  text-align:center!important;
+  text-align-last:center!important;
+}
+/* Make the activated LINK visible (not merely the destination).
+   Inline paint across wrapped link fragments, no forced nowrap. */
+#frame a.m-link-pressed,
+#frame .defined.m-link-pressed,
+#frame .note_button_text.m-link-pressed {
+  background:#ffdf83!important;
+  color:#172b3b!important;
+  font-weight:700!important;
+  text-decoration:underline!important;
+  text-decoration-thickness:2px!important;
+  text-underline-offset:3px;
+  border-radius:2px;
+  -webkit-box-decoration-break:clone;
+  box-decoration-break:clone;
+}
+@media print {
+  #frame a.m-link-pressed,#frame .defined.m-link-pressed,
+  #frame .note_button_text.m-link-pressed {background:transparent!important;color:inherit!important;}
+}
+
+/* 1.3.0 beta 1: all legal document headings (main law and delegated legislation). */
+#frame :is(h1,h2,h3,h4,h5,h6),
+#frame :is(.chapter_title,.subchapter_title,.appendix_title,.subappendix_title,.intext_title,.delegated_legislation_title),
+#frame :is(table.chapter_title,table.subchapter_title,table.appendix_title,table.subappendix_title) > tbody > tr > :is(td,th),
+#frame #law_name > tbody > tr > :is(td,th) {
+  text-align:center!important;
+  text-align-last:center!important;
+}
+/* Section side headings are enacted labels, unlike centered division titles. */
+#frame :is(table.article,table.article_deleted) > tbody > tr > td.side_title {
+  text-align:right!important;text-align-last:right!important;color:var(--ink)!important;
+}
+/* Justified prose does not alter title positioning or title line lengths. */
+html.m-justify #frame :is(.chapter_title,.subchapter_title,.appendix_title,.subappendix_title,.intext_title,.delegated_legislation_title) :is(td,th),
+html.m-justify #frame #law_name td.title {
+  text-align:center!important;text-align-last:center!important;
+}
+
+
+/* Beta 1.3.0: shared canonical legal content; distinct wide-screen desktop surface. */
+@media screen and (min-width:1100px){
+  body{padding:84px 246px 50px 24px!important;min-height:100vh!important}
+  #frame{max-width:1040px!important;padding:24px 48px 48px!important;min-height:calc(100vh - 134px);box-shadow:0 2px 14px #192a3615}
+  .m-top{padding-left:36px!important;padding-right:36px!important}
+  .m-bottom{position:fixed!important;top:114px!important;right:18px!important;left:auto!important;bottom:auto!important;
+    width:205px!important;min-height:0!important;padding:10px!important;border:1px solid #dce3e4!important;
+    border-radius:14px!important;background:#fff!important;box-shadow:0 2px 12px #192a3617!important;
+    display:flex!important;flex-direction:column!important;gap:8px!important;z-index:90!important}
+  .m-bottom button{display:flex!important;flex-direction:row-reverse!important;align-items:center!important;justify-content:flex-end!important;
+    text-align:right!important;min-height:56px!important;padding:8px 12px!important;gap:13px!important;border-radius:8px!important;width:100%!important}
+  .m-bottom button svg{width:24px!important;height:24px!important;flex:0 0 24px!important}
+  .m-sheet{width:min(640px,calc(100vw - 100px))!important;max-height:85vh!important}
+  #frame .delegated_legislation.m-regulation-open{inset:92px 235px 22px 22px!important;width:auto!important;max-width:none!important;
+    padding:70px min(7vw,96px) 40px!important;border-radius:12px!important}
+  .m-regulation-back{top:114px!important;right:250px!important}
+}
+@media print{
+  .m-bottom,.m-top,.m-return,.m-regulation-back,.m-sheet,.m-toast{display:none!important}
+  body{padding:0!important;margin:0!important;background:#fff!important}
+  #frame{padding:0!important;box-shadow:none!important;max-width:none!important;width:100%!important}
+}
+
+
+/* Beta 1.3.1: PEGI symbols must retain a non-zero content box. */
+/* Original rule had width:96px and 48px padding on BOTH sides.
+   The app-wide border-box normalization reduced the image's content to 0px.
+   Scope this fix exclusively to the pictogram table; keep justified legal prose. */
+#Goods_marking_order_appendix_2_article_19_subsection_b_table img {
+  width: 96px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  object-fit: contain !important;
+}
+#Goods_marking_order_appendix_2_article_19_subsection_b_table :is(th, td).Goods_marking_order_appendix_2_article_19_subsection_b_col_a {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* Beta 1.3.3: allow the full statute title to wrap without obscuring content. */
+.m-brand{flex:1 1 auto;min-width:0;overflow-wrap:normal;word-break:normal}
+.m-status{flex:0 0 auto}
+@media(max-width:600px){body{padding-top:96px!important}html{scroll-padding-top:105px}}

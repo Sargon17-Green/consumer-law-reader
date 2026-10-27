@@ -1,0 +1,14 @@
+signing/
+*.p12
+*.pfx
+*key-password*
+.env
+.env.*
+__pycache__/
+.pytest_cache/
+playwright-report/
+node_modules/
+build/
+*.apk
+*.zip
+!releases/Consumer_Law_Reader_1.3.3_Beta_Android.apk

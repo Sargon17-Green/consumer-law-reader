@@ -1,0 +1,61 @@
+"""Bounded browser exploration of actual full legal document (not Android phone)."""
+from pathlib import Path
+import json,time
+from playwright.sync_api import sync_playwright,TimeoutError as PlaywrightTimeoutError
+ROOT=Path(__file__).resolve().parents[1]
+CHECKS=[]
+def check(name,ok,detail=None):
+ item={'name':name,'passed':bool(ok),'detail':str(detail)[:240]};CHECKS.append(item);print(('PASS' if ok else 'FAIL'),name,item['detail'],flush=True)
+with sync_playwright() as p:
+ browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox','--disable-dev-shm-usage','--disable-background-networking'])
+ page=browser.new_page(viewport={'width':375,'height':760},device_scale_factor=1)
+ page.set_default_timeout(7000)
+ errs=[]
+ page.on('pageerror',lambda e:errs.append(str(e)))
+ page.route('**/https://**',lambda r:r.abort())
+ print('loading real legal source...',flush=True)
+ st=time.monotonic()
+ from bs4 import BeautifulSoup
+ soup=BeautifulSoup((ROOT/'dist/index.html').read_text(),'lxml')
+ for el in soup.find_all('script'): el.decompose()
+ if soup.body: soup.body.attrs.pop('onload',None)
+ for el in soup.find_all('iframe'): el.decompose()
+ for el in soup.find_all('link',rel='stylesheet'): el.decompose()
+ page.set_content(str(soup),wait_until='domcontentloaded',timeout=35000)
+ page.evaluate("""() => {const s={};Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>Object.hasOwn(s,k)?s[k]:null,setItem:(k,v)=>s[k]=String(v),removeItem:k=>delete s[k]}})}""")
+ page.add_style_tag(content=(ROOT/'web/mobile.css').read_text())
+ for name in ('mobile-sources.js','mobile-topics.js','mobile.js'): page.add_script_tag(content=(ROOT/'web'/name).read_text())
+ page.wait_for_function("window.lawMobile && window.lawMobile.version==='1.2.2'",timeout=25000)
+ print('debug',{ 'errors':errs[:6], 'law':page.evaluate('window.lawMobile?.version || null'),'ready':page.evaluate('document.readyState'),'article':page.evaluate("!!document.getElementById('article_4a')"),'frame':page.evaluate("!!document.getElementById('frame')")},flush=True)
+ print('loaded',round(time.monotonic()-st,2),'seconds',flush=True)
+ report=page.evaluate('''() => {const el=document.getElementById('article_4a');const title=el.querySelector('.side_title');const def=title.querySelector('.defined');const section=document.getElementById('article_4a_detail_2');const cl=document.querySelector('.chapter_title');const law=document.querySelector('#frame');return {articles:document.querySelectorAll('table.article').length,regulations:document.querySelectorAll('.delegated_legislation').length,bodyWidth:document.documentElement.scrollWidth,screenWidth:innerWidth,sectionValid:!!section,titleColor:getComputedStyle(title).color,definedColor:getComputedStyle(def).color,titleDisplay:getComputedStyle(title).display,titleText:title.innerText,chapterCenter:cl?getComputedStyle(cl).textAlign:null,legacyHandlers:[...document.querySelectorAll('#frame a[href^="#"][onclick]')].filter(a=>a.getAttribute('onclick').includes('mark_and_verify_open')).length,buttons:document.querySelectorAll('.m-bottom button').length,initSource:window.LawSources?true:false}}''')
+ check('real_document_loaded',report['articles']>500 and report['regulations']>25,report)
+ if report['bodyWidth']>report['screenWidth']:
+  offenders=page.evaluate("""() => [...document.querySelectorAll('#frame *')].map(e=>{let r=e.getBoundingClientRect();return {e,r}}).filter(x=>x.r.width>0&&x.r.height>0&&(x.r.right>innerWidth+1||x.r.left< -1)&&getComputedStyle(x.e).visibility!=='hidden').sort((a,b)=>b.r.width-a.r.width).slice(0,15).map(x=>({tag:x.e.tagName,cls:x.e.className,id:x.e.id,left:x.r.left,right:x.r.right,width:x.r.width,html:x.e.outerHTML.slice(0,110)}))""")
+  print('OFFENDERS',offenders,flush=True)
+ check('real_document_no_page_overflow',report['bodyWidth']<=report['screenWidth'],report['bodyWidth'])
+ check('real_section_title_integrated',report['titleDisplay']=='block' and report['titleColor']==report['definedColor'])
+ check('real_chapter_centered',report['chapterCenter']=='center')
+ check('all_legacy_internal_highlight_handlers_removed',report['legacyHandlers']==0,report['legacyHandlers'])
+ check('global_buttons_only',report['buttons']==4)
+ page.locator('#article_4a').scroll_into_view_if_needed(timeout=7000)
+ page.screenshot(path='/mnt/data/Consumer_Law_Mobile_1.2.2_Real_Document.png')
+ current=page.evaluate('''() => {const el=document.querySelector('#article_4a');return {title:el.querySelector('.side_title').innerText.slice(0,110),num:el.querySelector('.article_number').innerText,first:getComputedStyle(el.querySelector('td:not(.article_number):not(.side_title)')).textAlign}}''')
+ check('real_section_4a_right_align_on_mobile',current['first']=='right',current)
+ page.locator('[data-mobile="actions"]').click()
+ check('actions_dialog_real_document',page.locator('#mobile-sheet').evaluate('e=>e.open'))
+ page.locator('#mobile-sheet-close').click()
+ page.locator('[data-mobile="toc"]').click()
+ check('toc_dialog_real_document',page.locator('#mobile-sheet').evaluate('e=>e.open') and page.locator('.m-toc-link').count()>100,page.locator('.m-toc-link').count())
+ page.locator('#mobile-sheet-close').click()
+ page.locator('[data-mobile="search"]').click()
+ page.locator('#mobile-search').fill('חוזה אחיד')
+ page.wait_for_timeout(1500)
+ count=page.locator('.m-search-meta span').inner_text()
+ check('search_results_real_document', 'תוצאות' in count and count!='0 תוצאות',count)
+ page.locator('#mobile-sheet-close').click()
+ check('runtime_errors_none',len(errs)==0,errs[:4])
+ page.close();browser.close()
+(ROOT/'evidence/full-app-exploration-v1.2.2.json').write_text(json.dumps(CHECKS,ensure_ascii=False,indent=2))
+print('PASS COUNT',sum(x['passed'] for x in CHECKS),'TOTAL',len(CHECKS),flush=True)
+raise SystemExit(1 if any(not x['passed'] for x in CHECKS) else 0)

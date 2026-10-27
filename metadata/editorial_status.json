@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "product": "חוק הגנת הצרכן, התשמ\"א–1981",
+  "editor_publisher": "סרגון 17 גרין",
+  "capacity": "אדם פרטי",
+  "government_product": false,
+  "law_text_last_verified_on": "2026-10-27",
+  "law_text_date_scope": "נכונות נוסח חוק הגנת הצרכן לתאריך הבדיקה האחרונה בלבד, לפי אחריותו והצהרתו של העורך",
+  "auto_advance_date": false,
+  "verification_status": "editor_declaration_not_independent_audit",
+  "metadata_complete_or_guaranteed": false,
+  "metadata_scope": "הערות, הפניות, היסטוריה חקיקתית, שיוכי חקיקת משנה, פרטי צווים ומקורות",
+  "historical_orders_pending": "אימות עובדתי של אי־ביטול אכרזות הפיקוח והצווים שהותקנו לפיהן",
+  "license_code": "MIT"
+}

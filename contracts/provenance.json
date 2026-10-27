@@ -1,0 +1,27 @@
+{
+  "repository": "Sargon17-Green/Legislation-Document-Generator",
+  "ref": "feature/typed-sources-3.8.0",
+  "purpose": "Read-only reuse of the existing contract and JSON validator/index builder; repository was not modified.",
+  "files": [
+    {
+      "path": "specs/LEGAL_HTML_GENERATOR_3.8.0_TYPED_SOURCES_SPEC_HE.md",
+      "git_blob_sha": "2c1a8832cb2b38f06eabe7d49446e31909efd29e",
+      "url": "https://github.com/Sargon17-Green/Legislation-Document-Generator/blob/feature/typed-sources-3.8.0/specs/LEGAL_HTML_GENERATOR_3.8.0_TYPED_SOURCES_SPEC_HE.md"
+    },
+    {
+      "path": "specs/LEGAL_HTML_GENERATOR_3.8.0_SOURCE_FIRST_SEARCH_SPEC_v002_HE.md",
+      "git_blob_sha": "702358f1b801223279ef17004b272ba090621054",
+      "url": "https://github.com/Sargon17-Green/Legislation-Document-Generator/blob/feature/typed-sources-3.8.0/specs/LEGAL_HTML_GENERATOR_3.8.0_SOURCE_FIRST_SEARCH_SPEC_v002_HE.md"
+    },
+    {
+      "path": "generator/legal_html/canonical_snapshot.py",
+      "git_blob_sha": "304c1e71cca4c1499cca4490834e085ec099db7a",
+      "url": "https://github.com/Sargon17-Green/Legislation-Document-Generator/blob/feature/typed-sources-3.8.0/generator/legal_html/canonical_snapshot.py"
+    },
+    {
+      "path": "generator/legal_html/canonical_search.py",
+      "git_blob_sha": "c0d7478bc6fd3967180f1ce767edf4f5126561af",
+      "url": "https://github.com/Sargon17-Green/Legislation-Document-Generator/blob/feature/typed-sources-3.8.0/generator/legal_html/canonical_search.py"
+    }
+  ]
+}
