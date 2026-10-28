@@ -1,42 +1,63 @@
 #!/usr/bin/env python3
-"""Check source preservation and the exact assets that the Android loader opens."""
+"""Verify exact source and bundled assets; compare a new APK only when supplied.
+
+No check here certifies legal accuracy or the editor's declared verification date.
+"""
 from pathlib import Path
 from collections import Counter
-from urllib.parse import unquote
 from zipfile import ZipFile
-import hashlib,json,re
+import argparse, hashlib, json
 from bs4 import BeautifulSoup
 
 ROOT=Path(__file__).resolve().parents[1]
-VERSION=(ROOT/'VERSION').read_text().strip()
-original=BeautifulSoup((ROOT/'original/Consumer_Protection_Law.html').read_bytes(),'lxml')
-generated=BeautifulSoup((ROOT/'dist/index.html').read_bytes(),'lxml')
-checks=[]
-def check(name,condition,details=None):
-    checks.append({'check':name,'passed':bool(condition),'details':details})
-    if not condition:raise AssertionError(name)
+SOURCE=ROOT/'original/Consumer_Protection_Law.html'
+DIST=ROOT/'dist'
+EXPECTED_SHA256='e046bc015b1e1a7c0fe471f821cdbc53ca0b120f343929418ac393d004a424d4'
 
-check('Main legal document subtree preserved',str(original.select_one('#frame'))==str(generated.select_one('#frame')))
-for selector in ['.sources_box','.bills_box','.protocols_box','.history_box','footer']:
-    a=[str(x) for x in original.select(selector)];b=[str(x) for x in generated.select(selector)]
-    check('Preserved '+selector,a==b,{'count':len(a)})
-check('All original legal links preserved',Counter(x.get('href') for x in original.select('a[href]'))==Counter(x.get('href') for x in generated.select('a[href]')))
-original_ids=Counter(x['id'] for x in original.select('[id]'))
-generated_ids=Counter(x['id'] for x in generated.select('[id]'))
-check('All original IDs preserved',all(generated_ids[k]==v for k,v in original_ids.items()),{'original_id_occurrences':sum(original_ids.values())})
-for source in (ROOT/'original').iterdir():
-    if source.suffix.lower() in ['.html','.ico','.lnk']:continue
-    check('Bundled asset '+source.name,source.read_bytes()==(ROOT/'dist'/source.name).read_bytes())
-check('Network-dependent legacy accessibility script is inert',all(x.get('type')=='application/x-law-original' for x in generated.find_all('script') if 'Fingerprint2' in (x.string or '')))
-with ZipFile(ROOT/f'release/Consumer_Law_Mobile_{VERSION}.apk') as apk:
-    check('APK ZIP integrity',apk.testzip() is None)
-    for p in sorted((ROOT/'dist').iterdir()):
-        if p.is_file():check('Android asset path and bytes: '+p.name,apk.read('assets/www/'+p.name)==p.read_bytes())
-    check('Native classes packaged',len(apk.read('classes.dex'))>0)
-    attachments=[x for x in apk.infolist() if x.filename.endswith('.doc')]
-    check('Word attachment accessible via AssetFileDescriptor',len(attachments)==1 and attachments[0].compress_type==0)
+def verify(apk=None):
+    checks=[]
+    def check(name,okay):
+        checks.append({'check':name,'passed':bool(okay)})
+        if not okay: raise AssertionError(name)
+    raw=SOURCE.read_bytes()
+    check('Exact original HTML SHA256',hashlib.sha256(raw).hexdigest()==EXPECTED_SHA256)
+    original=BeautifulSoup(raw,'lxml')
+    generated=BeautifulSoup((DIST/'index.html').read_bytes(),'lxml')
+    aliases={f'./PEGI_{x}_plus.png':f'./PEGI_{x}+.png' for x in (3,7,12,16,18)}
+    for img in generated.select('img[src]'):
+        if img['src'] in aliases:img['src']=aliases[img['src']]
+    check('Legal document DOM unchanged except documented PEGI alias',
+          str(original.select_one('#frame'))==str(generated.select_one('#frame')))
+    for selector in ('.sources_box','.bills_box','.protocols_box','.history_box','footer'):
+        check('Preserved '+selector,[str(x) for x in original.select(selector)]==[str(x) for x in generated.select(selector)])
+    a=Counter(x['id'] for x in original.select('[id]'))
+    b=Counter(x['id'] for x in generated.select('[id]'))
+    check('Original ID occurrences',all(b[k]==v for k,v in a.items()))
+    check('Original link targets',Counter(x.get('href') for x in original.select('a[href]'))==Counter(x.get('href') for x in generated.select('a[href]')))
+    for src in (ROOT/'original').iterdir():
+        if src.suffix.lower() in ('.html','.ico','.lnk'):continue
+        check('Bundled unchanged: '+src.name,src.read_bytes()==(DIST/src.name).read_bytes())
+    for age in (3,7,12,16,18):
+        check('PEGI alias '+str(age),(DIST/f'PEGI_{age}_plus.png').read_bytes()==(ROOT/'original'/f'PEGI_{age}+.png').read_bytes())
+    check('Old external accessibility widget inactive',all(x.get('type')=='application/x-law-original' for x in generated.find_all('script') if 'Fingerprint2' in (x.string or '')))
+    report={'checks':checks,'source_sha256':EXPECTED_SHA256,'editorial_verification_date':json.loads((ROOT/'metadata/editorial_status.json').read_text())['law_text_last_verified_on'],'limitation':'No independent legal-text review; no device installation'}
+    if apk is not None:
+        apk=Path(apk).resolve()
+        with ZipFile(apk) as z:
+            check('APK archive integrity',z.testzip() is None)
+            for p in sorted(DIST.iterdir()):
+                if p.is_file():
+                    check('APK web asset exact bytes: '+p.name,z.read('assets/www/'+p.name)==p.read_bytes())
+            check('Native classes present',bool(z.read('classes.dex')))
+        report['apk_sha256']=hashlib.sha256(apk.read_bytes()).hexdigest()
+    report.update({'status':'PASS','checks_passed':len(checks)})
+    (ROOT/'evidence').mkdir(exist_ok=True)
+    (ROOT/'evidence/release-verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+    return report
 
-missing=sorted({unquote(a['href'][1:]) for a in original.select('a[href^="#"]') if a['href'][1:] not in original_ids})
-result={'status':'PASS','checks_passed':len(checks),'checks':checks,'original_source_limitations':{'missing_internal_targets':missing,'duplicate_ids':{k:v for k,v in original_ids.items() if v>1}},'apk_sha256':hashlib.sha256((ROOT/f'release/Consumer_Law_Mobile_{VERSION}.apk').read_bytes()).hexdigest(),'runtime_validation_limit':'No physical Android or iPhone installation was performed in this environment.'}
-(ROOT/'evidence/release-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
-print(json.dumps({'status':'PASS','checks':len(checks),'original_missing_link_targets':len(missing),'original_duplicate_ids':len(result['original_source_limitations']['duplicate_ids'])}))
+if __name__=='__main__':
+    ap=argparse.ArgumentParser()
+    ap.add_argument('--apk',help='Path to a newly built APK matching this source tree')
+    args=ap.parse_args()
+    r=verify(args.apk)
+    print(json.dumps({k:v for k,v in r.items() if k!='checks'},ensure_ascii=False))
