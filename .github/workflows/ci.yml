@@ -25,6 +25,7 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_typed_sources.py' -v
           python -m unittest discover -s tests -p 'test_latest_download.py' -v
+          python -m unittest discover -s tests -p 'test_registry_unavailability_notes.py' -v
           python scripts/build_web.py
           python scripts/verify_release.py
       - name: Check browser scripts
