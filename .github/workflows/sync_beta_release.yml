@@ -17,7 +17,7 @@ jobs:
       - name: Update existing beta release description, preserving APK and tag
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v1.3.4-beta
+          RELEASE_TAG: v1.3.5-beta
         run: |
           set -euo pipefail
           if ! gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json tagName >/dev/null 2>&1; then
