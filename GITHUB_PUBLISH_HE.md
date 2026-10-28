@@ -1,11 +1,11 @@
-# פרסום חוק הגנת הצרכן, התשמ"א–1981 — Android בטא 1.3.4
+# פרסום חוק הגנת הצרכן, התשמ"א–1981 — Android בטא 1.3.5
 
 **מצב הפרסום: פורסם ב־GitHub ב־28.10.2026, כמאגר ציבורי.**
 
 - מאגר הפרויקט: https://github.com/Sargon17-Green/consumer-law-reader
-- גרסת הבטא: https://github.com/Sargon17-Green/consumer-law-reader/releases/tag/v1.3.4-beta
-- קובץ ההתקנה לטלפון: https://github.com/Sargon17-Green/consumer-law-reader/releases/download/v1.3.4-beta/Consumer_Law_Reader_1.3.4_Beta_Android.apk
-- טביעת SHA-256 של ה־APK המאומת: `099bca2c4f3f1e1c226529c516b810082e16130ca6407b765ca976a4221b3552`
+- גרסת הבטא: https://github.com/Sargon17-Green/consumer-law-reader/releases/tag/v1.3.5-beta
+- קובץ ההתקנה לטלפון: https://github.com/Sargon17-Green/consumer-law-reader/releases/download/v1.3.5-beta/Consumer_Law_Reader_1.3.5_Beta_Android.apk
+- טביעת SHA-256 של ה־APK המאומת: `2772e3d8195de2d9a66edc8cdbc9e0940ac71f8cb55f1597dcc7c122120101af`
 
 ## מבנה והפצה
 **היישום המופץ מיועד ל־Android.** קוד היישום נמצא בתיקיות `android/` ו־`web/`; קובץ המקור `original/Consumer_Protection_Law.html` ומשאביו נכללים במאגר וניתנים לפתיחה בדפדפן במחשב. קובץ HTML זה אינו התקנת Android ואינו מצריך הפצת תוכנת Desktop נפרדת.
