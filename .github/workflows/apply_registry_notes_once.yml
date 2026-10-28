@@ -39,4 +39,6 @@ jobs:
           git add -- original/Consumer_Protection_Law.html
           git diff --cached --exit-code && { echo 'No change needed'; exit 0; } || true
           git commit -m 'editorial: two registry-unavailable notes at 16ג(ג) and regulation 3(a)'
+          git fetch origin fix/registry-unavailable-notes-20261028
+          git rebase origin/fix/registry-unavailable-notes-20261028
           git push origin HEAD:fix/registry-unavailable-notes-20261028
