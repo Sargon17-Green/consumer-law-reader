@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="il.org.lawreader.consumer" android:versionCode="14" android:versionName="1.3.6-dev">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="il.org.lawreader.consumer" android:versionCode="15" android:versionName="1.3.7-dev">
   <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35"/>
   <uses-permission android:name="android.permission.INTERNET"/>
   <application android:label="חוק הגנת הצרכן, התשמ&quot;א–1981" android:icon="@drawable/app_icon" android:theme="@style/AppTheme" android:allowBackup="false" android:supportsRtl="true" android:usesCleartextTraffic="false" android:enableOnBackInvokedCallback="false">
