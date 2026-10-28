@@ -147,14 +147,14 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void copy(final String text) {
             runOnUiThread(() -> {
                 ClipboardManager clipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-                clipboard.setPrimaryClip(ClipData.newPlainText("חוק הגנת הצרכן, התשמ"א–1981",text==null?"":text));
+                clipboard.setPrimaryClip(ClipData.newPlainText("חוק הגנת הצרכן, התשמ\"א–1981",text==null?"":text));
             });
         }
         @JavascriptInterface public void openAttachment(final String name) { runOnUiThread(() -> MainActivity.this.openAttachment(name)); }
         @JavascriptInterface public void printDocument() {
             runOnUiThread(() -> {
                 PrintManager manager = (PrintManager)getSystemService(PRINT_SERVICE);
-                manager.print("חוק הגנת הצרכן, התשמ"א–1981",web.createPrintDocumentAdapter("חוק הגנת הצרכן, התשמ"א–1981"),null);
+                manager.print("חוק הגנת הצרכן, התשמ\"א–1981",web.createPrintDocumentAdapter("חוק הגנת הצרכן, התשמ\"א–1981"),null);
             });
         }
     }
