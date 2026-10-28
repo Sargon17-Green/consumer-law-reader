@@ -45,6 +45,13 @@ with sync_playwright() as pw:
         assert page.locator('#mobile-search').count()==1
         assert page.locator('text=חיפוש במקורות מוקלדים').count()==0
         assert page.locator('select[aria-label="תחום חיפוש"] option').count()==3
+        # The original index remains in the DOM as data for the fixed bottom TOC,
+        # but is no longer a duplicate visible list in the reading surface.
+        assert page.locator('#index').count()==1
+        assert page.evaluate("""() => getComputedStyle(document.querySelector('#frame #index')).display""")=='none'
+        assert page.locator('[data-mobile="toc"]').count()==1
+        page.locator('[data-mobile="toc"]').click()
+        assert page.locator('.m-toc-link').count()>50
         assert not errors,errors
         print('PASS',width,data['count'])
         page.close()
