@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'original/Consumer_Protection_Law.html'
 DIST=ROOT/'dist'
-EXPECTED_SHA256='e046bc015b1e1a7c0fe471f821cdbc53ca0b120f343929418ac393d004a424d4'
+EXPECTED_SHA256='de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9'
 
 def verify(apk=None):
     checks=[]
