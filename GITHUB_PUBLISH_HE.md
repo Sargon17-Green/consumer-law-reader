@@ -7,6 +7,8 @@
 - קובץ ההתקנה לטלפון: https://github.com/Sargon17-Green/consumer-law-reader/releases/download/v1.3.5-beta/Consumer_Law_Reader_1.3.5_Beta_Android.apk
 - טביעת SHA-256 של ה־APK המאומת: `2772e3d8195de2d9a66edc8cdbc9e0940ac71f8cb55f1597dcc7c122120101af`
 
+**הורדה קבועה ללא מספר גרסה:** https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/main/downloads/latest.apk — עותק המאגר המסונכרן מה־Release העדכני, גם כאשר הוא בטא. העדכון מתבצע באמצעות GitHub Actions, עם בדיקת SHA-256 ומנגנון גיבוי מחזורי. ייתכן עיכוב קצר לאחר פרסום חדש, עד להשלמת הסנכרון ולפקיעת מטמונים.
+
 ## מבנה והפצה
 **היישום המופץ מיועד ל־Android.** קוד היישום נמצא בתיקיות `android/` ו־`web/`; קובץ המקור `original/Consumer_Protection_Law.html` ומשאביו נכללים במאגר וניתנים לפתיחה בדפדפן במחשב. קובץ HTML זה אינו התקנת Android ואינו מצריך הפצת תוכנת Desktop נפרדת.
 
