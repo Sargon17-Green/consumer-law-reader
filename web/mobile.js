@@ -84,7 +84,7 @@ document.addEventListener('click',e=>{
   highlightPointer=null;
   // Do not clear highlights, activate links, or interpret a drag as a tap.
   if(withinDocument&&dragged){e.preventDefault();e.stopImmediatePropagation();return;}
-  if(withinDocument&&startedHere&&!window.getSelection()?.toString()){
+  if(withinDocument&&startedHere){
     clearTargetHighlight(false);
     lastActivatedLink=null;
   }
