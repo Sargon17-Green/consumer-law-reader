@@ -178,8 +178,7 @@ with sync_playwright() as pw:
             assert inner.evaluate('(e) => getComputedStyle(e).display')=='none', note_id
         # The exact editor text may be visible in a note, but must never
         # be indexed as legal prose by the statutory search.
-        assert all('מיום ז׳ בתשרי התשפ״ה' not in rec.text
-                   for rec in page.evaluate('window.lawMobile.buildSearch().map(r => ({text:r.text}))'))
+        assert page.evaluate("() => window.lawMobile.buildSearch().every(r => !r.text.includes('מיום ז׳ בתשרי התשפ״ה'))")
         page.evaluate('window.lawMobile.showSearch()')
         assert page.locator('#mobile-search').count()==1
         assert page.locator('text=חיפוש במקורות מוקלדים').count()==0
