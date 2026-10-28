@@ -41,6 +41,84 @@ with sync_playwright() as pw:
         assert data['date']=='נוסח נבדק: 28.10.2026'
         assert not data['status']
         assert data['count']>500
+        # A navigation highlight lasts until a *completed click* inside the
+        # document. Pointerdown, text selection, dragging, and touch scroll
+        # are not sufficient to clear it.
+        highlight=page.evaluate("""() => {
+            const article=document.querySelector('#frame table.article[id]');
+            const frame=document.querySelector('#frame');
+            const link=document.createElement('a');
+            link.textContent='QA internal navigation';
+            link.href='#'+article.id;
+            frame.append(link);
+            const check=(condition,label)=>{if(!condition)throw Error('highlight QA: '+label);};
+            const pointer=(kind,el,x,y,id=91)=>el.dispatchEvent(new PointerEvent(kind,{
+              bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',
+              isPrimary:true,clientX:x,clientY:y
+            }));
+            const click=(el,detail=1)=>el.dispatchEvent(new MouseEvent('click',{
+              bubbles:true,cancelable:true,detail
+            }));
+            const highlighted=()=>article.classList.contains('m-target');
+            window.lawMobile.goTo(article,false,true);
+            check(highlighted(),'navigation start');
+            // A plain press may precede either a click or a scroll.
+            pointer('pointerdown',frame,20,20);
+            check(highlighted(),'pointerdown did not clear');
+            pointer('pointermove',frame,20,72);
+            pointer('pointerup',frame,20,72);
+            click(frame);
+            check(highlighted(),'dragged pointer left highlight intact');
+            // Touch scrolling may cancel the pointer sequence.
+            pointer('pointerdown',frame,20,20);
+            pointer('pointercancel',frame,20,45);
+            click(frame);
+            check(highlighted(),'touch cancel left highlight intact');
+            // Clicking other controls, outside the document, must not clear it.
+            pointer('pointerdown',document.body,20,20);
+            click(document.body);
+            check(highlighted(),'outside click left highlight intact');
+            // A true tap elsewhere in the document clears it.
+            pointer('pointerdown',frame,20,20);
+            pointer('pointerup',frame,21,21);
+            click(frame);
+            check(!highlighted(),'real document tap cleared target');
+            // Activating a document link creates a fresh target/link highlight.
+            pointer('pointerdown',link,20,20);
+            pointer('pointerup',link,20,20);
+            click(link);
+            check(highlighted(),'link navigated to new target');
+            check(link.classList.contains('m-link-pressed'),'link received pressed highlight');
+            pointer('pointerdown',link,20,20);
+            pointer('pointermove',link,50,75);
+            pointer('pointerup',link,50,75);
+            click(link);
+            check(highlighted()&&link.classList.contains('m-link-pressed'),
+                  'drag on link did not clear or reactivate');
+            // A real click on another place clears both types of highlight.
+            pointer('pointerdown',frame,20,20);
+            pointer('pointerup',frame,20,20);
+            click(frame);
+            check(!highlighted()&&!link.classList.contains('m-link-pressed'),
+                  'document click cleared target and source link');
+            // A fresh click still clears highlights even if previously selected
+            // text has not yet been collapsed by the browser.
+            window.lawMobile.goTo(article,false,true);
+            const selection=window.getSelection(),range=document.createRange();
+            range.selectNodeContents(link);selection.removeAllRanges();selection.addRange(range);
+            pointer('pointerdown',frame,20,20);
+            pointer('pointerup',frame,20,20);
+            click(frame);
+            check(!highlighted(),'real click clears despite stale text selection');
+            selection.removeAllRanges();
+            // Keyboard-initiated click is also an intentional activation.
+            window.lawMobile.goTo(article,false,true);
+            click(frame,0);
+            check(!highlighted(),'keyboard click cleared target');
+            link.remove();
+            return {drag:true,cancel:true,documentClick:true,link:true,keyboard:true};
+        }""")
+        assert all(highlight.values()),highlight
         page.evaluate('window.lawMobile.showSearch()')
         assert page.locator('#mobile-search').count()==1
         assert page.locator('text=חיפוש במקורות מוקלדים').count()==0
