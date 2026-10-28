@@ -101,6 +101,16 @@ with sync_playwright() as pw:
             click(frame);
             check(!highlighted()&&!link.classList.contains('m-link-pressed'),
                   'document click cleared target and source link');
+            // A fresh click still clears highlights even if previously selected
+            // text has not yet been collapsed by the browser.
+            window.lawMobile.goTo(article,false,true);
+            const selection=window.getSelection(),range=document.createRange();
+            range.selectNodeContents(link);selection.removeAllRanges();selection.addRange(range);
+            pointer('pointerdown',frame,20,20);
+            pointer('pointerup',frame,20,20);
+            click(frame);
+            check(!highlighted(),'real click clears despite stale text selection');
+            selection.removeAllRanges();
             // Keyboard-initiated click is also an intentional activation.
             window.lawMobile.goTo(article,false,true);
             click(frame,0);
