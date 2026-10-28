@@ -1,12 +1,13 @@
-name: Source and web integrity
+name: Source, web and Android debug integrity
 on:
   push:
   pull_request:
 permissions:
   contents: read
 jobs:
-  web-and-typed-sources:
+  source-and-browser:
     runs-on: ubuntu-latest
+    timeout-minutes: 16
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -15,22 +16,46 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Python unit suite
-        run: python -m unittest discover -s tests -p 'test_typed_sources.py'
-      - name: Rebuild website from its bundled source
-        run: python scripts/build_web.py
-      - name: JavaScript syntax
+      - name: Install test dependencies
+        run: |
+          python -m pip install -r requirements-qa.txt
+          python -m pip install playwright==1.57.0
+          python -m playwright install chromium
+      - name: Build and verify source without signed APK
+        run: |
+          python -m unittest discover -s tests -p 'test_typed_sources.py' -v
+          python scripts/build_web.py
+          python scripts/verify_release.py
+      - name: Check browser scripts
         run: |
           node --check web/mobile.js
           node --check web/mobile-sources.js
           node --check web/mobile-topics.js
-      - name: Verify protected source content
+      - name: Test search and editorial UI at mobile widths
+        run: python tests/technical_smoke_134.py
+  android-debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Python QA dependencies
+        run: python -m pip install -r requirements-qa.txt
+      - name: Acquire Android build tools
+        run: python scripts/fetch_tools.py
+      - name: Build and test a temporary non-upgradeable Android debug APK
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import hashlib,json
-          e=json.loads(Path('evidence/content-manifest.json').read_text())
-          data=Path('original/Consumer_Protection_Law.html').read_bytes()
-          assert hashlib.sha256(data).hexdigest()==e['original_html_sha256']
-          print('Law source SHA256 preserved:',e['original_html_sha256'])
-          PY
+          python scripts/build_android.py --debug
+          python scripts/verify_release.py --apk "debug-build/Consumer_Law_Reader_1.3.4-dev_DEBUG_NOT_FOR_UPGRADE.apk"
+      - name: Verify debug certificate is not the release identity
+        run: |
+          if grep -q '2625ebe860cb0bfac105196b24aeedf3a948ce18c6f836478fd8ea38d0b937dc' evidence/apk-verification.txt; then
+            echo 'ERROR: debug build accidentally uses release signer'; exit 1
+          fi
+          echo 'Temporary debug certificate confirmed distinct.'
