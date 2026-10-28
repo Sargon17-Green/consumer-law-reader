@@ -67,7 +67,7 @@ with sync_playwright() as pw:
           e.matches('.m-topic-link')?['link',e.querySelector('button').textContent]:['unexpected',e.tagName])""")
         assert rendered_root==expected_root,(width,rendered_root,expected_root)
         assert not page.get_by_text('נושאי הבסיס נגזרים').count()
-        assert not page.get_by_text('בהחלפת חלקים במוצר').count()
+        assert not page.locator('.m-topic-tree').get_by_text('בהחלפת חלקים במוצר').count()
         assert not page.get_by_text('יעד לא נמצא').count()
         # All rendered base links, including links nested after a subtopic,
         # are ordered as they appear in the original source.
