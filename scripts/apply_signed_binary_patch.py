@@ -7,8 +7,8 @@ It contains NO private signing key or signing password. All digests are hard-pin
 import argparse, base64, hashlib, struct, zlib
 from pathlib import Path
 
-UNSIGNED_SHA="a2fc048c0898ec34a407df9db56af2fe3f0c87474beeab9b49a37a58d5e71a37"
-SIGNED_SHA="099bca2c4f3f1e1c226529c516b810082e16130ca6407b765ca976a4221b3552"
+UNSIGNED_SHA="867b3b608b0841134ed319d7e2f6ad98c31837c30d2947f5d6d2ae72b43bfd8e"
+SIGNED_SHA="2772e3d8195de2d9a66edc8cdbc9e0940ac71f8cb55f1597dcc7c122120101af"
 MAX_APK=8*1024*1024
 def digest(data):return hashlib.sha256(data).hexdigest()
 def apply(unsigned, delta):
