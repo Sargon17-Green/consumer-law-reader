@@ -17,10 +17,13 @@ jobs:
       - name: Update existing beta release description, preserving APK and tag
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v1.3.3-beta
+          RELEASE_TAG: v1.3.4-beta
         run: |
           set -euo pipefail
-          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json tagName >/dev/null
+          if ! gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json tagName >/dev/null 2>&1; then
+            echo "Release not yet created; no prior tag is modified."
+            exit 0
+          fi
           gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --notes-file BETA_RELEASE_NOTES_HE.md
           python - <<'PY'
           import json, os, pathlib, subprocess
