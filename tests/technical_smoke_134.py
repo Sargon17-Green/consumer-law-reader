@@ -17,7 +17,7 @@ with sync_playwright() as pw:
     if shutil.which('chromium'): kwargs['executable_path']=shutil.which('chromium')
     browser=pw.chromium.launch(**kwargs)
     for width in (320,375,430,1280):
-        page=browser.new_page(viewport={'width':width,'height':850})
+        page=browser.new_page(viewport={'width':width,'height':850},has_touch=width<500)
         errors=[]
         page.on('pageerror',lambda e:errors.append(str(e)))
         page.set_content(str(doc),timeout=120000)
@@ -124,6 +124,36 @@ with sync_playwright() as pw:
             return {drag:true,cancel:true,documentClick:true,link:true,keyboard:true};
         }""")
         assert all(highlight.values()),highlight
+        # Real Chromium pointer input, rather than only synthetic JS events:
+        # mouse-select the text and release after a drag, then click deliberately.
+        page.evaluate("""() => {
+            const probe=document.createElement('p');
+            probe.id='qa-real-pointer-gesture';
+            probe.textContent='Real browser text selection and drag gesture. '.repeat(12);
+            probe.style.cssText='direction:ltr;text-align:left;user-select:text;font:16px/1.6 sans-serif;padding:10px;background:white;';
+            document.querySelector('#frame').prepend(probe);
+            const article=document.querySelector('#frame table.article[id]');
+            window.lawMobile.goTo(article,false,true);
+            probe.scrollIntoView({block:'center'});
+        }""")
+        rect=page.locator('#qa-real-pointer-gesture').bounding_box()
+        assert rect is not None and rect['width']>110,(width,rect)
+        x1,y=rect['x']+24,rect['y']+22
+        x2=rect['x']+min(rect['width']-22,170)
+        page.mouse.move(x1,y)
+        page.mouse.down()
+        page.mouse.move(x2,y,steps=7)
+        page.mouse.up()
+        assert page.evaluate("document.querySelector('#frame table.article[id]').classList.contains('m-target')"), ('real drag cleared highlight',width)
+        assert page.evaluate('window.getSelection().toString().length>0'), ('text drag did not select text',width)
+        page.mouse.click(x1,y)
+        assert not page.evaluate("document.querySelector('#frame table.article[id]').classList.contains('m-target')"), ('real mouse click failed to clear',width)
+        if width<500:
+            page.evaluate("() => window.lawMobile.goTo(document.querySelector('#frame table.article[id]'),false,true)")
+            page.locator('#qa-real-pointer-gesture').scroll_into_view_if_needed()
+            rect=page.locator('#qa-real-pointer-gesture').bounding_box()
+            page.touchscreen.tap(rect['x']+24,rect['y']+22)
+            assert not page.evaluate("document.querySelector('#frame table.article[id]').classList.contains('m-target')"), ('real touchscreen tap failed to clear',width)
         # Both newly added editor notes must open and close, including when the
         # reader taps the body of an already open note. The latter previously
         # bubbled to the outer UL and toggled twice, leaving the note open.
