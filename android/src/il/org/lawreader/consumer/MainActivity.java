@@ -56,6 +56,9 @@ public final class MainActivity extends Activity {
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(false);
         settings.setAllowContentAccess(false);
+        settings.setJavaScriptCanOpenWindowsAutomatically(false);
+        settings.setAllowUniversalAccessFromFileURLs(false);
+        settings.setAllowFileAccessFromFileURLs(false);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         settings.setSupportZoom(true);
         settings.setBuiltInZoomControls(true);
@@ -69,14 +72,14 @@ public final class MainActivity extends Activity {
         web.setWebChromeClient(new WebChromeClient());
         web.setWebViewClient(new WebViewClient() {
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return handleNavigation(request.getUrl());
+                return request.isForMainFrame() ? handleNavigation(request.getUrl()) : !isLocalDocument(request.getUrl());
             }
             @Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return handleNavigation(Uri.parse(url));
             }
             @Override public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
-                if (!HOST.equals(uri.getHost())) return null;
+                if (!"https".equals(uri.getScheme()) || !HOST.equals(uri.getHost()) || uri.getPort() != -1) return missing();
                 String path = uri.getPath();
                 if (path == null || path.equals("/")) path = "/index.html";
                 if (path.contains("..") || path.contains("\\") || !"GET".equals(request.getMethod())) return missing();
@@ -85,6 +88,13 @@ public final class MainActivity extends Activity {
                     Map<String,String> headers = new HashMap<>();
                     headers.put("X-Content-Type-Options","nosniff");
                     headers.put("Cache-Control","no-cache");
+                    if ("/index.html".equals(path)) {
+                        headers.put("Content-Security-Policy",
+                            "default-src 'self'; script-src 'self' 'unsafe-inline'; " +
+                            "style-src 'self' 'unsafe-inline'; img-src 'self' data:; " +
+                            "font-src 'self' data:; connect-src 'none'; frame-src 'none'; " +
+                            "object-src 'none'; base-uri 'none'; form-action 'none'");
+                    }
                     return new WebResourceResponse(mime,"UTF-8",200,"OK",headers,getAssets().open("www"+path));
                 } catch (IOException ex) { return missing(); }
             }
@@ -107,8 +117,11 @@ public final class MainActivity extends Activity {
         String result = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         return result == null ? "application/octet-stream" : result;
     }
+    private static boolean isLocalDocument(Uri uri) {
+        return "https".equals(uri.getScheme()) && HOST.equals(uri.getHost()) && uri.getPort() == -1;
+    }
     private boolean handleNavigation(Uri uri) {
-        if ("https".equals(uri.getScheme()) && HOST.equals(uri.getHost())) {
+        if (isLocalDocument(uri)) {
             if (uri.getPath()!=null && uri.getPath().endsWith(".doc")) {
                 openAttachment(uri.getLastPathSegment());
                 return true;
