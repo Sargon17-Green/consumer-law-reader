@@ -1,11 +1,11 @@
-# פרסום חוק הגנת הצרכן, התשמ"א–1981 — Android בטא 1.3.3
+# פרסום חוק הגנת הצרכן, התשמ"א–1981 — Android בטא 1.3.4
 
 **מצב הפרסום: פורסם ב־GitHub ב־28.10.2026, כמאגר ציבורי.**
 
 - מאגר הפרויקט: https://github.com/Sargon17-Green/consumer-law-reader
-- גרסת הבטא: https://github.com/Sargon17-Green/consumer-law-reader/releases/tag/v1.3.3-beta
-- קובץ ההתקנה לטלפון: https://github.com/Sargon17-Green/consumer-law-reader/releases/download/v1.3.3-beta/Consumer_Law_Reader_1.3.3_Beta_Android.apk
-- טביעת SHA-256 של ה־APK המאומת: `733cd4cd089fbdc328ee2648dbf1eaf51eda82aac65efab658f39429a0b32f54`
+- גרסת הבטא: https://github.com/Sargon17-Green/consumer-law-reader/releases/tag/v1.3.4-beta
+- קובץ ההתקנה לטלפון: https://github.com/Sargon17-Green/consumer-law-reader/releases/download/v1.3.4-beta/Consumer_Law_Reader_1.3.4_Beta_Android.apk
+- טביעת SHA-256 של ה־APK המאומת: `099bca2c4f3f1e1c226529c516b810082e16130ca6407b765ca976a4221b3552`
 
 ## מבנה והפצה
 **היישום המופץ מיועד ל־Android.** קוד היישום נמצא בתיקיות `android/` ו־`web/`; קובץ המקור `original/Consumer_Protection_Law.html` ומשאביו נכללים במאגר וניתנים לפתיחה בדפדפן במחשב. קובץ HTML זה אינו התקנת Android ואינו מצריך הפצת תוכנת Desktop נפרדת.
@@ -15,7 +15,7 @@
 ## בטיחות ומגבלות
 - אין להעלות קובצי חתימה, סיסמאות או מפתחות; אין ליצור היסטוריית Git שלהם.
 - בעל הפרויקט והעורך: **סרגון 17 גרין, כאדם פרטי**. זה אינו פרסום ממשלתי.
-- תאריך בדיקת נוסח החוק האחרון לפי הצהרת העורך: **27.10.2026**. תאריך ההפצה אינו מועד בדיקה חדש.
+- תאריך בדיקת נוסח החוק האחרון לפי הצהרת העורך: **28.10.2026**. תאריך ההפצה אינו מועד בדיקה חדש.
 - בדיקת ביטול אכרזות הפיקוח והצווים הישנים טרם הושלמה **מבחינה עובדתית**; אין כאן קביעה על ספק במעמדם המשפטי.
 - התקנה במכשיר Android פיזי, מצב שרשרת מפתח החתימה ההיסטורי וזכויות קבצים של צדדים שלישיים מחייבים עדיין בדיקה מתאימה; אין לראות בפרסום עצמו ראיה להשלמת בדיקות אלו.
 

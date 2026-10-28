@@ -52,10 +52,20 @@ jobs:
       - name: Build and test a temporary non-upgradeable Android debug APK
         run: |
           python scripts/build_android.py --debug
-          python scripts/verify_release.py --apk "debug-build/Consumer_Law_Reader_1.3.4-dev_DEBUG_NOT_FOR_UPGRADE.apk"
+          python scripts/verify_release.py --apk "debug-build/Consumer_Law_Reader_$(cat VERSION)_DEBUG_NOT_FOR_UPGRADE.apk"
       - name: Verify debug certificate is not the release identity
         run: |
           if grep -q '2625ebe860cb0bfac105196b24aeedf3a948ce18c6f836478fd8ea38d0b937dc' evidence/apk-verification.txt; then
             echo 'ERROR: debug build accidentally uses release signer'; exit 1
           fi
           echo 'Temporary debug certificate confirmed distinct.'
+      - name: Retain locally signable unsigned APK and verification tools
+        if: github.ref == 'refs/heads/release/android-1.3.4'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-android-1.3.4-and-apksigner
+          path: |
+            build/aligned.apk
+            .toolchain/build-tools-36.0.0/android-16/lib/apksigner.jar
+          if-no-files-found: error
+          retention-days: 2

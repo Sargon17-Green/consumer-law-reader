@@ -1,0 +1,67 @@
+name: Publish locally signed Android beta 1.3.4
+on:
+  workflow_run:
+    workflows: ["Source, web and Android debug integrity"]
+    branches: [main]
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - name: Checkout exactly the tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Check expected version and release source
+        run: |
+          set -euo pipefail
+          test "$(cat VERSION)" = "1.3.4" || { echo "Other version; release skipped"; exit 0; }
+          grep -q 'android:versionCode="12" android:versionName="1.3.4"' android/AndroidManifest.xml
+          test "$(sha256sum original/Consumer_Protection_Law.html | cut -d' ' -f1)" = "e046bc015b1e1a7c0fe471f821cdbc53ca0b120f343929418ac393d004a424d4"
+      - name: Download exact unsigned artifact from successful branch CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UNSIGNED_RUN: "40643846969"
+        run: |
+          set -euo pipefail
+          gh run download "$UNSIGNED_RUN" --repo "$GITHUB_REPOSITORY" --name unsigned-android-1.3.4-and-apksigner --dir "$RUNNER_TEMP/unsigned"
+          test "$(sha256sum "$RUNNER_TEMP/unsigned/build/aligned.apk" | cut -d' ' -f1)" = "a2fc048c0898ec34a407df9db56af2fe3f0c87474beeab9b49a37a58d5e71a37"
+      - name: Restore exact pre-signed APK from public cryptographic delta
+        env:
+          OUTPUT_APK: Consumer_Law_Reader_1.3.4_Beta_Android.apk
+        run: |
+          set -euo pipefail
+          python scripts/apply_signed_binary_patch.py "$RUNNER_TEMP/unsigned/build/aligned.apk" releases/android-1.3.4-public-signature-delta.b64 "$OUTPUT_APK"
+          java -jar "$RUNNER_TEMP/unsigned/.toolchain/build-tools-36.0.0/android-16/lib/apksigner.jar" verify --verbose --print-certs "$OUTPUT_APK" | tee "$RUNNER_TEMP/signature-verification.log"
+          grep -q 'Verifies' "$RUNNER_TEMP/signature-verification.log"
+          grep -q 'Verified using v2 scheme (APK Signature Scheme v2): true' "$RUNNER_TEMP/signature-verification.log"
+          grep -q 'Signer #1 certificate SHA-256 digest: 2625ebe860cb0bfac105196b24aeedf3a948ce18c6f836478fd8ea38d0b937dc' "$RUNNER_TEMP/signature-verification.log"
+          echo '099bca2c4f3f1e1c226529c516b810082e16130ca6407b765ca976a4221b3552  Consumer_Law_Reader_1.3.4_Beta_Android.apk' > SHA256SUMS.txt
+          sha256sum --check SHA256SUMS.txt
+      - name: Publish beta release, never replacing an existing mismatching asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v1.3.4-beta
+          APK: Consumer_Law_Reader_1.3.4_Beta_Android.apk
+          EXPECTED_SHA: 099bca2c4f3f1e1c226529c516b810082e16130ca6407b765ca976a4221b3552
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            mkdir -p "$RUNNER_TEMP/readback"
+            gh release download "$TAG" --repo "$GITHUB_REPOSITORY" -p "$APK" --dir "$RUNNER_TEMP/readback"
+            test "$(sha256sum "$RUNNER_TEMP/readback/$APK" | cut -d' ' -f1)" = "$EXPECTED_SHA"
+            echo 'Existing beta asset verified; no overwrite.'
+          else
+            gh release create "$TAG" "$APK" SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --target "${{ github.event.workflow_run.head_sha }}" --title 'Android beta 1.3.4' --notes-file BETA_RELEASE_NOTES_HE.md --prerelease
+            mkdir -p "$RUNNER_TEMP/readback"
+            gh release download "$TAG" --repo "$GITHUB_REPOSITORY" -p "$APK" --dir "$RUNNER_TEMP/readback"
+            test "$(sha256sum "$RUNNER_TEMP/readback/$APK" | cut -d' ' -f1)" = "$EXPECTED_SHA"
+            echo 'Newly published beta asset downloaded and verified.'
+          fi
