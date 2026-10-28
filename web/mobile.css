@@ -343,3 +343,6 @@ html.m-justify #frame #law_name td.title {
 .m-brand{flex:1 1 auto;min-width:0;overflow-wrap:normal;word-break:normal}
 .m-status{flex:0 0 auto}
 @media(max-width:600px){body{padding-top:96px!important}html{scroll-padding-top:105px}}
+/* Hide the duplicate in-document table of contents in the mobile shell only.
+   Preserve its DOM for the fixed bottom 'תוכן עניינים' button. */
+#frame #index{display:none!important}
