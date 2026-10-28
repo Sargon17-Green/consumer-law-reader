@@ -1,0 +1,38 @@
+name: QA locally signed Android beta 1.3.5
+on:
+  push:
+    branches: [fix/topic-navigation-order-qa-20261028]
+    paths: [.github/workflows/check_signed_beta_135.yml]
+permissions:
+  actions: read
+  contents: read
+jobs:
+  verify-public-signature-delta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Download original tested unsigned APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 40700754654 --repo "$GITHUB_REPOSITORY" --name android-1.3.5-unsigned --dir "$RUNNER_TEMP/unsigned"
+          test "$(sha256sum "$RUNNER_TEMP/unsigned/aligned.apk" | cut -d' ' -f1)" = "867b3b608b0841134ed319d7e2f6ad98c31837c30d2947f5d6d2ae72b43bfd8e"
+      - name: Reconstruct exact signed APK
+        run: |
+          python scripts/apply_signed_binary_patch.py "$RUNNER_TEMP/unsigned/aligned.apk" releases/android-1.3.5-public-signature-delta.b64 "$RUNNER_TEMP/reconstructed.apk"
+          test "$(sha256sum "$RUNNER_TEMP/reconstructed.apk" | cut -d' ' -f1)" = "2772e3d8195de2d9a66edc8cdbc9e0940ac71f8cb55f1597dcc7c122120101af"
+      - name: Fetch official Android verifier
+        run: python scripts/fetch_tools.py
+      - name: Verify original certificate and APK v2 scheme
+        run: |
+          java -jar .toolchain/build-tools-36.0.0/android-16/lib/apksigner.jar verify --verbose --print-certs "$RUNNER_TEMP/reconstructed.apk" > "$RUNNER_TEMP/verify.txt"
+          grep -q 'Verified using v2 scheme (APK Signature Scheme v2): true' "$RUNNER_TEMP/verify.txt"
+          grep -q 'Signer #1 certificate SHA-256 digest: 2625ebe860cb0bfac105196b24aeedf3a948ce18c6f836478fd8ea38d0b937dc' "$RUNNER_TEMP/verify.txt"
