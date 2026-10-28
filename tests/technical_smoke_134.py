@@ -5,6 +5,9 @@ from playwright.sync_api import sync_playwright
 import shutil
 ROOT=Path(__file__).resolve().parents[1]
 doc=BeautifulSoup((ROOT/'dist/index.html').read_text(encoding='utf-8'),'lxml')
+notes_script=doc.select_one('script#notes_script')
+assert notes_script is not None and 'function note_reveal' in notes_script.get_text()
+notes_js=notes_script.get_text()
 for script in doc.find_all('script'):
     if script.get('id')!='law-editorial-status':script.decompose()
 for link in doc.find_all('link',rel='stylesheet'):link.decompose()
@@ -24,6 +27,8 @@ with sync_playwright() as pw:
             getItem:k=>memory[k]??null,setItem:(k,v)=>memory[k]=String(v),removeItem:k=>delete memory[k]}})
         }""")
         page.add_style_tag(content=(ROOT/'web/mobile.css').read_text())
+        # Execute the original legal document's note handler, not a test-only mock.
+        page.add_script_tag(content=notes_js)
         for name in ('mobile-sources.js','mobile-topics.js','mobile.js'):
             page.add_script_tag(content=(ROOT/'web'/name).read_text())
         page.wait_for_function('window.lawMobile',timeout=80000)
@@ -119,6 +124,32 @@ with sync_playwright() as pw:
             return {drag:true,cancel:true,documentClick:true,link:true,keyboard:true};
         }""")
         assert all(highlight.values()),highlight
+        # Both newly added editor notes must open and close, including when the
+        # reader taps the body of an already open note. The latter previously
+        # bubbled to the outer UL and toggled twice, leaving the note open.
+        for section_id, note_id in (
+            ('article_16c_subsection_c', 'article_16c_subsection_c_checks_unavailable_note'),
+            ('A_database_for_limiting_marketing_inquiries_article_3_subsection_a',
+             'marketing_registry_reg_3a_checks_unavailable_note'),
+        ):
+            page.evaluate('(id) => window.lawMobile.goTo(id, false, false)', section_id)
+            wrapper=page.locator('#'+note_id)
+            inner=wrapper.locator(':scope > .note_div')
+            assert wrapper.count()==1 and inner.count()==1, note_id
+            assert inner.evaluate('(e) => getComputedStyle(e).display')=='none', note_id
+            wrapper.evaluate("(e) => e.dispatchEvent(new MouseEvent('click',{bubbles:true}))")
+            assert inner.evaluate('(e) => getComputedStyle(e).display')=='block', note_id
+            # Use a real Chromium click to check the bubbling regression.
+            inner.click(timeout=15000)
+            assert inner.evaluate('(e) => getComputedStyle(e).display')=='none', note_id
+            wrapper.evaluate("(e) => e.dispatchEvent(new MouseEvent('click',{bubbles:true}))")
+            assert inner.evaluate('(e) => getComputedStyle(e).display')=='block', note_id
+            wrapper.evaluate("(e) => e.dispatchEvent(new MouseEvent('click',{bubbles:true}))")
+            assert inner.evaluate('(e) => getComputedStyle(e).display')=='none', note_id
+        # The exact editor text may be visible in a note, but must never
+        # be indexed as legal prose by the statutory search.
+        assert all('מיום ז׳ בתשרי התשפ״ה' not in rec.text
+                   for rec in page.evaluate('window.lawMobile.buildSearch().map(r => ({text:r.text}))'))
         page.evaluate('window.lawMobile.showSearch()')
         assert page.locator('#mobile-search').count()==1
         assert page.locator('text=חיפוש במקורות מוקלדים').count()==0
