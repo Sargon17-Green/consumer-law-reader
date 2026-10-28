@@ -33,6 +33,8 @@ jobs:
           node --check web/mobile-topics.js
       - name: Test search and editorial UI at mobile widths
         run: python tests/technical_smoke_134.py
+      - name: QA topic navigation against the original document
+        run: python tests/topic_navigation_qa.py
   android-debug:
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -53,6 +55,14 @@ jobs:
         run: |
           python scripts/build_android.py --debug
           python scripts/verify_release.py --apk "debug-build/Consumer_Law_Reader_$(cat VERSION)_DEBUG_NOT_FOR_UPGRADE.apk"
+      - name: Upload exact unsigned APK for local release signing
+        if: github.ref == 'refs/heads/fix/topic-navigation-order-qa-20261028'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-1.3.5-unsigned
+          path: build/aligned.apk
+          if-no-files-found: error
+          retention-days: 2
       - name: Verify debug certificate is not the release identity
         run: |
           if grep -q '2625ebe860cb0bfac105196b24aeedf3a948ce18c6f836478fd8ea38d0b937dc' evidence/apk-verification.txt; then
