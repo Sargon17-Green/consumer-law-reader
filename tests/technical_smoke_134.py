@@ -50,6 +50,7 @@ with sync_playwright() as pw:
         assert page.locator('#index').count()==1
         assert page.evaluate("""() => getComputedStyle(document.querySelector('#frame #index')).display""")=='none'
         assert page.locator('[data-mobile="toc"]').count()==1
+        page.locator('#mobile-sheet-close').click()
         page.locator('[data-mobile="toc"]').click()
         assert page.locator('.m-toc-link').count()>50
         assert not errors,errors
