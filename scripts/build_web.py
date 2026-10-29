@@ -19,6 +19,10 @@ def disable_legacy(m):
     return m.group(0)
 original=re.sub(r'<script\b([^>]*)>(.*?)</script>',disable_legacy,original,flags=re.S)
 head='''<meta name="theme-color" content="#142f41"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="חוק הגנת הצרכן, התשמ&quot;א–1981"><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-192.png"><link rel="stylesheet" href="./mobile.css">'''
+# Safari needs a mobile viewport for correct iPhone sizing.  Never modify
+# the authoritative legal-source document; inject only when the source lacks it.
+if not re.search(r'<meta\\s+[^>]*name\\s*=\\s*["\\\']viewport["\\\']', original, flags=re.I):
+    head='<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'+head
 shell=(ROOT/'web/mobile-shell.html').read_text()
 editorial=json.loads((ROOT/'metadata/editorial_status.json').read_text(encoding='utf-8'))
 assert editorial['law_text_last_verified_on'] and editorial['editor_publisher']=='סרגון 17 גרין'
