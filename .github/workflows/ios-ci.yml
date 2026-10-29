@@ -52,6 +52,7 @@ jobs:
       - name: Check Swift syntax and compile iOS simulator app
         run: |
           set -o pipefail
+          mkdir -p build
           xcrun swiftc -frontend -parse ios/ConsumerLawReader/ConsumerLawReaderApp.swift
           xcodebuild \
             -project ios/ConsumerLawReader.xcodeproj \
