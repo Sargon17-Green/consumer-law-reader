@@ -23,8 +23,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.sargon17green.consumerlawreader
         PRODUCT_NAME: ConsumerLawReader
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: "חוק הגנת הצרכן"
-        INFOPLIST_KEY_CFBundleName: "חוק הגנת הצרכן"
+        INFOPLIST_KEY_CFBundleDisplayName: 'חוק הגנת הצרכן, התשמ"א–1981'
+        INFOPLIST_KEY_CFBundleName: 'חוק הגנת הצרכן, התשמ"א–1981'
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIUserInterfaceStyle: Light
