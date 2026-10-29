@@ -73,6 +73,29 @@ jobs:
           test -s "$APP/dist/typed-index.js"
           test -s "$APP/dist/PEGI_18_plus.png"
           echo "Built iOS simulator .app includes the original legal text and offline assets."
+      - name: Launch the compiled native app in an iPhone simulator
+        run: |
+          set -euo pipefail
+          APP="build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app"
+          DEVICE="$(xcrun simctl list devices available -j | python3 -c '
+          import json,sys
+          devices=json.load(sys.stdin)["devices"]
+          print(next((device["udid"] for entries in devices.values() for device in entries
+                      if device["name"].startswith("iPhone") and device["state"]=="Shutdown"), ""))
+          ')"
+          if [[ -z "$DEVICE" ]]; then
+            echo "No available shutdown iPhone simulator on GitHub runner." >&2
+            exit 1
+          fi
+          xcrun simctl boot "$DEVICE"
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl install "$DEVICE" "$APP"
+          xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
+          sleep 8
+          xcrun simctl io "$DEVICE" screenshot build/ios-simulator-launch.png
+          test -s build/ios-simulator-launch.png
+          xcrun simctl shutdown "$DEVICE"
+          echo "Native app launched and screenshot captured in iPhone Simulator."
       - name: Save build report and unsigned simulator binary for QA
         if: always()
         uses: actions/upload-artifact@v4
@@ -80,6 +103,7 @@ jobs:
           name: ios-simulator-build-evidence
           path: |
             build/ios-build.log
+            build/ios-simulator-launch.png
             build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
           retention-days: 7
           if-no-files-found: warn
