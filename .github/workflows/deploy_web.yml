@@ -1,0 +1,70 @@
+name: Publish browser app (iPhone / Android / desktop)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy_web.yml'
+      - 'original/**'
+      - 'web/**'
+      - 'scripts/build_web.py'
+      - 'scripts/prepare_typed_sources.py'
+      - 'scripts/canonical_vendor/**'
+      - 'typed-sources/**'
+      - 'metadata/editorial_status.json'
+      - 'VERSION'
+      - 'tests/test_web_pages.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout authoritative source and app
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install verifier dependencies
+        run: python -m pip install -r requirements-qa.txt
+      - name: Build browser/PWA distribution (no modification to source HTML)
+        run: python scripts/build_web.py
+      - name: Verify original legal document and generated files
+        run: |
+          python scripts/verify_release.py
+          python -m unittest discover -s tests -p 'test_web_pages.py' -v
+      - name: Prepare static site
+        run: |
+          test -s dist/index.html
+          test -s dist/sw.js
+          test -s dist/manifest.webmanifest
+          touch dist/.nojekyll
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
