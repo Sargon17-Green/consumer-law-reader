@@ -14,12 +14,12 @@ struct ConsumerLawReaderApp: App {
     }
 }
 
-private struct SharePayload: Identifiable {
+struct SharePayload: Identifiable {
     let id = UUID()
     let items: [Any]
 }
 
-private struct ReaderNotice: Identifiable {
+struct ReaderNotice: Identifiable {
     let id = UUID()
     let message: String
 }
@@ -125,7 +125,10 @@ private final class WeakLawBridge: NSObject, WKScriptMessageHandler {
 
     func userContentController(_ userContentController: WKUserContentController,
                                didReceive message: WKScriptMessage) {
-        reader?.receiveJSMessage(message.body)
+        let payload = message.body
+        Task { @MainActor [weak reader] in
+            reader?.receiveJSMessage(payload)
+        }
     }
 }
 
