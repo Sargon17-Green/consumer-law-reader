@@ -31,9 +31,9 @@ struct ReaderScreen: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 14) {
-                Text("חוק הגנת הצרכן")
-                    .font(.headline)
-                    .lineLimit(1)
+                Text("חוק הגנת הצרכן, התשמ״א–1981")
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(2)
                     .minimumScaleFactor(0.8)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
