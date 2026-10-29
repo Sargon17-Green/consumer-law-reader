@@ -1,0 +1,84 @@
+name: Build native iOS app (unsigned simulator)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ios-ci.yml'
+      - 'ios/**'
+      - 'original/**'
+      - 'web/**'
+      - 'scripts/**'
+      - 'typed-sources/**'
+      - 'metadata/**'
+      - 'VERSION'
+      - 'requirements-qa.txt'
+      - 'tests/test_ios_source.py'
+  pull_request:
+    paths:
+      - '.github/workflows/ios-ci.yml'
+      - 'ios/**'
+      - 'web/**'
+      - 'scripts/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ios-simulator:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install verification dependencies
+        run: python3 -m pip install -r requirements-qa.txt
+      - name: Build and verify bundled legal text
+        run: |
+          python3 scripts/build_web.py
+          python3 scripts/verify_release.py
+          python3 -m unittest discover -s tests -p 'test_web_pages.py' -v
+          python3 -m unittest discover -s tests -p 'test_ios_source.py' -v
+      - name: Install project generator
+        run: brew install xcodegen
+      - name: Generate native app and icon
+        run: |
+          bash ios/scripts/prepare_assets.sh
+          xcodegen generate --spec ios/project.yml --project ios
+      - name: Check Swift syntax and compile iOS simulator app
+        run: |
+          set -o pipefail
+          xcrun swiftc -frontend -parse ios/ConsumerLawReader/ConsumerLawReaderApp.swift
+          xcodebuild \
+            -project ios/ConsumerLawReader.xcodeproj \
+            -scheme ConsumerLawReader \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/ios-derived \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee build/ios-build.log
+      - name: Verify actual built .app contains the offline legal document
+        run: |
+          APP="build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app"
+          test -d "$APP"
+          test -s "$APP/dist/index.html"
+          test -s "$APP/dist/mobile.js"
+          test -s "$APP/dist/manifest.webmanifest"
+          test -s "$APP/dist/typed-index.js"
+          test -s "$APP/dist/PEGI_18_plus.png"
+          echo "Built iOS simulator .app includes the original legal text and offline assets."
+      - name: Save build report and unsigned simulator binary for QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-build-evidence
+          path: |
+            build/ios-build.log
+            build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
+          retention-days: 7
+          if-no-files-found: warn
