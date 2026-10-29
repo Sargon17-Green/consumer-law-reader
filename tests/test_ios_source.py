@@ -35,7 +35,7 @@ class IOSNativeSourceQA(unittest.TestCase):
         self.assertNotIn("password =", SOURCE.lower())
         self.assertIn("pendingSettings", SOURCE)
         self.assertIn("confirmImport = true", SOURCE)
-        self.assertIn('key.startsWith("law-")', SOURCE)
+        self.assertIn("key.startsWith('law-')", SOURCE)
 
     def test_dist_resource_folder_is_bundled(self):
         self.assertRegex(SPEC, r"- path: \.\./dist\s+type: folder\s+buildPhase: resources")
