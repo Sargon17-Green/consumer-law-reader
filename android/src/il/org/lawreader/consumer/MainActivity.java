@@ -35,6 +35,23 @@ public final class MainActivity extends Activity {
     private static final String HOME = "https://" + HOST + "/index.html";
     private WebView web;
 
+    /**
+     * Only the three canonical HTTPS snapshot locations may be reached from the
+     * bundled legal document. External scripts, images, frames and arbitrary
+     * fetch destinations remain blocked by the local asset interceptor.
+     */
+    private static boolean isApprovedDateSource(Uri uri) {
+        if (uri == null || !"https".equals(uri.getScheme()) || uri.getPort() != -1) return false;
+        String host = uri.getHost();
+        String path = uri.getPath();
+        return ("raw.githubusercontent.com".equals(host)
+                    && "/Sargon17-Green/pastafari-calendar/main/docs/api/seer-now.json".equals(path))
+            || ("api.github.com".equals(host)
+                    && "/repos/Sargon17-Green/pastafari-calendar/contents/docs/api/seer-now.json".equals(path))
+            || ("sargon17-green.github.io".equals(host)
+                    && "/pastafari-calendar/api/seer-now.json".equals(path));
+    }
+
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final FrameLayout root = new FrameLayout(this);
@@ -79,7 +96,12 @@ public final class MainActivity extends Activity {
             }
             @Override public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
-                if (!"https".equals(uri.getScheme()) || !HOST.equals(uri.getHost()) || uri.getPort() != -1) return missing();
+                if (!isLocalDocument(uri)) {
+                    // A null response allows WebView to perform its normal CORS
+                    // fetch. All non-allowlisted external resources stay denied.
+                    if ("GET".equals(request.getMethod()) && isApprovedDateSource(uri)) return null;
+                    return missing();
+                }
                 String path = uri.getPath();
                 if (path == null || path.equals("/")) path = "/index.html";
                 if (path.contains("..") || path.contains("\\") || !"GET".equals(request.getMethod())) return missing();
@@ -92,7 +114,8 @@ public final class MainActivity extends Activity {
                         headers.put("Content-Security-Policy",
                             "default-src 'self'; script-src 'self' 'unsafe-inline'; " +
                             "style-src 'self' 'unsafe-inline'; img-src 'self' data:; " +
-                            "font-src 'self' data:; connect-src 'none'; frame-src 'none'; " +
+                            "font-src 'self' data:; connect-src https://raw.githubusercontent.com " +
+                            "https://api.github.com https://sargon17-green.github.io; frame-src 'none'; " +
                             "object-src 'none'; base-uri 'none'; form-action 'none'");
                     }
                     return new WebResourceResponse(mime,"UTF-8",200,"OK",headers,getAssets().open("www"+path));
