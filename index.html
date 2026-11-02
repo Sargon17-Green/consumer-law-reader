@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>חוק הגנת הצרכן — גרסת אלפא לקריאה</title>
+<meta name="description" content="גרסת אלפא של חוק הגנת הצרכן לקריאה בדפדפן, ללא התקנה או הורדת קובץ.">
+<style>
+body{font:16px/1.6 Arial,"Noto Sans Hebrew",sans-serif;background:#f2f6fa;color:#24374c;margin:0}
+main{max-width:680px;margin:12vh auto;padding:2rem;background:white;border:1px solid #d7e0eb;border-radius:10px}
+h1{font-size:1.4rem;margin-top:0}
+#load-status{color:#415d7b}
+progress{width:100%;height:12px}
+a{color:#174a85}a:focus-visible{outline:3px solid #925300;outline-offset:3px}
+</style>
+</head>
+<body>
+<main id="loader">
+<h1>חוק הגנת הצרכן, התשמ״א–1981</h1>
+<p id="load-status" role="status" aria-live="polite">טוען את נוסח החוק…</p>
+<progress id="load-progress" max="100" value="0" aria-label="התקדמות טעינת החוק"></progress>
+<p><small>גרסת אלפא לבדיקה; אינה פרסום רשמי של רשות ממשלתית.</small></p>
+<noscript>כדי לפתוח את המסמך נדרש דפדפן עם JavaScript פעיל.</noscript>
+</main>
+<script>
+(async function(){
+  const status=document.getElementById('load-status');
+  const bar=document.getElementById('load-progress');
+  const hex=array=>Array.from(new Uint8Array(array),b=>b.toString(16).padStart(2,'0')).join('');
+  const sha=async bytes=>hex(await crypto.subtle.digest('SHA-256',bytes));
+  const load=async url=>{
+    const response=await fetch(url,{cache:'force-cache'});
+    if(!response.ok)throw new Error('שגיאת טעינה: '+response.status);
+    return response.text();
+  };
+  try{
+    if(!('DecompressionStream' in window))throw new Error('הדפדפן אינו תומך בפתיחת המסמך הדחוס. יש לפתוח בדפדפן עדכני.');
+    const response=await fetch('release.json?nocache='+Date.now(),{cache:'no-store'});
+    if(!response.ok)throw new Error('לא ניתן לקרוא את פרטי הגרסה.');
+    const info=await response.json();
+    if(info.encoding!=='base64+gzip'||!Array.isArray(info.parts)||!info.parts.length)throw new Error('פרטי גרסה שגויים.');
+    status.textContent='טוען את גרסה '+info.version+'…';
+    let completed=0;
+    const chunks=await Promise.all(info.parts.map(async part=>{
+      const data=(await load(part)).trim();
+      completed++;
+      bar.value=Math.floor(completed*80/info.parts.length);
+      return data;
+    }));
+    const encoded=chunks.join('');
+    if(encoded.length!==info.base64_chars)throw new Error('קובצי הגרסה אינם שלמים.');
+    const raw=atob(encoded);
+    const gz=new Uint8Array(raw.length);
+    for(let i=0;i<raw.length;i++)gz[i]=raw.charCodeAt(i);
+    if(gz.byteLength!==info.gzip_bytes||(await sha(gz))!==info.sha256_gzip)
+      throw new Error('שגיאת בדיקת שלמות הנתונים הדחוסים.');
+    status.textContent='פותח את נוסח החוק…';
+    bar.value=85;
+    const stream=new Blob([gz]).stream().pipeThrough(new DecompressionStream('gzip'));
+    const bytes=await new Response(stream).arrayBuffer();
+    if(bytes.byteLength!==info.html_bytes||(await sha(bytes))!==info.sha256_html)
+      throw new Error('שגיאת בדיקת שלמות נוסח החוק.');
+    const html=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+    bar.value=100;
+    document.open();
+    document.write(html);
+    document.close();
+    // Hash-address links remain valid after the asynchronous initial render.
+    if(location.hash.length>1){
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        try{document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView({block:'start'});}catch(_){}
+      }));
+    }
+  }catch(e){
+    status.textContent='לא ניתן לפתוח את המסמך: '+e.message;
+    status.setAttribute('role','alert');
+    bar.hidden=true;
+  }
+})();
+</script>
+</body>
+</html>

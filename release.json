@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "version": "0.16",
+  "document": "חוק הגנת הצרכן, התשמ״א–1981 — אלפא 0.16",
+  "checkedOn": "2026-11-02",
+  "encoding": "base64+gzip",
+  "sha256_html": "8745461368134e8dc2e3f3f52d747d191de87586e7dd2e36fa6fef496d8a5385",
+  "sha256_gzip": "6bfc2c2a3de7a8f441424c2ebe827b4032a019a227f2591dff88c7ddd6f4d5fe",
+  "html_bytes": 17338214,
+  "gzip_bytes": 3137999,
+  "base64_chars": 4184000,
+  "parts": [
+    "assets/v0.16/part-00.txt",
+    "assets/v0.16/part-01.txt",
+    "assets/v0.16/part-02.txt",
+    "assets/v0.16/part-03.txt",
+    "assets/v0.16/part-04.txt",
+    "assets/v0.16/part-05.txt",
+    "assets/v0.16/part-06.txt",
+    "assets/v0.16/part-07.txt",
+    "assets/v0.16/part-08.txt",
+    "assets/v0.16/part-09.txt",
+    "assets/v0.16/part-10.txt",
+    "assets/v0.16/part-11.txt",
+    "assets/v0.16/part-12.txt",
+    "assets/v0.16/part-13.txt",
+    "assets/v0.16/part-14.txt",
+    "assets/v0.16/part-15.txt"
+  ]
+}
