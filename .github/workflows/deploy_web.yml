@@ -7,6 +7,7 @@ on:
       - '.github/workflows/deploy_web.yml'
       - 'original/**'
       - 'web/**'
+      - 'publications/consumer-protection-alpha/**'
       - 'scripts/build_web.py'
       - 'scripts/prepare_typed_sources.py'
       - 'scripts/canonical_vendor/**'
@@ -44,6 +45,21 @@ jobs:
         run: |
           python scripts/verify_release.py
           python -m unittest discover -s tests -p 'test_web_pages.py' -v
+      - name: Reconstruct verified Consumer Protection Law alpha for public sharing
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          folder = Path('publications/consumer-protection-alpha')
+          parts = [folder / f'part-{i:02d}.txt' for i in range(12)]
+          assert all(p.is_file() for p in parts), 'Missing published law segment'
+          data = b'\n'.join(p.read_bytes() for p in parts)
+          assert hashlib.sha256(data).hexdigest() == '219ea5ce357a5bbcc41bb3e48d5be0255e31cc34e2ea3a994a7731b722e7f713', 'Law asset hash mismatch'
+          output = Path('dist/law/index.html')
+          output.parent.mkdir(parents=True, exist_ok=True)
+          output.write_bytes(data)
+          print('Published law alpha 0.14; bytes:', len(data))
+          PY
       - name: Prepare static site
         run: |
           test -s dist/index.html
