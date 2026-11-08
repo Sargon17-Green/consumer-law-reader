@@ -1,5 +1,6 @@
 import XCTest
 import WebKit
+import UIKit
 @testable import ConsumerLawReader
 
 final class ReaderPolicyTests: XCTestCase {
@@ -23,6 +24,7 @@ final class ReaderPolicyTests: XCTestCase {
 
 @MainActor
 final class ReaderIntegrationTests: XCTestCase {
+    private var testWindow: UIWindow?
     private func script(_ reader: OfflineLawReader,_ source: String) async throws -> Any {
         try await withCheckedThrowingContinuation { continuation in
             reader.webView.callAsyncJavaScript("return await (" + source + ");", arguments: [:], in: nil, in: .page) { result in
@@ -32,6 +34,23 @@ final class ReaderIntegrationTests: XCTestCase {
     }
     private func openReader() async throws -> OfflineLawReader {
         let reader=OfflineLawReader()
+        let scene=try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window=UIWindow(windowScene:scene)
+        let controller=UIViewController()
+        window.rootViewController=controller
+        window.makeKeyAndVisible()
+        controller.loadViewIfNeeded()
+        reader.webView.translatesAutoresizingMaskIntoConstraints=false
+        controller.view.addSubview(reader.webView)
+        NSLayoutConstraint.activate([
+            reader.webView.topAnchor.constraint(equalTo:controller.view.topAnchor),
+            reader.webView.bottomAnchor.constraint(equalTo:controller.view.bottomAnchor),
+            reader.webView.leadingAnchor.constraint(equalTo:controller.view.leadingAnchor),
+            reader.webView.trailingAnchor.constraint(equalTo:controller.view.trailingAnchor)
+        ])
+        controller.view.layoutIfNeeded()
+        testWindow=window
+        XCTAssertGreaterThan(reader.webView.bounds.width,0,"Navigation assertions require a displayed native web view")
         for _ in 0..<240 {
             if reader.ready { return reader }
             try await Task.sleep(nanoseconds:250_000_000)
@@ -41,6 +60,15 @@ final class ReaderIntegrationTests: XCTestCase {
     }
     func testActualOfflineReaderSearchBackupAndLifecycle() async throws {
         let reader=try await openReader()
+        if ProcessInfo.processInfo.environment["EXPECT_SEER_FRESH"] == "true" {
+            var rendered=false
+            for _ in 0..<220 {
+                let text=try await script(reader,"document.getElementById('pastafari_current_date_text').textContent") as? String ?? ""
+                if text.hasPrefix("התאריך הפסטפרי היום:"){rendered=true;break}
+                try await Task.sleep(nanoseconds:250_000_000)
+            }
+            XCTAssertTrue(rendered,"Fresh upstream date must pass the real WKWebView resource and CORS policy")
+        }
         let report=try await script(reader,"""
         (()=>{
           const check=(x,m)=>{if(!x)throw Error(m)};
@@ -66,7 +94,7 @@ final class ReaderIntegrationTests: XCTestCase {
         try await Task.sleep(nanoseconds:500_000_000)
         let backPosition = try await script(reader,"scrollY") as? Double
         XCTAssertEqual(backPosition ?? -1000,savedPosition ?? -2000,accuracy:3)
-        _ = try await script(reader,"lawMobile.goTo('article_14');true")
+        _ = try await script(reader,"(lawMobile.goTo('article_14'),true)")
         reader.persistReadingState()
         reader.webView.reload()
         for _ in 0..<80 { try await Task.sleep(nanoseconds:250_000_000);if reader.ready { break } }

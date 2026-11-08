@@ -98,9 +98,10 @@
         (l.source_type!==undefined&&!['law','delegated'].includes(l.source_type)))fail('קישור אישי או יעדו אינם תקינים');
       linkIDs.add(l.id);
     }
-    for(const [k,v] of Object.entries(value.titles))if(!known(k)||!title(v))fail('שם נושא אינו תקין');
-    for(const [k,v] of Object.entries(value.hidden))if(!known(k)||typeof v!=='boolean')fail('העדפת הסתרה אינה תקינה');
-    for(const [k,v] of Object.entries(value.ranks))if(!known(k)||!Number.isFinite(v)||Math.abs(v)>1e7)fail('סדר נושאים אינו תקין');
+    const preferenceID=k=>known(k)||id(k); // Older versions retained metadata after deleting a personal topic.
+    for(const [k,v] of Object.entries(value.titles))if(!preferenceID(k)||!title(v))fail('שם נושא אינו תקין');
+    for(const [k,v] of Object.entries(value.hidden))if(!preferenceID(k)||typeof v!=='boolean')fail('העדפת הסתרה אינה תקינה');
+    for(const [k,v] of Object.entries(value.ranks))if(!preferenceID(k)||!Number.isFinite(v)||Math.abs(v)>1e7)fail('סדר נושאים אינו תקין');
     return value;
   }
   function validateBackup(raw, options={}) {
@@ -114,7 +115,7 @@
     const settings=Object.create(null);
     for(const [key,value] of Object.entries(data.settings)){
       if(!KEYS.includes(key))fail('הגיבוי מכיל שדה לא מוכר: '+key);
-      if(typeof value!=='string'||bytes(value)>500000)fail('ערך הגדרה אינו תקין');
+      if(typeof value!=='string'||bytes(value)>(key==='law-reader-topics-v1'?900000:500000))fail('ערך הגדרה אינו תקין');
       if(key==='law-reader-font'&&(!/^(1[6-9]|2[0-8])$/.test(value)))fail('גודל גופן אינו תקין');
       if(key==='law-reader-align'&&!['right','justify'].includes(value))fail('יישור אינו תקין');
       if(key.startsWith('law-a11y-')&&!['0','1'].includes(value))fail('העדפת נגישות אינה תקינה');

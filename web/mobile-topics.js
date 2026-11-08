@@ -8,7 +8,7 @@ const id=()=>('u:'+((globalThis.crypto&&typeof crypto.randomUUID==='function')?c
 const empty=()=>({schema:SCHEMA,userTopics:[],links:[],titles:{},hidden:{},ranks:{}});
 const validTitle=s=>clean(s).length>=1&&clean(s).length<=90;
 function load(){try{const raw=localStorage.getItem(KEY);if(!raw)return empty();const data=JSON.parse(raw);if(data?.schema!==SCHEMA||!Array.isArray(data.userTopics)||!Array.isArray(data.links)||!data.titles||!data.hidden||!data.ranks)throw Error('schema');return data;}catch{loadFailed=true;app.toast('לא ניתן לטעון את הנושאים האישיים. הקובץ המקורי נשמר; יש לשחזר גיבוי תקין.');return empty();}}
-function commit(change){if(loadFailed){app.toast('השמירה לא בוצעה כדי לשמור את נתוני הנושאים הקודמים');return false;}const next=JSON.parse(JSON.stringify(state));try{change(next);const serial=JSON.stringify(next);if(serial.length>450000)throw Error('size');localStorage.setItem(KEY,serial);state=next;app.toast('נשמר');return true;}catch{app.toast('השמירה נכשלה. השינוי לא בוצע');return false;}}
+function commit(change){if(loadFailed){app.toast('השמירה לא בוצעה כדי לשמור את נתוני הנושאים הקודמים');return false;}const next=JSON.parse(JSON.stringify(state));try{change(next);const serial=JSON.stringify(next);if(new TextEncoder().encode(serial).length>450000)throw Error('size');if(window.LawCore)window.LawCore.validateTopics(next,()=>true);localStorage.setItem(KEY,serial);state=next;app.toast('נשמר');return true;}catch{app.toast('השמירה נכשלה. השינוי לא בוצע');return false;}}
 function discover(){
  baseTopics=[];baseLinks=[];
  const nav=$('#navigator'),root=nav?.querySelector(':scope > ul');

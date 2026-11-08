@@ -20,7 +20,7 @@ s.fail=core.JOURNAL;assert.throws(()=>core.applyBackup(s,next));assert.equal(s.g
 for(const patch of [{schema:3},{unknown:true},{settings:{'law-secret':'x'}},{settings:{'law-reader-font':'999'}},{settings:{'law-a11y-m-gray':'yes'}},{settings:{'law-reader-topics-v1':'{"schema":1}'}}])assert.throws(()=>core.validateBackup(JSON.stringify({...JSON.parse(backup),...patch})));
 assert.throws(()=>core.validateBackup('x'.repeat(1000001)));
 const topics={schema:1,userTopics:[{id:'u:one',title:'אישי',parent:null}],links:[{id:'u:link',topic:'u:one',target:'article_2',title:'סעיף 2'}],titles:{},hidden:{},ranks:{}};
-core.validateTopics(topics,k=>k==='article_2');
+topics.titles['u:deleted']='כותרת קודמת';topics.ranks['u:deleted']=20;core.validateTopics(topics,k=>k==='article_2');
 assert.throws(()=>core.validateTopics(topics,()=>false));
 topics.userTopics[0].parent='u:one';assert.throws(()=>core.validateTopics(topics));
 console.log('PASS: normalized UTF-16 spans (500 generated cases), schema/limits, legacy round-trip, rollback, crash recovery, unrelated data preservation');

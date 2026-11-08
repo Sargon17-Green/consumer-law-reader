@@ -422,7 +422,11 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         info.jobName = "חוק הגנת הצרכן"
         controller.printInfo = info
         controller.printFormatter = webView.viewPrintFormatter()
-        controller.present(animated: true)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            controller.present(from: CGRect(x: webView.bounds.midX, y: webView.bounds.minY, width: 1, height: 1), in: webView, animated: true, completionHandler: nil)
+        } else {
+            controller.present(animated: true, completionHandler: nil)
+        }
     }
 
     func goHome() {

@@ -61,6 +61,9 @@ with sync_playwright() as pw:
           const before=lawSettings.exportJSON();if(lawSettings.prepareImport('{"format":"evil"}').ok)throw Error('unsafe file accepted');
           if(before!==lawSettings.exportJSON())throw Error('validation mutated settings');return raw;
         }""")
+        before_back=page.evaluate("()=>{lawMobile.goTo('article_2');scrollBy(0,100);const point=scrollY;lawMobile.goTo('article_3');return point}")
+        page.go_back()
+        page.wait_for_function("point=>location.hash==='#article_2'&&Math.abs(scrollY-point)<3",arg=before_back)
         page.evaluate('lawMobile.goTo("article_14");lawMobile.saveSession()')
         # Malformed fragment fails safely without throwing, and the state survives a real reload.
         page.evaluate("()=>{const a=document.createElement('a');a.href='#%ZZ';document.getElementById('frame').append(a);a.click();a.remove();}")
@@ -91,12 +94,16 @@ with sync_playwright() as pw:
         for scenario in ('reading','search','contents','settings','contrast-dark','contrast-blue','large-text'):
             page.evaluate("document.documentElement.classList.remove('m-contrast-dark','m-contrast-blue')")
             if scenario.startswith('contrast-'):page.evaluate('(name)=>document.documentElement.classList.add(name)','m-'+scenario)
-            if scenario=='large-text':page.evaluate("document.documentElement.style.setProperty('--reading-size','28px')")
+            if scenario=='large-text':
+                page.evaluate("document.documentElement.style.setProperty('--reading-size','28px')")
+                assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'), 'Large reading text must not overflow the viewport'
             if scenario=='search':page.evaluate('lawMobile.showSearch()')
             if scenario=='contents':page.evaluate('lawMobile.showToc()')
             if scenario=='settings':page.evaluate('lawMobile.showMore()')
             scan=page.evaluate("async()=>await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}})")
             accessibility.append({'viewport':[width,height],'scenario':scenario,'violations':scan['violations'],'incomplete':scan['incomplete'],'passes':len(scan['passes'])})
+            (EVIDENCE/'accessibility-axe-report.json').write_text(json.dumps(accessibility,ensure_ascii=False,indent=2))
+            print('Accessibility',width,scenario,'violations',len(scan['violations']),flush=True)
             assert not scan['violations'],[(v['id'],[n['target']for n in v['nodes'][:4]])for v in scan['violations']]
             if page.locator('#mobile-sheet[open]').count():page.locator('#mobile-sheet-close').click()
         if width==430:page.screenshot(path=str(EVIDENCE/'reader-430.png'))

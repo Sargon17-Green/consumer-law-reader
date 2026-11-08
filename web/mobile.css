@@ -363,3 +363,7 @@ html:not(.m-contrast-dark):not(.m-contrast-blue) #frame .expired,html:not(.m-con
 #frame .name[role=button]:focus-visible{outline:3px solid #0c8c84;outline-offset:2px}
 
 html:not(.m-contrast-dark):not(.m-contrast-blue) #frame .expired a{color:#526a7a!important}
+html.m-contrast-dark{--ink:#ffe869;--muted:#ffe869;--accent:#ffe869;--paper:#111}
+html.m-contrast-blue{--ink:#000;--muted:#000;--accent:#000;--paper:#d9edff}
+html.m-contrast-dark footer,html.m-contrast-dark footer *{color:#ffe869!important;background-color:transparent!important}
+html.m-contrast-blue footer,html.m-contrast-blue footer *{color:#000!important;background-color:transparent!important}

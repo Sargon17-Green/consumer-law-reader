@@ -16,8 +16,9 @@ import org.json.JSONObject;
 public final class ReaderInstrumentation extends Instrumentation {
     private Activity activity;
     private WebView web;
-    private boolean expectDate,seed,verifyUpgrade;
-    @Override public void onCreate(Bundle arguments) { super.onCreate(arguments);expectDate=arguments!=null&&"true".equals(arguments.getString("expectDate"));seed=arguments!=null&&"true".equals(arguments.getString("seed"));verifyUpgrade=arguments!=null&&"true".equals(arguments.getString("verifyUpgrade"));start(); }
+    private boolean expectDate,seed,verifySeed,verifyUpgrade;
+    private String expectedFont;
+    @Override public void onCreate(Bundle arguments) { super.onCreate(arguments);expectedFont=arguments==null?null:arguments.getString("expectedFont");expectDate=arguments!=null&&"true".equals(arguments.getString("expectDate"));seed=arguments!=null&&"true".equals(arguments.getString("seed"));verifySeed=arguments!=null&&"true".equals(arguments.getString("verifySeed"));verifyUpgrade=arguments!=null&&"true".equals(arguments.getString("verifyUpgrade"));start(); }
     private WebView find(View view) {
         if(view instanceof WebView)return (WebView)view;
         if(view instanceof ViewGroup){ViewGroup g=(ViewGroup)view;for(int i=0;i<g.getChildCount();i++){WebView found=find(g.getChildAt(i));if(found!=null)return found;}}
@@ -31,7 +32,7 @@ public final class ReaderInstrumentation extends Instrumentation {
     }
     private void check(boolean value,String label) throws Exception {if(!value)throw new Exception(label);}
     private void ready() throws Exception {
-        for(int i=0;i<240;i++) {if("true".equals(js(seed?"!!window.lawMobile":"document.documentElement.dataset.lawReady === 'true'")))return;Thread.sleep(250);}
+        for(int i=0;i<240;i++) {if("true".equals(js((seed||verifySeed)?"!!window.lawMobile":"document.documentElement.dataset.lawReady === 'true'")))return;Thread.sleep(250);}
         throw new Exception("No application readiness; WebView="+WebView.getCurrentWebViewPackage());
     }
     @Override public void onStart() {
@@ -41,13 +42,27 @@ public final class ReaderInstrumentation extends Instrumentation {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
             activity=startActivitySync(intent);
             runOnMainSync(()->web=find(activity.findViewById(android.R.id.content)));
-            check(web!=null,"No native WebView");ready();
+            check(web!=null,"No native WebView");
             report.putString("webview",WebView.getCurrentWebViewPackage().versionName);
+            ready();
             if(seed){
                 js("localStorage.setItem('law-reader-font','23');localStorage.setItem('law-reader-align','right');localStorage.setItem('law-reader-topics-v1',JSON.stringify({schema:1,userTopics:[{id:'u:upgrade',title:'נושא בדיקת שדרוג',parent:null,index:1000}],links:[{id:'u:upgrade-link',topic:'u:upgrade',target:'article_14',title:'סעיף 14'}],titles:{},hidden:{},ranks:{}}))");
+                check("\"23\"".equals(js("localStorage.getItem('law-reader-font')")),"Seed readback");
+                runOnMainSync(()->activity.moveTaskToBack(true));Thread.sleep(6000);
                 report.putString("QA_STATUS","PASS");report.putString("coverage","Seeded public-beta COPY using disposable QA identity");finish(Activity.RESULT_OK,report);return;
             }
+            if(verifySeed){
+                report.putString("seedFont",js("localStorage.getItem('law-reader-font')"));
+                check("\"23\"".equals(js("localStorage.getItem('law-reader-font')")),"Seed persisted after original app process restart");
+                report.putString("QA_STATUS","PASS");finish(Activity.RESULT_OK,report);return;
+            }
+            if(expectedFont!=null){
+                report.putString("reopenedFont",js("localStorage.getItem('law-reader-font')"));
+                check(expectedFont.equals(new org.json.JSONTokener(js("localStorage.getItem('law-reader-font')")).nextValue()),"Preferences persist after actual process restart");
+            }
             if(verifyUpgrade){
+                report.putString("upgradedFont",js("localStorage.getItem('law-reader-font')"));
+                report.putString("upgradedOrigin",js("location.origin"));
                 check("\"23\"".equals(js("localStorage.getItem('law-reader-font')")),"Font preserved across APK upgrade");
                 check("1".equals(js("LawTopics.inspect().userTopics")),"Personal topics preserved across APK upgrade");
             }
@@ -59,6 +74,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             }
             js("lawMobile.showToc()");sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);Thread.sleep(350);
             check("false".equals(js("document.getElementById('mobile-sheet').open")),"Actual Android Back closes the sheet");
+            report.putString("indexMilliseconds",js("(()=>{const t=performance.now();lawMobile.buildSearch();return performance.now()-t})()"));
             String test="(function(){const check=(v,m)=>{if(!v)throw Error(m)};"+
                 "check(lawMobile.buildSearch().length>500,'full offline index');"+
                 "check(LawCore.snippet('אָב שָׁלוֹם סוף','שלום').mark==='שָׁלוֹם','UTF16 mapping');"+

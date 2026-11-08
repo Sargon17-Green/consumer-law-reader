@@ -13,6 +13,8 @@ jobs:
     timeout-minutes: 16
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
@@ -29,6 +31,10 @@ jobs:
           python scripts/build_web.py
           python -m unittest discover -s tests -p 'test_*.py' -v
           python scripts/verify_release.py
+      - name: Scan current trust policies and full Git history
+        run: |
+          python scripts/mobile_security_audit.py
+          python scripts/run_secret_scan.py
       - name: Check browser scripts
         run: |
           node --check web/mobile-core.js
@@ -104,10 +110,13 @@ jobs:
         include:
           - api: 26
             arch: x86
+            target: default
           - api: 31
             arch: x86_64
+            target: google_apis
           - api: 36
             arch: x86_64
+            target: google_apis
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
@@ -124,6 +133,9 @@ jobs:
           python scripts/build_android.py --debug
           python scripts/build_android_qa.py
           python scripts/prepare_android_upgrade.py
+      - name: Fetch official modern test WebView for the minimum OS
+        if: matrix.api == 26
+        run: python scripts/fetch_api26_webview.py
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -133,7 +145,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         with:
           api-level: ${{ matrix.api }}
-          target: google_apis
+          target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           profile: pixel_2
           ram-size: 2048M

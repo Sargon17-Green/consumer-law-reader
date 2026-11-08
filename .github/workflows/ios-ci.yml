@@ -38,6 +38,11 @@ jobs:
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
+      - name: Select a pinned App Store compatible SDK
+        run: |
+          test -d /Applications/Xcode_26.3.app
+          sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer
+          xcodebuild -version
       - name: Install verification dependencies
         run: python3 -m pip install -r requirements-qa.txt
       - name: Build and verify bundled legal text
@@ -86,14 +91,18 @@ jobs:
       - name: Exercise actual iPhone and iPad apps with XCTest and XCUITest
         run: |
           set -euo pipefail
-          for FAMILY in iPhone iPad; do
-            DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; family=sys.argv[1]; print(next(d["udid"] for entries in json.load(sys.stdin)["devices"].values() for d in entries if d["name"].startswith(family)))' "$FAMILY")"
+          export LAW_EXPECT_SEER="$(python3 tests/date_network_probe.py)"
+          for CASE in iPhone:26.2 iPad:26.2 iPhone:18.5; do
+            FAMILY="${CASE%:*}"
+            OS="${CASE#*:}"
+            LABEL="$FAMILY-ios-$OS"
+            DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; family,version=sys.argv[1:]; key="com.apple.CoreSimulator.SimRuntime.iOS-"+version.replace(".","-"); print(next(d["udid"] for d in json.load(sys.stdin)["devices"].get(key,[]) if d["name"].startswith(family)))' "$FAMILY" "$OS")"
             xcrun simctl boot "$DEVICE"
             xcrun simctl bootstatus "$DEVICE" -b
             xcrun simctl status_bar "$DEVICE" override --time '9:41'
-            python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$FAMILY-runtime.json"
-            xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build/ios-derived -resultBundlePath "build/$FAMILY-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$FAMILY-tests.log"
-            xcrun simctl io "$DEVICE" screenshot "build/$FAMILY-simulator.png"
+            python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$LABEL-runtime.json"
+            xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+            xcrun simctl io "$DEVICE" screenshot "build/$LABEL-simulator.png"
             xcrun simctl shutdown "$DEVICE"
           done
       - name: Prepare unsigned device archive for future original-account signing
