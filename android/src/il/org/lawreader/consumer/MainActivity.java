@@ -148,11 +148,7 @@ public final class MainActivity extends Activity {
                     headers.put("Cache-Control","no-cache");
                     if ("/index.html".equals(path)) {
                         headers.put("Content-Security-Policy",
-                            "default-src 'self'; script-src 'self' 'unsafe-inline'; " +
-                            "style-src 'self' 'unsafe-inline'; img-src 'self' data:; " +
-                            "font-src 'self' data:; connect-src https://raw.githubusercontent.com " +
-                            "https://api.github.com https://sargon17-green.github.io; frame-src 'none'; " +
-                            "object-src 'none'; base-uri 'none'; form-action 'none'");
+                            "frame-src 'none'; child-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'");
                     }
                     return new WebResourceResponse(mime,"UTF-8",200,"OK",headers,getAssets().open("www"+path));
                 } catch (IOException ex) { return missing(); }

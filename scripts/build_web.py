@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Preserve the supplied source verbatim and add an independent mobile layer."""
 from pathlib import Path
-import hashlib,json,shutil,re
+import hashlib,json,shutil,re,base64
+from bs4 import BeautifulSoup
 from prepare_typed_sources import prepare
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'original'
@@ -23,7 +24,14 @@ head='''<meta http-equiv="Content-Security-Policy" content="default-src 'self'; 
 # the authoritative legal-source document; inject only when the source lacks it.
 if not re.search(r'<meta[^>]+name\s*=\s*["\']viewport["\']', original, flags=re.I):
     head='<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'+head
+# Authorize existing packaged inline scripts and handlers by exact deterministic hashes.
+# Unlike unsafe-inline, this also blocks attacker-controlled inline scripts in srcdoc.
+parsed=BeautifulSoup(original,'lxml')
+inline=[script.string or '' for script in parsed.find_all('script') if not script.get('src') and script.get('type','').lower() in ('','text/javascript','application/javascript','module')]
+handlers=[value for tag in parsed.find_all(True) for name,value in tag.attrs.items() if name.lower().startswith('on') and isinstance(value,str)]
+hashes=sorted({"'sha256-"+base64.b64encode(hashlib.sha256(value.encode('utf-8')).digest()).decode('ascii')+"'" for value in inline+handlers})
 security,head=head.split('<meta name="theme-color"',1)
+security=security.replace("script-src 'self' 'unsafe-inline'","script-src 'self' 'unsafe-hashes' "+' '.join(hashes))
 head='<meta name="theme-color"'+head
 original=original.replace('<head>','<head>'+security,1)
 shell=(ROOT/'web/mobile-shell.html').read_text()

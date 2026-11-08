@@ -19,7 +19,7 @@ assert(networkPolicy, 'Date-specific native allowlist missing');
 const allowlist = networkPolicy[1];
 for (const host of ['raw.githubusercontent.com', 'api.github.com', 'sargon17-green.github.io']) {
   assert(allowlist.includes('"' + host + '".equals(host)'), 'Missing exact host: ' + host);
-  assert(java.includes('https://' + host), 'CSP does not permit: ' + host);
+  assert(fs.readFileSync(path.join(root,'scripts/build_web.py'),'utf8').includes('https://' + host), 'CSP does not permit: ' + host);
 }
 for (const endpoint of [
   '/Sargon17-Green/pastafari-calendar/main/docs/api/seer-now.json',
@@ -32,6 +32,7 @@ assert(allowlist.includes('"https".equals(uri.getScheme())'), 'Only HTTPS permit
 assert(java.includes('if ("GET".equals(request.getMethod()) && isApprovedDateSource(uri)) return dateResponse(uri);'));
 assert(java.includes('return missing();'), 'Other remote resources must remain blocked');
 assert(!java.includes("connect-src 'none'"), 'Network CSP still forbids date fetches');
+assert(java.includes('setInstanceFollowRedirects(false)'), 'Redirects must be blocked');
 assert(!/connect-src[^;]*\*/.test(java), 'Broad CSP network wildcard forbidden');
 assert(java.includes('frame-src \'none\''), 'Frame protection unexpectedly weakened');
 
