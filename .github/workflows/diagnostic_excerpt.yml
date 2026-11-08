@@ -1,0 +1,36 @@
+name: Inspect mobile QA failure evidence
+on:
+  push:
+    branches: [qa/mobile-diagnostics-20261108]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Read completed emulator artifacts without changing the product
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh run download 42503078996 --name android-emulator-api-26 --dir diagnostics/api26
+          gh run download 42503078996 --name android-emulator-api-31 --dir diagnostics/api31
+          gh run download 42503078996 --name android-emulator-api-36 --dir diagnostics/api36
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          for path in sorted(Path("diagnostics").rglob("*")):
+              if not path.is_file(): continue
+              print("EVIDENCE",path)
+              if "provider" in path.name or "system-space" in path.name:
+                  text=path.read_text(errors="replace")
+                  if "package" in path.name:
+                      text="\n".join(l for l in text.splitlines() if re.search(r"codePath|resourcePath|version|flags=|pkgFlags|primaryCpuAbi|secondaryCpuAbi|nativeLibrary|enabled=|WebView|Signature",l))
+                  print(text[-18000:])
+              elif "logcat" in path.name:
+                  text=path.read_text(errors="replace")
+                  lines=[l for l in text.splitlines() if re.search(r"ANR|FATAL|AndroidRuntime|chromium|Clipboard|lawreader|ActivityTaskManager",l)]
+                  print("\n".join(lines[-100:])[-22000:])
+          PY
