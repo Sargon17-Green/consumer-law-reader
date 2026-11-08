@@ -83,11 +83,15 @@ jobs:
             DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; family=sys.argv[1]; print(next(d["udid"] for entries in json.load(sys.stdin)["devices"].values() for d in entries if d["name"].startswith(family)))' "$FAMILY")"
             xcrun simctl boot "$DEVICE"
             xcrun simctl bootstatus "$DEVICE" -b
-            xcrun simctl status_bar "$DEVICE" override --time '9:41' --dataNetwork none --wifiMode failed
+            xcrun simctl status_bar "$DEVICE" override --time '9:41'
             xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build/ios-derived -resultBundlePath "build/$FAMILY-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$FAMILY-tests.log"
             xcrun simctl io "$DEVICE" screenshot "build/$FAMILY-simulator.png"
             xcrun simctl shutdown "$DEVICE"
           done
+      - name: Prepare unsigned device archive for future original-account signing
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -configuration Release -destination 'generic/platform=iOS' -archivePath build/ConsumerLawReader-unsigned.xcarchive CODE_SIGNING_ALLOWED=NO archive | tee build/ios-unsigned-archive.log
       - name: Save build report and unsigned simulator binary for QA
         if: always()
         uses: actions/upload-artifact@v4
@@ -95,6 +99,8 @@ jobs:
           name: ios-simulator-build-evidence
           path: |
             build/ios-build.log
+            build/ios-unsigned-archive.log
+            build/ConsumerLawReader-unsigned.xcarchive
             build/*-simulator.png
             build/*-tests.log
             build/*-tests.xcresult

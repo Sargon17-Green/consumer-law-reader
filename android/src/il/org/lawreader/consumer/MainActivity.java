@@ -102,7 +102,7 @@ public final class MainActivity extends Activity {
         settings.setDisplayZoomControls(false);
         settings.setUseWideViewPort(true);
         settings.setLoadWithOverviewMode(false);
-        settings.setTextZoom(100);
+        settings.setTextZoom(Math.round(100 * getResources().getConfiguration().fontScale));
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         settings.setSupportMultipleWindows(false);
         settings.setSafeBrowsingEnabled(true);

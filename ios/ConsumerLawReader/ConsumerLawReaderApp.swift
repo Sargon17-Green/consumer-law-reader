@@ -28,13 +28,14 @@ struct ReaderScreen: View {
     @StateObject private var reader = OfflineLawReader()
     @State private var chooseBackup = false
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 14) {
                 Text("חוק הגנת הצרכן, התשמ״א–1981")
                     .font(.subheadline.weight(.semibold))
-                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                     .minimumScaleFactor(0.8)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -81,6 +82,7 @@ struct ReaderScreen: View {
                 .accessibilityLabel("נוסח חוק הגנת הצרכן")
         }
         .environment(\.layoutDirection, .rightToLeft)
+        .onChange(of: dynamicTypeSize) { _ in reader.applyDynamicType() }
         .onChange(of: reader.requestFileImport) { requested in
             if requested { chooseBackup = true; reader.requestFileImport = false }
         }
@@ -255,9 +257,16 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
             Task { @MainActor in
                 guard let self else { return }
                 self.ready = error == nil && value as? Bool == true
+                if self.ready { self.applyDynamicType() }
                 if !self.ready { self.showError("ממשק הקריאה לא אותחל. אפשר לסגור ולפתוח שוב את האפליקציה.") }
             }
         }
+    }
+
+    func applyDynamicType() {
+        guard ready else { return }
+        let scale = UIFont.preferredFont(forTextStyle: .body).pointSize / 17.0
+        webView.evaluateJavaScript("window.lawMobile?.setSystemFontScale(" + String(Double(scale)) + ")") { _, _ in }
     }
 
     func persistReadingState() {

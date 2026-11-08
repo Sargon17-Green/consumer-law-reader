@@ -11,6 +11,8 @@ notes_js=notes_script.get_text()
 for script in doc.find_all('script'):
     if script.get('id')!='law-editorial-status':script.decompose()
 for link in doc.find_all('link',rel='stylesheet'):link.decompose()
+# This fixture intentionally isolates interaction code; production CSP is tested in mobile_integration_qa.
+for meta in doc.select('meta[http-equiv="Content-Security-Policy"]'):meta.decompose()
 if doc.body:doc.body.attrs.pop('onload',None)
 with sync_playwright() as pw:
     kwargs={'args':['--no-sandbox','--disable-dev-shm-usage']}

@@ -15,13 +15,18 @@
   const object = x => x !== null && typeof x === 'object' && !Array.isArray(x);
   const fields = (x, allowed) => object(x) && Object.keys(x).every(k=>allowed.includes(k));
   function normalized(raw, offsets=false) {
+    // Index-only normalization avoids per-character objects and rope strings.
+    // Offset maps are built only for the displayed matching snippets.
+    if(!offsets)return {text:String(raw ?? '').normalize('NFD').replace(/\p{M}/gu,'')
+      .replace(/[״“”„]/g,'"').replace(/[׳‘’‚]/g,"'").replace(/[־‐‑‒–—−]/g,'-')
+      .replace(/\s+/gu,' ').trim().toLocaleLowerCase('he').replace(/ς/g,'σ'),starts:[],ends:[]};
     let text='', position=0, space=null;
     const starts=[], ends=[];
     for (const ch of String(raw ?? '')) {
       const begin=position; position+=ch.length;
       const part=ch.normalize('NFD').replace(/\p{M}/gu,'')
         .replace(/[״“”„]/g,'"').replace(/[׳‘’‚]/g,"'")
-        .replace(/[־‐‑‒–—−]/g,'-').toLocaleLowerCase('he');
+        .replace(/[־‐‑‒–—−]/g,'-').toLocaleLowerCase('he').replace(/ς/g,'σ');
       if (!part) {
         if (offsets && ends.length && !space) ends[ends.length-1]=position;
         continue;

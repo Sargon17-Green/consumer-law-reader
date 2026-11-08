@@ -20,6 +20,8 @@ def serve(route):
     else:route.fulfill(status=404,body='missing')
 
 report=[]
+axe_source=(ROOT/'tests/qa/node_modules/axe-core/axe.min.js').read_text()
+accessibility=[]
 with sync_playwright() as pw:
     options={'args':['--no-sandbox','--disable-dev-shm-usage']}
     if shutil.which('chromium'):options['executable_path']=shutil.which('chromium')
@@ -37,6 +39,7 @@ with sync_playwright() as pw:
           return {indexMs:index,records:records.length,searchMedianMs:timings.sort((a,b)=>a-b)[25],heap:performance.memory?.usedJSHeapSize};
         }""")
         assert metrics['records']>500
+        assert page.evaluate("""()=>lawMobile.buildSearch().every(r=>{const c=r.el.cloneNode(true);for(const e of c.querySelectorAll('.the_definition,.note_button,.note_div,.done_accordingly,.validity,.m-article-actions,.m-source-tools,.sources_box,.bills_box,.protocols_box,.history_box,script,style,noscript'))e.remove();return c.textContent.replace(/\\s+/g,' ').trim()===r.text;})"""), 'Index text must preserve every statutory unit while excluding the documented editorial elements'
         assert page.evaluate("()=>LawCore.snippet('אָב שָׁלוֹם סוף','שלום').mark")=='שָׁלוֹם'
         page.locator('[data-mobile=search]').click();page.locator('#mobile-search').fill('עסקה')
         page.wait_for_function("()=>document.querySelectorAll('.m-result').length>0")
@@ -84,10 +87,20 @@ with sync_playwright() as pw:
             box=button.bounding_box();assert box and box['height']>=44 and box['width']>=44
             assert button.inner_text().strip()
         assert page.locator('#mobile-sheet').get_attribute('aria-labelledby')=='mobile-sheet-title'
+        page.evaluate(axe_source)
+        for scenario in ('reading','search','contents','settings'):
+            if scenario=='search':page.evaluate('lawMobile.showSearch()')
+            if scenario=='contents':page.evaluate('lawMobile.showToc()')
+            if scenario=='settings':page.evaluate('lawMobile.showMore()')
+            scan=page.evaluate("async()=>await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}})")
+            accessibility.append({'viewport':[width,height],'scenario':scenario,'violations':scan['violations'],'incomplete':scan['incomplete'],'passes':len(scan['passes'])})
+            assert not scan['violations'],[(v['id'],[n['target']for n in v['nodes'][:4]])for v in scan['violations']]
+            if page.locator('#mobile-sheet[open]').count():page.locator('#mobile-sheet-close').click()
         if width==430:page.screenshot(path=str(EVIDENCE/'reader-430.png'))
         assert not errors,errors
         report.append({'browser':browser.version,'environment':'Linux headless Chromium; full bundled DOM; remote resources aborted','viewport':[width,height],'openingMs':opening,**metrics,'result':'PASS'})
         context.close()
     browser.close()
+(EVIDENCE/'accessibility-axe-report.json').write_text(json.dumps(accessibility,ensure_ascii=False,indent=2))
 (EVIDENCE/'mobile-browser-report.json').write_text(json.dumps(report,indent=2))
 print(json.dumps(report,indent=2))

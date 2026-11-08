@@ -4,6 +4,7 @@ const core=require('../web/mobile-core.js');
 const cases=[['אב שָׁלוֹם סיום','שלום','שָׁלוֹם'],['אָב שָׁלוֹם','שָׁלוֹם','שָׁלוֹם'],['😀 אָב סוף','אב','אָב'],['תשפ״ו','תשפ“ו','תשפ״ו'],['סעיף 14־ג','14-ג','14־ג'],['א  \n ב','א ב','א  \n ב'],['אָב   סוף','אב','אָב'],['A\u0301BC','abc','A\u0301BC'],['x 😀 שָׁלוֹם','😀 שלום','😀 שָׁלוֹם']];
 for(const [raw,q,expected]of cases){const m=core.match(raw,q);assert(m,[raw,q]);assert.equal(raw.slice(m.start,m.end),expected);assert.equal(core.snippet(raw,q).mark,expected);}
 assert.equal(core.match('אב','\u05B7'),null);assert.equal(core.match('אב',''),null);assert.equal(core.match('x','x'.repeat(513)),null);
+for(const raw of [' א\n\n ב ','ΟΣ ος','שָׁל֑וֹם','A\u0301BC','😀 אב','א\u0301  ב'])assert.equal(core.normalized(raw).text,core.normalized(raw,true).text);
 for(let i=0;i<500;i++){
  const prefix='😀 אָב '.repeat(i%17),raw=prefix+'שָׁל֑וֹם  סיום',hit=core.match(raw,'שלום');
  assert.equal(raw.slice(hit.start,hit.end),'שָׁל֑וֹם');

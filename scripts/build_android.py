@@ -5,9 +5,11 @@ import os,subprocess,zipfile,json,hashlib,shutil,sys
 ROOT=Path(__file__).resolve().parents[1]
 VERSION=(ROOT/'VERSION').read_text().strip()
 DEBUG='--debug' in sys.argv
+UNSIGNED='--unsigned' in sys.argv
+if DEBUG and UNSIGNED:raise SystemExit('Select only one of --debug and --unsigned')
 TOOLS=Path(os.environ.get('LAW_ANDROID_TOOLS',str(ROOT/'.toolchain'))).resolve()
 BUILD=ROOT/'build';BUILD.mkdir(exist_ok=True)
-OUT=ROOT/('debug-build' if DEBUG else 'release');OUT.mkdir(exist_ok=True)
+OUT=ROOT/('unsigned-build' if UNSIGNED else 'debug-build' if DEBUG else 'release');OUT.mkdir(exist_ok=True)
 sdk=TOOLS/'build-tools-36.0.0/android-16'
 android=TOOLS/'platforms-android-36/android-36/android.jar'
 def run(*args):subprocess.run([str(a) for a in args],check=True,cwd=ROOT)
@@ -36,6 +38,13 @@ with zipfile.ZipFile(BUILD/'resource-package.apk','r') as source, zipfile.ZipFil
         z.writestr(info,data)
     for p in dex.glob('*.dex'):z.write(p,p.name,compress_type=zipfile.ZIP_DEFLATED)
 run(sdk/'zipalign','-f','-p','4',BUILD/'unsigned.apk',BUILD/'aligned.apk')
+if UNSIGNED:
+    apk=OUT/f'Consumer_Law_Reader_{VERSION}_UNSIGNED_NOT_INSTALLABLE.apk'
+    shutil.copy2(BUILD/'aligned.apk',apk)
+    sha=hashlib.sha256(apk.read_bytes()).hexdigest()
+    (OUT/(apk.name+'.sha256.txt')).write_text(sha+'  '+apk.name+'\n')
+    print(json.dumps({'apk':str(apk),'sha256':sha,'signature':'UNSIGNED; requires original release identity'}))
+    sys.exit(0)
 # Release signing never generates an unrelated signing identity.
 # QA debug builds use a disposable certificate and cannot upgrade the release APK.
 if DEBUG:

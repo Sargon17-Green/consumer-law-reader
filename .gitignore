@@ -18,3 +18,4 @@ dist/
 evidence/
 debug-build/
 release/
+unsigned-build/

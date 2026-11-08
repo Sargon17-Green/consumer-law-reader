@@ -354,3 +354,12 @@ html.m-justify #frame #law_name td.title {
 .m-search-meta [role=status]{flex:1 0 100%}
 .m-close{width:44px;height:44px}
 select:focus-visible,summary:focus-visible{outline:3px solid #0c8c84!important;outline-offset:2px}
+
+#frame table.m-prose-table>tbody>tr>td:first-child:not(:only-child){grid-column:1!important}
+
+/* Preserve the source's status distinction with sufficient contrast on its surfaces. */
+#frame .expired,#frame .effective_date,#frame .amendment_of_other_laws{color:#58656e!important}
+#frame a[style*="lightblue"]{color:#526a7a!important;text-decoration:underline dotted!important}
+#frame .name[role=button]:focus-visible{outline:3px solid #0c8c84;outline-offset:2px}
+
+#frame .expired a{color:#526a7a!important}
