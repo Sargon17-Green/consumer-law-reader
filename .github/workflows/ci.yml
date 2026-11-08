@@ -2,6 +2,9 @@ name: Source, web and Android debug integrity
 on:
   push:
   pull_request:
+concurrency:
+  group: mobile-ci-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -23,13 +26,16 @@ jobs:
           python -m playwright install chromium
       - name: Build and verify source without signed APK
         run: |
-          python -m unittest discover -s tests -p 'test_typed_sources.py' -v
+          python -m unittest discover -s tests -p 'test_*.py' -v
           python -m unittest discover -s tests -p 'test_latest_download.py' -v
           python -m unittest discover -s tests -p 'test_registry_unavailability_notes.py' -v
           python scripts/build_web.py
           python scripts/verify_release.py
       - name: Check browser scripts
         run: |
+          node --check web/mobile-core.js
+          node --check web/mobile-settings.js
+          node tests/mobile_core_qa.js
           node --check web/mobile.js
           node --check web/mobile-sources.js
           node --check web/mobile-topics.js
@@ -37,6 +43,15 @@ jobs:
           node tests/pastafari_widget_qa.js
       - name: Test search and editorial UI at mobile widths
         run: python tests/technical_smoke_134.py
+      - name: Full bundled app interactions, security, accessibility and performance
+        run: python tests/mobile_integration_qa.py
+      - name: Save browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-reader-browser-evidence
+          path: evidence/
+          retention-days: 14
       - name: QA topic navigation against the original document
         run: python tests/topic_navigation_qa.py
   android-debug:
@@ -59,9 +74,75 @@ jobs:
         run: |
           python scripts/build_android.py --debug
           python scripts/verify_release.py --apk "debug-build/Consumer_Law_Reader_$(cat VERSION)_DEBUG_NOT_FOR_UPGRADE.apk"
+      - name: Save debug binary and verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-not-for-upgrade
+          path: |
+            debug-build/
+            evidence/
+          retention-days: 14
       - name: Verify debug certificate is not the release identity
         run: |
           if grep -q '2625ebe860cb0bfac105196b24aeedf3a948ce18c6f836478fd8ea38d0b937dc' evidence/apk-verification.txt; then
             echo 'ERROR: debug build accidentally uses release signer'; exit 1
           fi
           echo 'Temporary debug certificate confirmed distinct.'
+  android-emulator:
+    needs: android-debug
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [26, 31, 36]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: python -m pip install -r requirements-qa.txt
+      - name: Build real app and platform instrumentation
+        run: |
+          python scripts/fetch_tools.py
+          python scripts/build_android.py --debug
+          python scripts/build_android_qa.py
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install and exercise actual Android WebView without network
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          ram-size: 2048M
+          heap-size: 256M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            mkdir -p evidence
+            adb install debug-build/*DEBUG_NOT_FOR_UPGRADE.apk
+            adb install build/android-qa/reader-qa.apk
+            adb shell svc wifi disable
+            adb shell svc data disable
+            adb shell am instrument -w il.org.lawreader.consumer.qa/.ReaderInstrumentation | tee evidence/android-instrumentation.txt
+            grep -q 'QA_STATUS=PASS' evidence/android-instrumentation.txt
+            adb shell dumpsys meminfo il.org.lawreader.consumer > evidence/android-memory.txt
+            adb shell dumpsys webviewupdate > evidence/android-webview.txt
+            adb exec-out screencap -p > evidence/android-emulator.png
+      - name: Preserve emulator diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-emulator-api-${{ matrix.api }}
+          path: evidence/
+          retention-days: 14

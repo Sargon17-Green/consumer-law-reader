@@ -9,6 +9,16 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.webkit.WebResourceError;
+import android.webkit.RenderProcessGoneDetail;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
 import android.print.PrintManager;
 import android.view.View;
 import android.view.WindowInsets;
@@ -34,6 +44,10 @@ public final class MainActivity extends Activity {
     private static final String HOST = "law.local";
     private static final String HOME = "https://" + HOST + "/index.html";
     private WebView web;
+    private boolean ready;
+    private String pendingExport;
+    private static final int EXPORT_SETTINGS = 2101, IMPORT_SETTINGS = 2102;
+    private static final int MAX_BACKUP = 1000000;
 
     /**
      * Only the three canonical HTTPS snapshot locations may be reached from the
@@ -41,9 +55,14 @@ public final class MainActivity extends Activity {
      * fetch destinations remain blocked by the local asset interceptor.
      */
     private static boolean isApprovedDateSource(Uri uri) {
-        if (uri == null || !"https".equals(uri.getScheme()) || uri.getPort() != -1) return false;
+        if (uri == null || !"https".equals(uri.getScheme()) || uri.getPort() != -1 || uri.getUserInfo() != null || uri.getFragment() != null) return false;
         String host = uri.getHost();
         String path = uri.getPath();
+        for (String key : uri.getQueryParameterNames()) {
+            if ("_t".equals(key)) { if (!uri.getQueryParameter(key).matches("[0-9]{1,16}")) return false; }
+            else if (!("ref".equals(key) && "api.github.com".equals(host) && "main".equals(uri.getQueryParameter(key)))) return false;
+            if (uri.getQueryParameters(key).size() != 1) return false;
+        }
         return ("raw.githubusercontent.com".equals(host)
                     && "/Sargon17-Green/pastafari-calendar/main/docs/api/seer-now.json".equals(path))
             || ("api.github.com".equals(host)
@@ -54,6 +73,7 @@ public final class MainActivity extends Activity {
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState!=null)pendingExport=savedInstanceState.getString("pendingExport");
         final FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.rgb(20,47,65));
         if (Build.VERSION.SDK_INT >= 30) {
@@ -85,6 +105,9 @@ public final class MainActivity extends Activity {
         settings.setTextZoom(100);
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         settings.setSupportMultipleWindows(false);
+        settings.setSafeBrowsingEnabled(true);
+        android.webkit.CookieManager.getInstance().setAcceptCookie(false);
+        android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(web,false);
         web.addJavascriptInterface(new LocalBridge(), "NativeLaw");
         web.setWebChromeClient(new WebChromeClient());
         web.setWebViewClient(new WebViewClient() {
@@ -94,12 +117,25 @@ public final class MainActivity extends Activity {
             @Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return handleNavigation(Uri.parse(url));
             }
+            @Override public void onPageStarted(WebView view,String url,android.graphics.Bitmap icon) { ready=false; }
+            @Override public void onPageFinished(WebView view,String url) {
+                view.evaluateJavascript("document.documentElement.dataset.lawReady === 'true'",result -> ready="true".equals(result));
+            }
+            @Override public void onReceivedError(WebView view,WebResourceRequest request,WebResourceError error) {
+                if(request.isForMainFrame()) { ready=false; showLoadError(); }
+            }
+            @Override public boolean onRenderProcessGone(WebView view,RenderProcessGoneDetail detail) {
+                ready=false;
+                new AlertDialog.Builder(MainActivity.this).setMessage("תהליך הקריאה נסגר. ההעדפות נשמרו; אפשר לפתוח מחדש.")
+                    .setPositiveButton("פתיחה מחדש",(d,w)->recreate()).setCancelable(false).show();
+                ((android.view.ViewGroup)view.getParent()).removeView(view);view.destroy();web=null;return true;
+            }
             @Override public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
                 if (!isLocalDocument(uri)) {
                     // A null response allows WebView to perform its normal CORS
                     // fetch. All non-allowlisted external resources stay denied.
-                    if ("GET".equals(request.getMethod()) && isApprovedDateSource(uri)) return null;
+                    if ("GET".equals(request.getMethod()) && isApprovedDateSource(uri)) return dateResponse(uri);
                     return missing();
                 }
                 String path = uri.getPath();
@@ -127,6 +163,38 @@ public final class MainActivity extends Activity {
         if (savedInstanceState == null || web.restoreState(savedInstanceState)==null) web.loadUrl(HOME);
     }
 
+    private void showLoadError() {
+        new AlertDialog.Builder(this).setMessage("טעינת נוסח החוק המקומי נכשלה.")
+            .setPositiveButton("ניסיון נוסף",(d,w)->web.loadUrl(HOME)).setNegativeButton("ביטול",null).show();
+    }
+    private boolean trusted() {
+        if(web==null || !ready || web.getUrl()==null)return false;
+        Uri uri=Uri.parse(web.getUrl());
+        return isLocalDocument(uri) && "/index.html".equals(uri.getPath()) && uri.getQuery()==null;
+    }
+    private static WebResourceResponse dateResponse(Uri uri) {
+        HttpsURLConnection connection=null;
+        try {
+            connection=(HttpsURLConnection)new URL(uri.toString()).openConnection();
+            connection.setInstanceFollowRedirects(false);
+            connection.setConnectTimeout(6000);connection.setReadTimeout(6000);
+            connection.setUseCaches(false);connection.setRequestProperty("Accept","application/json");
+            if(connection.getResponseCode()!=200)return missing();
+            if(connection.getContentLengthLong()>262144)return missing();
+            byte[] bytes=readBounded(connection.getInputStream(),262144);
+            Map<String,String> headers=new HashMap<>();
+            headers.put("Access-Control-Allow-Origin","https://law.local");
+            headers.put("Cache-Control","no-store");headers.put("X-Content-Type-Options","nosniff");
+            return new WebResourceResponse("application/json","UTF-8",200,"OK",headers,new ByteArrayInputStream(bytes));
+        }catch(Exception ex){return missing();}finally{if(connection!=null)connection.disconnect();}
+    }
+    private static byte[] readBounded(InputStream stream,int limit) throws IOException {
+        try(InputStream input=stream;ByteArrayOutputStream output=new ByteArrayOutputStream()){
+            byte[] buffer=new byte[16384];int n,total=0;
+            while((n=input.read(buffer))!=-1){total+=n;if(total>limit)throw new IOException("File too large");output.write(buffer,0,n);}
+            return output.toByteArray();
+        }
+    }
     private static WebResourceResponse missing() {
         return new WebResourceResponse("text/plain","UTF-8",404,"Not Found",Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));
     }
@@ -141,7 +209,7 @@ public final class MainActivity extends Activity {
         return result == null ? "application/octet-stream" : result;
     }
     private static boolean isLocalDocument(Uri uri) {
-        return "https".equals(uri.getScheme()) && HOST.equals(uri.getHost()) && uri.getPort() == -1;
+        return "https".equals(uri.getScheme()) && HOST.equals(uri.getHost()) && uri.getPort() == -1 && uri.getUserInfo() == null;
     }
     private boolean handleNavigation(Uri uri) {
         if (isLocalDocument(uri)) {
@@ -149,8 +217,10 @@ public final class MainActivity extends Activity {
                 openAttachment(uri.getLastPathSegment());
                 return true;
             }
-            return false;
+            if (("/index.html".equals(uri.getPath()) || "/".equals(uri.getPath())) && uri.getQuery()==null) return false;
+            return true;
         }
+        if (uri.getUserInfo()!=null) return true;
         if ("https".equals(uri.getScheme()) || "http".equals(uri.getScheme()) || "mailto".equals(uri.getScheme())) {
             try { startActivity(new Intent(Intent.ACTION_VIEW,uri)); }
             catch (Exception ex) { Toast.makeText(this,"לא נמצאה אפליקציה לפתיחת הקישור",Toast.LENGTH_LONG).show(); }
@@ -167,21 +237,74 @@ public final class MainActivity extends Activity {
         } catch (Exception ex) { Toast.makeText(this,"לפתיחת המסמך המצורף נדרשת אפליקציה שקוראת קובצי Word",Toast.LENGTH_LONG).show(); }
     }
     private final class LocalBridge {
+        @JavascriptInterface public void exportSettings() { runOnUiThread(() -> { if(trusted())beginExport(); }); }
+        @JavascriptInterface public void importSettings() { runOnUiThread(() -> { if(trusted())beginImport(); }); }
+        @JavascriptInterface public void share(final String url) { runOnUiThread(() -> {
+            if(!trusted() || url==null || url.length()>2048 || !url.startsWith("https://sargon17-green.github.io/consumer-law-reader/#"))return;
+            try{startActivity(Intent.createChooser(new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT,url),"שיתוף קישור לסעיף"));}
+            catch(Exception ex){Toast.makeText(MainActivity.this,"השיתוף אינו זמין",Toast.LENGTH_LONG).show();}
+        }); }
         @JavascriptInterface public void copy(final String text) {
             runOnUiThread(() -> {
+                if(!trusted() || text==null || text.length()>1000000)return;
                 ClipboardManager clipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
                 clipboard.setPrimaryClip(ClipData.newPlainText("חוק הגנת הצרכן, התשמ\"א–1981",text==null?"":text));
             });
         }
-        @JavascriptInterface public void openAttachment(final String name) { runOnUiThread(() -> MainActivity.this.openAttachment(name)); }
+        @JavascriptInterface public void openAttachment(final String name) { runOnUiThread(() -> { if(trusted())MainActivity.this.openAttachment(name); }); }
         @JavascriptInterface public void printDocument() {
             runOnUiThread(() -> {
+                if(!trusted())return;
                 PrintManager manager = (PrintManager)getSystemService(PRINT_SERVICE);
                 manager.print("חוק הגנת הצרכן, התשמ\"א–1981",web.createPrintDocumentAdapter("חוק הגנת הצרכן, התשמ\"א–1981"),null);
             });
         }
     }
+    private void beginExport() {
+        web.evaluateJavascript("window.lawSettings.exportJSON()",result -> {
+            try {
+                Object value=new JSONTokener(result).nextValue();
+                if(!(value instanceof String) || ((String)value).getBytes("UTF-8").length>MAX_BACKUP)throw new Exception();
+                pendingExport=(String)value;
+                Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json");
+                intent.putExtra(Intent.EXTRA_TITLE,"consumer-law-settings.json");startActivityForResult(intent,EXPORT_SETTINGS);
+            }catch(Exception ex){pendingExport=null;Toast.makeText(this,"לא ניתן ליצור גיבוי",Toast.LENGTH_LONG).show();}
+        });
+    }
+    private void beginImport() {
+        try{startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json"),IMPORT_SETTINGS);}
+        catch(Exception ex){Toast.makeText(this,"בחירת קובץ אינה זמינה",Toast.LENGTH_LONG).show();}
+    }
+    @Override protected void onActivityResult(int request,int result,Intent data) {
+        super.onActivityResult(request,result,data);
+        if(result!=RESULT_OK || data==null || data.getData()==null){if(request==EXPORT_SETTINGS)pendingExport=null;return;}
+        final Uri uri=data.getData();
+        if(request==EXPORT_SETTINGS){
+            final String contents=pendingExport;pendingExport=null;if(contents==null)return;
+            new Thread(() -> {try(OutputStream output=getContentResolver().openOutputStream(uri,"wt")){if(output==null)throw new IOException();output.write(contents.getBytes("UTF-8"));runOnUiThread(()->Toast.makeText(this,"הגיבוי נשמר",Toast.LENGTH_LONG).show());}
+                catch(Exception ex){runOnUiThread(()->Toast.makeText(this,"שמירת הגיבוי נכשלה",Toast.LENGTH_LONG).show());}},"settings-export").start();
+        }else if(request==IMPORT_SETTINGS){
+            new Thread(() -> {try{final String raw=new String(readBounded(getContentResolver().openInputStream(uri),MAX_BACKUP),"UTF-8");runOnUiThread(()->previewImport(raw));}
+                catch(Exception ex){runOnUiThread(()->Toast.makeText(this,"קריאת הגיבוי נכשלה או שהקובץ גדול מדי",Toast.LENGTH_LONG).show());}},"settings-import").start();
+        }
+    }
+    private void previewImport(final String raw) {
+        if(!trusted())return;
+        web.evaluateJavascript("window.lawSettings.prepareImport("+JSONObject.quote(raw)+")",result -> {
+            try{JSONObject preview=new JSONObject(result);if(!preview.optBoolean("ok")){new AlertDialog.Builder(this).setMessage(preview.optString("error")).setPositiveButton("אישור",null).show();return;}
+                new AlertDialog.Builder(this).setTitle("שחזור הגדרות").setMessage(preview.getString("preview"))
+                    .setNegativeButton("ביטול",null).setPositiveButton("החלפת ההגדרות",(d,w)-> {
+                        if(!trusted())return;
+                        web.evaluateJavascript("window.lawSettings.applyImport("+JSONObject.quote(raw)+")",applied -> {
+                            try{JSONObject status=new JSONObject(applied);if(status.optBoolean("ok"))web.reload();else Toast.makeText(this,status.optString("error"),Toast.LENGTH_LONG).show();}
+                            catch(Exception ex){Toast.makeText(this,"השחזור נכשל",Toast.LENGTH_LONG).show();}
+                        });
+                    }).show();
+            }catch(Exception ex){Toast.makeText(this,"קובץ הגיבוי אינו תקין",Toast.LENGTH_LONG).show();}
+        });
+    }
     @Override public void onBackPressed() {
+        if(web==null){super.onBackPressed();return;}
         web.evaluateJavascript("Boolean(window.lawMobileBack && window.lawMobileBack())",new ValueCallback<String>() {
             @Override public void onReceiveValue(String result) {
                 if ("true".equals(result)) return;
@@ -189,8 +312,8 @@ public final class MainActivity extends Activity {
             }
         });
     }
-    @Override protected void onSaveInstanceState(Bundle state) { web.saveState(state);super.onSaveInstanceState(state); }
-    @Override protected void onPause() { web.onPause();super.onPause(); }
+    @Override protected void onSaveInstanceState(Bundle state) { if(web!=null)web.saveState(state);if(pendingExport!=null)state.putString("pendingExport",pendingExport);super.onSaveInstanceState(state); }
+    @Override protected void onPause() { if(web!=null){web.evaluateJavascript("window.lawMobile?.saveSession()",null);web.onPause();}super.onPause(); }
     @Override protected void onResume() { super.onResume();if(web!=null)web.onResume(); }
     @Override protected void onDestroy() { if(web!=null){web.removeJavascriptInterface("NativeLaw");web.destroy();}super.onDestroy(); }
 }

@@ -18,7 +18,14 @@ def disable_legacy(m):
         return '<script type="application/x-law-original">'+m.group(2)+'</script>'
     return m.group(0)
 original=re.sub(r'<script\b([^>]*)>(.*?)</script>',disable_legacy,original,flags=re.S)
-head='''<meta name="theme-color" content="#142f41"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="חוק הגנת הצרכן, התשמ&quot;א–1981"><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-192.png"><link rel="stylesheet" href="./mobile.css">'''
+head='''<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src https://raw.githubusercontent.com/Sargon17-Green/pastafari-calendar/main/docs/api/seer-now.json https://api.github.com/repos/Sargon17-Green/pastafari-calendar/contents/docs/api/seer-now.json https://sargon17-green.github.io/pastafari-calendar/api/seer-now.json; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><meta name="theme-color" content="#142f41"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="חוק הגנת הצרכן, התשמ&quot;א–1981"><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-192.png"><link rel="stylesheet" href="./mobile.css">'''
+# Safari needs a mobile viewport for correct iPhone sizing.  Never modify
+# the authoritative legal-source document; inject only when the source lacks it.
+if not re.search(r'<meta[^>]+name\s*=\s*["\']viewport["\']', original, flags=re.I):
+    head='<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'+head
+security,head=head.split('<meta name="theme-color"',1)
+head='<meta name="theme-color"'+head
+original=original.replace('<head>','<head>'+security,1)
 shell=(ROOT/'web/mobile-shell.html').read_text()
 editorial=json.loads((ROOT/'metadata/editorial_status.json').read_text(encoding='utf-8'))
 assert editorial['law_text_last_verified_on'] and editorial['editor_publisher']=='סרגון 17 גרין'
@@ -26,7 +33,7 @@ embedded=json.dumps(editorial,ensure_ascii=False).replace('<','\\u003c').replace
 editorial_tag='<script type="application/json" id="law-editorial-status">'+embedded+'</script>'
 
 prepare(ROOT/'typed-sources',DIST,ROOT/'evidence')
-html=original.replace('<html>','<html lang="he" dir="rtl">',1).replace('</head>',head+'\n</head>',1).replace('<body onload="start()">','<body onload="start()">\n'+shell,1).replace('</body>',editorial_tag+'<script defer src="./mobile-sources.js"></script><script defer src="./mobile-topics.js"></script><script defer src="./mobile.js"></script>\n</body>',1)
+html=original.replace('<html>','<html lang="he" dir="rtl">',1).replace('</head>',head+'\n</head>',1).replace('<body onload="start()">','<body onload="start()">\n'+shell,1).replace('</body>',editorial_tag+'<script defer src="./mobile-core.js"></script><script defer src="./mobile-settings.js"></script><script defer src="./mobile-sources.js"></script><script defer src="./mobile-topics.js"></script><script defer src="./mobile.js"></script>\n</body>',1)
 # The Android asset handler uses MimeTypeMap.getFileExtensionFromUrl, which
 # can be ambiguous for '+' in a filename. Generate lossless ASCII-safe aliases
 # for PEGI age pictograms, without changing the preserved source HTML.
@@ -38,7 +45,7 @@ for age in (3, 7, 12, 16, 18):
     assert html.count(old)==1, (old,html.count(old))
     html=html.replace(old, f'src="./{alias_name}"')
 (DIST/'index.html').write_text(html)
-for name in ['mobile.css','mobile.js','mobile-topics.js','mobile-sources.js','icon-192.png','icon-512.png']:
+for name in ['mobile-core.js','mobile-settings.js','mobile.css','mobile.js','mobile-topics.js','mobile-sources.js','icon-192.png','icon-512.png']:
     shutil.copy2(ROOT/'web'/name,DIST/name)
 manifest={'id':'./','name':'חוק הגנת הצרכן, התשמ"א–1981','short_name':'חוק הגנת הצרכן, התשמ"א–1981','lang':'he','dir':'rtl','start_url':'./','scope':'./','display':'standalone','background_color':'#f5f6f4','theme_color':'#142f41','description':'חוק הגנת הצרכן, התשמ"א–1981; חקיקת משנה ותוספים מתוך הקובץ המצורף.','icons':[{'src':'./icon-192.png','sizes':'192x192','type':'image/png','purpose':'any'},{'src':'./icon-512.png','sizes':'512x512','type':'image/png','purpose':'any maskable'}]}
 (DIST/'manifest.webmanifest').write_text(json.dumps(manifest,ensure_ascii=False,indent=2))

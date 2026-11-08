@@ -23,7 +23,7 @@ with sync_playwright() as p:
  page.set_content(str(soup),wait_until='domcontentloaded',timeout=35000)
  page.evaluate("""() => {const v={};Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>v[k]??null,setItem:(k,x)=>v[k]=String(x),removeItem:k=>delete v[k]}})}""")
  page.add_style_tag(content=(root/'web/mobile.css').read_text())
- for fname in ('mobile-sources.js','mobile-topics.js','mobile.js'):page.add_script_tag(content=(root/'web'/fname).read_text())
+ for fname in ('mobile-core.js','mobile-settings.js','mobile-sources.js','mobile-topics.js','mobile.js'):page.add_script_tag(content=(root/'web'/fname).read_text())
  page.wait_for_function("window.lawMobile&&window.lawMobile.version==='1.2.3'",timeout=20000)
  for width in (320,375,430,600):
   page.set_viewport_size({'width':width,'height':850})

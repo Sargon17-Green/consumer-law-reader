@@ -29,7 +29,7 @@ with sync_playwright() as pw:
         page.add_style_tag(content=(ROOT/'web/mobile.css').read_text())
         # Execute the original legal document's note handler, not a test-only mock.
         page.add_script_tag(content=notes_js)
-        for name in ('mobile-sources.js','mobile-topics.js','mobile.js'):
+        for name in ('mobile-core.js','mobile-settings.js','mobile-sources.js','mobile-topics.js','mobile.js'):
             page.add_script_tag(content=(ROOT/'web'/name).read_text())
         page.wait_for_function('window.lawMobile',timeout=80000)
         data=page.evaluate("""() => {

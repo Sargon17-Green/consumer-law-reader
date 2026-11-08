@@ -26,10 +26,10 @@ for (const endpoint of [
   '/repos/Sargon17-Green/pastafari-calendar/contents/docs/api/seer-now.json',
   '/pastafari-calendar/api/seer-now.json'
 ]) assert(allowlist.includes('"' + endpoint + '".equals(path)'), 'Missing exact path: ' + endpoint);
-assert.equal((allowlist.match(/\.equals\(host\)/g) || []).length, 3);
+assert.equal((allowlist.match(/\.equals\(path\)/g) || []).length, 3);
 assert(allowlist.includes('uri.getPort() != -1'), 'Unexpected port must be blocked');
 assert(allowlist.includes('"https".equals(uri.getScheme())'), 'Only HTTPS permitted');
-assert(java.includes('if ("GET".equals(request.getMethod()) && isApprovedDateSource(uri)) return null;'));
+assert(java.includes('if ("GET".equals(request.getMethod()) && isApprovedDateSource(uri)) return dateResponse(uri);'));
 assert(java.includes('return missing();'), 'Other remote resources must remain blocked');
 assert(!java.includes("connect-src 'none'"), 'Network CSP still forbids date fetches');
 assert(!/connect-src[^;]*\*/.test(java), 'Broad CSP network wildcard forbidden');

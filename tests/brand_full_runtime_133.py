@@ -17,7 +17,7 @@ with sync_playwright() as pw:
   p.set_content(str(soup),wait_until='domcontentloaded',timeout=80000)
   p.evaluate("""() => {let v={};Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>v[k]??null,setItem:(k,x)=>v[k]=String(x),removeItem:k=>delete v[k]}})}""")
   p.add_style_tag(content=(r/'web/mobile.css').read_text())
-  for f in ('mobile-sources.js','mobile-topics.js','mobile.js'):
+  for f in ('mobile-core.js','mobile-settings.js','mobile-sources.js','mobile-topics.js','mobile.js'):
    p.add_script_tag(content=(r/'web'/f).read_text())
   p.wait_for_function('window.lawMobile',timeout=45000)
   d=p.evaluate('''() => { const a=document.querySelector('.m-top').getBoundingClientRect(), b=document.querySelector('#frame').getBoundingClientRect(), brand=document.querySelector('.m-brand'), brandrect=brand.getBoundingClientRect(), status=document.querySelector('.m-status').getBoundingClientRect(); return {app: brand.childNodes[0].textContent, version:window.lawMobile.version, headBottom:a.bottom, frameTop:b.top, brandRight:brandrect.right, headerRight:a.right, headerLeft:a.left, statusLeft:status.left, docWidth:document.documentElement.scrollWidth, width:innerWidth};}''')

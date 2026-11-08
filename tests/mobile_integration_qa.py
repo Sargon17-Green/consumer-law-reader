@@ -1,0 +1,93 @@
+"""Run the complete packaged DOM and its real scripts, not a stripped fixture."""
+from pathlib import Path
+from urllib.parse import urlparse,unquote
+from datetime import datetime,timezone
+from playwright.sync_api import sync_playwright
+import hashlib,json,mimetypes,shutil,time,os
+ROOT=Path(__file__).resolve().parents[1]
+EVIDENCE=ROOT/'evidence';EVIDENCE.mkdir(exist_ok=True)
+SOURCE=ROOT/'original/Consumer_Protection_Law.html'
+EXPECTED='de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9'
+assert hashlib.sha256(SOURCE.read_bytes()).hexdigest()==EXPECTED
+
+def serve(route):
+    url=urlparse(route.request.url)
+    if url.hostname!='law.local':
+        route.abort('internetdisconnected');return
+    path=ROOT/'dist'/unquote(url.path.lstrip('/') or 'index.html')
+    assert path.resolve().is_relative_to((ROOT/'dist').resolve())
+    if path.is_file():route.fulfill(status=200,body=path.read_bytes(),content_type=mimetypes.guess_type(path.name)[0] or 'application/octet-stream')
+    else:route.fulfill(status=404,body='missing')
+
+report=[]
+with sync_playwright() as pw:
+    options={'args':['--no-sandbox','--disable-dev-shm-usage']}
+    if shutil.which('chromium'):options['executable_path']=shutil.which('chromium')
+    browser=pw.chromium.launch(**options)
+    for width,height in [(320,740),(430,932),(768,1024),(1180,820)]:
+        context=browser.new_context(viewport={'width':width,'height':height},has_touch=width<800,reduced_motion='reduce',service_workers='block')
+        context.route('**/*',serve)
+        page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+        started=time.monotonic();page.goto('https://law.local/index.html',wait_until='load',timeout=90000)
+        page.wait_for_function("()=>document.documentElement.dataset.lawReady==='true'",timeout=60000)
+        opening=(time.monotonic()-started)*1000
+        metrics=page.evaluate("""()=>{
+          const start=performance.now(),records=lawMobile.buildSearch(),index=performance.now()-start;
+          const timings=[];for(let i=0;i<50;i++){const at=performance.now();records.filter(r=>r.folded.includes(LawCore.normalized(i%2?'עסקה':'14').text));timings.push(performance.now()-at);}
+          return {indexMs:index,records:records.length,searchMedianMs:timings.sort((a,b)=>a-b)[25],heap:performance.memory?.usedJSHeapSize};
+        }""")
+        assert metrics['records']>500
+        assert page.evaluate("()=>LawCore.snippet('אָב שָׁלוֹם סוף','שלום').mark")=='שָׁלוֹם'
+        page.locator('[data-mobile=search]').click();page.locator('#mobile-search').fill('עסקה')
+        page.wait_for_function("()=>document.querySelectorAll('.m-result').length>0")
+        expected=page.locator('#mobile-search').input_value()
+        page.locator('.m-result').first.click()
+        assert page.evaluate('location.hash').startswith('#')
+        page.locator('#mobile-return').click();assert page.locator('#mobile-search').input_value()==expected
+        page.locator('#mobile-sheet-close').click()
+        # HTML metacharacters in an input remain text; the search path creates no HTML.
+        page.locator('[data-mobile=search]').click();page.locator('#mobile-search').fill('<img src=x onerror=alert(1)>')
+        page.wait_for_timeout(250);assert page.locator('#mobile-search-results img').count()==0
+        page.locator('#mobile-sheet-close').click()
+        # Preview -> restore: stale settings disappear, unrelated keys survive, invalid files fail unchanged.
+        backup=page.evaluate("""()=>{
+          localStorage.setItem('law-reader-font','24');localStorage.setItem('unrelated','keep');
+          const raw=lawSettings.exportJSON();localStorage.setItem('law-reader-align','right');
+          if(!lawSettings.prepareImport(raw).ok||!lawSettings.applyImport(raw).ok)throw Error('restore failed');
+          if(localStorage.getItem('law-reader-align')!==null||localStorage.getItem('unrelated')!=='keep')throw Error('restore isolation');
+          const before=lawSettings.exportJSON();if(lawSettings.prepareImport('{"format":"evil"}').ok)throw Error('unsafe file accepted');
+          if(before!==lawSettings.exportJSON())throw Error('validation mutated settings');return raw;
+        }""")
+        page.evaluate('lawMobile.goTo("article_14");lawMobile.saveSession()')
+        # Malformed fragment fails safely without throwing, and the state survives a real reload.
+        page.evaluate("()=>{const a=document.createElement('a');a.href='#%ZZ';document.getElementById('frame').append(a);a.click();a.remove();}")
+        page.reload(wait_until='load');page.wait_for_function('()=>window.lawMobile')
+        assert page.evaluate("localStorage.getItem('law-reader-font')")=='24'
+        assert page.evaluate('location.hash')=='#article_14'
+        assert page.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--reading-size').trim()")=='24px'
+        # Keyboard dialog focus returns to the invoker even after replacing a nested sheet.
+        page.locator('[data-mobile=toc]').click();assert page.locator('dialog[open]').count()==1
+        page.keyboard.press('Escape');assert page.locator('dialog[open]').count()==0
+        assert page.locator('[data-mobile=toc]').evaluate('(e)=>e===document.activeElement')
+        # No unsolicited external content or bridging frames can execute.
+        frame=page.evaluate("""async()=>{
+          window.__frameRan=false;const f=document.createElement('iframe');f.srcdoc='<script>parent.__frameRan=true<'+ '/script>';document.body.append(f);await new Promise(r=>setTimeout(r,100));f.remove();return window.__frameRan;
+        }""")
+        assert frame is False
+        # Long sequence across legislation and back, and stable cached index identity.
+        assert page.evaluate("""()=>{const first=lawMobile.buildSearch();for(let i=0;i<120;i++){lawMobile.goTo(first[i%first.length].el,false);if(lawMobile.buildSearch()!==first)return false;}return true;}""")
+        page.evaluate('lawMobile.goTo("law_name",false,false)')
+        dimensions=page.evaluate("({viewport:innerWidth,width:document.documentElement.scrollWidth})")
+        assert dimensions['width']<=dimensions['viewport']+2,dimensions
+        # Primary controls have accessible names and platform-sized hit areas.
+        for button in page.locator('.m-bottom button').all():
+            box=button.bounding_box();assert box and box['height']>=44 and box['width']>=44
+            assert button.inner_text().strip()
+        assert page.locator('#mobile-sheet').get_attribute('aria-labelledby')=='mobile-sheet-title'
+        if width==430:page.screenshot(path=str(EVIDENCE/'reader-430.png'))
+        assert not errors,errors
+        report.append({'browser':browser.version,'environment':'Linux headless Chromium; full bundled DOM; remote resources aborted','viewport':[width,height],'openingMs':opening,**metrics,'result':'PASS'})
+        context.close()
+    browser.close()
+(EVIDENCE/'mobile-browser-report.json').write_text(json.dumps(report,indent=2))
+print(json.dumps(report,indent=2))

@@ -24,7 +24,7 @@ with sync_playwright() as p:
  page.set_content(str(soup),wait_until='domcontentloaded',timeout=35000)
  page.evaluate("""() => {const s={};Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>Object.hasOwn(s,k)?s[k]:null,setItem:(k,v)=>s[k]=String(v),removeItem:k=>delete s[k]}})}""")
  page.add_style_tag(content=(ROOT/'web/mobile.css').read_text())
- for name in ('mobile-sources.js','mobile-topics.js','mobile.js'): page.add_script_tag(content=(ROOT/'web'/name).read_text())
+ for name in ('mobile-core.js','mobile-settings.js','mobile-sources.js','mobile-topics.js','mobile.js'): page.add_script_tag(content=(ROOT/'web'/name).read_text())
  page.wait_for_function("window.lawMobile && window.lawMobile.version==='1.2.2'",timeout=25000)
  print('debug',{ 'errors':errs[:6], 'law':page.evaluate('window.lawMobile?.version || null'),'ready':page.evaluate('document.readyState'),'article':page.evaluate("!!document.getElementById('article_4a')"),'frame':page.evaluate("!!document.getElementById('frame')")},flush=True)
  print('loaded',round(time.monotonic()-st,2),'seconds',flush=True)

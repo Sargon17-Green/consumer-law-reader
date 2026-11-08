@@ -62,4 +62,4 @@ details=subprocess.check_output([str(sdk/'aapt'),'dump','badging',str(apk)],text
 (ROOT/'evidence/apk-badging.txt').write_text(details)
 sha=hashlib.sha256(apk.read_bytes()).hexdigest()
 (OUT/(apk.name+'.sha256.txt')).write_text(sha+'  '+apk.name+'\n')
-print(json.dumps({'apk':str(apk),'bytes':apk.stat().st_size,'sha256':sha,'signature':'verified','min_sdk':26,'target_sdk':35}))
+print(json.dumps({'apk':str(apk),'bytes':apk.stat().st_size,'sha256':sha,'signature':'verified','min_sdk':26,'target_sdk':36}))
