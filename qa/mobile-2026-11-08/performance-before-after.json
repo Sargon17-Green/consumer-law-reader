@@ -1,0 +1,134 @@
+[
+  {
+    "kind": "baseline",
+    "cpuSlowdown": 1,
+    "sample": 0,
+    "openingMs": 1205.6370759996753,
+    "indexMs": 71.20000000018626,
+    "cached100Ms": 0.09999999962747097,
+    "queries100Ms": 6,
+    "count": 581,
+    "heap": 10000000
+  },
+  {
+    "kind": "baseline",
+    "cpuSlowdown": 1,
+    "sample": 1,
+    "openingMs": 1003.9884269999675,
+    "indexMs": 68,
+    "cached100Ms": 0,
+    "queries100Ms": 5.899999999906868,
+    "count": 581,
+    "heap": 10000000
+  },
+  {
+    "kind": "baseline",
+    "cpuSlowdown": 1,
+    "sample": 2,
+    "openingMs": 992.2194890000355,
+    "indexMs": 72.40000000037253,
+    "cached100Ms": 0.09999999962747097,
+    "queries100Ms": 5.800000000745058,
+    "count": 581,
+    "heap": 10000000
+  },
+  {
+    "kind": "baseline",
+    "cpuSlowdown": 4,
+    "sample": 0,
+    "openingMs": 3514.9649820000377,
+    "indexMs": 382.39999999990687,
+    "cached100Ms": 0.10000000009313226,
+    "queries100Ms": 32.200000000186265,
+    "count": 581,
+    "heap": 10000000
+  },
+  {
+    "kind": "baseline",
+    "cpuSlowdown": 4,
+    "sample": 1,
+    "openingMs": 3701.257693000116,
+    "indexMs": 421.29999999981374,
+    "cached100Ms": 0,
+    "queries100Ms": 42.700000000186265,
+    "count": 581,
+    "heap": 10000000
+  },
+  {
+    "kind": "baseline",
+    "cpuSlowdown": 4,
+    "sample": 2,
+    "openingMs": 3709.954569999809,
+    "indexMs": 397.1999999997206,
+    "cached100Ms": 0,
+    "queries100Ms": 41.40000000083819,
+    "count": 581,
+    "heap": 10000000
+  },
+  {
+    "kind": "candidate",
+    "cpuSlowdown": 1,
+    "sample": 0,
+    "openingMs": 1101.3402849998783,
+    "indexMs": 88.60000000009313,
+    "cached100Ms": 0,
+    "queries100Ms": 6.199999999720603,
+    "count": 581,
+    "heap": 10000000
+  },
+  {
+    "kind": "candidate",
+    "cpuSlowdown": 1,
+    "sample": 1,
+    "openingMs": 1157.568615999935,
+    "indexMs": 80.89999999990687,
+    "cached100Ms": 0,
+    "queries100Ms": 6,
+    "count": 581,
+    "heap": 11200000
+  },
+  {
+    "kind": "candidate",
+    "cpuSlowdown": 1,
+    "sample": 2,
+    "openingMs": 1073.699900000065,
+    "indexMs": 79.79999999981374,
+    "cached100Ms": 0,
+    "queries100Ms": 5.7999999998137355,
+    "count": 581,
+    "heap": 10000000
+  },
+  {
+    "kind": "candidate",
+    "cpuSlowdown": 4,
+    "sample": 0,
+    "openingMs": 3456.2292099999468,
+    "indexMs": 410.10000000009313,
+    "cached100Ms": 0,
+    "queries100Ms": 38.60000000009313,
+    "count": 581,
+    "heap": 10000000
+  },
+  {
+    "kind": "candidate",
+    "cpuSlowdown": 4,
+    "sample": 1,
+    "openingMs": 3469.688063999911,
+    "indexMs": 409.5,
+    "cached100Ms": 0.09999999962747097,
+    "queries100Ms": 29,
+    "count": 581,
+    "heap": 10000000
+  },
+  {
+    "kind": "candidate",
+    "cpuSlowdown": 4,
+    "sample": 2,
+    "openingMs": 3547.129512000083,
+    "indexMs": 354,
+    "cached100Ms": 0.8000000002793968,
+    "queries100Ms": 30.899999999906868,
+    "count": 581,
+    "heap": 10000000
+  }
+]
