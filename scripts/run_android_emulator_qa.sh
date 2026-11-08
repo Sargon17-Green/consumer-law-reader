@@ -4,6 +4,7 @@ mkdir -p evidence
 collect() {
   adb logcat -d -v threadtime > evidence/android-logcat.txt 2>&1 || true
   adb shell dumpsys meminfo il.org.lawreader.consumer > evidence/android-memory.txt 2>&1 || true
+  adb shell dumpsys cpuinfo > evidence/android-cpu.txt 2>&1 || true
   adb shell dumpsys webviewupdate > evidence/android-webview.txt 2>&1 || true
   adb exec-out screencap -p > evidence/android-emulator.png 2>/dev/null || true
 }

@@ -54,6 +54,7 @@ public final class ReaderInstrumentation extends Instrumentation {
         return null;
     }
     private void clickSystemText(String text) throws Exception {
+        try{getUiAutomation().waitForIdle(700,8000);}catch(java.util.concurrent.TimeoutException busy){}
         for(int attempt=0;attempt<100;attempt++){
             AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
             AccessibilityNodeInfo node=findText(root,text);
@@ -112,6 +113,20 @@ public final class ReaderInstrumentation extends Instrumentation {
                 if(manager.hasPrimaryClip())clipboard[0]=manager.getPrimaryClip().getItemAt(0).getText().toString();
             });
             check("QA clipboard fixture".equals(clipboard[0]),"Native clipboard bridge");
+            android.os.Parcel parcel=android.os.Parcel.obtain();
+            try{
+                android.content.ClipData.newPlainText("QA",new String(new char[600000]).replace('\0','א')).writeToParcel(parcel,0);
+                check(parcel.dataSize()>1048576,"Previous clipboard bound could exceed the actual Binder transaction limit");
+            }finally{parcel.recycle();}
+            js("NativeLaw.copy('א'.repeat(450001))");Thread.sleep(300);
+            check("true".equals(js("document.getElementById('mobile-toast').textContent.includes('לא הושלמה')")),"Oversized native clipboard rejected honestly without crashing");
+            runOnMainSync(()->{
+                android.content.ClipboardManager manager=(android.content.ClipboardManager)getTargetContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                clipboard[0]=manager.hasPrimaryClip()?manager.getPrimaryClip().getItemAt(0).getText().toString():null;
+            });
+            check("QA clipboard fixture".equals(clipboard[0]),"Rejected clipboard data cannot replace the previous clip");
+            check("true".equals(js("(()=>{const e=document.createElement('div');e.id='qa-copy';e.textContent='א'.repeat(600000);document.body.append(e);getSelection().selectAllChildren(e);copy_selected();return document.querySelector('#mobile-sheet textarea')?.value.length===600000})()")),"Oversized selection retains the entire text in an accessible fallback");
+            js("lawMobileBack();document.getElementById('qa-copy').remove();getSelection().removeAllRanges()");
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
     private void testNativeShare() throws Exception {
@@ -124,7 +139,10 @@ public final class ReaderInstrumentation extends Instrumentation {
         else getTargetContext().registerReceiver(receiver,filter);
         try{
             js("lawMobile.shareLink('article_14')");
-            clickSystemText("Reader QA link receiver");
+            for(int attempt=0;attempt<3&&received.getCount()>0;attempt++){
+                clickSystemText("Reader QA link receiver");
+                if(received.await(3,TimeUnit.SECONDS))break;
+            }
             check(received.await(15,TimeUnit.SECONDS),"Real sharesheet destination received the intent");
             check("https://sargon17-green.github.io/consumer-law-reader/reader/#article_14".equals(text[0]),"Native share retains the exact public section URL");
             Thread.sleep(300);
@@ -199,7 +217,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             testAttachmentAndClipboard();
             report.putString("attachments","PASS: native intent, cross-UID read grant and exact bundled bytes; no Word rendering claim");
             testNativeShare();
-            report.putString("share","PASS: real sharesheet selection -> cross-UID receiver -> exact section URL");
+            report.putString("share","PASS: native sharesheet delivery -> cross-UID receiver -> exact section URL");
             testNativeSettingsFiles();
             report.putString("SAF","PASS: native CreateDocument -> saved JSON -> OpenDocument -> explicit confirmation -> restored preference");
             // Stress real navigation and search index cache without constructing duplicate indexes.

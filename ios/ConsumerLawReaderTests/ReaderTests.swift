@@ -3,6 +3,13 @@ import WebKit
 import UIKit
 @testable import ConsumerLawReader
 
+private final class NativeGuardProbe: NSObject, WKScriptMessageHandler {
+    var attempted=false
+    func userContentController(_ controller: WKUserContentController,didReceive message: WKScriptMessage) {
+        attempted=true
+    }
+}
+
 final class ReaderPolicyTests: XCTestCase {
     func testDateURLsAndHostileInputs() throws {
         for (host,path) in ReaderPolicy.datePaths {
@@ -31,8 +38,11 @@ final class ReaderIntegrationTests: XCTestCase {
         testWindow=nil
     }
     private func script(_ reader: OfflineLawReader,_ source: String) async throws -> Any {
+        try await script(reader.webView,source)
+    }
+    private func script(_ webView: WKWebView,_ source: String) async throws -> Any {
         try await withCheckedThrowingContinuation { continuation in
-            reader.webView.callAsyncJavaScript("return await (" + source + ");", arguments: [:], in: nil, in: .page) { result in
+            webView.callAsyncJavaScript("return await (" + source + ");", arguments: [:], in: nil, in: .page) { result in
                 continuation.resume(with: result)
             }
         }
@@ -200,6 +210,36 @@ final class ReaderIntegrationTests: XCTestCase {
         """) as? [String:Any]
         XCTAssertEqual(result?["blocked"] as? Bool,true)
         XCTAssertEqual(result?["frameExecuted"] as? Bool,false)
+        _ = try await script(reader,"(NativeLaw.copy('TRUSTED_GUARD_QA'),true)")
+        try await Task.sleep(nanoseconds:250_000_000)
+        XCTAssertEqual(UIPasteboard.general.string,"TRUSTED_GUARD_QA")
+        // A privileged test-only user script bypasses CSP deliberately, proving
+        // that the native frame guard itself rejects the message as well.
+        let probe=NativeGuardProbe()
+        reader.webView.configuration.userContentController.add(probe,name:"readerQAProbe")
+        defer { reader.webView.configuration.userContentController.removeScriptMessageHandler(forName:"readerQAProbe") }
+        reader.webView.configuration.userContentController.addUserScript(WKUserScript(source:"if(window!==top){window.webkit.messageHandlers.readerQAProbe.postMessage('attempted');window.webkit.messageHandlers.lawReader.postMessage({type:'copy',text:'HOSTILE_SUBFRAME'});}",injectionTime:.atDocumentStart,forMainFrameOnly:false))
+        _ = try await script(reader,"(()=>{const frame=document.createElement('iframe');frame.id='qa-subframe';frame.srcdoc='<p>QA subframe</p>';document.body.append(frame);return true})()")
+        for _ in 0..<30 {if probe.attempted{break};try await Task.sleep(nanoseconds:100_000_000)}
+        XCTAssertTrue(probe.attempted,"The instrumented subframe must actually attempt a native message")
+        try await Task.sleep(nanoseconds:250_000_000)
+        XCTAssertEqual(UIPasteboard.general.string,"TRUSTED_GUARD_QA")
+        _ = try await script(reader,"(document.getElementById('qa-subframe').remove(),true)")
+        // Reusing the controller in another real WKWebView must not confer the
+        // original reader's native authority, even for the same bundled URL.
+        let other=WKWebView(frame:reader.webView.bounds,configuration:reader.webView.configuration)
+        defer {other.stopLoading()}
+        let website=try XCTUnwrap(reader.webView.url)
+        other.loadFileURL(website,allowingReadAccessTo:website.deletingLastPathComponent())
+        var otherReady=false
+        for _ in 0..<120 {
+            try await Task.sleep(nanoseconds:100_000_000)
+            if (try? await script(other,"document.documentElement.dataset.lawReady === 'true'")) as? Bool == true {otherReady=true;break}
+        }
+        XCTAssertTrue(otherReady)
+        _ = try await script(other,"(NativeLaw.copy('HOSTILE_OTHER_WEBVIEW'),true)")
+        try await Task.sleep(nanoseconds:250_000_000)
+        XCTAssertEqual(UIPasteboard.general.string,"TRUSTED_GUARD_QA")
     }
 
     func testBundledReadingWithEveryRemoteRequestBlocked() async throws {

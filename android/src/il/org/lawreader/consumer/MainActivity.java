@@ -52,6 +52,7 @@ public final class MainActivity extends Activity {
     private boolean settingsBusy;
     private static final int EXPORT_SETTINGS = 2101, IMPORT_SETTINGS = 2102;
     private static final int MAX_BACKUP = 1000000;
+    private static final int MAX_COPY = 450000; // UTF-16 payload stays below Binder's shared 1 MB buffer.
 
     /**
      * Only the three canonical HTTPS snapshot locations may be reached from the
@@ -245,6 +246,7 @@ public final class MainActivity extends Activity {
         } catch (Exception ex) { Toast.makeText(this,"לפתיחת המסמך המצורף נדרשת אפליקציה שקוראת קובצי Word",Toast.LENGTH_LONG).show(); }
     }
     private final class LocalBridge {
+        @JavascriptInterface public int copyLimit(){return MAX_COPY;}
         @JavascriptInterface public void exportSettings() { runOnUiThread(() -> { if(trusted())beginExport(); }); }
         @JavascriptInterface public void importSettings() { runOnUiThread(() -> { if(trusted())beginImport(); }); }
         @JavascriptInterface public void share(final String url) { runOnUiThread(() -> {
@@ -254,9 +256,16 @@ public final class MainActivity extends Activity {
         }); }
         @JavascriptInterface public void copy(final String text) {
             runOnUiThread(() -> {
-                if(!trusted() || text==null || text.length()>1000000)return;
-                ClipboardManager clipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-                clipboard.setPrimaryClip(ClipData.newPlainText("חוק הגנת הצרכן, התשמ\"א–1981",text==null?"":text));
+                if(!trusted())return;
+                boolean copied=false;
+                if(text!=null && text.length()<=MAX_COPY){
+                    try{
+                        ClipboardManager clipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+                        clipboard.setPrimaryClip(ClipData.newPlainText("חוק הגנת הצרכן, התשמ\"א–1981",text));
+                        copied=true;
+                    }catch(RuntimeException failure){/* A rejected IPC must not crash the reader. */}
+                }
+                web.evaluateJavascript("window.lawMobile?.copyResult?.("+copied+")",null);
             });
         }
         @JavascriptInterface public void openAttachment(final String name) { runOnUiThread(() -> { if(trusted())MainActivity.this.openAttachment(name); }); }

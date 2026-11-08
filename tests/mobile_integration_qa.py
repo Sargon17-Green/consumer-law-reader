@@ -41,6 +41,9 @@ with sync_playwright() as pw:
         assert metrics['records']>500
         definition_names=page.locator('#frame .defined').evaluate_all('(els)=>els.map(e=>e.getAttribute("aria-label"))')
         assert len(set(definition_names))>3, 'Screen readers must distinguish definition buttons by their terms'
+        assert page.locator('#frame table.m-prose-table').count()>0
+        assert page.locator('#frame table.m-prose-table:not([role=presentation])').count()==0, 'Layout tables must expose prose semantics after classification'
+        assert page.locator('.m-table-scroll>table[role=presentation]').count()==0, 'Real data tables retain table semantics'
         assert page.evaluate("""()=>lawMobile.buildSearch().every(r=>{const c=r.el.cloneNode(true);for(const e of c.querySelectorAll('.the_definition,.note_button,.note_div,.done_accordingly,.validity,.m-article-actions,.m-source-tools,.sources_box,.bills_box,.protocols_box,.history_box,script,style,noscript'))e.remove();return c.textContent.replace(/\\s+/g,' ').trim()===r.text;})"""), 'Index text must preserve every statutory unit while excluding the documented editorial elements'
         assert page.evaluate("()=>LawCore.snippet('אָב שָׁלוֹם סוף','שלום').mark")=='שָׁלוֹם'
         page.locator('[data-mobile=search]').click();page.locator('#mobile-search').fill('עסקה')

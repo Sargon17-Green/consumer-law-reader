@@ -182,6 +182,7 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         let source = """
         (function() {
           window.NativeLaw = Object.freeze({
+            copyLimit: function() { return 1000000; },
             copy: function(value) {
               window.webkit.messageHandlers.lawReader.postMessage({type:'copy', text:String(value)});
             },
@@ -362,7 +363,10 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     func receiveJSMessage(_ raw: Any) {
         guard let message = raw as? [String: Any],
               let type = message["type"] as? String else { return }
-        guard ready, !working else { return }
+        guard ready, !working else {
+            if type == "copy" { webView.evaluateJavaScript("window.lawMobile?.copyResult?.(false)") { _,_ in } }
+            return
+        }
         switch type {
         case "share":
             guard let value = message["url"] as? String, value.utf8.count < 2048,
@@ -373,8 +377,12 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         case "import":
             requestFileImport = true
         case "copy":
-            guard let value = message["text"] as? String, value.count <= 1_000_000 else { return }
+            guard let value = message["text"] as? String, value.utf16.count <= 1_000_000 else {
+                webView.evaluateJavaScript("window.lawMobile?.copyResult?.(false)") { _,_ in }
+                return
+            }
             UIPasteboard.general.string = value
+            webView.evaluateJavaScript("window.lawMobile?.copyResult?.(true)") { _,_ in }
         case "print":
             printDocument()
         case "attachment":

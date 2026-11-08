@@ -12,7 +12,7 @@ iOS: מזהה המקור `io.github.sargon17green.consumerlawreader`, iOS 16 ו�
 | Chromium / Playwright | מסמך מלא, חיפוש→סעיף→חזרה, Back, העדפות, הזרקת iframe, רצף ניווט, רוחבים 320/430/768/1180 | `shared-reader-browser-evidence` |
 | axe-core 4.11 | קריאה, חיפוש, תוכן עניינים, הגדרות, ניגודיות כהה/כחולה וגופן 28 בארבעת הרוחבים | JSON נגישות באותו ארטיפקט |
 | Android Emulator API 26/31/36 | התקנה ושדרוג, תהליך חדש, תאריך מקוון, קישוריות מנותקת, DOM, Back, סיבוב, Clipboard, Word, SAF | `android-emulator-api-*`, לוגים וצילום אמולטור |
-| iPhone/iPad Simulator iOS 26.2, iPhone iOS 18.5 | WKWebView אמיתי, מדיניות משאבים/גשר, חיפוש, Back, קובץ גיבוי, שיתוף, סיבוב והפעלה מחדש | `ios-*-evidence`, קובצי xcresult וצילומי הסימולטור |
+| iPhone/iPad Simulator iOS 26.2, iPhone iOS 18.5 ו־16.0 | WKWebView אמיתי, מדיניות משאבים/גשר, חיפוש, Back, קובץ גיבוי, שיתוף, סיבוב והפעלה מחדש | `ios-*-evidence`, קובצי xcresult וצילומי הסימולטור |
 
 קיומה של בדיקה בטבלה אינו הכרזת PASS. **רק run שהסתיים ו־job שהסתיים בהצלחה** הם ראיה לקבלת הגרסה. ריצות, commit ותוצאות מפורטים בדוח ההנדסי. ארטיפקטים ב־Actions מוגבלים בזמן; ראיות הקבלה המרכזיות נשמרות גם בתיקיית הדוח.
 

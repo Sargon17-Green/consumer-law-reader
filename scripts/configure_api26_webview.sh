@@ -45,6 +45,34 @@ fi
 adb shell cmd webviewupdate enable-redundant-packages
 adb shell pm enable com.android.webview
 adb shell dumpsys package com.android.webview > evidence/api26-provider-package.txt
+# Some Oreo images enumerate only factory providers. Restore the *same official
+# test APK* at the original factory location, never edit the framework allowlist.
+if ! adb shell cmd webviewupdate set-webview-implementation com.android.webview | grep -q 'Success'; then
+  case "$OLD" in /system/app/webview/*.apk|/system/app/WebView/*.apk) ;; *) exit 1 ;; esac
+  adb root
+  adb wait-for-device
+  adb remount
+  adb shell df -h /system > evidence/api26-system-space.txt
+  adb shell ls -lR "$(dirname "$OLD")" > evidence/api26-original-provider-files.txt
+  adb pull /system/framework/framework-res.apk build/api26-framework-res.apk
+  .toolchain/build-tools-36.0.0/android-16/aapt2 dump xmltree build/api26-framework-res.apk --file res/xml/config_webview_packages.xml > evidence/api26-framework-providers.txt 2>&1 || true
+  adb shell stop
+  # A leftover factory library must not override the new APK's bundled library.
+  adb shell rm -rf "$(dirname "$OLD")/lib"
+  adb push build/api26-test-webview.apk "$OLD"
+  adb shell chmod 644 "$OLD"
+  adb shell restorecon "$OLD"
+  adb reboot
+  adb wait-for-device
+  for ((i=0;i<90;i++)); do
+    [[ "$(adb shell getprop sys.boot_completed | tr -d '\r')" == 1 ]] && break
+    sleep 2
+  done
+  [[ "$(adb shell getprop sys.boot_completed | tr -d '\r')" == 1 ]]
+  adb shell cmd webviewupdate enable-redundant-packages
+  adb shell pm enable com.android.webview
+  adb shell dumpsys package com.android.webview > evidence/api26-factory-provider-package.txt
+fi
 # Package broadcasts and RELRO preparation complete asynchronously after install.
 SELECTED=false
 for ((i=0;i<40;i++)); do
