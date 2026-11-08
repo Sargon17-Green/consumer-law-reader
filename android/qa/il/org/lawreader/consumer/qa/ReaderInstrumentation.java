@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.view.accessibility.AccessibilityNodeInfo;
+import android.os.ParcelFileDescriptor;
+import java.io.ByteArrayOutputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
@@ -34,6 +37,73 @@ public final class ReaderInstrumentation extends Instrumentation {
     private void ready() throws Exception {
         for(int i=0;i<240;i++) {if("true".equals(js((seed||verifySeed)?"!!window.lawMobile":"document.documentElement.dataset.lawReady === 'true'")))return;Thread.sleep(250);}
         throw new Exception("No application readiness; WebView="+WebView.getCurrentWebViewPackage());
+    }
+    private String shell(String command) throws Exception {
+        try(ParcelFileDescriptor descriptor=getUiAutomation().executeShellCommand(command);
+            ParcelFileDescriptor.AutoCloseInputStream input=new ParcelFileDescriptor.AutoCloseInputStream(descriptor);
+            ByteArrayOutputStream output=new ByteArrayOutputStream()){
+            byte[] buffer=new byte[8192];int n,total=0;
+            while((n=input.read(buffer))!=-1){total+=n;if(total>1000000)throw new Exception("QA shell output limit");output.write(buffer,0,n);}
+            return new String(output.toByteArray(),"UTF-8");
+        }
+    }
+    private AccessibilityNodeInfo findText(AccessibilityNodeInfo node,String text) {
+        if(node==null)return null;
+        if(node.getText()!=null&&text.equalsIgnoreCase(node.getText().toString()))return node;
+        for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo found=findText(node.getChild(i),text);if(found!=null)return found;}
+        return null;
+    }
+    private void clickSystemText(String text) throws Exception {
+        for(int attempt=0;attempt<100;attempt++){
+            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            AccessibilityNodeInfo node=findText(root,text);
+            for(int depth=0;node!=null&&depth<6;depth++,node=node.getParent())
+                if(node.isClickable()&&node.isEnabled()&&node.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;
+            Thread.sleep(100);
+        }
+        throw new Exception("Native control not found: "+text);
+    }
+    private void testNativeSettingsFiles() throws Exception {
+        shell("rm -f /sdcard/Download/consumer-law-settings.json");
+        js("NativeLaw.exportSettings()");
+        clickSystemText("Save");
+        JSONObject exported=null;
+        for(int i=0;i<60;i++){
+            try{exported=new JSONObject(shell("cat /sdcard/Download/consumer-law-settings.json"));break;}
+            catch(Exception pending){Thread.sleep(100);}
+        }
+        check(exported!=null&&"consumer-law-reader-settings".equals(exported.optString("format")),"Actual SAF export file");
+        check("24".equals(exported.getJSONObject("settings").getString("law-reader-font")),"SAF export includes real preferences");
+        js("localStorage.setItem('law-reader-font','20');NativeLaw.importSettings()");
+        clickSystemText("consumer-law-settings.json");
+        clickSystemText("החלפת ההגדרות");
+        Thread.sleep(500);ready();
+        check("\"24\"".equals(js("localStorage.getItem('law-reader-font')")),"Actual SAF confirmed import");
+    }
+    private void testAttachmentAndClipboard() throws Exception {
+        final String[] result={null};final CountDownLatch received=new CountDownLatch(1);
+        android.content.BroadcastReceiver receiver=new android.content.BroadcastReceiver(){
+            @Override public void onReceive(android.content.Context context,Intent intent){result[0]=intent.getStringExtra("sha256");received.countDown();}
+        };
+        android.content.IntentFilter filter=new android.content.IntentFilter("il.org.lawreader.consumer.QA_ATTACHMENT");
+        if(android.os.Build.VERSION.SDK_INT>=33)getTargetContext().registerReceiver(receiver,filter,android.content.Context.RECEIVER_EXPORTED);
+        else getTargetContext().registerReceiver(receiver,filter);
+        try{
+            String name=null;for(String file:getTargetContext().getAssets().list("www"))if(file.endsWith(".doc")){name=file;break;}
+            check(name!=null,"Bundled Word attachment exists");
+            java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");
+            try(java.io.InputStream input=getTargetContext().getAssets().open("www/"+name)){byte[] bytes=new byte[16384];int n;while((n=input.read(bytes))!=-1)digest.update(bytes,0,n);}
+            StringBuilder expected=new StringBuilder();for(byte b:digest.digest())expected.append(String.format("%02x",b&255));
+            js("NativeLaw.openAttachment("+JSONObject.quote(name)+")");
+            check(received.await(15,TimeUnit.SECONDS),"Cross-UID attachment intent received");
+            check(expected.toString().equals(result[0]),"Attachment bytes and read-only URI permission");
+            Thread.sleep(300);js("NativeLaw.copy('QA clipboard fixture')");Thread.sleep(150);
+            final String[] clipboard={null};runOnMainSync(()->{
+                android.content.ClipboardManager manager=(android.content.ClipboardManager)getTargetContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                if(manager.hasPrimaryClip())clipboard[0]=manager.getPrimaryClip().getItemAt(0).getText().toString();
+            });
+            check("QA clipboard fixture".equals(clipboard[0]),"Native clipboard bridge");
+        }finally{getTargetContext().unregisterReceiver(receiver);}
     }
     @Override public void onStart() {
         Bundle report=new Bundle();
@@ -78,7 +148,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             String test="(function(){const check=(v,m)=>{if(!v)throw Error(m)};"+
                 "check(lawMobile.buildSearch().length>500,'full offline index');"+
                 "check(LawCore.snippet('אָב שָׁלוֹם סוף','שלום').mark==='שָׁלוֹם','UTF16 mapping');"+
-                "localStorage.setItem('outside-backup','keep');localStorage.setItem('law-reader-font','24');"+
+                "localStorage.setItem('outside-backup','keep');localStorage.setItem('law-reader-font','24');localStorage.removeItem('law-reader-align');"+
                 "const raw=lawSettings.exportJSON();localStorage.setItem('law-reader-align','right');"+
                 "check(lawSettings.prepareImport(raw).ok,'preview');check(lawSettings.applyImport(raw).ok,'restore');"+
                 "check(localStorage.getItem('law-reader-align')===null,'no stale preference');"+
@@ -101,6 +171,10 @@ public final class ReaderInstrumentation extends Instrumentation {
             check("true".equals(js("window.__remoteBlocked")),"Unauthorized resources blocked");
             js("window.__frameExecuted=false;const f=document.createElement('iframe');f.srcdoc='<script>parent.__frameExecuted=true<'+ '/script>';document.body.append(f)");Thread.sleep(300);
             check("false".equals(js("window.__frameExecuted")),"Subframe scripts blocked");
+            testAttachmentAndClipboard();
+            report.putString("attachments","PASS: native intent, cross-UID read grant and exact bundled bytes; no Word rendering claim");
+            testNativeSettingsFiles();
+            report.putString("SAF","PASS: native CreateDocument -> saved JSON -> OpenDocument -> explicit confirmation -> restored preference");
             // Stress real navigation and search index cache without constructing duplicate indexes.
             check("true".equals(js("(()=>{const first=lawMobile.buildSearch();for(let i=0;i<100;i++){lawMobile.goTo('article_'+(i%10+1),false);if(lawMobile.buildSearch()!==first)return false;}return true})()")),"Navigation stress");
             report.putString("QA_STATUS","PASS");report.putString("coverage","real WebView, offline content, Hebrew offsets, search->result, restore, rotation, reload, URL/frame isolation, stress");

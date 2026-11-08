@@ -76,6 +76,7 @@ final class ReaderIntegrationTests: XCTestCase {
           check(LawCore.snippet('אָב שָׁלוֹם סוף','שלום').mark==='שָׁלוֹם','Hebrew span');
           localStorage.setItem('outside-backup','keep');
           localStorage.setItem('law-reader-font','24');
+          localStorage.removeItem('law-reader-align');
           const backup=lawSettings.exportJSON();
           localStorage.setItem('law-reader-align','right');
           check(lawSettings.prepareImport(backup).ok,'preview');
@@ -90,10 +91,28 @@ final class ReaderIntegrationTests: XCTestCase {
         """)
         XCTAssertEqual(report as? String,"#article_14")
         let savedPosition = try await script(reader,"(()=>{lawMobile.goTo('article_2');scrollBy(0,100);const p=scrollY;lawMobile.goTo('article_3');return p})()") as? Double
+        // pushState runs in the WebContent process; wait until the native
+        // history list has received it before asking the UI process to go Back.
+        for _ in 0..<50 {
+            if reader.webView.backForwardList.currentItem?.url.fragment == "article_3" { break }
+            try await Task.sleep(nanoseconds:100_000_000)
+        }
+        XCTAssertEqual(reader.webView.backForwardList.currentItem?.url.fragment,"article_3")
+        let beforeBack = try await script(reader,"JSON.stringify({hash:location.hash,scroll:scrollY,state:history.state,length:history.length})")
+        print("NATIVE_BACK_BEFORE: \(beforeBack)")
         reader.webView.goBack()
-        try await Task.sleep(nanoseconds:500_000_000)
-        let backPosition = try await script(reader,"scrollY") as? Double
+        var backPosition: Double?
+        for _ in 0..<50 {
+            try await Task.sleep(nanoseconds:100_000_000)
+            backPosition = try await script(reader,"scrollY") as? Double
+            let hash = try await script(reader,"location.hash") as? String
+            if hash == "#article_2", abs((backPosition ?? -1000) - (savedPosition ?? -2000)) < 3 { break }
+        }
+        let afterBack = try await script(reader,"JSON.stringify({hash:location.hash,scroll:scrollY,state:history.state,length:history.length})")
+        print("NATIVE_BACK_AFTER: \(afterBack)")
         XCTAssertEqual(backPosition ?? -1000,savedPosition ?? -2000,accuracy:3)
+        let backHash = try await script(reader,"location.hash") as? String
+        XCTAssertEqual(backHash,"#article_2")
         _ = try await script(reader,"(lawMobile.goTo('article_14'),true)")
         reader.persistReadingState()
         reader.webView.reload()
@@ -105,7 +124,19 @@ final class ReaderIntegrationTests: XCTestCase {
         // The real native share path uses the current section's public URL.
         reader.shareCurrentSection()
         for _ in 0..<20 {if reader.sharing != nil{break};try await Task.sleep(nanoseconds:100_000_000)}
-        XCTAssertTrue(reader.sharing?.items.first is URL)
+        let shared=try XCTUnwrap(reader.sharing?.items.first as? URL)
+        XCTAssertEqual(shared.absoluteString,"https://sargon17-green.github.io/consumer-law-reader/reader/#article_14")
+        reader.sharing=nil
+        _ = try await script(reader,"(NativeLaw.copy('QA clipboard fixture'),true)")
+        try await Task.sleep(nanoseconds:200_000_000)
+        XCTAssertEqual(UIPasteboard.general.string,"QA clipboard fixture")
+        let root=try XCTUnwrap(reader.webView.url?.deletingLastPathComponent())
+        let attachment=try XCTUnwrap(FileManager.default.contentsOfDirectory(at:root,includingPropertiesForKeys:nil).first { $0.pathExtension == "doc" })
+        let fileJSON=String(data:try JSONSerialization.data(withJSONObject:[attachment.lastPathComponent]),encoding:.utf8)!
+        _ = try await script(reader,"(NativeLaw.openAttachment(" + String(fileJSON.dropFirst().dropLast()) + "),true)")
+        for _ in 0..<20 {if reader.sharing != nil{break};try await Task.sleep(nanoseconds:100_000_000)}
+        let opened=try XCTUnwrap(reader.sharing?.items.first as? URL)
+        XCTAssertEqual(try Data(contentsOf:opened),try Data(contentsOf:attachment))
         reader.sharing=nil
         reader.exportSettings()
         for _ in 0..<40 {if reader.sharing != nil{break};try await Task.sleep(nanoseconds:100_000_000)}

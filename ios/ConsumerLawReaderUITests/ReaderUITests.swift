@@ -16,8 +16,9 @@ final class ReaderUITests: XCTestCase {
         XCTAssertTrue(menu.isEnabled);menu.tap()
         let restore=app.buttons["שחזור הגדרות מקובץ"]
         XCTAssertTrue(restore.waitForExistence(timeout:5));restore.tap()
-        let cancel=app.buttons["Cancel"]
-        XCTAssertTrue(cancel.waitForExistence(timeout:10));cancel.tap()
+        let cancel=app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Close", "ביטול"])).firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout:15),app.debugDescription);cancel.tap()
+        XCTAssertTrue(menu.waitForExistence(timeout:10))
         let share=app.buttons["native-share"]
         XCTAssertTrue(share.isEnabled);share.tap()
         XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout:8) || app.buttons["Copy"].exists || app.buttons["העתק"].exists)

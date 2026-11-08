@@ -31,7 +31,7 @@ permissions:
 jobs:
   ios-simulator:
     runs-on: macos-15
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: Set up Python
@@ -92,6 +92,7 @@ jobs:
         run: |
           set -euo pipefail
           export LAW_EXPECT_SEER="$(python3 tests/date_network_probe.py)"
+          FAILED=0
           for CASE in iPhone:26.2 iPad:26.2 iPhone:18.5; do
             FAMILY="${CASE%:*}"
             OS="${CASE#*:}"
@@ -101,10 +102,12 @@ jobs:
             xcrun simctl bootstatus "$DEVICE" -b
             xcrun simctl status_bar "$DEVICE" override --time '9:41'
             python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$LABEL-runtime.json"
-            xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+            xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log" || FAILED=1
             xcrun simctl io "$DEVICE" screenshot "build/$LABEL-simulator.png"
+            xcrun xcresulttool export attachments --path "build/$LABEL-tests.xcresult" --output-path "build/$LABEL-attachments" || true
             xcrun simctl shutdown "$DEVICE"
           done
+          exit "$FAILED"
       - name: Prepare unsigned device archive for future original-account signing
         run: |
           set -o pipefail
@@ -123,6 +126,7 @@ jobs:
             build/*-tests.log
             build/*-runtime.json
             build/*-tests.xcresult
+            build/*-attachments
             build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
           retention-days: 7
           if-no-files-found: warn

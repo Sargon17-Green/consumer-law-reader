@@ -111,6 +111,7 @@ jobs:
           - api: 26
             arch: x86
             target: default
+            system-options: -writable-system
           - api: 31
             arch: x86_64
             target: google_apis
@@ -150,7 +151,7 @@ jobs:
           profile: pixel_2
           ram-size: 2048M
           heap-size: 256M
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none ${{ matrix.system-options }}
           disable-animations: true
           script: bash scripts/run_android_emulator_qa.sh ${{ matrix.api }}
       - name: Preserve emulator diagnostics

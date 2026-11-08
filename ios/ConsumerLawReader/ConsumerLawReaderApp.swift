@@ -398,13 +398,25 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     }
 
     func shareCurrentSection() {
-        webView.evaluateJavaScript("window.location.hash || ('#' + (window.lawMobile?.currentArticle()?.id || 'law_name'))") { [weak self] result, _ in
+        guard ready, !working else { return }
+        let script = """
+        (() => {
+            const visible = window.lawMobile?.currentArticle()?.id;
+            if (visible) return visible;
+            try {
+                const target = decodeURIComponent(location.hash.slice(1));
+                if (target && document.getElementById(target)) return target;
+            } catch (_) {}
+            return 'law_name';
+        })()
+        """
+        webView.evaluateJavaScript(script) { [weak self] result, error in
             Task { @MainActor in
-                guard let self else { return }
-                let hash = (result as? String) ?? ""
-                // Never share arbitrary or excessively long injected paths.
-                let safeHash = hash.hasPrefix("#") && hash.utf8.count < 2048 ? hash : ""
-                guard let url = URL(string: Self.publicURL + safeHash) else { return }
+                guard let self, error == nil, let target = result as? String,
+                      !target.isEmpty, target.utf8.count <= 2048,
+                      var parts = URLComponents(string: Self.publicURL) else { return }
+                parts.fragment = target
+                guard let url = parts.url else { return }
                 self.sharing = SharePayload(items: [url])
             }
         }

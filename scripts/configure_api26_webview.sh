@@ -18,7 +18,11 @@ if [[ "$INSTALLED" != true ]]; then
   esac
   adb root
   adb wait-for-device
+  # Follow Chromium's developer-only system-app removal sequence. A normal
+  # emulator system partition is reverted on reboot; CI starts this one writable.
+  adb disable-verity
   adb remount
+  adb shell stop
   adb shell rm "$OLD"
   adb reboot
   adb wait-for-device
@@ -27,6 +31,14 @@ if [[ "$INSTALLED" != true ]]; then
     sleep 2
   done
   [[ "$(adb shell getprop sys.boot_completed | tr -d '\r')" == 1 ]]
+  adb root
+  adb wait-for-device
+  if adb shell test -f "$OLD"; then
+    printf 'System WebView removal did not persist: %s\n' "$OLD"
+    exit 1
+  fi
+  # Remove any retained, now-orphaned package record as well as the APK.
+  adb shell pm uninstall com.android.webview || true
   adb install -t build/api26-test-webview.apk
 fi
 adb shell cmd webviewupdate set-webview-implementation com.android.webview
