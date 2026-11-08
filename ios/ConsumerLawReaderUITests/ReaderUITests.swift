@@ -7,35 +7,41 @@ final class ReaderUITests: XCTestCase {
     func testSearchNavigationSharingRotationAndRelaunch() {
         let app=XCUIApplication()
         app.launch()
-        let menu=app.buttons["native-menu"]
+        let menu=app.buttons.matching(identifier:"native-menu").firstMatch
         XCTAssertTrue(menu.waitForExistence(timeout:60))
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:60),.completed)
-        for control in [menu,app.buttons["native-share"]] {
+        for control in [menu,app.buttons.matching(identifier:"native-share").firstMatch] {
             XCTAssertGreaterThanOrEqual(control.frame.width,44)
             XCTAssertGreaterThanOrEqual(control.frame.height,44)
         }
-        let search=app.webViews.buttons["חיפוש"]
+        let search=app.webViews.firstMatch.buttons.matching(identifier:"חיפוש").firstMatch
         XCTAssertTrue(search.waitForExistence(timeout:60))
         search.tap()
-        let input=app.webViews.searchFields.firstMatch
+        let input=app.webViews.firstMatch.searchFields.firstMatch
         XCTAssertTrue(input.waitForExistence(timeout:10))
         input.tap();input.typeText("14")
-        let hit=app.webViews.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14")).firstMatch
+        let hit=app.webViews.firstMatch.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14")).firstMatch
         XCTAssertTrue(hit.waitForExistence(timeout:15));hit.tap()
-        XCTAssertTrue(menu.isEnabled);menu.tap()
-        let print=app.buttons["הדפסה או שמירה כ־PDF"]
-        XCTAssertTrue(print.waitForExistence(timeout:5));print.tap()
-        let printCancel=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
-        XCTAssertTrue(printCancel.waitForExistence(timeout:30),app.debugDescription);printCancel.tap()
-        XCTAssertTrue(menu.waitForExistence(timeout:10));menu.tap()
-        let restore=app.buttons["שחזור הגדרות מקובץ"]
+        XCTAssertTrue(menu.isEnabled)
+        let metrics=XCTMeasureOptions()
+        metrics.iterationCount=3
+        measure(metrics:[XCTCPUMetric(application:app),XCTMemoryMetric(application:app),XCTClockMetric()],options:metrics){
+            menu.tap()
+            let print=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
+            XCTAssertTrue(print.waitForExistence(timeout:5));print.tap()
+            let printCancel=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
+            XCTAssertTrue(printCancel.waitForExistence(timeout:30),app.debugDescription);printCancel.tap()
+            XCTAssertTrue(menu.waitForExistence(timeout:10))
+        }
+        menu.tap()
+        let restore=app.buttons.matching(identifier:"שחזור הגדרות מקובץ").firstMatch
         XCTAssertTrue(restore.waitForExistence(timeout:5));restore.tap()
         let cancel=app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Close", "ביטול"])).firstMatch
         XCTAssertTrue(cancel.waitForExistence(timeout:60),app.debugDescription);cancel.tap()
         XCTAssertTrue(menu.waitForExistence(timeout:10))
-        let share=app.buttons["native-share"]
+        let share=app.buttons.matching(identifier:"native-share").firstMatch
         XCTAssertTrue(share.isEnabled);share.tap()
-        XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout:8) || app.buttons["Copy"].exists || app.buttons["העתק"].exists)
+        XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout:8) || app.buttons.matching(identifier:"Copy").firstMatch.exists || app.buttons.matching(identifier:"העתק").firstMatch.exists)
         app.swipeDown()
         XCUIDevice.shared.orientation = .landscapeLeft
         XCTAssertTrue(search.waitForExistence(timeout:10))

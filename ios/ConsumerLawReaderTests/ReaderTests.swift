@@ -3,6 +3,13 @@ import WebKit
 import UIKit
 @testable import ConsumerLawReader
 
+private final class NativeGuardProbe: NSObject, WKScriptMessageHandler {
+    var attempted=false
+    func userContentController(_ controller: WKUserContentController,didReceive message: WKScriptMessage) {
+        attempted = !message.frameInfo.isMainFrame
+    }
+}
+
 @MainActor
 private final class ReaderScriptReply {
     private var continuation: CheckedContinuation<Any, Error>?
@@ -225,8 +232,17 @@ final class ReaderIntegrationTests: XCTestCase {
         _ = try await script(reader,"(NativeLaw.copy('TRUSTED_GUARD_QA'),true)")
         try await Task.sleep(nanoseconds:250_000_000)
         XCTAssertEqual(UIPasteboard.general.string,"TRUSTED_GUARD_QA")
-        // CSP already prevents child documents from running. Reusing the actual
-        // native handler in a second WKWebView below tests a reachable boundary.
+        // The initial empty child window can expose message handlers without
+        // loading a frame document. Verify an actual child-frame invocation.
+        let probe=NativeGuardProbe()
+        reader.webView.configuration.userContentController.add(probe,name:"readerQAProbe")
+        defer { reader.webView.configuration.userContentController.removeScriptMessageHandler(forName:"readerQAProbe") }
+        _ = try await script(reader,"(()=>{const frame=document.createElement('iframe');frame.id='qa-subframe';document.body.append(frame);const w=frame.contentWindow;w.webkit.messageHandlers.readerQAProbe.postMessage('attempted');w.webkit.messageHandlers.lawReader.postMessage({type:'copy',text:'HOSTILE_SUBFRAME'});return true})()")
+        for _ in 0..<30 {if probe.attempted{break};try await Task.sleep(nanoseconds:100_000_000)}
+        XCTAssertTrue(probe.attempted,"The instrumented subframe must actually attempt a native message")
+        try await Task.sleep(nanoseconds:250_000_000)
+        XCTAssertEqual(UIPasteboard.general.string,"TRUSTED_GUARD_QA")
+        _ = try await script(reader,"(document.getElementById('qa-subframe').remove(),true)")
         // Reusing the controller in another real WKWebView must not confer the
         // original reader's native authority, even for the same bundled URL.
         let other=WKWebView(frame:reader.webView.bounds,configuration:reader.webView.configuration)

@@ -35,7 +35,18 @@ public final class ReaderInstrumentation extends Instrumentation {
     }
     private void check(boolean value,String label) throws Exception {if(!value)throw new Exception(label);}
     private void ready() throws Exception {
-        for(int i=0;i<240;i++) {if("true".equals(js((seed||verifySeed)?"!!window.lawMobile":"document.documentElement.dataset.lawReady === 'true'")))return;Thread.sleep(250);}
+        for(int i=0;i<240;i++) {
+            if("true".equals(js((seed||verifySeed)?"!!window.lawMobile":"document.documentElement.dataset.lawReady === 'true' && document.visibilityState === 'visible' && !matchMedia('print').matches"))){
+                if(seed||verifySeed)return;
+                final boolean[] nativeReady={false};
+                runOnMainSync(()->{
+                    try{java.lang.reflect.Field field=activity.getClass().getDeclaredField("ready");field.setAccessible(true);nativeReady[0]=field.getBoolean(activity);}
+                    catch(ReflectiveOperationException failure){throw new RuntimeException(failure);}
+                });
+                if(nativeReady[0])return;
+            }
+            Thread.sleep(250);
+        }
         throw new Exception("No application readiness; WebView="+WebView.getCurrentWebViewPackage());
     }
     private String shell(String command) throws Exception {
@@ -53,6 +64,14 @@ public final class ReaderInstrumentation extends Instrumentation {
         for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo found=findText(node.getChild(i),text);if(found!=null)return found;}
         return null;
     }
+    private String systemLabels(AccessibilityNodeInfo node,int depth){
+        if(node==null||depth>9)return "";
+        StringBuilder out=new StringBuilder();
+        if(node.getText()!=null)out.append(node.getText().toString().replace('\n',' ')).append(" ");
+        if(node.getContentDescription()!=null)out.append("[").append(node.getContentDescription()).append("] ");
+        for(int i=0;i<node.getChildCount()&&out.length()<4000;i++)out.append(systemLabels(node.getChild(i),depth+1));
+        return out.substring(0,Math.min(4000,out.length()));
+    }
     private void clickSystemText(String text) throws Exception {
         try{getUiAutomation().waitForIdle(700,8000);}catch(java.util.concurrent.TimeoutException busy){}
         for(int attempt=0;attempt<100;attempt++){
@@ -62,7 +81,7 @@ public final class ReaderInstrumentation extends Instrumentation {
                 if(node.isClickable()&&node.isEnabled()&&node.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;
             Thread.sleep(100);
         }
-        throw new Exception("Native control not found: "+text);
+        throw new Exception("Native control not found: "+text+"; "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
     }
     private void testNativeSettingsFiles() throws Exception {
         shell("rm -f /sdcard/Download/consumer-law-settings.json");
@@ -84,10 +103,15 @@ public final class ReaderInstrumentation extends Instrumentation {
         }
         check(exported!=null&&"consumer-law-reader-settings".equals(exported.optString("format")),"Actual SAF export file");
         check("24".equals(exported.getJSONObject("settings").getString("law-reader-font")),"SAF export includes real preferences");
-        js("localStorage.setItem('law-reader-font','20');NativeLaw.importSettings()");
+        js("window.__qaImportGeneration=true;localStorage.setItem('law-reader-font','20');NativeLaw.importSettings()");
         clickSystemText("consumer-law-settings.json");
         clickSystemText("החלפת ההגדרות");
-        Thread.sleep(500);ready();
+        for(int i=0;i<120;i++){
+            if("true".equals(js("typeof window.__qaImportGeneration === 'undefined'")))break;
+            Thread.sleep(250);
+        }
+        check("true".equals(js("typeof window.__qaImportGeneration === 'undefined'")),"Import must load a new document generation");
+        ready();
         check("\"24\"".equals(js("localStorage.getItem('law-reader-font')")),"Actual SAF confirmed import");
     }
     private void testAttachmentAndClipboard() throws Exception {
@@ -151,6 +175,7 @@ public final class ReaderInstrumentation extends Instrumentation {
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
     private void testNativePrintPresentation() throws Exception {
+        ready();
         js("NativeLaw.printDocument()");
         boolean opened=false;
         for(int i=0;i<80;i++){
@@ -158,11 +183,11 @@ public final class ReaderInstrumentation extends Instrumentation {
             if(root!=null&&root.getPackageName()!=null&&"com.android.printspooler".contentEquals(root.getPackageName())){opened=true;break;}
             Thread.sleep(250);
         }
-        check(opened,"Real Android system print interface opens");
+        check(opened,"Real Android system print interface opens; "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
         shell("input keyevent KEYCODE_BACK");
         for(int i=0;i<80;i++){
             AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
-            if(root!=null&&root.getPackageName()!=null&&"il.org.lawreader.consumer".contentEquals(root.getPackageName()))return;
+            if(root!=null&&root.getPackageName()!=null&&"il.org.lawreader.consumer".contentEquals(root.getPackageName())){Thread.sleep(500);ready();return;}
             Thread.sleep(250);
         }
         throw new Exception("Reader resumes after cancelling system print");
@@ -172,6 +197,11 @@ public final class ReaderInstrumentation extends Instrumentation {
         final long launchStart=android.os.SystemClock.elapsedRealtime();
         final long cpuStart=android.os.Process.getElapsedCpuTime();
         try{
+            android.accessibilityservice.AccessibilityServiceInfo automation=getUiAutomation().getServiceInfo();
+            if(automation!=null){
+                automation.flags|=android.accessibilityservice.AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS|android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+                getUiAutomation().setServiceInfo(automation);
+            }
             Intent intent=getTargetContext().getPackageManager().getLaunchIntentForPackage("il.org.lawreader.consumer");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
             activity=startActivitySync(intent);
@@ -252,13 +282,27 @@ public final class ReaderInstrumentation extends Instrumentation {
             testNativePrintPresentation();
             report.putString("print","PASS: actual system print presentation and cancel; no physical printer or PDF byte validation claim");
             // Stress real navigation and search index cache without constructing duplicate indexes.
-            check("true".equals(js("(()=>{const first=lawMobile.buildSearch();for(let i=0;i<100;i++){lawMobile.goTo('article_'+(i%10+1),false);if(lawMobile.buildSearch()!==first)return false;}return true})()")),"Navigation stress");
+            report.putString("stage","navigation stress after native print");
+            String stress=js("(()=>{try{const first=lawMobile.buildSearch();for(let i=0;i<100;i++){lawMobile.goTo('article_'+(i%10+1),false);if(lawMobile.buildSearch()!==first)throw Error('Index identity changed');}return {ok:true,records:first.length}}catch(error){return {ok:false,error:String(error),visibility:document.visibilityState,printing:matchMedia('print').matches}}})()");
+            report.putString("navigationStressResult",stress);
+            check(new JSONObject(stress).optBoolean("ok"),"Navigation stress: "+stress);
             android.os.Debug.MemoryInfo finalMemory=new android.os.Debug.MemoryInfo();
             android.os.Debug.getMemoryInfo(finalMemory);
             report.putInt("mainProcessPssKBAfterStress",finalMemory.getTotalPss());
             report.putLong("mainProcessCpuMilliseconds",android.os.Process.getElapsedCpuTime()-cpuStart);
             report.putString("QA_STATUS","PASS");report.putString("coverage","real WebView, offline content, Hebrew offsets, search->result, restore, rotation, reload, URL/frame isolation, stress");
             finish(Activity.RESULT_OK,report);
-        }catch(Throwable error){report.putString("QA_STATUS","FAIL");report.putString("error",error.toString());finish(Activity.RESULT_CANCELED,report);}
+        }catch(Throwable error){
+            report.putString("QA_STATUS","FAIL");report.putString("error",error.toString());
+            try{
+                android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
+                if(shot!=null){
+                    java.io.File file=new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-failure.png");
+                    try(java.io.FileOutputStream output=new java.io.FileOutputStream(file)){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,output);}
+                    shot.recycle();report.putString("failureScreenshot",file.toString());
+                }
+            }catch(Exception screenshotError){report.putString("screenshotError",screenshotError.toString());}
+            finish(Activity.RESULT_CANCELED,report);
+        }
     }
 }

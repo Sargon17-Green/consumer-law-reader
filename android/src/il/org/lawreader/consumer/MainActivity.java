@@ -50,6 +50,7 @@ public final class MainActivity extends Activity {
     private android.window.OnBackInvokedCallback systemBack;
     private boolean pendingExport;
     private boolean settingsBusy;
+    private Uri settingsPickerLocation;
     private static final int EXPORT_SETTINGS = 2101, IMPORT_SETTINGS = 2102;
     private static final int MAX_BACKUP = 1000000;
     private static final int MAX_COPY = 450000; // UTF-16 payload stays below Binder's shared 1 MB buffer.
@@ -78,7 +79,14 @@ public final class MainActivity extends Activity {
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState!=null)pendingExport=savedInstanceState.getBoolean("pendingExport");
+        if(savedInstanceState!=null){
+            pendingExport=savedInstanceState.getBoolean("pendingExport");
+            String picker=savedInstanceState.getString("settingsPickerLocation");
+            if(picker!=null&&picker.length()<=4096){
+                Uri candidate=Uri.parse(picker);
+                if("content".equals(candidate.getScheme()))settingsPickerLocation=candidate;
+            }
+        }
         if(!pendingExport)pendingExportFile().delete();
         final FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.rgb(20,47,65));
@@ -294,7 +302,7 @@ public final class MainActivity extends Activity {
                             if(isFinishing() || isDestroyed()){file.delete();return;}
                             try{
                                 pendingExport=true;
-                                Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json");
+                                Intent intent=settingsPicker(Intent.ACTION_CREATE_DOCUMENT);
                                 intent.putExtra(Intent.EXTRA_TITLE,"consumer-law-settings.json");startActivityForResult(intent,EXPORT_SETTINGS);
                             }catch(Exception ex){pendingExport=false;file.delete();Toast.makeText(this,"בחירת קובץ אינה זמינה",Toast.LENGTH_LONG).show();}
                         });
@@ -304,14 +312,28 @@ public final class MainActivity extends Activity {
         });
     }
     private AtomicFile pendingExportFile(){return new AtomicFile(new File(getCacheDir(),"pending-settings-export.json"));}
+    private Intent settingsPicker(String action){
+        Uri start=settingsPickerLocation;
+        // Oreo's Downloads provider does not list every local raw document.
+        // The storage provider lists the actual folder, including older backups.
+        if(start==null||"com.android.providers.downloads.documents".equals(start.getAuthority()))
+            start=android.provider.DocumentsContract.buildDocumentUri("com.android.externalstorage.documents","primary:Download");
+        return new Intent(action).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json")
+            .putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI,start);
+    }
     private void beginImport() {
-        try{startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json"),IMPORT_SETTINGS);}
+        try{startActivityForResult(settingsPicker(Intent.ACTION_OPEN_DOCUMENT),IMPORT_SETTINGS);}
         catch(Exception ex){Toast.makeText(this,"בחירת קובץ אינה זמינה",Toast.LENGTH_LONG).show();}
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
         if(result!=RESULT_OK || data==null || data.getData()==null){if(request==EXPORT_SETTINGS){pendingExport=false;pendingExportFile().delete();}return;}
         final Uri uri=data.getData();
+        if(!"content".equals(uri.getScheme())||uri.toString().length()>4096){
+            if(request==EXPORT_SETTINGS){pendingExport=false;pendingExportFile().delete();}
+            Toast.makeText(this,"כתובת הקובץ אינה תקינה",Toast.LENGTH_LONG).show();return;
+        }
+        if(request==EXPORT_SETTINGS||request==IMPORT_SETTINGS)settingsPickerLocation=uri;
         if(request==EXPORT_SETTINGS){
             if(!pendingExport)return;pendingExport=false;settingsBusy=true;
             new Thread(() -> {try{
@@ -354,7 +376,7 @@ public final class MainActivity extends Activity {
             }
         });
     }
-    @Override protected void onSaveInstanceState(Bundle state) { if(web!=null)web.saveState(state);state.putBoolean("pendingExport",pendingExport);super.onSaveInstanceState(state); }
+    @Override protected void onSaveInstanceState(Bundle state) { if(web!=null)web.saveState(state);state.putBoolean("pendingExport",pendingExport);if(settingsPickerLocation!=null)state.putString("settingsPickerLocation",settingsPickerLocation.toString());super.onSaveInstanceState(state); }
     @Override protected void onPause() { if(web!=null){web.evaluateJavascript("window.lawMobile?.saveSession()",null);web.onPause();}super.onPause(); }
     @Override protected void onResume() { super.onResume();if(web!=null)web.onResume(); }
     @Override protected void onDestroy() { if(Build.VERSION.SDK_INT>=33&&systemBack!=null)getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(systemBack);if(web!=null){web.removeJavascriptInterface("NativeLaw");web.destroy();}super.onDestroy(); }
