@@ -73,7 +73,9 @@ XML
   adb shell mkdir -p /vendor/overlay
   adb push build/api26-provider-overlay/ReaderQAWebView.apk /vendor/overlay/ReaderQAWebView.apk
   adb shell chmod 644 /vendor/overlay/ReaderQAWebView.apk
-  adb shell restorecon /vendor/overlay/ReaderQAWebView.apk
+  adb shell chmod 755 /vendor/overlay
+  adb shell restorecon -R /vendor/overlay
+  adb shell ls -Zd /vendor/overlay /vendor/overlay/ReaderQAWebView.apk | tee evidence/api26-overlay-file-context.txt
   adb reboot
   adb wait-for-device
   for ((i=0;i<90;i++)); do
