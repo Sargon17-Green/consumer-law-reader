@@ -6,6 +6,10 @@ collect() {
   adb shell dumpsys meminfo il.org.lawreader.consumer > evidence/android-memory.txt 2>&1 || true
   adb shell dumpsys cpuinfo > evidence/android-cpu.txt 2>&1 || true
   adb shell dumpsys webviewupdate > evidence/android-webview.txt 2>&1 || true
+  cat evidence/android-webview.txt
+  for diagnostic in evidence/api26-provider-selection.txt evidence/api26-system-overlay.txt; do
+    if [[ -f "$diagnostic" ]]; then cat "$diagnostic"; fi
+  done
   adb exec-out screencap -p > evidence/android-emulator.png 2>/dev/null || true
 }
 trap collect EXIT

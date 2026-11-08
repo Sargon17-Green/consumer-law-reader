@@ -30,7 +30,7 @@ public final class ReaderInstrumentation extends Instrumentation {
     private String js(final String source) throws Exception {
         final String[] value={null};CountDownLatch done=new CountDownLatch(1);
         runOnMainSync(()->web.evaluateJavascript(source,result->{value[0]=result;done.countDown();}));
-        if(!done.await(30,TimeUnit.SECONDS))throw new Exception("JavaScript callback timeout");
+        if(!done.await(30,TimeUnit.SECONDS))throw new Exception("JavaScript callback timeout: "+source.substring(0,Math.min(source.length(),180)));
         return value[0];
     }
     private void check(boolean value,String label) throws Exception {if(!value)throw new Exception(label);}
@@ -125,8 +125,10 @@ public final class ReaderInstrumentation extends Instrumentation {
                 clipboard[0]=manager.hasPrimaryClip()?manager.getPrimaryClip().getItemAt(0).getText().toString():null;
             });
             check("QA clipboard fixture".equals(clipboard[0]),"Rejected clipboard data cannot replace the previous clip");
-            check("true".equals(js("(()=>{const e=document.createElement('div');e.id='qa-copy';e.textContent='א'.repeat(600000);document.body.append(e);getSelection().selectAllChildren(e);copy_selected();return document.querySelector('#mobile-sheet textarea')?.value.length===600000})()")),"Oversized selection retains the entire text in an accessible fallback");
-            js("lawMobileBack();document.getElementById('qa-copy').remove();getSelection().removeAllRanges()");
+            check("true".equals(js("(()=>{const e=document.createElement('div');e.id='qa-copy';e.style.cssText='position:fixed;left:-10000px;top:0;width:300px;height:1px;overflow:hidden;contain:strict;white-space:pre';e.textContent=('א'.repeat(999)+'\\n').repeat(600);document.body.append(e);return true})()")),"Large representative multiline clipboard fixture");
+            check("true".equals(js("(()=>{getSelection().selectAllChildren(document.getElementById('qa-copy'));window.__qaCopiedText=getSelection().toString();return __qaCopiedText.length>450000})()")),"Actual large DOM selection");
+            check("true".equals(js("(()=>{copy_selected();return document.querySelector('#mobile-sheet textarea')?.value===window.__qaCopiedText})()")),"Oversized selection retains the entire text in an accessible fallback");
+            js("lawMobileBack();document.getElementById('qa-copy').remove();getSelection().removeAllRanges();delete window.__qaCopiedText");
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
     private void testNativeShare() throws Exception {
@@ -147,6 +149,23 @@ public final class ReaderInstrumentation extends Instrumentation {
             check("https://sargon17-green.github.io/consumer-law-reader/reader/#article_14".equals(text[0]),"Native share retains the exact public section URL");
             Thread.sleep(300);
         }finally{getTargetContext().unregisterReceiver(receiver);}
+    }
+    private void testNativePrintPresentation() throws Exception {
+        js("NativeLaw.printDocument()");
+        boolean opened=false;
+        for(int i=0;i<80;i++){
+            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&"com.android.printspooler".contentEquals(root.getPackageName())){opened=true;break;}
+            Thread.sleep(250);
+        }
+        check(opened,"Real Android system print interface opens");
+        sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
+        for(int i=0;i<80;i++){
+            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&"il.org.lawreader.consumer".contentEquals(root.getPackageName()))return;
+            Thread.sleep(250);
+        }
+        throw new Exception("Reader resumes after cancelling system print");
     }
     @Override public void onStart() {
         Bundle report=new Bundle();
@@ -214,12 +233,18 @@ public final class ReaderInstrumentation extends Instrumentation {
             check("true".equals(js("window.__remoteBlocked")),"Unauthorized resources blocked");
             js("window.__frameExecuted=false;const f=document.createElement('iframe');f.srcdoc='<script>parent.__frameExecuted=true<'+ '/script>';document.body.append(f)");Thread.sleep(300);
             check("false".equals(js("window.__frameExecuted")),"Subframe scripts blocked");
+            report.putString("stage","native attachment and bounded clipboard");
             testAttachmentAndClipboard();
             report.putString("attachments","PASS: native intent, cross-UID read grant and exact bundled bytes; no Word rendering claim");
+            report.putString("stage","native sharesheet");
             testNativeShare();
             report.putString("share","PASS: native sharesheet delivery -> cross-UID receiver -> exact section URL");
+            report.putString("stage","native SAF");
             testNativeSettingsFiles();
             report.putString("SAF","PASS: native CreateDocument -> saved JSON -> OpenDocument -> explicit confirmation -> restored preference");
+            report.putString("stage","native print");
+            testNativePrintPresentation();
+            report.putString("print","PASS: actual system print presentation and cancel; no physical printer or PDF byte validation claim");
             // Stress real navigation and search index cache without constructing duplicate indexes.
             check("true".equals(js("(()=>{const first=lawMobile.buildSearch();for(let i=0;i<100;i++){lawMobile.goTo('article_'+(i%10+1),false);if(lawMobile.buildSearch()!==first)return false;}return true})()")),"Navigation stress");
             report.putString("QA_STATUS","PASS");report.putString("coverage","real WebView, offline content, Hebrew offsets, search->result, restore, rotation, reload, URL/frame isolation, stress");
