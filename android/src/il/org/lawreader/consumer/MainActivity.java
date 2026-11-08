@@ -45,6 +45,7 @@ public final class MainActivity extends Activity {
     private static final String HOME = "https://" + HOST + "/index.html";
     private WebView web;
     private boolean ready;
+    private android.window.OnBackInvokedCallback systemBack;
     private String pendingExport;
     private static final int EXPORT_SETTINGS = 2101, IMPORT_SETTINGS = 2102;
     private static final int MAX_BACKUP = 1000000;
@@ -156,6 +157,7 @@ public final class MainActivity extends Activity {
         });
         root.addView(web,new FrameLayout.LayoutParams(-1,-1));
         setContentView(root);
+        if(Build.VERSION.SDK_INT>=33){systemBack=()->handleBack();getOnBackInvokedDispatcher().registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,systemBack);}
         if (savedInstanceState == null || web.restoreState(savedInstanceState)==null) web.loadUrl(HOME);
     }
 
@@ -164,7 +166,7 @@ public final class MainActivity extends Activity {
             .setPositiveButton("ניסיון נוסף",(d,w)->web.loadUrl(HOME)).setNegativeButton("ביטול",null).show();
     }
     private boolean trusted() {
-        if(web==null || !ready || web.getUrl()==null)return false;
+        if(isFinishing() || isDestroyed() || web==null || !ready || web.getUrl()==null)return false;
         Uri uri=Uri.parse(web.getUrl());
         return isLocalDocument(uri) && "/index.html".equals(uri.getPath()) && uri.getQuery()==null;
     }
@@ -236,7 +238,7 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void exportSettings() { runOnUiThread(() -> { if(trusted())beginExport(); }); }
         @JavascriptInterface public void importSettings() { runOnUiThread(() -> { if(trusted())beginImport(); }); }
         @JavascriptInterface public void share(final String url) { runOnUiThread(() -> {
-            if(!trusted() || url==null || url.length()>2048 || !url.startsWith("https://sargon17-green.github.io/consumer-law-reader/#"))return;
+            if(!trusted() || url==null || url.length()>2048 || !url.startsWith("https://sargon17-green.github.io/consumer-law-reader/reader/#"))return;
             try{startActivity(Intent.createChooser(new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT,url),"שיתוף קישור לסעיף"));}
             catch(Exception ex){Toast.makeText(MainActivity.this,"השיתוף אינו זמין",Toast.LENGTH_LONG).show();}
         }); }
@@ -299,17 +301,18 @@ public final class MainActivity extends Activity {
             }catch(Exception ex){Toast.makeText(this,"קובץ הגיבוי אינו תקין",Toast.LENGTH_LONG).show();}
         });
     }
-    @Override public void onBackPressed() {
-        if(web==null){super.onBackPressed();return;}
+    @Override public void onBackPressed() { handleBack(); }
+    private void handleBack() {
+        if(web==null){finish();return;}
         web.evaluateJavascript("Boolean(window.lawMobileBack && window.lawMobileBack())",new ValueCallback<String>() {
             @Override public void onReceiveValue(String result) {
                 if ("true".equals(result)) return;
-                if (web.canGoBack()) web.goBack(); else MainActivity.super.onBackPressed();
+                if (web.canGoBack()) web.goBack(); else if(Build.VERSION.SDK_INT>=31)moveTaskToBack(true);else finish();
             }
         });
     }
     @Override protected void onSaveInstanceState(Bundle state) { if(web!=null)web.saveState(state);if(pendingExport!=null)state.putString("pendingExport",pendingExport);super.onSaveInstanceState(state); }
     @Override protected void onPause() { if(web!=null){web.evaluateJavascript("window.lawMobile?.saveSession()",null);web.onPause();}super.onPause(); }
     @Override protected void onResume() { super.onResume();if(web!=null)web.onResume(); }
-    @Override protected void onDestroy() { if(web!=null){web.removeJavascriptInterface("NativeLaw");web.destroy();}super.onDestroy(); }
+    @Override protected void onDestroy() { if(Build.VERSION.SDK_INT>=33&&systemBack!=null)getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(systemBack);if(web!=null){web.removeJavascriptInterface("NativeLaw");web.destroy();}super.onDestroy(); }
 }

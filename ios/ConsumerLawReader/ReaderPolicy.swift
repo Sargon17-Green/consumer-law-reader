@@ -37,9 +37,16 @@ enum ReaderPolicy {
         var rules: [[String: Any]] = [["trigger": ["url-filter": "^https?://"], "action": ["type": "block"]]]
         for (host, path) in datePaths.sorted(by: { $0.key < $1.key }) {
             let base = "https://" + host + path
-            let escaped = NSRegularExpression.escapedPattern(for: base)
-            let query = host == "api.github.com" ? "([?]ref=main(&_t=[0-9]{1,16})?|[?]_t=[0-9]{1,16}(&ref=main)?)?$" : "([?]_t=[0-9]{1,16})?$"
-            rules.append(["trigger": ["url-filter": "^" + escaped + query, "resource-type": ["raw"]], "action": ["type": "ignore-previous-rules"]])
+            let escaped = base.replacingOccurrences(of: ".", with: "\\.")
+            // WebKit's content-blocker regex subset does not support counted repeats.
+            let digits = "[0-9]" + String(repeating: "[0-9]?", count: 15)
+            let queries = host == "api.github.com"
+                ? ["$", "[?]ref=main(&_t=" + digits + ")?$", "[?]_t=" + digits + "(&ref=main)?$"]
+                : ["([?]_t=" + digits + ")?$"]
+            // Alternation is also outside WebKit's supported regex subset: use separate rules.
+            for query in queries {
+                rules.append(["trigger": ["url-filter": "^" + escaped + query, "url-filter-is-case-sensitive": true, "resource-type": ["raw"]], "action": ["type": "ignore-previous-rules"]])
+            }
         }
         let data = try! JSONSerialization.data(withJSONObject: rules, options: [.sortedKeys])
         return String(data: data, encoding: .utf8)!

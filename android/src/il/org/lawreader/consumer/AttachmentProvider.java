@@ -27,10 +27,18 @@ public final class AttachmentProvider extends ContentProvider {
         File dir=new File(getContext().getCacheDir(),"attachments");
         dir.mkdirs();
         File file=new File(dir,name);
-        if(!file.exists())try(InputStream input=getContext().getAssets().open("www/"+name);FileOutputStream output=new FileOutputStream(file)){
-            byte[] buffer=new byte[16384];int n;
-            while((n=input.read(buffer))!=-1)output.write(buffer,0,n);
-        }catch(Exception ex){file.delete();throw new FileNotFoundException(name);}
+        if(!file.exists()){
+            File temporary=null;
+            try{
+                temporary=File.createTempFile("law-attachment-",".partial",dir);
+                try(InputStream input=getContext().getAssets().open("www/"+name);FileOutputStream output=new FileOutputStream(temporary)){
+                    byte[] buffer=new byte[16384];int n;
+                    while((n=input.read(buffer))!=-1)output.write(buffer,0,n);
+                }
+                if(!temporary.renameTo(file))throw new java.io.IOException("Atomic attachment write failed");
+            }catch(Exception ex){throw new FileNotFoundException(name);}
+            finally{if(temporary!=null)temporary.delete();}
+        }
         return ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY);
     }
     @Override public String getType(Uri uri){return "application/msword";}

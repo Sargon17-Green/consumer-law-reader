@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "packages": [
+    {"url":"https://dl.google.com/android/repository/build-tools_r36_linux.zip","file":"build-tools_r36_linux.zip","sha256":"5d9ac77fb6ff43d9da518a337b4fcf8f9097113df531d99ccefe80ef7ce8250b","directory":"build-tools-36.0.0"},
+    {"url":"https://dl.google.com/android/repository/platform-36_r02.zip","file":"platform-36_r02.zip","sha256":"37607369a28c5b640b3a7998868d45898ebcb777565a0e85f9acf36f29631d2e","directory":"platforms-android-36"},
+    {"url":"https://repo.maven.apache.org/maven2/org/eclipse/jdt/ecj/3.40.0/ecj-3.40.0.jar","file":"ecj.jar","sha256":"05cc22a24e7982970f63a405fc6c820bc80b806f27f3c5a6236fc475f8f7152b"}
+  ]
+}

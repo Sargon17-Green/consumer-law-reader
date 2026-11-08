@@ -61,6 +61,12 @@ final class ReaderIntegrationTests: XCTestCase {
         })()
         """)
         XCTAssertEqual(report as? String,"#article_14")
+        let savedPosition = try await script(reader,"(()=>{lawMobile.goTo('article_2');scrollBy(0,100);const p=scrollY;lawMobile.goTo('article_3');return p})()") as? Double
+        reader.webView.goBack()
+        try await Task.sleep(nanoseconds:500_000_000)
+        let backPosition = try await script(reader,"scrollY") as? Double
+        XCTAssertEqual(backPosition ?? -1000,savedPosition ?? -2000,accuracy:3)
+        _ = try await script(reader,"lawMobile.goTo('article_14');true")
         reader.persistReadingState()
         reader.webView.reload()
         for _ in 0..<80 { try await Task.sleep(nanoseconds:250_000_000);if reader.ready { break } }

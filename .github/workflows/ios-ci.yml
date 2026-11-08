@@ -33,9 +33,9 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
       - name: Install verification dependencies
@@ -48,6 +48,13 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_ios_source.py' -v
       - name: Install project generator
         run: brew install xcodegen
+      - name: Record actual build environment
+        run: |
+          mkdir -p build
+          xcodebuild -version > build/ios-environment.txt
+          sw_vers >> build/ios-environment.txt
+          xcrun simctl list runtimes >> build/ios-environment.txt
+          xcodegen --version >> build/ios-environment.txt
       - name: Generate native app and icon
         run: |
           bash ios/scripts/prepare_assets.sh
@@ -84,6 +91,7 @@ jobs:
             xcrun simctl boot "$DEVICE"
             xcrun simctl bootstatus "$DEVICE" -b
             xcrun simctl status_bar "$DEVICE" override --time '9:41'
+            python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$FAMILY-runtime.json"
             xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build/ios-derived -resultBundlePath "build/$FAMILY-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$FAMILY-tests.log"
             xcrun simctl io "$DEVICE" screenshot "build/$FAMILY-simulator.png"
             xcrun simctl shutdown "$DEVICE"
@@ -94,15 +102,17 @@ jobs:
           xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -configuration Release -destination 'generic/platform=iOS' -archivePath build/ConsumerLawReader-unsigned.xcarchive CODE_SIGNING_ALLOWED=NO archive | tee build/ios-unsigned-archive.log
       - name: Save build report and unsigned simulator binary for QA
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: ios-simulator-build-evidence
           path: |
             build/ios-build.log
+            build/ios-environment.txt
             build/ios-unsigned-archive.log
             build/ConsumerLawReader-unsigned.xcarchive
             build/*-simulator.png
             build/*-tests.log
+            build/*-runtime.json
             build/*-tests.xcresult
             build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
           retention-days: 7

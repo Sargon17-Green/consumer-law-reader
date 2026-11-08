@@ -358,8 +358,8 @@ select:focus-visible,summary:focus-visible{outline:3px solid #0c8c84!important;o
 #frame table.m-prose-table>tbody>tr>td:first-child:not(:only-child){grid-column:1!important}
 
 /* Preserve the source's status distinction with sufficient contrast on its surfaces. */
-#frame .expired,#frame .effective_date,#frame .amendment_of_other_laws{color:#58656e!important}
+html:not(.m-contrast-dark):not(.m-contrast-blue) #frame .expired,html:not(.m-contrast-dark):not(.m-contrast-blue) #frame .effective_date,html:not(.m-contrast-dark):not(.m-contrast-blue) #frame .amendment_of_other_laws{color:#58656e!important}
 #frame a[style*="lightblue"]{color:#526a7a!important;text-decoration:underline dotted!important}
 #frame .name[role=button]:focus-visible{outline:3px solid #0c8c84;outline-offset:2px}
 
-#frame .expired a{color:#526a7a!important}
+html:not(.m-contrast-dark):not(.m-contrast-blue) #frame .expired a{color:#526a7a!important}

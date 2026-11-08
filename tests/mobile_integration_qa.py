@@ -88,7 +88,10 @@ with sync_playwright() as pw:
             assert button.inner_text().strip()
         assert page.locator('#mobile-sheet').get_attribute('aria-labelledby')=='mobile-sheet-title'
         page.evaluate(axe_source)
-        for scenario in ('reading','search','contents','settings'):
+        for scenario in ('reading','search','contents','settings','contrast-dark','contrast-blue','large-text'):
+            page.evaluate("document.documentElement.classList.remove('m-contrast-dark','m-contrast-blue')")
+            if scenario.startswith('contrast-'):page.evaluate('(name)=>document.documentElement.classList.add(name)','m-'+scenario)
+            if scenario=='large-text':page.evaluate("document.documentElement.style.setProperty('--reading-size','28px')")
             if scenario=='search':page.evaluate('lawMobile.showSearch()')
             if scenario=='contents':page.evaluate('lawMobile.showToc()')
             if scenario=='settings':page.evaluate('lawMobile.showMore()')
