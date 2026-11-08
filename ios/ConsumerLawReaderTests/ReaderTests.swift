@@ -6,7 +6,7 @@ import UIKit
 private final class NativeGuardProbe: NSObject, WKScriptMessageHandler {
     var attempted=false
     func userContentController(_ controller: WKUserContentController,didReceive message: WKScriptMessage) {
-        attempted=true
+        attempted = !message.frameInfo.isMainFrame
     }
 }
 
@@ -213,13 +213,12 @@ final class ReaderIntegrationTests: XCTestCase {
         _ = try await script(reader,"(NativeLaw.copy('TRUSTED_GUARD_QA'),true)")
         try await Task.sleep(nanoseconds:250_000_000)
         XCTAssertEqual(UIPasteboard.general.string,"TRUSTED_GUARD_QA")
-        // A privileged test-only user script bypasses CSP deliberately, proving
-        // that the native frame guard itself rejects the message as well.
+        // The initial empty child window can expose message handlers without
+        // loading a frame document. Verify an actual child-frame invocation.
         let probe=NativeGuardProbe()
         reader.webView.configuration.userContentController.add(probe,name:"readerQAProbe")
         defer { reader.webView.configuration.userContentController.removeScriptMessageHandler(forName:"readerQAProbe") }
-        reader.webView.configuration.userContentController.addUserScript(WKUserScript(source:"if(window!==top){window.webkit.messageHandlers.readerQAProbe.postMessage('attempted');window.webkit.messageHandlers.lawReader.postMessage({type:'copy',text:'HOSTILE_SUBFRAME'});}",injectionTime:.atDocumentStart,forMainFrameOnly:false))
-        _ = try await script(reader,"(()=>{const frame=document.createElement('iframe');frame.id='qa-subframe';frame.srcdoc='<p>QA subframe</p>';document.body.append(frame);return true})()")
+        _ = try await script(reader,"(()=>{const frame=document.createElement('iframe');frame.id='qa-subframe';document.body.append(frame);const w=frame.contentWindow;w.webkit.messageHandlers.readerQAProbe.postMessage('attempted');w.webkit.messageHandlers.lawReader.postMessage({type:'copy',text:'HOSTILE_SUBFRAME'});return true})()")
         for _ in 0..<30 {if probe.attempted{break};try await Task.sleep(nanoseconds:100_000_000)}
         XCTAssertTrue(probe.attempted,"The instrumented subframe must actually attempt a native message")
         try await Task.sleep(nanoseconds:250_000_000)

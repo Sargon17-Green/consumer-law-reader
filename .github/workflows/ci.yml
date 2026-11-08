@@ -10,6 +10,9 @@ permissions:
   contents: read
 jobs:
   source-and-browser:
+    permissions:
+      contents: read
+      pages: read
     runs-on: ubuntu-latest
     timeout-minutes: 22
     steps:
@@ -32,6 +35,13 @@ jobs:
           python scripts/build_web.py
           python -m unittest discover -s tests -p 'test_*.py' -v
           python scripts/verify_release.py
+      - name: Inspect public Pages source without changing it
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/pages" > evidence/pages-configuration.json
+          jq '{build_type,source,html_url}' evidence/pages-configuration.json
+          jq -e '.build_type == "workflow" or (.build_type == "legacy" and .source.branch == "gh-pages" and .source.path == "/")' evidence/pages-configuration.json
       - name: Scan current trust policies and full Git history
         run: |
           python scripts/mobile_security_audit.py
@@ -58,7 +68,7 @@ jobs:
         with:
           name: shared-reader-browser-evidence
           path: evidence/
-          retention-days: 14
+          retention-days: 30
       - name: QA topic navigation against the original document
         run: python tests/topic_navigation_qa.py
   android-debug:
@@ -94,7 +104,7 @@ jobs:
             debug-build/
             unsigned-build/
             evidence/
-          retention-days: 14
+          retention-days: 30
       - name: Verify debug certificate is not the release identity
         run: |
           if grep -q '2625ebe860cb0bfac105196b24aeedf3a948ce18c6f836478fd8ea38d0b937dc' evidence/apk-verification.txt; then
@@ -172,4 +182,4 @@ jobs:
         with:
           name: android-emulator-api-${{ matrix.api }}
           path: evidence/
-          retention-days: 14
+          retention-days: 30

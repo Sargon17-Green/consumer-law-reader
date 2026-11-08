@@ -30,7 +30,7 @@ public final class ReaderInstrumentation extends Instrumentation {
     private String js(final String source) throws Exception {
         final String[] value={null};CountDownLatch done=new CountDownLatch(1);
         runOnMainSync(()->web.evaluateJavascript(source,result->{value[0]=result;done.countDown();}));
-        if(!done.await(30,TimeUnit.SECONDS))throw new Exception("JavaScript callback timeout");
+        if(!done.await(30,TimeUnit.SECONDS))throw new Exception("JavaScript callback timeout: "+source.substring(0,Math.min(source.length(),180)));
         return value[0];
     }
     private void check(boolean value,String label) throws Exception {if(!value)throw new Exception(label);}
@@ -125,7 +125,7 @@ public final class ReaderInstrumentation extends Instrumentation {
                 clipboard[0]=manager.hasPrimaryClip()?manager.getPrimaryClip().getItemAt(0).getText().toString():null;
             });
             check("QA clipboard fixture".equals(clipboard[0]),"Rejected clipboard data cannot replace the previous clip");
-            check("true".equals(js("(()=>{const e=document.createElement('div');e.id='qa-copy';e.textContent='א'.repeat(600000);document.body.append(e);getSelection().selectAllChildren(e);copy_selected();return document.querySelector('#mobile-sheet textarea')?.value.length===600000})()")),"Oversized selection retains the entire text in an accessible fallback");
+            check("true".equals(js("(()=>{const e=document.createElement('div');e.id='qa-copy';e.style.cssText='position:fixed;left:-10000px;top:0;width:300px;height:1px;overflow:hidden;contain:strict';e.textContent='א '.repeat(300000);document.body.append(e);getSelection().selectAllChildren(e);copy_selected();return document.querySelector('#mobile-sheet textarea')?.value.length===600000})()")),"Oversized selection retains the entire text in an accessible fallback");
             js("lawMobileBack();document.getElementById('qa-copy').remove();getSelection().removeAllRanges()");
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
@@ -214,10 +214,13 @@ public final class ReaderInstrumentation extends Instrumentation {
             check("true".equals(js("window.__remoteBlocked")),"Unauthorized resources blocked");
             js("window.__frameExecuted=false;const f=document.createElement('iframe');f.srcdoc='<script>parent.__frameExecuted=true<'+ '/script>';document.body.append(f)");Thread.sleep(300);
             check("false".equals(js("window.__frameExecuted")),"Subframe scripts blocked");
+            report.putString("stage","native attachment and bounded clipboard");
             testAttachmentAndClipboard();
             report.putString("attachments","PASS: native intent, cross-UID read grant and exact bundled bytes; no Word rendering claim");
+            report.putString("stage","native sharesheet");
             testNativeShare();
             report.putString("share","PASS: native sharesheet delivery -> cross-UID receiver -> exact section URL");
+            report.putString("stage","native SAF");
             testNativeSettingsFiles();
             report.putString("SAF","PASS: native CreateDocument -> saved JSON -> OpenDocument -> explicit confirmation -> restored preference");
             // Stress real navigation and search index cache without constructing duplicate indexes.

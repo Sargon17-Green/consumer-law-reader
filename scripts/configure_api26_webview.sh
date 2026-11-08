@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Only the fresh API 26 AOSP CI emulator is passed here.
+# This configures only a disposable, writable Android 8 AOSP CI emulator.
 [[ "$(adb shell getprop ro.build.version.sdk | tr -d '\r')" == 26 ]]
 [[ "$(adb shell getprop ro.debuggable | tr -d '\r')" == 1 ]]
+[[ "$(adb shell getprop ro.kernel.qemu | tr -d '\r')" == 1 ]]
+SDK=.toolchain/build-tools-36.0.0/android-16
 OLD="$(adb shell pm path com.android.webview | tr -d '\r' | sed -n 's/^package://p' | head -1)"
 OUTPUT="$(adb install -r -t build/api26-test-webview.apk 2>&1)" && INSTALLED=true || INSTALLED=false
 if [[ "$INSTALLED" != true ]]; then
@@ -10,16 +12,12 @@ if [[ "$INSTALLED" != true ]]; then
     printf '%s\n' "$OUTPUT"
     exit 1
   fi
-  # Chromium's official provider instructions permit removing a conflicting
-  # preinstalled provider on userdebug images. Never alter an unrelated path.
   case "$OLD" in
     /system/app/webview/*.apk|/system/app/WebView/*.apk) ;;
-    *) printf 'Unexpected preinstalled test provider path: %s\n' "$OLD"; exit 1 ;;
+    *) printf 'Unexpected test provider path: %s\n' "$OLD"; exit 1 ;;
   esac
   adb root
   adb wait-for-device
-  # Follow Chromium's developer-only system-app removal sequence. A normal
-  # emulator system partition is reverted on reboot; CI starts this one writable.
   adb disable-verity
   adb remount
   adb shell stop
@@ -33,35 +31,49 @@ if [[ "$INSTALLED" != true ]]; then
   [[ "$(adb shell getprop sys.boot_completed | tr -d '\r')" == 1 ]]
   adb root
   adb wait-for-device
-  if adb shell test -f "$OLD"; then
-    printf 'System WebView removal did not persist: %s\n' "$OLD"
-    exit 1
-  fi
-  # Chromium's provider setup also disables Nougat/Oreo fallback logic; that
-  # logic can otherwise disable/remove a newly installed standalone provider.
   adb shell cmd webviewupdate enable-redundant-packages
   adb install -t build/api26-test-webview.apk
 fi
 adb shell cmd webviewupdate enable-redundant-packages
 adb shell pm enable com.android.webview
 adb shell dumpsys package com.android.webview > evidence/api26-provider-package.txt
-# Some Oreo images enumerate only factory providers. Restore the *same official
-# test APK* at the original factory location, never edit the framework allowlist.
 if ! adb shell cmd webviewupdate set-webview-implementation com.android.webview | grep -q 'Success'; then
-  case "$OLD" in /system/app/webview/*.apk|/system/app/WebView/*.apk) ;; *) exit 1 ;; esac
+  # The SDK image's framework lists only Google-branded packages although its
+  # factory APK is com.android.webview. Installing the unmodified official AOSP
+  # provider cannot fix that mismatch. Use a resource-only system overlay for
+  # this test image, following Chromium's AOSP integration configuration.
+  # No app security policy, provider bytes, minSdk or production system changes.
   adb root
   adb wait-for-device
   adb remount
-  adb shell df -h /system > evidence/api26-system-space.txt
-  adb shell ls -lR "$(dirname "$OLD")" > evidence/api26-original-provider-files.txt
   adb pull /system/framework/framework-res.apk build/api26-framework-res.apk
-  .toolchain/build-tools-36.0.0/android-16/aapt2 dump xmltree build/api26-framework-res.apk --file res/xml/config_webview_packages.xml > evidence/api26-framework-providers.txt 2>&1 || true
-  adb shell stop
-  # A leftover factory library must not override the new APK's bundled library.
-  adb shell rm -rf "$(dirname "$OLD")/lib"
-  adb push build/api26-test-webview.apk "$OLD"
-  adb shell chmod 644 "$OLD"
-  adb shell restorecon "$OLD"
+  "$SDK/aapt2" dump xmltree build/api26-framework-res.apk --file res/xml/config_webview_packages.xml > evidence/api26-framework-providers.txt
+  if grep -q 'packageName="com.android.webview"' evidence/api26-framework-providers.txt; then
+    cat evidence/api26-framework-providers.txt
+    echo "AOSP provider is already configured; refusing an unexplained replacement."
+    exit 1
+  fi
+  mkdir -p build/api26-provider-overlay/res/xml
+  cat > build/api26-provider-overlay/AndroidManifest.xml <<'XML'
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="il.org.lawreader.qa.webviewprovider" android:versionCode="1" android:versionName="1">
+  <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="26"/>
+  <overlay android:targetPackage="android" android:isStatic="true" android:priority="999"/>
+  <application android:hasCode="false"/>
+</manifest>
+XML
+  cat > build/api26-provider-overlay/res/xml/config_webview_packages.xml <<'XML'
+<webviewproviders>
+  <webviewprovider packageName="com.android.webview" description="Official AOSP WebView (CI)" availableByDefault="true"/>
+</webviewproviders>
+XML
+  "$SDK/aapt2" compile --dir build/api26-provider-overlay/res -o build/api26-provider-overlay/resources.zip
+  "$SDK/aapt2" link -I build/api26-framework-res.apk --manifest build/api26-provider-overlay/AndroidManifest.xml --auto-add-overlay -o build/api26-provider-overlay/unsigned.apk build/api26-provider-overlay/resources.zip
+  "$SDK/zipalign" -f 4 build/api26-provider-overlay/unsigned.apk build/api26-provider-overlay/aligned.apk
+  java -jar "$SDK/lib/apksigner.jar" sign --ks build/qa-debug-keystore.p12 --ks-key-alias qa-debug --ks-pass pass:qa-only-password --v4-signing-enabled false --out build/api26-provider-overlay/ReaderQAWebView.apk build/api26-provider-overlay/aligned.apk
+  adb shell mkdir -p /system/overlay
+  adb push build/api26-provider-overlay/ReaderQAWebView.apk /system/overlay/ReaderQAWebView.apk
+  adb shell chmod 644 /system/overlay/ReaderQAWebView.apk
+  adb shell restorecon /system/overlay/ReaderQAWebView.apk
   adb reboot
   adb wait-for-device
   for ((i=0;i<90;i++)); do
@@ -71,9 +83,9 @@ if ! adb shell cmd webviewupdate set-webview-implementation com.android.webview 
   [[ "$(adb shell getprop sys.boot_completed | tr -d '\r')" == 1 ]]
   adb shell cmd webviewupdate enable-redundant-packages
   adb shell pm enable com.android.webview
-  adb shell dumpsys package com.android.webview > evidence/api26-factory-provider-package.txt
+  adb shell cmd overlay list > evidence/api26-system-overlay.txt
+  printf '{"api":26,"officialAospProvider":true,"resourceOnlyTestImageOverlay":true,"stockRetailImage":false}\n' > evidence/api26-environment.json
 fi
-# Package broadcasts and RELRO preparation complete asynchronously after install.
 SELECTED=false
 for ((i=0;i<40;i++)); do
   if adb shell cmd webviewupdate set-webview-implementation com.android.webview | tee evidence/api26-provider-selection.txt | grep -q 'Success'; then
@@ -82,6 +94,6 @@ for ((i=0;i<40;i++)); do
   fi
   sleep 0.5
 done
-adb shell dumpsys webviewupdate > evidence/api26-provider-selected.txt
+adb shell dumpsys webviewupdate | tee evidence/api26-provider-selected.txt
 [[ "$SELECTED" == true ]]
 grep -q 'Current WebView package.*com.android.webview' evidence/api26-provider-selected.txt
