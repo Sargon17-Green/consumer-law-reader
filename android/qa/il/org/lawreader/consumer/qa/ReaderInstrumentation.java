@@ -125,8 +125,10 @@ public final class ReaderInstrumentation extends Instrumentation {
                 clipboard[0]=manager.hasPrimaryClip()?manager.getPrimaryClip().getItemAt(0).getText().toString():null;
             });
             check("QA clipboard fixture".equals(clipboard[0]),"Rejected clipboard data cannot replace the previous clip");
-            check("true".equals(js("(()=>{const e=document.createElement('div');e.id='qa-copy';e.style.cssText='position:fixed;left:-10000px;top:0;width:300px;height:1px;overflow:hidden;contain:strict';e.textContent='א '.repeat(300000);document.body.append(e);getSelection().selectAllChildren(e);copy_selected();return document.querySelector('#mobile-sheet textarea')?.value.length===600000})()")),"Oversized selection retains the entire text in an accessible fallback");
-            js("lawMobileBack();document.getElementById('qa-copy').remove();getSelection().removeAllRanges()");
+            check("true".equals(js("(()=>{const e=document.createElement('div');e.id='qa-copy';e.style.cssText='position:fixed;left:-10000px;top:0;width:300px;height:1px;overflow:hidden;contain:strict;white-space:pre';e.textContent=('א'.repeat(999)+'\\n').repeat(600);document.body.append(e);return true})()")),"Large representative multiline clipboard fixture");
+            check("true".equals(js("(()=>{getSelection().selectAllChildren(document.getElementById('qa-copy'));window.__qaCopiedText=getSelection().toString();return __qaCopiedText.length>450000})()")),"Actual large DOM selection");
+            check("true".equals(js("(()=>{copy_selected();return document.querySelector('#mobile-sheet textarea')?.value===window.__qaCopiedText})()")),"Oversized selection retains the entire text in an accessible fallback");
+            js("lawMobileBack();document.getElementById('qa-copy').remove();getSelection().removeAllRanges();delete window.__qaCopiedText");
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
     private void testNativeShare() throws Exception {
@@ -148,8 +150,27 @@ public final class ReaderInstrumentation extends Instrumentation {
             Thread.sleep(300);
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
+    private void testNativePrintPresentation() throws Exception {
+        js("NativeLaw.printDocument()");
+        boolean opened=false;
+        for(int i=0;i<80;i++){
+            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&root.getPackageName()!=null&&"com.android.printspooler".contentEquals(root.getPackageName())){opened=true;break;}
+            Thread.sleep(250);
+        }
+        check(opened,"Real Android system print interface opens");
+        shell("input keyevent KEYCODE_BACK");
+        for(int i=0;i<80;i++){
+            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&root.getPackageName()!=null&&"il.org.lawreader.consumer".contentEquals(root.getPackageName()))return;
+            Thread.sleep(250);
+        }
+        throw new Exception("Reader resumes after cancelling system print");
+    }
     @Override public void onStart() {
         Bundle report=new Bundle();
+        final long launchStart=android.os.SystemClock.elapsedRealtime();
+        final long cpuStart=android.os.Process.getElapsedCpuTime();
         try{
             Intent intent=getTargetContext().getPackageManager().getLaunchIntentForPackage("il.org.lawreader.consumer");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -158,6 +179,10 @@ public final class ReaderInstrumentation extends Instrumentation {
             check(web!=null,"No native WebView");
             report.putString("webview",WebView.getCurrentWebViewPackage().versionName);
             ready();
+            report.putLong("activityToReadyMilliseconds",android.os.SystemClock.elapsedRealtime()-launchStart);
+            android.os.Debug.MemoryInfo initialMemory=new android.os.Debug.MemoryInfo();
+            android.os.Debug.getMemoryInfo(initialMemory);
+            report.putInt("mainProcessPssKBAtReady",initialMemory.getTotalPss());
             if(seed){
                 js("localStorage.setItem('law-reader-font','23');localStorage.setItem('law-reader-align','right');localStorage.setItem('law-reader-topics-v1',JSON.stringify({schema:1,userTopics:[{id:'u:upgrade',title:'נושא בדיקת שדרוג',parent:null,index:1000}],links:[{id:'u:upgrade-link',topic:'u:upgrade',target:'article_14',title:'סעיף 14'}],titles:{},hidden:{},ranks:{}}))");
                 check("\"23\"".equals(js("localStorage.getItem('law-reader-font')")),"Seed readback");
@@ -223,8 +248,15 @@ public final class ReaderInstrumentation extends Instrumentation {
             report.putString("stage","native SAF");
             testNativeSettingsFiles();
             report.putString("SAF","PASS: native CreateDocument -> saved JSON -> OpenDocument -> explicit confirmation -> restored preference");
+            report.putString("stage","native print");
+            testNativePrintPresentation();
+            report.putString("print","PASS: actual system print presentation and cancel; no physical printer or PDF byte validation claim");
             // Stress real navigation and search index cache without constructing duplicate indexes.
             check("true".equals(js("(()=>{const first=lawMobile.buildSearch();for(let i=0;i<100;i++){lawMobile.goTo('article_'+(i%10+1),false);if(lawMobile.buildSearch()!==first)return false;}return true})()")),"Navigation stress");
+            android.os.Debug.MemoryInfo finalMemory=new android.os.Debug.MemoryInfo();
+            android.os.Debug.getMemoryInfo(finalMemory);
+            report.putInt("mainProcessPssKBAfterStress",finalMemory.getTotalPss());
+            report.putLong("mainProcessCpuMilliseconds",android.os.Process.getElapsedCpuTime()-cpuStart);
             report.putString("QA_STATUS","PASS");report.putString("coverage","real WebView, offline content, Hebrew offsets, search->result, restore, rotation, reload, URL/frame isolation, stress");
             finish(Activity.RESULT_OK,report);
         }catch(Throwable error){report.putString("QA_STATUS","FAIL");report.putString("error",error.toString());finish(Activity.RESULT_CANCELED,report);}

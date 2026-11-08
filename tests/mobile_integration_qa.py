@@ -19,6 +19,13 @@ def serve(route):
     if path.is_file():route.fulfill(status=200,body=path.read_bytes(),content_type=mimetypes.guess_type(path.name)[0] or 'application/octet-stream')
     else:route.fulfill(status=404,body='missing')
 
+dimensions=[(320,740),(430,932),(768,1024),(1180,820)]
+if os.environ.get('LAW_QA_WIDTH'):
+    requested=os.environ['LAW_QA_WIDTH']
+    if requested not in {str(width) for width,_ in dimensions}:
+        raise ValueError('Unknown QA viewport: '+requested)
+    dimensions=[size for size in dimensions if str(size[0])==requested]
+
 report=[]
 axe_source=(ROOT/'tests/qa/node_modules/axe-core/axe.min.js').read_text()
 accessibility=[]
@@ -26,7 +33,7 @@ with sync_playwright() as pw:
     options={'args':['--no-sandbox','--disable-dev-shm-usage']}
     if shutil.which('chromium'):options['executable_path']=shutil.which('chromium')
     browser=pw.chromium.launch(**options)
-    for width,height in [(320,740),(430,932),(768,1024),(1180,820)]:
+    for width,height in dimensions:
         context=browser.new_context(viewport={'width':width,'height':height},has_touch=width<800,reduced_motion='reduce',service_workers='block')
         context.route('**/*',serve)
         page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))

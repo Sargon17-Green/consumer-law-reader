@@ -70,10 +70,12 @@ XML
   "$SDK/aapt2" link -I build/api26-framework-res.apk --manifest build/api26-provider-overlay/AndroidManifest.xml --auto-add-overlay -o build/api26-provider-overlay/unsigned.apk build/api26-provider-overlay/resources.zip
   "$SDK/zipalign" -f 4 build/api26-provider-overlay/unsigned.apk build/api26-provider-overlay/aligned.apk
   java -jar "$SDK/lib/apksigner.jar" sign --ks build/qa-debug-keystore.p12 --ks-key-alias qa-debug --ks-pass pass:qa-only-password --v4-signing-enabled false --out build/api26-provider-overlay/ReaderQAWebView.apk build/api26-provider-overlay/aligned.apk
-  adb shell mkdir -p /system/overlay
-  adb push build/api26-provider-overlay/ReaderQAWebView.apk /system/overlay/ReaderQAWebView.apk
-  adb shell chmod 644 /system/overlay/ReaderQAWebView.apk
-  adb shell restorecon /system/overlay/ReaderQAWebView.apk
+  adb shell mkdir -p /vendor/overlay
+  adb push build/api26-provider-overlay/ReaderQAWebView.apk /vendor/overlay/ReaderQAWebView.apk
+  adb shell chmod 644 /vendor/overlay/ReaderQAWebView.apk
+  adb shell chmod 755 /vendor/overlay
+  adb shell restorecon -R /vendor/overlay
+  adb shell ls -Zd /vendor/overlay /vendor/overlay/ReaderQAWebView.apk | tee evidence/api26-overlay-file-context.txt
   adb reboot
   adb wait-for-device
   for ((i=0;i<90;i++)); do
@@ -83,7 +85,10 @@ XML
   [[ "$(adb shell getprop sys.boot_completed | tr -d '\r')" == 1 ]]
   adb shell cmd webviewupdate enable-redundant-packages
   adb shell pm enable com.android.webview
-  adb shell cmd overlay list > evidence/api26-system-overlay.txt
+  adb shell cmd overlay list | tee evidence/api26-system-overlay.txt
+  adb shell dumpsys overlay > evidence/api26-system-overlay-details.txt
+  adb shell pm path il.org.lawreader.qa.webviewprovider | tee evidence/api26-system-overlay-path.txt
+  grep -q ReaderQAWebView.apk evidence/api26-system-overlay-path.txt
   printf '{"api":26,"officialAospProvider":true,"resourceOnlyTestImageOverlay":true,"stockRetailImage":false}\n' > evidence/api26-environment.json
 fi
 SELECTED=false

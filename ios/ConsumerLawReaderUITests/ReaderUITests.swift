@@ -23,6 +23,11 @@ final class ReaderUITests: XCTestCase {
         let hit=app.webViews.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14")).firstMatch
         XCTAssertTrue(hit.waitForExistence(timeout:15));hit.tap()
         XCTAssertTrue(menu.isEnabled);menu.tap()
+        let print=app.buttons["הדפסה או שמירה כ־PDF"]
+        XCTAssertTrue(print.waitForExistence(timeout:5));print.tap()
+        let printCancel=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
+        XCTAssertTrue(printCancel.waitForExistence(timeout:30),app.debugDescription);printCancel.tap()
+        XCTAssertTrue(menu.waitForExistence(timeout:10));menu.tap()
         let restore=app.buttons["שחזור הגדרות מקובץ"]
         XCTAssertTrue(restore.waitForExistence(timeout:5));restore.tap()
         let cancel=app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Close", "ביטול"])).firstMatch
