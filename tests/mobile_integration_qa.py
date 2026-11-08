@@ -61,6 +61,16 @@ with sync_playwright() as pw:
           const before=lawSettings.exportJSON();if(lawSettings.prepareImport('{"format":"evil"}').ok)throw Error('unsafe file accepted');
           if(before!==lawSettings.exportJSON())throw Error('validation mutated settings');return raw;
         }""")
+        if width==320:
+            # Invalid UTF-8 inside an otherwise JSON-like file must be rejected,
+            # rather than silently replacing bytes and previewing corrupted data.
+            with page.expect_file_chooser() as chooser:
+                page.evaluate('lawSettings.importFile()')
+            chooser.value.set_files({'name':'corrupt.json','mimeType':'application/json','buffer':b'{"format":"consumer-law-reader-settings","schema":2,"appVersion":"\xff","settings":{}}'})
+            page.wait_for_function("()=>document.getElementById('mobile-toast').textContent.includes('UTF-8')")
+            assert page.locator('#mobile-confirm-restore').count()==0
+            assert page.evaluate('lawSettings.exportJSON()')==backup
+            page.locator('#mobile-sheet-close').click()
         before_back=page.evaluate("()=>{lawMobile.goTo('article_2');scrollBy(0,100);const point=scrollY;lawMobile.goTo('article_3');return point}")
         page.go_back()
         page.wait_for_function("point=>location.hash==='#article_2'&&Math.abs(scrollY-point)<3",arg=before_back)
@@ -70,6 +80,8 @@ with sync_playwright() as pw:
         page.reload(wait_until='load');page.wait_for_function('()=>window.lawMobile')
         assert page.evaluate("localStorage.getItem('law-reader-font')")=='24'
         assert page.evaluate('location.hash')=='#article_14'
+        page.wait_for_timeout(400)
+        assert page.evaluate('lawMobile.currentArticle()?.id')=='article_14', 'A font change restores the logical anchor, not pixels from the old layout'
         assert page.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--reading-size').trim()")=='24px'
         # Keyboard dialog focus returns to the invoker even after replacing a nested sheet.
         page.locator('[data-mobile=toc]').click();assert page.locator('dialog[open]').count()==1
@@ -91,7 +103,7 @@ with sync_playwright() as pw:
             assert button.inner_text().strip()
         assert page.locator('#mobile-sheet').get_attribute('aria-labelledby')=='mobile-sheet-title'
         page.evaluate(axe_source)
-        for scenario in ('reading','search','contents','settings','contrast-dark','contrast-blue','large-text'):
+        for scenario in ('reading','search','contents','settings','privacy','contrast-dark','contrast-blue','large-text'):
             page.evaluate("document.documentElement.classList.remove('m-contrast-dark','m-contrast-blue')")
             if scenario.startswith('contrast-'):page.evaluate('(name)=>document.documentElement.classList.add(name)','m-'+scenario)
             if scenario=='large-text':
@@ -100,6 +112,10 @@ with sync_playwright() as pw:
             if scenario=='search':page.evaluate('lawMobile.showSearch()')
             if scenario=='contents':page.evaluate('lawMobile.showToc()')
             if scenario=='settings':page.evaluate('lawMobile.showMore()')
+            if scenario=='privacy':
+                page.evaluate('lawMobile.showMore()')
+                page.get_by_role('button',name='מדיניות פרטיות ותקשורת',exact=True).click()
+                assert page.locator('#mobile-sheet-body').inner_text().count('JSON')>=2
             scan=page.evaluate("async()=>await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}})")
             accessibility.append({'viewport':[width,height],'scenario':scenario,'violations':scan['violations'],'incomplete':scan['incomplete'],'passes':len(scan['passes'])})
             (EVIDENCE/'accessibility-axe-report.json').write_text(json.dumps(accessibility,ensure_ascii=False,indent=2))

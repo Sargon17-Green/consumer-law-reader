@@ -8,6 +8,7 @@ from collections import Counter
 from zipfile import ZipFile
 import argparse, hashlib, json
 from bs4 import BeautifulSoup
+from bundled_assets import is_bundled_asset
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'original/Consumer_Protection_Law.html'
@@ -35,7 +36,7 @@ def verify(apk=None):
     check('Original ID occurrences',all(b[k]==v for k,v in a.items()))
     check('Original link targets',Counter(x.get('href') for x in original.select('a[href]'))==Counter(x.get('href') for x in generated.select('a[href]')))
     for src in (ROOT/'original').iterdir():
-        if src.suffix.lower() in ('.html','.ico','.lnk'):continue
+        if not is_bundled_asset(src):continue
         check('Bundled unchanged: '+src.name,src.read_bytes()==(DIST/src.name).read_bytes())
     for age in (3,7,12,16,18):
         check('PEGI alias '+str(age),(DIST/f'PEGI_{age}_plus.png').read_bytes()==(ROOT/'original'/f'PEGI_{age}+.png').read_bytes())

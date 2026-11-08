@@ -25,15 +25,21 @@ if [[ "$1" == 26 ]]; then
   adb shell settings put global airplane_mode_on 1
   adb shell am broadcast -a android.intent.action.AIRPLANE_MODE --ez state true
 else
+  adb shell cmd connectivity airplane-mode enable
   adb shell svc wifi disable
   adb shell svc data disable
 fi
-adb shell dumpsys connectivity > evidence/android-offline-connectivity.txt
 python - <<'PY'
 from pathlib import Path
-import re
-text=Path('evidence/android-offline-connectivity.txt').read_text()
-assert re.search(r'Active default network:\s*(none|null|-1)',text,re.I),'No proof of offline network state; see connectivity dump'
+import re,subprocess,time
+for attempt in range(60):
+    text=subprocess.check_output(['adb','shell','dumpsys','connectivity']).decode(errors='replace')
+    Path('evidence/android-offline-connectivity.txt').write_text(text)
+    if re.search(r'Active default network:\s*(none|null|-1)',text,re.I):
+        break
+    time.sleep(.5)
+else:
+    raise AssertionError('No proof of offline network state after disconnect settled; see connectivity dump')
 PY
 adb shell am instrument -w -e expectedFont 24 il.org.lawreader.consumer.qa/.ReaderInstrumentation | tee evidence/android-instrumentation.txt
 grep -q 'QA_STATUS=PASS' evidence/android-instrumentation.txt

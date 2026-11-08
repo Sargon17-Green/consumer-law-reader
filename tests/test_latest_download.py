@@ -1,10 +1,12 @@
 """Test that the permanent APK points to the newest *installable* release."""
 import sys
 import unittest
+from unittest.mock import patch
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from sync_latest_download import eligible, select_release
+from sync_latest_download import eligible, select_release, verify_release_certificate, RELEASE_CERT_SHA256
 
 
 def release(version, date, *, prerelease=True, digest="a" * 64, asset=True, draft=False):
@@ -24,6 +26,19 @@ def release(version, date, *, prerelease=True, digest="a" * 64, asset=True, draf
 
 
 class StableDownloadSelectionTests(unittest.TestCase):
+    def test_rejects_missing_debug_and_additional_signers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            jar=root/'.toolchain/build-tools-36.0.0/android-16/lib/apksigner.jar'
+            jar.parent.mkdir(parents=True);jar.touch()
+            valid='Signer #1 certificate SHA-256 digest: '+RELEASE_CERT_SHA256
+            with patch('sync_latest_download.ROOT',root),patch.dict('os.environ',{'ANDROID_HOME':str(root/'sdk')}):
+                with patch('sync_latest_download.subprocess.check_output',return_value=valid):
+                    verify_release_certificate(root/'asset.apk')
+                for output in ['', 'Signer #1 certificate SHA-256 digest: '+'0'*64, valid+'\nSigner #2 certificate SHA-256 digest: '+'0'*64]:
+                    with patch('sync_latest_download.subprocess.check_output',return_value=output):
+                        with self.assertRaises(RuntimeError):verify_release_certificate(root/'asset.apk')
+
     def test_includes_betas_and_selects_highest_version(self):
         versions = [
             release("1.3.4-beta", "2026-10-28T12:00:00Z"),

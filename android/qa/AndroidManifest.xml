@@ -4,6 +4,9 @@
     <activity android:name=".AttachmentReceiver" android:exported="true">
       <intent-filter><action android:name="android.intent.action.VIEW"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="application/msword"/></intent-filter>
     </activity>
+    <activity android:name=".ShareReceiver" android:label="Reader QA link receiver" android:exported="true">
+      <intent-filter><action android:name="android.intent.action.SEND"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="text/plain"/></intent-filter>
+    </activity>
   </application>
   <instrumentation android:name=".ReaderInstrumentation" android:targetPackage="il.org.lawreader.consumer" android:label="Actual WebView integration QA"/>
 </manifest>

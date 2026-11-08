@@ -37,10 +37,23 @@ if [[ "$INSTALLED" != true ]]; then
     printf 'System WebView removal did not persist: %s\n' "$OLD"
     exit 1
   fi
-  # Remove any retained, now-orphaned package record as well as the APK.
-  adb shell pm uninstall com.android.webview || true
+  # Chromium's provider setup also disables Nougat/Oreo fallback logic; that
+  # logic can otherwise disable/remove a newly installed standalone provider.
+  adb shell cmd webviewupdate enable-redundant-packages
   adb install -t build/api26-test-webview.apk
 fi
-adb shell cmd webviewupdate set-webview-implementation com.android.webview
+adb shell cmd webviewupdate enable-redundant-packages
+adb shell pm enable com.android.webview
+adb shell dumpsys package com.android.webview > evidence/api26-provider-package.txt
+# Package broadcasts and RELRO preparation complete asynchronously after install.
+SELECTED=false
+for ((i=0;i<40;i++)); do
+  if adb shell cmd webviewupdate set-webview-implementation com.android.webview | tee evidence/api26-provider-selection.txt | grep -q 'Success'; then
+    SELECTED=true
+    break
+  fi
+  sleep 0.5
+done
 adb shell dumpsys webviewupdate > evidence/api26-provider-selected.txt
-grep -q 'com.android.webview' evidence/api26-provider-selected.txt
+[[ "$SELECTED" == true ]]
+grep -q 'Current WebView package.*com.android.webview' evidence/api26-provider-selected.txt

@@ -20,7 +20,7 @@ function previewFile(raw){
 function importFile(){
  if(window.NativeLaw?.importSettings){window.NativeLaw.importSettings();return;}
  const input=document.createElement('input');input.type='file';input.accept='.json,application/json';
- input.onchange=async()=>{const file=input.files[0];if(!file)return;if(file.size>LawCore.MAX_BACKUP){showError('קובץ הגיבוי גדול מדי');return;}try{previewFile(await file.text());}catch{showError('קריאת הגיבוי נכשלה');}};input.click();
+ input.onchange=async()=>{const file=input.files[0];if(!file)return;if(file.size>LawCore.MAX_BACKUP){showError('קובץ הגיבוי גדול מדי');return;}try{previewFile(new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer()));}catch{showError('קריאת הגיבוי נכשלה או שאינו UTF-8 תקין');}};input.click();
 }
 window.lawSettings={prepareImport,applyImport,exportJSON,exportFile,importFile,previewFile};
 })();

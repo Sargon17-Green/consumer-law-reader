@@ -1,6 +1,7 @@
 name: Source, web and Android debug integrity
 on:
   push:
+    branches: [main]
   pull_request:
 concurrency:
   group: mobile-ci-${{ github.event.pull_request.head.ref || github.ref_name }}
@@ -10,7 +11,7 @@ permissions:
 jobs:
   source-and-browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 16
+    timeout-minutes: 22
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -100,6 +101,17 @@ jobs:
             echo 'ERROR: debug build accidentally uses release signer'; exit 1
           fi
           echo 'Temporary debug certificate confirmed distinct.'
+          python - <<'PY'
+          from pathlib import Path
+          from scripts.sync_latest_download import verify_release_certificate
+          verify_release_certificate(Path('downloads/latest.apk'))
+          try:
+              verify_release_certificate(next(Path('debug-build').glob('*DEBUG_NOT_FOR_UPGRADE.apk')))
+          except RuntimeError:
+              print('Public download accepts the existing release and rejects the real debug signer.')
+          else:
+              raise AssertionError('Debug identity could replace the public upgrade')
+          PY
   android-emulator:
     needs: android-debug
     runs-on: ubuntu-latest

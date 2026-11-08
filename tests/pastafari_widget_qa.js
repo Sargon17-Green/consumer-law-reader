@@ -49,7 +49,7 @@ const snapshot = {
   },
   cacheMeta: {mode: 'automated-seer-snapshot', fetchedAt: new Date(now).toISOString()}
 };
-async function exercise(responseAt, payload, expectedCalls) {
+async function exercise(responseAt, payload, expectedCalls, options={}) {
   const date = {textContent: 'לוח השנה הפסטפרי'};
   const link = {title: ''};
   const urls = [];
@@ -62,13 +62,18 @@ async function exercise(responseAt, payload, expectedCalls) {
         return null;
       }
     },
-    fetch: async (url, options) => {
-      assert.equal(options.method, 'GET');
-      assert.equal(options.mode, 'cors');
+    fetch: async (url, request) => {
+      assert.equal(request.method, 'GET');
+      assert.equal(request.mode, 'cors');
       urls.push(url);
       const index = urls.length - 1;
+      if(options.failure==='dns')throw new TypeError('Controlled DNS/offline failure');
+      if(options.failure==='timeout')return await new Promise((resolve,reject)=>request.signal.addEventListener('abort',()=>reject(new Error('Controlled timeout')),{once:true}));
       if (index !== responseAt) throw new Error('Simulated endpoint failure');
-      return {ok: true, text: async () => {
+      return {ok: options.failure!=='http', status:503, text: async () => {
+        if(options.failure==='body')throw new TypeError('Controlled disconnection during body');
+        if(options.failure==='json')return '{';
+        if(options.failure==='html')return '<html>error</html>';
         if (index === 1) {
           return JSON.stringify({
             type: 'file',
@@ -78,14 +83,14 @@ async function exercise(responseAt, payload, expectedCalls) {
         return JSON.stringify(payload);
       }};
     },
-    AbortController, setTimeout, clearTimeout,
+    AbortController, setTimeout: (fn,ms)=>setTimeout(fn,options.failure==='timeout'&&ms===15000?1:ms), clearTimeout,
     setInterval: () => 1,
     atob: value => Buffer.from(value, 'base64').toString('binary'),
     TextDecoder, Uint8Array,
     console: {log(){}, info(){}, warn(){}, error(){}}
   };
   vm.runInNewContext(script, context, {timeout: 3000});
-  for (let i=0; i<8; i++) await new Promise(resolve => setImmediate(resolve));
+  for (let i=0; i<300 && date.textContent==='לוח השנה הפסטפרי'; i++) await new Promise(resolve => setTimeout(resolve,1));
   assert.equal(urls.length, expectedCalls, 'Unexpected source fallback count');
   return {date: date.textContent, title: link.title, urls};
 }
@@ -102,5 +107,12 @@ async function exercise(responseAt, payload, expectedCalls) {
   const fail = await exercise(2, stale, 3);
   assert.equal(fail.date, 'התאריך הפסטפרי אינו זמין כרגע');
   assert(fail.title.includes('לא התקבל תאריך פסטפרי עדכני'));
-  console.log('PASS: Seer raw/REST/Pages fallback, stale data refusal and exact Android allowlist');
+  for(const failure of ['dns','timeout','http','body','json','html']){
+    const result=await exercise(2,snapshot,3,{failure});
+    assert.equal(result.date,'התאריך הפסטפרי אינו זמין כרגע',failure);
+  }
+  for(const payload of [{},{...snapshot,cacheMeta:{mode:'unknown'}},{...snapshot,targetDay:{jdn:String(BigInt(jdn)+3n)}},{...snapshot,pastafarianDate:{...snapshot.pastafarianDate,month:{canonicalIndex:999,day:1}}}]){
+    assert.equal((await exercise(2,payload,3)).date,'התאריך הפסטפרי אינו זמין כרגע');
+  }
+  console.log('PASS: Seer raw/REST/Pages fallback; stale/malformed/invalid data; DNS/offline, HTTP, aborted timeout and partial-body failure; exact Android allowlist');
 })().catch(error => {console.error(error);process.exitCode=1;});

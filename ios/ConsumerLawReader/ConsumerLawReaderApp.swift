@@ -530,6 +530,8 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     func applyPendingImport() {
         guard ready, !working, let pendingSettings, let argument = jsonArgument(pendingSettings) else { return }
         self.pendingSettings = nil
+        confirmImport = false
+        importPreview = ""
         working = true
         webView.evaluateJavaScript("window.lawSettings.applyImport(" + argument + ")") { [weak self] result, error in
             Task { @MainActor in

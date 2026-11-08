@@ -25,6 +25,11 @@ final class ReaderPolicyTests: XCTestCase {
 @MainActor
 final class ReaderIntegrationTests: XCTestCase {
     private var testWindow: UIWindow?
+    private func closeTestWindow() {
+        testWindow?.isHidden=true
+        testWindow?.rootViewController=nil
+        testWindow=nil
+    }
     private func script(_ reader: OfflineLawReader,_ source: String) async throws -> Any {
         try await withCheckedThrowingContinuation { continuation in
             reader.webView.callAsyncJavaScript("return await (" + source + ");", arguments: [:], in: nil, in: .page) { result in
@@ -60,6 +65,7 @@ final class ReaderIntegrationTests: XCTestCase {
     }
     func testActualOfflineReaderSearchBackupAndLifecycle() async throws {
         let reader=try await openReader()
+        defer { closeTestWindow() }
         if ProcessInfo.processInfo.environment["EXPECT_SEER_FRESH"] == "true" {
             var rendered=false
             for _ in 0..<220 {
@@ -101,6 +107,9 @@ final class ReaderIntegrationTests: XCTestCase {
         let beforeBack = try await script(reader,"JSON.stringify({hash:location.hash,scroll:scrollY,state:history.state,length:history.length})")
         print("NATIVE_BACK_BEFORE: \(beforeBack)")
         reader.webView.goBack()
+        // Require a settled position, not a transient matching frame before
+        // WebKit finishes restoring its native scrolling snapshot.
+        try await Task.sleep(nanoseconds:600_000_000)
         var backPosition: Double?
         for _ in 0..<50 {
             try await Task.sleep(nanoseconds:100_000_000)
@@ -110,6 +119,7 @@ final class ReaderIntegrationTests: XCTestCase {
         }
         let afterBack = try await script(reader,"JSON.stringify({hash:location.hash,scroll:scrollY,state:history.state,length:history.length})")
         print("NATIVE_BACK_AFTER: \(afterBack)")
+        backPosition = try await script(reader,"scrollY") as? Double
         XCTAssertEqual(backPosition ?? -1000,savedPosition ?? -2000,accuracy:3)
         let backHash = try await script(reader,"location.hash") as? String
         XCTAssertEqual(backHash,"#article_2")
@@ -121,6 +131,9 @@ final class ReaderIntegrationTests: XCTestCase {
         let savedHash=try await script(reader,"location.hash") as? String
         XCTAssertEqual(savedFont,"24")
         XCTAssertEqual(savedHash,"#article_14")
+        try await Task.sleep(nanoseconds:400_000_000)
+        let visibleAfterReload=try await script(reader,"lawMobile.currentArticle()?.id") as? String
+        XCTAssertEqual(visibleAfterReload,"article_14","Restoring pixels from another font size must not change the logical section")
         // The real native share path uses the current section's public URL.
         reader.shareCurrentSection()
         for _ in 0..<20 {if reader.sharing != nil{break};try await Task.sleep(nanoseconds:100_000_000)}
@@ -148,11 +161,32 @@ final class ReaderIntegrationTests: XCTestCase {
         XCTAssertTrue(reader.confirmImport)
         XCTAssertFalse(reader.importPreview.isEmpty)
         reader.cancelPendingImport()
+        XCTAssertFalse(reader.confirmImport)
+        reader.importBackup(result:.success([url]))
+        for _ in 0..<40 {if reader.confirmImport{break};try await Task.sleep(nanoseconds:100_000_000)}
+        XCTAssertTrue(reader.confirmImport)
+        _ = try await script(reader,"(localStorage.setItem('law-reader-font','20'),true)")
+        reader.applyPendingImport()
+        for _ in 0..<120 {
+            try await Task.sleep(nanoseconds:100_000_000)
+            if !reader.working && reader.ready {break}
+        }
+        let restoredNativeFont=try await script(reader,"localStorage.getItem('law-reader-font')") as? String
+        XCTAssertEqual(restoredNativeFont,"24")
+        XCTAssertFalse(reader.confirmImport)
         reader.cleanTemporaryExport()
         XCTAssertFalse(FileManager.default.fileExists(atPath:url.path))
+        let invalid=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".json")
+        try Data([0x7B,0x22,0x78,0x22,0x3A,0x22,0xFF,0x22,0x7D]).write(to:invalid)
+        defer { try? FileManager.default.removeItem(at:invalid) }
+        reader.importBackup(result:.success([invalid]))
+        for _ in 0..<40 {if !reader.working{break};try await Task.sleep(nanoseconds:100_000_000)}
+        XCTAssertFalse(reader.confirmImport)
+        XCTAssertNotNil(reader.notice)
     }
     func testRemoteScriptsAndSubframeBridgeAreBlocked() async throws {
         let reader=try await openReader()
+        defer { closeTestWindow() }
         let result=try await script(reader,"""
         (async()=>{
           let rejected=false;
@@ -166,5 +200,28 @@ final class ReaderIntegrationTests: XCTestCase {
         """) as? [String:Any]
         XCTAssertEqual(result?["blocked"] as? Bool,true)
         XCTAssertEqual(result?["frameExecuted"] as? Bool,false)
+    }
+
+    func testBundledReadingWithEveryRemoteRequestBlocked() async throws {
+        let reader=try await openReader()
+        defer { closeTestWindow() }
+        let rule: WKContentRuleList = try await withCheckedThrowingContinuation { continuation in
+            WKContentRuleListStore.default().compileContentRuleList(forIdentifier:"ReaderQAOffline",encodedContentRuleList:"[{\"trigger\":{\"url-filter\":\"^https?://\"},\"action\":{\"type\":\"block\"}}]") { rule,error in
+                if let rule { continuation.resume(returning:rule) }
+                else { continuation.resume(throwing:error ?? NSError(domain:"ReaderQA",code:2)) }
+            }
+        }
+        reader.webView.configuration.userContentController.add(rule)
+        reader.retryLoading()
+        for _ in 0..<240 {try await Task.sleep(nanoseconds:250_000_000);if reader.ready{break}}
+        XCTAssertTrue(reader.ready)
+        let offline=try await script(reader,"""
+        (async()=>{
+          let blocked=false;
+          try{await fetch('https://raw.githubusercontent.com/Sargon17-Green/pastafari-calendar/main/docs/api/seer-now.json')}catch{blocked=true}
+          return blocked && lawMobile.buildSearch().length>500 && lawMobile.goTo('article_14');
+        })()
+        """) as? Bool
+        XCTAssertEqual(offline,true,"The actual WKWebView must read/search/navigate without any remote request")
     }
 }

@@ -49,7 +49,7 @@ public final class ReaderInstrumentation extends Instrumentation {
     }
     private AccessibilityNodeInfo findText(AccessibilityNodeInfo node,String text) {
         if(node==null)return null;
-        if(node.getText()!=null&&text.equalsIgnoreCase(node.getText().toString()))return node;
+        if((node.getText()!=null&&text.equalsIgnoreCase(node.getText().toString())) || (node.getContentDescription()!=null&&text.equalsIgnoreCase(node.getContentDescription().toString())))return node;
         for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo found=findText(node.getChild(i),text);if(found!=null)return found;}
         return null;
     }
@@ -65,7 +65,16 @@ public final class ReaderInstrumentation extends Instrumentation {
     }
     private void testNativeSettingsFiles() throws Exception {
         shell("rm -f /sdcard/Download/consumer-law-settings.json");
+        // A portable legacy-size backup must not travel inside Activity saved
+        // state (Binder has a process-wide, approximately 1 MB transaction limit).
+        check("true".equals(js("(()=>{const data={schema:1,userTopics:[{id:'u:large',title:'large',parent:null,index:1000}],links:[],titles:{},hidden:{},ranks:{}};for(let i=0;i<2000;i++)data.links.push({id:'u:large-'+i,topic:'u:large',target:'article_14',title:'א'.repeat(90)});localStorage.setItem('law-reader-topics-v1',JSON.stringify(data));return lawSettings.exportJSON().length>300000})()")),"Large valid portable backup fixture");
         js("NativeLaw.exportSettings()");
+        Thread.sleep(800);
+        final Bundle state=new Bundle();
+        runOnMainSync(()->callActivityOnSaveInstanceState(activity,state));
+        android.os.Parcel parcel=android.os.Parcel.obtain();
+        try{state.writeToParcel(parcel,0);check(parcel.dataSize()<100000,"Large export does not inflate Activity saved state");}
+        finally{parcel.recycle();}
         clickSystemText("Save");
         JSONObject exported=null;
         for(int i=0;i<60;i++){
@@ -103,6 +112,22 @@ public final class ReaderInstrumentation extends Instrumentation {
                 if(manager.hasPrimaryClip())clipboard[0]=manager.getPrimaryClip().getItemAt(0).getText().toString();
             });
             check("QA clipboard fixture".equals(clipboard[0]),"Native clipboard bridge");
+        }finally{getTargetContext().unregisterReceiver(receiver);}
+    }
+    private void testNativeShare() throws Exception {
+        final String[] text={null};final CountDownLatch received=new CountDownLatch(1);
+        android.content.BroadcastReceiver receiver=new android.content.BroadcastReceiver(){
+            @Override public void onReceive(android.content.Context context,Intent intent){text[0]=intent.getStringExtra("text");received.countDown();}
+        };
+        android.content.IntentFilter filter=new android.content.IntentFilter("il.org.lawreader.consumer.QA_SHARE");
+        if(android.os.Build.VERSION.SDK_INT>=33)getTargetContext().registerReceiver(receiver,filter,android.content.Context.RECEIVER_EXPORTED);
+        else getTargetContext().registerReceiver(receiver,filter);
+        try{
+            js("lawMobile.shareLink('article_14')");
+            clickSystemText("Reader QA link receiver");
+            check(received.await(15,TimeUnit.SECONDS),"Real sharesheet destination received the intent");
+            check("https://sargon17-green.github.io/consumer-law-reader/reader/#article_14".equals(text[0]),"Native share retains the exact public section URL");
+            Thread.sleep(300);
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
     @Override public void onStart() {
@@ -173,6 +198,8 @@ public final class ReaderInstrumentation extends Instrumentation {
             check("false".equals(js("window.__frameExecuted")),"Subframe scripts blocked");
             testAttachmentAndClipboard();
             report.putString("attachments","PASS: native intent, cross-UID read grant and exact bundled bytes; no Word rendering claim");
+            testNativeShare();
+            report.putString("share","PASS: real sharesheet selection -> cross-UID receiver -> exact section URL");
             testNativeSettingsFiles();
             report.putString("SAF","PASS: native CreateDocument -> saved JSON -> OpenDocument -> explicit confirmation -> restored preference");
             // Stress real navigation and search index cache without constructing duplicate indexes.

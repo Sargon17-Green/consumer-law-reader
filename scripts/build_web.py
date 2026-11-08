@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 """Preserve the supplied source verbatim and add an independent mobile layer."""
 from pathlib import Path
-import hashlib,json,shutil,re,base64
+import hashlib,json,shutil,re,base64,html as html_module
 from bs4 import BeautifulSoup
 from prepare_typed_sources import prepare
+from bundled_assets import is_bundled_asset
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'original'
 DIST=ROOT/'dist'
-DIST.mkdir(exist_ok=True)
+if DIST.is_symlink():
+    raise RuntimeError('The generated dist directory must not be a symlink')
+if DIST.exists():
+    shutil.rmtree(DIST)
+DIST.mkdir()
 for path in SOURCE.iterdir():
-    if path.is_file() and path.suffix.lower() not in ['.html','.lnk','.ico']:
+    if is_bundled_asset(path):
         shutil.copy2(path,DIST/path.name)
 original=(SOURCE/'Consumer_Protection_Law.html').read_text()
 # Keep legacy accessibility code as inert source; replace its network-dependent widget
@@ -39,9 +44,11 @@ editorial=json.loads((ROOT/'metadata/editorial_status.json').read_text(encoding=
 assert editorial['law_text_last_verified_on'] and editorial['editor_publisher']=='סרגון 17 גרין'
 embedded=json.dumps(editorial,ensure_ascii=False).replace('<','\\u003c').replace('&','\\u0026')
 editorial_tag='<script type="application/json" id="law-editorial-status">'+embedded+'</script>'
+privacy=json.loads((ROOT/'web/privacy.json').read_text())
+privacy_tag='<script type="application/json" id="law-privacy">'+json.dumps(privacy,ensure_ascii=False).replace('<','\\u003c').replace('&','\\u0026')+'</script>'
 
 prepare(ROOT/'typed-sources',DIST,ROOT/'evidence')
-html=original.replace('<html>','<html lang="he" dir="rtl">',1).replace('</head>',head+'\n</head>',1).replace('<body onload="start()">','<body onload="start()">\n'+shell,1).replace('</body>',editorial_tag+'<script defer src="./mobile-core.js"></script><script defer src="./mobile-settings.js"></script><script defer src="./mobile-sources.js"></script><script defer src="./mobile-topics.js"></script><script defer src="./mobile.js"></script>\n</body>',1)
+html=original.replace('<html>','<html lang="he" dir="rtl">',1).replace('</head>',head+'\n</head>',1).replace('<body onload="start()">','<body onload="start()">\n'+shell,1).replace('</body>',editorial_tag+privacy_tag+'<script defer src="./mobile-core.js"></script><script defer src="./mobile-settings.js"></script><script defer src="./mobile-sources.js"></script><script defer src="./mobile-topics.js"></script><script defer src="./mobile.js"></script>\n</body>',1)
 # The Android asset handler uses MimeTypeMap.getFileExtensionFromUrl, which
 # can be ambiguous for '+' in a filename. Generate lossless ASCII-safe aliases
 # for PEGI age pictograms, without changing the preserved source HTML.
@@ -53,6 +60,8 @@ for age in (3, 7, 12, 16, 18):
     assert html.count(old)==1, (old,html.count(old))
     html=html.replace(old, f'src="./{alias_name}"')
 (DIST/'index.html').write_text(html)
+privacy_html='<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; base-uri \'none\'; form-action \'none\'"><title>'+html_module.escape(privacy['title'])+'</title><style>body{font:1.15rem/1.8 Arial,sans-serif;max-width:55rem;margin:2rem auto;padding:0 1rem;color:#172f40;background:#fff}a{color:#124e70}</style></head><body><h1>'+html_module.escape(privacy['title'])+'</h1>'+''.join('<p>'+html_module.escape(p)+'</p>' for p in privacy['paragraphs'])+'<p><a href="./">חזרה לממשק הקריאה</a> · <a href="https://github.com/Sargon17-Green/consumer-law-reader/issues">פניות ודיווח תקלות</a></p></body></html>'
+(DIST/'privacy.html').write_text(privacy_html)
 for name in ['mobile-core.js','mobile-settings.js','mobile.css','mobile.js','mobile-topics.js','mobile-sources.js','icon-192.png','icon-512.png']:
     shutil.copy2(ROOT/'web'/name,DIST/name)
 manifest={'id':'./','name':'חוק הגנת הצרכן, התשמ"א–1981','short_name':'חוק הגנת הצרכן, התשמ"א–1981','lang':'he','dir':'rtl','start_url':'./','scope':'./','display':'standalone','background_color':'#f5f6f4','theme_color':'#142f41','description':'חוק הגנת הצרכן, התשמ"א–1981; חקיקת משנה ותוספים מתוך הקובץ המצורף.','icons':[{'src':'./icon-192.png','sizes':'192x192','type':'image/png','purpose':'any'},{'src':'./icon-512.png','sizes':'512x512','type':'image/png','purpose':'any maskable'}]}

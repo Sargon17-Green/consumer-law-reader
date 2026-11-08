@@ -30,8 +30,22 @@ permissions:
 
 jobs:
   ios-simulator:
+    name: ${{ matrix.family }} iOS ${{ matrix.os }}
     runs-on: macos-15
-    timeout-minutes: 45
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - family: iPhone
+            os: '26.2'
+            archive: true
+          - family: iPad
+            os: '26.2'
+            archive: false
+          - family: iPhone
+            os: '18.5'
+            archive: false
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: Set up Python
@@ -88,27 +102,34 @@ jobs:
           test -s "$APP/dist/typed-index.js"
           test -s "$APP/dist/PEGI_18_plus.png"
           echo "Built iOS simulator .app includes the original legal text and offline assets."
-      - name: Exercise actual iPhone and iPad apps with XCTest and XCUITest
+      - name: Exercise the actual simulator app with XCTest and XCUITest
+        env:
+          FAMILY: ${{ matrix.family }}
+          OS: ${{ matrix.os }}
         run: |
           set -euo pipefail
           export LAW_EXPECT_SEER="$(python3 tests/date_network_probe.py)"
-          FAILED=0
-          for CASE in iPhone:26.2 iPad:26.2 iPhone:18.5; do
-            FAMILY="${CASE%:*}"
-            OS="${CASE#*:}"
-            LABEL="$FAMILY-ios-$OS"
-            DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; family,version=sys.argv[1:]; key="com.apple.CoreSimulator.SimRuntime.iOS-"+version.replace(".","-"); print(next(d["udid"] for d in json.load(sys.stdin)["devices"].get(key,[]) if d["name"].startswith(family)))' "$FAMILY" "$OS")"
-            xcrun simctl boot "$DEVICE"
-            xcrun simctl bootstatus "$DEVICE" -b
-            xcrun simctl status_bar "$DEVICE" override --time '9:41'
-            python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$LABEL-runtime.json"
-            xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log" || FAILED=1
-            xcrun simctl io "$DEVICE" screenshot "build/$LABEL-simulator.png"
-            xcrun xcresulttool export attachments --path "build/$LABEL-tests.xcresult" --output-path "build/$LABEL-attachments" || true
-            xcrun simctl shutdown "$DEVICE"
-          done
-          exit "$FAILED"
+          LABEL="$FAMILY-ios-$OS"
+          DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; family,version=sys.argv[1:]; key="com.apple.CoreSimulator.SimRuntime.iOS-"+version.replace(".","-"); print(next(d["udid"] for d in json.load(sys.stdin)["devices"].get(key,[]) if d["name"].startswith(family)))' "$FAMILY" "$OS")"
+          echo "QA_DEVICE=$DEVICE" >> "$GITHUB_ENV"
+          echo "QA_LABEL=$LABEL" >> "$GITHUB_ENV"
+          xcrun simctl boot "$DEVICE"
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl status_bar "$DEVICE" override --time '9:41'
+          python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$LABEL-runtime.json"
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+      - name: Collect simulator evidence and shut it down after success or failure
+        if: always()
+        run: |
+          if [[ -n "${QA_DEVICE:-}" ]]; then
+            xcrun simctl io "$QA_DEVICE" screenshot "build/$QA_LABEL-simulator.png" || true
+            if [[ -d "build/$QA_LABEL-tests.xcresult" ]]; then
+              xcrun xcresulttool export attachments --path "build/$QA_LABEL-tests.xcresult" --output-path "build/$QA_LABEL-attachments" || true
+            fi
+            xcrun simctl shutdown "$QA_DEVICE" || true
+          fi
       - name: Prepare unsigned device archive for future original-account signing
+        if: success() && matrix.archive
         run: |
           set -o pipefail
           xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -configuration Release -destination 'generic/platform=iOS' -archivePath build/ConsumerLawReader-unsigned.xcarchive CODE_SIGNING_ALLOWED=NO archive | tee build/ios-unsigned-archive.log
@@ -116,7 +137,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: ios-simulator-build-evidence
+          name: ios-${{ matrix.family }}-${{ matrix.os }}-evidence
           path: |
             build/ios-build.log
             build/ios-environment.txt

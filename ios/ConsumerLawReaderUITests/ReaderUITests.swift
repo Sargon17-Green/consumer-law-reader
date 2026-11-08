@@ -1,9 +1,15 @@
 import XCTest
 
 final class ReaderUITests: XCTestCase {
+    override func setUpWithError() throws {
+        continueAfterFailure=false
+    }
     func testSearchNavigationSharingRotationAndRelaunch() {
         let app=XCUIApplication()
         app.launch()
+        let menu=app.buttons["native-menu"]
+        XCTAssertTrue(menu.waitForExistence(timeout:60))
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:60),.completed)
         let search=app.webViews.buttons["חיפוש"]
         XCTAssertTrue(search.waitForExistence(timeout:60))
         search.tap()
@@ -12,12 +18,11 @@ final class ReaderUITests: XCTestCase {
         input.tap();input.typeText("14")
         let hit=app.webViews.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14")).firstMatch
         XCTAssertTrue(hit.waitForExistence(timeout:15));hit.tap()
-        let menu=app.buttons["native-menu"]
         XCTAssertTrue(menu.isEnabled);menu.tap()
         let restore=app.buttons["שחזור הגדרות מקובץ"]
         XCTAssertTrue(restore.waitForExistence(timeout:5));restore.tap()
         let cancel=app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Close", "ביטול"])).firstMatch
-        XCTAssertTrue(cancel.waitForExistence(timeout:15),app.debugDescription);cancel.tap()
+        XCTAssertTrue(cancel.waitForExistence(timeout:60),app.debugDescription);cancel.tap()
         XCTAssertTrue(menu.waitForExistence(timeout:10))
         let share=app.buttons["native-share"]
         XCTAssertTrue(share.isEnabled);share.tap()
@@ -28,6 +33,8 @@ final class ReaderUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
         let shot=XCTAttachment(screenshot:app.screenshot());shot.name="Reader actual simulator UI";shot.lifetime = .keepAlways;add(shot)
         app.terminate();app.launch()
+        XCTAssertTrue(menu.waitForExistence(timeout:60))
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:60),.completed)
         XCTAssertTrue(search.waitForExistence(timeout:60))
         search.tap();XCTAssertTrue(input.waitForExistence(timeout:10))
         XCTAssertEqual(input.value as? String,"14")

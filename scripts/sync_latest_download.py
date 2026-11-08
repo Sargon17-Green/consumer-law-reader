@@ -19,6 +19,24 @@ TAG_VERSION = re.compile(r"^v?(\d+)\.(\d+)\.(\d+)(?:[-.].*)?$")
 SHA256 = re.compile(r"^sha256:([0-9a-fA-F]{64})$")
 FILE_NAME = re.compile(r"^Consumer_Law_Reader_.+_Android\.apk$")
 MAX_BYTES = 80 * 1024 * 1024
+RELEASE_CERT_SHA256 = '2625ebe860cb0bfac105196b24aeedf3a948ce18c6f836478fd8ea38d0b937dc'
+
+
+def verify_release_certificate(path):
+    """A public asset's checksum alone does not prove upgrade compatibility."""
+    sdk = Path(os.environ.get('ANDROID_HOME', '/usr/local/lib/android/sdk'))
+    candidates = sorted((sdk / 'build-tools').glob('*/apksigner'), reverse=True)
+    if candidates:
+        command = [str(candidates[0])]
+    else:
+        jar = ROOT / '.toolchain/build-tools-36.0.0/android-16/lib/apksigner.jar'
+        if not jar.is_file():
+            raise RuntimeError('No Android signature verifier; refusing to change public download')
+        command = ['java', '-jar', str(jar)]
+    output = subprocess.check_output(command + ['verify', '--print-certs', str(path)], text=True, stderr=subprocess.STDOUT, timeout=60)
+    certificates = re.findall(r'Signer #\d+ certificate SHA-256 digest: ([0-9a-fA-F]{64})', output)
+    if not certificates or set(c.lower() for c in certificates) != {RELEASE_CERT_SHA256}:
+        raise RuntimeError('Public APK does not use the existing release signing identity')
 
 
 def eligible(release):
@@ -72,6 +90,7 @@ def run():
             if archive.testzip() is not None:
                 raise RuntimeError("Corrupt APK archive")
             assert "AndroidManifest.xml" in archive.namelist() and "classes.dex" in archive.namelist()
+        verify_release_certificate(path)
         if not latest.exists() or latest.read_bytes() != data:
             latest.write_bytes(data)
     record = {

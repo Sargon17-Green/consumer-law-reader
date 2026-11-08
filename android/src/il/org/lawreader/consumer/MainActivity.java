@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.webkit.WebResourceError;
 import android.webkit.RenderProcessGoneDetail;
 import org.json.JSONObject;
@@ -35,6 +34,9 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.File;
+import java.io.FileOutputStream;
+import android.util.AtomicFile;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +48,8 @@ public final class MainActivity extends Activity {
     private WebView web;
     private boolean ready;
     private android.window.OnBackInvokedCallback systemBack;
-    private String pendingExport;
+    private boolean pendingExport;
+    private boolean settingsBusy;
     private static final int EXPORT_SETTINGS = 2101, IMPORT_SETTINGS = 2102;
     private static final int MAX_BACKUP = 1000000;
 
@@ -74,7 +77,8 @@ public final class MainActivity extends Activity {
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState!=null)pendingExport=savedInstanceState.getString("pendingExport");
+        if(savedInstanceState!=null)pendingExport=savedInstanceState.getBoolean("pendingExport");
+        if(!pendingExport)pendingExportFile().delete();
         final FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.rgb(20,47,65));
         if (Build.VERSION.SDK_INT >= 30) {
@@ -104,7 +108,6 @@ public final class MainActivity extends Activity {
         settings.setUseWideViewPort(true);
         settings.setLoadWithOverviewMode(false);
         settings.setTextZoom(Math.round(100 * getResources().getConfiguration().fontScale));
-        settings.setJavaScriptCanOpenWindowsAutomatically(false);
         settings.setSupportMultipleWindows(false);
         settings.setSafeBrowsingEnabled(true);
         android.webkit.CookieManager.getInstance().setAcceptCookie(false);
@@ -120,22 +123,28 @@ public final class MainActivity extends Activity {
             }
             @Override public void onPageStarted(WebView view,String url,android.graphics.Bitmap icon) { ready=false; }
             @Override public void onPageFinished(WebView view,String url) {
-                view.evaluateJavascript("document.documentElement.dataset.lawReady === 'true'",result -> ready="true".equals(result));
+                view.evaluateJavascript("document.documentElement.dataset.lawReady === 'true'",result -> {
+                    ready="true".equals(result);
+                    if(!ready && !isFinishing() && !isDestroyed())new AlertDialog.Builder(MainActivity.this)
+                        .setMessage("ממשק הקריאה לא אותחל. יש לוודא ש־Android System WebView או Chrome מעודכנים, ולנסות שוב.")
+                        .setPositiveButton("ניסיון נוסף",(d,w)->web.loadUrl(HOME)).setNegativeButton("ביטול",null).show();
+                });
             }
             @Override public void onReceivedError(WebView view,WebResourceRequest request,WebResourceError error) {
                 if(request.isForMainFrame()) { ready=false; showLoadError(); }
             }
             @Override public boolean onRenderProcessGone(WebView view,RenderProcessGoneDetail detail) {
                 ready=false;
-                new AlertDialog.Builder(MainActivity.this).setMessage("תהליך הקריאה נסגר. ההעדפות נשמרו; אפשר לפתוח מחדש.")
+                if(!isFinishing() && !isDestroyed())new AlertDialog.Builder(MainActivity.this).setMessage("תהליך הקריאה נסגר. ההעדפות נשמרו; אפשר לפתוח מחדש.")
                     .setPositiveButton("פתיחה מחדש",(d,w)->recreate()).setCancelable(false).show();
-                ((android.view.ViewGroup)view.getParent()).removeView(view);view.destroy();web=null;return true;
+                if(view.getParent() instanceof android.view.ViewGroup)((android.view.ViewGroup)view.getParent()).removeView(view);
+                view.destroy();if(web==view)web=null;return true;
             }
             @Override public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
                 if (!isLocalDocument(uri)) {
-                    // A null response allows WebView to perform its normal CORS
-                    // fetch. All non-allowlisted external resources stay denied.
+                    // The bounded native proxy adds the local origin's CORS
+                    // response. Other remote resources remain denied.
                     if ("GET".equals(request.getMethod()) && isApprovedDateSource(uri)) return dateResponse(uri);
                     return missing();
                 }
@@ -162,6 +171,7 @@ public final class MainActivity extends Activity {
     }
 
     private void showLoadError() {
+        if(isFinishing() || isDestroyed() || web==null)return;
         new AlertDialog.Builder(this).setMessage("טעינת נוסח החוק המקומי נכשלה.")
             .setPositiveButton("ניסיון נוסף",(d,w)->web.loadUrl(HOME)).setNegativeButton("ביטול",null).show();
     }
@@ -259,30 +269,52 @@ public final class MainActivity extends Activity {
         }
     }
     private void beginExport() {
+        if(settingsBusy || pendingExport)return;
+        settingsBusy=true;
         web.evaluateJavascript("window.lawSettings.exportJSON()",result -> {
             try {
                 Object value=new JSONTokener(result).nextValue();
                 if(!(value instanceof String) || ((String)value).getBytes("UTF-8").length>MAX_BACKUP)throw new Exception();
-                pendingExport=(String)value;
-                Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json");
-                intent.putExtra(Intent.EXTRA_TITLE,"consumer-law-settings.json");startActivityForResult(intent,EXPORT_SETTINGS);
-            }catch(Exception ex){pendingExport=null;Toast.makeText(this,"לא ניתן ליצור גיבוי",Toast.LENGTH_LONG).show();}
+                final byte[] contents=((String)value).getBytes("UTF-8");
+                new Thread(()->{
+                    AtomicFile file=pendingExportFile();FileOutputStream output=null;
+                    try{
+                        output=file.startWrite();output.write(contents);file.finishWrite(output);output=null;
+                        runOnUiThread(()->{
+                            settingsBusy=false;
+                            if(isFinishing() || isDestroyed()){file.delete();return;}
+                            try{
+                                pendingExport=true;
+                                Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json");
+                                intent.putExtra(Intent.EXTRA_TITLE,"consumer-law-settings.json");startActivityForResult(intent,EXPORT_SETTINGS);
+                            }catch(Exception ex){pendingExport=false;file.delete();Toast.makeText(this,"בחירת קובץ אינה זמינה",Toast.LENGTH_LONG).show();}
+                        });
+                    }catch(Exception ex){file.failWrite(output);runOnUiThread(()->{settingsBusy=false;Toast.makeText(this,"לא ניתן ליצור גיבוי",Toast.LENGTH_LONG).show();});}
+                },"settings-prepare-export").start();
+            }catch(Exception ex){settingsBusy=false;Toast.makeText(this,"לא ניתן ליצור גיבוי",Toast.LENGTH_LONG).show();}
         });
     }
+    private AtomicFile pendingExportFile(){return new AtomicFile(new File(getCacheDir(),"pending-settings-export.json"));}
     private void beginImport() {
         try{startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json"),IMPORT_SETTINGS);}
         catch(Exception ex){Toast.makeText(this,"בחירת קובץ אינה זמינה",Toast.LENGTH_LONG).show();}
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
-        if(result!=RESULT_OK || data==null || data.getData()==null){if(request==EXPORT_SETTINGS)pendingExport=null;return;}
+        if(result!=RESULT_OK || data==null || data.getData()==null){if(request==EXPORT_SETTINGS){pendingExport=false;pendingExportFile().delete();}return;}
         final Uri uri=data.getData();
         if(request==EXPORT_SETTINGS){
-            final String contents=pendingExport;pendingExport=null;if(contents==null)return;
-            new Thread(() -> {try(OutputStream output=getContentResolver().openOutputStream(uri,"wt")){if(output==null)throw new IOException();output.write(contents.getBytes("UTF-8"));runOnUiThread(()->Toast.makeText(this,"הגיבוי נשמר",Toast.LENGTH_LONG).show());}
-                catch(Exception ex){runOnUiThread(()->Toast.makeText(this,"שמירת הגיבוי נכשלה",Toast.LENGTH_LONG).show());}},"settings-export").start();
+            if(!pendingExport)return;pendingExport=false;settingsBusy=true;
+            new Thread(() -> {try{
+                    byte[] contents=readBounded(pendingExportFile().openRead(),MAX_BACKUP);
+                    try(OutputStream output=getContentResolver().openOutputStream(uri,"wt")){if(output==null)throw new IOException();output.write(contents);}
+                    runOnUiThread(()->Toast.makeText(this,"הגיבוי נשמר",Toast.LENGTH_LONG).show());
+                }catch(Exception ex){runOnUiThread(()->Toast.makeText(this,"שמירת הגיבוי נכשלה",Toast.LENGTH_LONG).show());}
+                finally{pendingExportFile().delete();runOnUiThread(()->settingsBusy=false);}},"settings-export").start();
         }else if(request==IMPORT_SETTINGS){
-            new Thread(() -> {try{final String raw=new String(readBounded(getContentResolver().openInputStream(uri),MAX_BACKUP),"UTF-8");runOnUiThread(()->previewImport(raw));}
+            new Thread(() -> {try{final String raw=java.nio.charset.StandardCharsets.UTF_8.newDecoder()
+                    .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT).onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+                    .decode(java.nio.ByteBuffer.wrap(readBounded(getContentResolver().openInputStream(uri),MAX_BACKUP))).toString();runOnUiThread(()->previewImport(raw));}
                 catch(Exception ex){runOnUiThread(()->Toast.makeText(this,"קריאת הגיבוי נכשלה או שהקובץ גדול מדי",Toast.LENGTH_LONG).show());}},"settings-import").start();
         }
     }
@@ -304,14 +336,16 @@ public final class MainActivity extends Activity {
     @Override public void onBackPressed() { handleBack(); }
     private void handleBack() {
         if(web==null){finish();return;}
-        web.evaluateJavascript("Boolean(window.lawMobileBack && window.lawMobileBack())",new ValueCallback<String>() {
+        final WebView current=web;
+        current.evaluateJavascript("Boolean(window.lawMobileBack && window.lawMobileBack())",new ValueCallback<String>() {
             @Override public void onReceiveValue(String result) {
+                if(web!=current || isFinishing() || isDestroyed())return;
                 if ("true".equals(result)) return;
                 if (web.canGoBack()) web.goBack(); else if(Build.VERSION.SDK_INT>=31)moveTaskToBack(true);else finish();
             }
         });
     }
-    @Override protected void onSaveInstanceState(Bundle state) { if(web!=null)web.saveState(state);if(pendingExport!=null)state.putString("pendingExport",pendingExport);super.onSaveInstanceState(state); }
+    @Override protected void onSaveInstanceState(Bundle state) { if(web!=null)web.saveState(state);state.putBoolean("pendingExport",pendingExport);super.onSaveInstanceState(state); }
     @Override protected void onPause() { if(web!=null){web.evaluateJavascript("window.lawMobile?.saveSession()",null);web.onPause();}super.onPause(); }
     @Override protected void onResume() { super.onResume();if(web!=null)web.onResume(); }
     @Override protected void onDestroy() { if(Build.VERSION.SDK_INT>=33&&systemBack!=null)getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(systemBack);if(web!=null){web.removeJavascriptInterface("NativeLaw");web.destroy();}super.onDestroy(); }
