@@ -43,8 +43,9 @@ struct ReaderScreen: View {
                     reader.shareCurrentSection()
                 } label: {
                     Image(systemName: "square.and.arrow.up")
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
-                .frame(minWidth: 44, minHeight: 44)
                 .accessibilityIdentifier("native-share")
                 .accessibilityLabel("שיתוף קישור לסעיף")
                 .disabled(!reader.ready || reader.working)
@@ -64,8 +65,9 @@ struct ReaderScreen: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
-                .frame(minWidth: 44, minHeight: 44)
                 .accessibilityIdentifier("native-menu")
                 .accessibilityLabel("פעולות iOS")
                 .disabled(!reader.ready || reader.working)
@@ -77,8 +79,9 @@ struct ReaderScreen: View {
             if !reader.ready {
                 HStack {
                     if !reader.loadFailed { ProgressView("טעינת נוסח החוק המקומי") }
-                    Button("טעינה מחדש") { reader.retryLoading() }
-                        .frame(minHeight: 44)
+                    Button { reader.retryLoading() } label: {
+                        Text("טעינה מחדש").frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+                    }
                         .accessibilityIdentifier("native-retry")
                         .disabled(!reader.loadFailed)
                 }
@@ -501,7 +504,11 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
                     defer { if access { url.stopAccessingSecurityScopedResource() } }
                     let handle = try FileHandle(forReadingFrom: url)
                     defer { try? handle.close() }
-                    let data = try handle.read(upToCount: 1_000_001) ?? Data()
+                    var data=Data()
+                    while let chunk=try handle.read(upToCount:min(65_536,1_000_001-data.count)),!chunk.isEmpty {
+                        data.append(chunk)
+                        if data.count>1_000_000 {break}
+                    }
                     guard data.count <= 1_000_000, let text = String(data: data, encoding: .utf8) else {
                         throw NSError(domain: "ReaderBackup", code: 1, userInfo: [NSLocalizedDescriptionKey: "קובץ הגיבוי גדול מדי או אינו UTF-8 תקין."])
                     }

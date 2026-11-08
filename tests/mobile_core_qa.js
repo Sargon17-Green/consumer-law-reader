@@ -12,6 +12,7 @@ for(let i=0;i<500;i++){
 class Storage{constructor(){this.data=new Map();this.fail=null;}getItem(k){return this.data.get(k)??null;}setItem(k,v){if(this.fail===k){this.fail=null;throw Error('quota');}this.data.set(k,String(v));}removeItem(k){this.data.delete(k);}}
 const s=new Storage();s.setItem('unrelated','keep');s.setItem('law-reader-font','24');
 const backup=core.exportBackup(s);core.validateBackup(backup);
+assert.deepEqual(core.validateBackup('\uFEFF'+backup),core.validateBackup(backup),'Optional UTF-8 BOM has the same meaning on native and browser decoders');
 s.setItem('law-reader-align','right');core.applyBackup(s,backup);assert.equal(s.getItem('law-reader-align'),null);assert.equal(s.getItem('unrelated'),'keep');assert.equal(s.getItem('law-reader-font'),'24');
 const next=JSON.stringify({format:'consumer-law-reader-settings-v1',settings:{'law-reader-align':'right','law-reader-font':'20'}});
 s.fail='law-reader-align';assert.throws(()=>core.applyBackup(s,next));assert.equal(s.getItem('law-reader-font'),'24');assert.equal(s.getItem('law-reader-align'),null);assert.equal(s.getItem(core.JOURNAL),null);

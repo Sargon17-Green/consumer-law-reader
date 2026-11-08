@@ -34,7 +34,10 @@ def verify_release_certificate(path):
             raise RuntimeError('No Android signature verifier; refusing to change public download')
         command = ['java', '-jar', str(jar)]
     output = subprocess.check_output(command + ['verify', '--print-certs', str(path)], text=True, stderr=subprocess.STDOUT, timeout=60)
-    certificates = re.findall(r'Signer #\d+ certificate SHA-256 digest: ([0-9a-fA-F]{64})', output)
+    # Tool versions label signers by number, SDK range or signing scheme.
+    # Verify every reported signer; an unrelated source stamp cannot substitute
+    # for the actual APK signing identity.
+    certificates = re.findall(r'(?m)^(?:Signer (?:#\d+|\(minSdkVersion=\d+(?: \(dev release=true\))?, maxSdkVersion=\d+\))|V[1-4]\.\d+ Signer:) certificate SHA-256 digest: ([0-9a-fA-F]{64})\s*$', output)
     if not certificates or set(c.lower() for c in certificates) != {RELEASE_CERT_SHA256}:
         raise RuntimeError('Public APK does not use the existing release signing identity')
 

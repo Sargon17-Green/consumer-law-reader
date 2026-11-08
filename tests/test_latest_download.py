@@ -35,7 +35,13 @@ class StableDownloadSelectionTests(unittest.TestCase):
             with patch('sync_latest_download.ROOT',root),patch.dict('os.environ',{'ANDROID_HOME':str(root/'sdk')}):
                 with patch('sync_latest_download.subprocess.check_output',return_value=valid):
                     verify_release_certificate(root/'asset.apk')
-                for output in ['', 'Signer #1 certificate SHA-256 digest: '+'0'*64, valid+'\nSigner #2 certificate SHA-256 digest: '+'0'*64]:
+                ranges='Signer (minSdkVersion=33, maxSdkVersion=2147483647) certificate SHA-256 digest: '+RELEASE_CERT_SHA256+'\nSigner (minSdkVersion=28, maxSdkVersion=32) certificate SHA-256 digest: '+RELEASE_CERT_SHA256
+                with patch('sync_latest_download.subprocess.check_output',return_value=ranges):
+                    verify_release_certificate(root/'asset.apk')
+                current='V3.0 Signer: certificate SHA-256 digest: '+RELEASE_CERT_SHA256
+                with patch('sync_latest_download.subprocess.check_output',return_value=current):
+                    verify_release_certificate(root/'asset.apk')
+                for output in ['', 'Source Stamp Signer certificate SHA-256 digest: '+RELEASE_CERT_SHA256,'Source Stamp Signer #1 certificate SHA-256 digest: '+RELEASE_CERT_SHA256, 'Signer #1 certificate SHA-256 digest: '+'0'*64, valid+'\nSigner #2 certificate SHA-256 digest: '+'0'*64,ranges+'\nSigner (minSdkVersion=35, maxSdkVersion=2147483647) certificate SHA-256 digest: '+'0'*64,current+'\nV3.1 Signer: certificate SHA-256 digest: '+'0'*64]:
                     with patch('sync_latest_download.subprocess.check_output',return_value=output):
                         with self.assertRaises(RuntimeError):verify_release_certificate(root/'asset.apk')
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Preserve the supplied source verbatim and add an independent mobile layer."""
 from pathlib import Path
-import hashlib,json,shutil,re,base64,html as html_module
+import hashlib,json,shutil,re,base64,subprocess,html as html_module
 from bs4 import BeautifulSoup
 from prepare_typed_sources import prepare
 from bundled_assets import is_bundled_asset
@@ -76,5 +76,13 @@ self.addEventListener('fetch',event=>{const url=new URL(event.request.url);if(ur
 '''.replace('VERSION',version).replace('FILES_JSON',json.dumps(files,ensure_ascii=False))
 (DIST/'sw.js').write_text(worker)
 evidence={'original_html_sha256':hashlib.sha256((SOURCE/'Consumer_Protection_Law.html').read_bytes()).hexdigest(),'original_html_bytes':(SOURCE/'Consumer_Protection_Law.html').stat().st_size,'document_preserved':'Original HTML is embedded without deleting or changing content; mobile markup, metadata, CSS and JS added.','assets':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(DIST.iterdir()) if p.is_file()},'web_version':version}
+try:
+    evidence['sourceCommit']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,stderr=subprocess.DEVNULL,text=True).strip()
+    evidence['sourceTree']=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,stderr=subprocess.DEVNULL,text=True).strip()
+    evidence['sourceDirty']=bool(subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True))
+except (OSError,subprocess.CalledProcessError):
+    evidence['sourceCommit']=None
+    evidence['sourceTree']=None
+    evidence['sourceDirty']=None
 (ROOT/'evidence/content-manifest.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2))
 print(json.dumps({'web_version':version,'assets':len(files),'index_bytes':(DIST/'index.html').stat().st_size}))

@@ -39,6 +39,8 @@ with sync_playwright() as pw:
           return {indexMs:index,records:records.length,searchMedianMs:timings.sort((a,b)=>a-b)[25],heap:performance.memory?.usedJSHeapSize};
         }""")
         assert metrics['records']>500
+        definition_names=page.locator('#frame .defined').evaluate_all('(els)=>els.map(e=>e.getAttribute("aria-label"))')
+        assert len(set(definition_names))>3, 'Screen readers must distinguish definition buttons by their terms'
         assert page.evaluate("""()=>lawMobile.buildSearch().every(r=>{const c=r.el.cloneNode(true);for(const e of c.querySelectorAll('.the_definition,.note_button,.note_div,.done_accordingly,.validity,.m-article-actions,.m-source-tools,.sources_box,.bills_box,.protocols_box,.history_box,script,style,noscript'))e.remove();return c.textContent.replace(/\\s+/g,' ').trim()===r.text;})"""), 'Index text must preserve every statutory unit while excluding the documented editorial elements'
         assert page.evaluate("()=>LawCore.snippet('אָב שָׁלוֹם סוף','שלום').mark")=='שָׁלוֹם'
         page.locator('[data-mobile=search]').click();page.locator('#mobile-search').fill('עסקה')

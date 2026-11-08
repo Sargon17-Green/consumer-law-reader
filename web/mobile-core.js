@@ -106,7 +106,7 @@
   }
   function validateBackup(raw, options={}) {
     if(typeof raw!=='string'||bytes(raw)>MAX_BACKUP)fail('קובץ הגיבוי גדול מדי');
-    let data;try{data=JSON.parse(raw);}catch{fail('קובץ הגיבוי אינו JSON תקין');}
+    let data;try{data=JSON.parse(raw.replace(/^\uFEFF/,''));}catch{fail('קובץ הגיבוי אינו JSON תקין');}
     const legacy=data?.format==='consumer-law-reader-settings-v1';
     if(!fields(data,legacy?['format','settings']:['format','schema','appVersion','settings']) ||
       (legacy?false:(data.format!=='consumer-law-reader-settings'||data.schema!==2)) ||

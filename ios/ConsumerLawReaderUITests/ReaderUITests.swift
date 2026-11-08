@@ -10,6 +10,10 @@ final class ReaderUITests: XCTestCase {
         let menu=app.buttons["native-menu"]
         XCTAssertTrue(menu.waitForExistence(timeout:60))
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:60),.completed)
+        for control in [menu,app.buttons["native-share"]] {
+            XCTAssertGreaterThanOrEqual(control.frame.width,44)
+            XCTAssertGreaterThanOrEqual(control.frame.height,44)
+        }
         let search=app.webViews.buttons["חיפוש"]
         XCTAssertTrue(search.waitForExistence(timeout:60))
         search.tap()

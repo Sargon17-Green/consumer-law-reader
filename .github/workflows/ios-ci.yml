@@ -30,7 +30,7 @@ permissions:
 
 jobs:
   ios-simulator:
-    name: ${{ matrix.family }} iOS ${{ matrix.os }}
+    name: ${{ matrix.family }} iOS ${{ matrix.os }} ${{ matrix.os == '16.0' && '(runtime availability)' || '' }}
     runs-on: macos-15
     timeout-minutes: 30
     strategy:
@@ -45,6 +45,9 @@ jobs:
             archive: false
           - family: iPhone
             os: '18.5'
+            archive: false
+          - family: iPhone
+            os: '16.0'
             archive: false
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -74,6 +77,10 @@ jobs:
           sw_vers >> build/ios-environment.txt
           xcrun simctl list runtimes >> build/ios-environment.txt
           xcodegen --version >> build/ios-environment.txt
+      - name: Check whether Apple's minimum-OS simulator can be acquired without an account
+        id: minimum-runtime
+        if: matrix.os == '16.0'
+        run: python3 ios/scripts/acquire_minimum_runtime.py
       - name: Generate native app and icon
         run: |
           bash ios/scripts/prepare_assets.sh
@@ -103,6 +110,7 @@ jobs:
           test -s "$APP/dist/PEGI_18_plus.png"
           echo "Built iOS simulator .app includes the original legal text and offline assets."
       - name: Exercise the actual simulator app with XCTest and XCUITest
+        if: steps.minimum-runtime.outputs.available != 'false'
         env:
           FAMILY: ${{ matrix.family }}
           OS: ${{ matrix.os }}
@@ -149,5 +157,9 @@ jobs:
             build/*-tests.xcresult
             build/*-attachments
             build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
+            evidence/content-manifest.json
+            evidence/release-verification.json
+            build/ios16-runtime-availability.json
+            build/ios16-runtime-acquisition.log
           retention-days: 7
           if-no-files-found: warn
