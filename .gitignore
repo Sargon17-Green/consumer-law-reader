@@ -19,3 +19,5 @@ evidence/
 debug-build/
 release/
 unsigned-build/
+
+.qa-venv/
