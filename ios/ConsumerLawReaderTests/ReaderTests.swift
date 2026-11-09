@@ -21,6 +21,12 @@ private final class ReaderScriptReply {
     }
 }
 
+@MainActor
+private final class ReaderPDFRenderer: UIPrintPageRenderer {
+    override var paperRect: CGRect { CGRect(x:0,y:0,width:595,height:842) }
+    override var printableRect: CGRect { paperRect.insetBy(dx:24,dy:24) }
+}
+
 final class ReaderPolicyTests: XCTestCase {
     func testDateURLsAndHostileInputs() throws {
         for (host,path) in ReaderPolicy.datePaths {
@@ -258,6 +264,41 @@ final class ReaderIntegrationTests: XCTestCase {
         _ = try await script(other,"(NativeLaw.copy('HOSTILE_OTHER_WEBVIEW'),true)")
         try await Task.sleep(nanoseconds:250_000_000)
         XCTAssertEqual(UIPasteboard.general.string,"TRUSTED_GUARD_QA")
+    }
+
+    func testNativePrintFormatterProducesRenderablePDF() async throws {
+        let reader=try await openReader()
+        defer { closeTestWindow() }
+        let renderer=ReaderPDFRenderer()
+        renderer.addPrintFormatter(reader.webView.viewPrintFormatter(),startingAtPageAt:0)
+        renderer.prepare(forDrawingPages:NSRange(location:0,length:1))
+        XCTAssertGreaterThan(renderer.numberOfPages,0)
+        let data=UIGraphicsPDFRenderer(bounds:renderer.paperRect).pdfData { context in
+            context.beginPage()
+            renderer.drawPage(at:0,in:renderer.paperRect)
+        }
+        XCTAssertTrue(data.starts(with:[0x25,0x50,0x44,0x46,0x2D]))
+        let provider=try XCTUnwrap(CGDataProvider(data:data as CFData))
+        let document=try XCTUnwrap(CGPDFDocument(provider))
+        XCTAssertEqual(document.numberOfPages,1,"Bounded first-page print-output test")
+        let page=try XCTUnwrap(document.page(at:1))
+        let width=120,height=170
+        var pixels=[UInt8](repeating:255,count:width*height*4)
+        let ink=pixels.withUnsafeMutableBytes { raw -> Int in
+            guard let context=CGContext(data:raw.baseAddress,width:width,height:height,bitsPerComponent:8,bytesPerRow:width*4,space:CGColorSpaceCreateDeviceRGB(),bitmapInfo:CGImageAlphaInfo.premultipliedLast.rawValue|CGBitmapInfo.byteOrder32Big.rawValue) else { return 0 }
+            context.setFillColor(UIColor.white.cgColor)
+            context.fill(CGRect(x:0,y:0,width:CGFloat(width),height:CGFloat(height)))
+            context.scaleBy(x:CGFloat(width)/renderer.paperRect.width,y:CGFloat(height)/renderer.paperRect.height)
+            context.drawPDFPage(page)
+            let bytes=raw.bindMemory(to:UInt8.self)
+            return stride(from:0,to:bytes.count,by:4).filter { bytes[$0+3]>200 && (bytes[$0]<220 || bytes[$0+1]<220 || bytes[$0+2]<220) }.count
+        }
+        XCTAssertGreaterThan(ink,20,"Native print output must contain opaque ink, not transparent or blank pixels")
+        let attachment=XCTAttachment(data:data,uniformTypeIdentifier:"com.adobe.pdf")
+        attachment.name="Actual UIKit print formatter — first page"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        print("NATIVE_PDF_OUTPUT: pages=1 bytes=\(data.count) nonblank=true")
     }
 
     func testBundledReadingWithEveryRemoteRequestBlocked() async throws {

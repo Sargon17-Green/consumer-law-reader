@@ -87,16 +87,27 @@ public final class ReaderInstrumentation extends Instrumentation {
     }
     private void clickSystemText(String text,CountDownLatch completed) throws Exception {
         try{getUiAutomation().waitForIdle(700,8000);}catch(java.util.concurrent.TimeoutException busy){}
-        for(int attempt=0;attempt<100;attempt++){
-            if(completed!=null&&completed.getCount()==0)return;
-            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
-            if(completed!=null&&root!=null&&"il.org.lawreader.consumer".contentEquals(String.valueOf(root.getPackageName()))){Thread.sleep(100);continue;}
-            AccessibilityNodeInfo node=findText(root,text);
-            for(int depth=0;node!=null&&depth<6;depth++,node=node.getParent())
-                if(node.isClickable()&&node.isEnabled()&&node.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;
-            Thread.sleep(100);
+        android.accessibilityservice.AccessibilityServiceInfo info=getUiAutomation().getServiceInfo();
+        int originalFlags=info==null?0:info.flags;
+        try{
+            for(int attempt=0;attempt<100;attempt++){
+                if(completed!=null&&completed.getCount()==0)return;
+                AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+                // Expand Oreo's grouped filename only in the small system
+                // picker, never across the large reading WebView.
+                boolean picker=root!=null&&String.valueOf(root.getPackageName()).endsWith(".documentsui");
+                int flags=picker?originalFlags|android.accessibilityservice.AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS:originalFlags;
+                if(info!=null&&info.flags!=flags){info.flags=flags;getUiAutomation().setServiceInfo(info);root=getUiAutomation().getRootInActiveWindow();}
+                if(completed!=null&&root!=null&&"il.org.lawreader.consumer".contentEquals(String.valueOf(root.getPackageName()))){Thread.sleep(100);continue;}
+                AccessibilityNodeInfo node=findText(root,text);
+                for(int depth=0;node!=null&&depth<6;depth++,node=node.getParent())
+                    if(node.isClickable()&&node.isEnabled()&&node.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;
+                Thread.sleep(100);
+            }
+            throw new Exception("Native control not found: "+text+"; "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
+        }finally{
+            if(info!=null&&info.flags!=originalFlags){info.flags=originalFlags;getUiAutomation().setServiceInfo(info);}
         }
-        throw new Exception("Native control not found: "+text+"; "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
     }
     private void testNativeSettingsFiles(Bundle report) throws Exception {
         ready();
@@ -212,7 +223,60 @@ public final class ReaderInstrumentation extends Instrumentation {
             ready();
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
-    private void testNativePrintPresentation() throws Exception {
+    private AccessibilityNodeInfo editable(AccessibilityNodeInfo node){
+        if(node==null)return null;
+        if(node.isEditable()&&node.isEnabled())return node;
+        for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo found=editable(node.getChild(i));if(found!=null)return found;}
+        return null;
+    }
+    private void saveAndVerifySystemPDF(Bundle report) throws Exception {
+        shell("rm -f /sdcard/Download/consumer-law-qa.pdf");
+        boolean clicked=false;
+        for(int attempt=0;attempt<360;attempt++){
+            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&"com.android.printspooler".contentEquals(String.valueOf(root.getPackageName()))){
+                if(findText(root,"Save as PDF")==null){Thread.sleep(250);continue;}
+                for(AccessibilityNodeInfo button:root.findAccessibilityNodeInfosByViewId("com.android.printspooler:id/print_button"))
+                    if(button.isEnabled()&&button.performAction(AccessibilityNodeInfo.ACTION_CLICK)){clicked=true;break;}
+            }
+            if(clicked)break;
+            Thread.sleep(250);
+        }
+        check(clicked,"Enabled system Save as PDF control: "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
+        boolean named=false;
+        for(int attempt=0;attempt<160;attempt++){
+            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&String.valueOf(root.getPackageName()).endsWith(".documentsui")){
+                AccessibilityNodeInfo input=editable(root);
+                if(input!=null){Bundle value=new Bundle();value.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,"consumer-law-qa.pdf");named=input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,value);if(named)break;}
+            }
+            Thread.sleep(250);
+        }
+        check(named,"Real PDF save picker exposes its filename input");
+        clickSystemText("Save");
+        boolean generated=false;
+        for(int attempt=0;attempt<180;attempt++){
+            if("%PDF-".equals(shell("head -c 5 /sdcard/Download/consumer-law-qa.pdf"))){generated=true;break;}
+            Thread.sleep(500);
+        }
+        check(generated,"System print framework saved actual PDF bytes");
+        ready();
+        java.io.File file=new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-native-document.pdf");
+        shell("cp /sdcard/Download/consumer-law-qa.pdf /sdcard/Android/data/il.org.lawreader.consumer/files/qa-native-document.pdf");
+        int pages;
+        try(android.graphics.pdf.PdfRenderer pdf=new android.graphics.pdf.PdfRenderer(ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY))){
+            pages=pdf.getPageCount();check(pages>0,"Native saved PDF has pages");
+            android.graphics.Bitmap image=android.graphics.Bitmap.createBitmap(120,170,android.graphics.Bitmap.Config.ARGB_8888);
+            image.eraseColor(android.graphics.Color.WHITE);
+            try(android.graphics.pdf.PdfRenderer.Page page=pdf.openPage(0)){page.render(image,null,null,android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);}
+            int[] pixels=new int[120*170];image.getPixels(pixels,0,120,0,0,120,170);image.recycle();
+            int ink=0;for(int pixel:pixels)if((pixel>>>24)>200&&(pixel&0x00ffffff)<0x00dddddd)ink++;
+            check(ink>20,"Saved PDF must render visible ink, not an empty page");
+        }
+        String checksum=shell("sha256sum /sdcard/Android/data/il.org.lawreader.consumer/files/qa-native-document.pdf").split(" ")[0];
+        report.putString("PDF","PASS: actual system Print -> Save as PDF -> SAF file; pages="+pages+" bytes="+file.length()+" sha256="+checksum);
+    }
+    private void testNativePrintPresentation(Bundle report) throws Exception {
         ready();
         js("NativeLaw.printDocument()");
         boolean opened=false;
@@ -222,6 +286,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             Thread.sleep(250);
         }
         check(opened,"Real Android system print interface opens; "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
+        if(android.os.Build.VERSION.SDK_INT>=36){saveAndVerifySystemPDF(report);return;}
         shell("input keyevent KEYCODE_BACK");
         for(int i=0;i<80;i++){
             AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
@@ -237,7 +302,7 @@ public final class ReaderInstrumentation extends Instrumentation {
         try{
             android.accessibilityservice.AccessibilityServiceInfo automation=getUiAutomation().getServiceInfo();
             if(automation!=null){
-                automation.flags|=android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+                automation.flags|=android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS|android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
                 getUiAutomation().setServiceInfo(automation);
             }
             Intent intent=getTargetContext().getPackageManager().getLaunchIntentForPackage("il.org.lawreader.consumer");
@@ -320,8 +385,8 @@ public final class ReaderInstrumentation extends Instrumentation {
             testNativeSettingsFiles(report);
             report.putString("SAF","PASS: native CreateDocument -> saved JSON -> OpenDocument -> explicit confirmation -> restored preference");
             report.putString("stage","native print");
-            testNativePrintPresentation();
-            report.putString("print","PASS: actual system print presentation and cancel; no physical printer or PDF byte validation claim");
+            testNativePrintPresentation(report);
+            report.putString("print",android.os.Build.VERSION.SDK_INT>=36?"PASS: system Print and PDF save; see PDF byte validation":"PASS: actual system print presentation and cancel; no physical printer claim");
             // Stress real navigation and search index cache without constructing duplicate indexes.
             report.putString("stage","navigation stress after native print");
             String stress=js("(()=>{try{const first=lawMobile.buildSearch();for(let i=0;i<100;i++){lawMobile.goTo('article_'+(i%10+1),false);if(lawMobile.buildSearch()!==first)throw Error('Index identity changed');}return {ok:true,records:first.length}}catch(error){return {ok:false,error:String(error),visibility:document.visibilityState,printing:matchMedia('print').matches}}})()");

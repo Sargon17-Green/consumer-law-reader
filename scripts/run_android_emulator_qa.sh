@@ -11,6 +11,7 @@ collect() {
     if [[ -f "$diagnostic" ]]; then cat "$diagnostic"; fi
   done
   adb pull /sdcard/Android/data/il.org.lawreader.consumer/files/qa-failure.png evidence/android-failure-at-assertion.png 2>/dev/null || true
+  adb pull /sdcard/Android/data/il.org.lawreader.consumer/files/qa-native-document.pdf evidence/android-native-document.pdf 2>/dev/null || true
   adb exec-out screencap -p > evidence/android-emulator.png 2>/dev/null || true
 }
 trap collect EXIT

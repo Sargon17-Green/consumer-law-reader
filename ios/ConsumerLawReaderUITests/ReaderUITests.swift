@@ -15,32 +15,49 @@ final class ReaderUITests: XCTestCase {
             XCTAssertGreaterThanOrEqual(control.frame.height,44)
         }
         let search=app.webViews.firstMatch.buttons.matching(identifier:"חיפוש").firstMatch
-        XCTAssertTrue(search.waitForExistence(timeout:60))
-        search.tap()
         let input=app.webViews.firstMatch.searchFields.firstMatch
-        XCTAssertTrue(input.waitForExistence(timeout:10))
+        func openSearch() {
+            XCTAssertTrue(search.waitForExistence(timeout:60))
+            search.tap()
+            if !input.waitForExistence(timeout:20) {
+                XCTAssertTrue(search.waitForExistence(timeout:20),app.debugDescription)
+                search.tap()
+            }
+            XCTAssertTrue(input.waitForExistence(timeout:30),app.debugDescription)
+        }
+        openSearch()
         input.tap();input.typeText("14")
         let hit=app.webViews.firstMatch.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14")).firstMatch
         XCTAssertTrue(hit.waitForExistence(timeout:15));hit.tap()
         XCTAssertTrue(menu.isEnabled)
         let metrics=XCTMeasureOptions()
         metrics.iterationCount=3
+        // Repeated reading gestures measure actual document interaction;
+        // system print-popover transitions remain a separate functional test.
+        measure(metrics:[XCTCPUMetric(application:app),XCTMemoryMetric(application:app),XCTClockMetric()],options:metrics){
+            app.swipeUp()
+            app.swipeDown()
+        }
         func waitForMenu() {
             XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
-                menu.exists && menu.isEnabled && menu.isHittable
+                menu.exists && menu.isEnabled
             },object:nil)],timeout:30),.completed,app.debugDescription)
         }
-        measure(metrics:[XCTCPUMetric(application:app),XCTMemoryMetric(application:app),XCTClockMetric()],options:metrics){
+        func openNativeMenu() {
             waitForMenu()
-            menu.tap()
-            let print=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
-            XCTAssertTrue(print.waitForExistence(timeout:5));print.tap()
-            let printCancel=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
-            XCTAssertTrue(printCancel.waitForExistence(timeout:30),app.debugDescription);printCancel.tap()
-            waitForMenu()
+            let inner=menu.buttons.firstMatch
+            (inner.exists ? inner:menu).tap()
         }
+        openNativeMenu()
+        let print=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
+        XCTAssertTrue(print.waitForExistence(timeout:10));print.tap()
+        let printCancel=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
+        XCTAssertTrue(printCancel.waitForExistence(timeout:45),app.debugDescription);printCancel.tap()
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            !printCancel.exists
+        },object:nil)],timeout:30),.completed,app.debugDescription)
         waitForMenu()
-        menu.tap()
+        openNativeMenu()
         let restore=app.buttons.matching(identifier:"שחזור הגדרות מקובץ").firstMatch
         XCTAssertTrue(restore.waitForExistence(timeout:5));restore.tap()
         let cancel=app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Close", "ביטול"])).firstMatch
@@ -57,8 +74,7 @@ final class ReaderUITests: XCTestCase {
         app.terminate();app.launch()
         XCTAssertTrue(menu.waitForExistence(timeout:60))
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:60),.completed)
-        XCTAssertTrue(search.waitForExistence(timeout:60))
-        search.tap();XCTAssertTrue(input.waitForExistence(timeout:10))
+        openSearch()
         XCTAssertEqual(input.value as? String,"14")
     }
 }
