@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "headCommit": "b7d8168252d869b24f9fc21cafa38e59afe675fc",
+  "acceptedCandidate": false,
+  "sourceRun": 42672871312,
+  "iosRun": 42672871328,
+  "completedEvidence": {
+    "sourceAndBrowser": {
+      "job": 129349905621,
+      "result": "PASS",
+      "pythonTests": 40,
+      "unicodeGeneratedCases": 500
+    },
+    "androidBuild": {
+      "job": 129349904875,
+      "result": "PASS",
+      "unsignedBundleResourcesRelocatedAndCompared": true
+    },
+    "browserWidths": {
+      "320": 129349905336,
+      "768": 129349904866,
+      "1180": 129349905691
+    },
+    "android31": {
+      "job": 129350243923,
+      "result": "PASS",
+      "scope": "Real online and disconnected instrumentation; disposable-identity upgrade; SAF; cross-UID files and sharing"
+    },
+    "android36": {
+      "job": 129350242195,
+      "result": "FAIL",
+      "stage": "System PDF destination selection",
+      "observed": "Select a printer; real preview contains 146 pages; QA had not selected Save as PDF"
+    },
+    "iPad26.2": {
+      "job": 129349911410,
+      "result": "PASS",
+      "unitTests": 5,
+      "uiTests": 1,
+      "pdf": {
+        "producer": "Actual UIKit print formatter",
+        "pages": 1,
+        "bytes": 71020,
+        "renderedOpaqueInk": true
+      },
+      "metrics": {
+        "scenario": "Three swipe-up/swipe-down reading samples",
+        "cpuSeconds": [
+          0.643603,
+          0.638931,
+          0.595461
+        ],
+        "absolutePhysicalMemoryKB": [
+          70328.768,
+          70312.384,
+          70345.152
+        ],
+        "clockSeconds": [
+          14.598776,
+          14.92286,
+          14.869779
+        ],
+        "limitations": "Simulator app process only; WebContent subprocesses excluded; wall clock includes automation; retired instructions/cycles unavailable"
+      },
+      "artifact": {
+        "id": 13699477858,
+        "sha256": "7397968e9e26f224a4d97d083b6512a34787b4d866c65d258faca3d879b077d1"
+      }
+    }
+  },
+  "missingJobs": [
+    "browser 430",
+    "Android API26",
+    "iPhone iOS26.2",
+    "iPhone iOS18.5",
+    "iPhone iOS16.0"
+  ],
+  "infrastructure": {
+    "runPage": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42672871328",
+    "observedError": "Internal server error. Correlation ID: 4f542201-cad1-4a6e-8a28-f2ffbadbb568",
+    "separateNotice": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+    "interpretation": "No test PASS for missing jobs. The server error and capacity notice do not prove a defect in the app. Matrix burst parallelism is reduced for the next attempt."
+  },
+  "legalSourceSHA256": "de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9",
+  "legalVerificationDate": "2026-10-28"
+}

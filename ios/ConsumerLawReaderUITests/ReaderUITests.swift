@@ -3,6 +3,39 @@ import XCTest
 final class ReaderUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure=false
+        executionTimeAllowance=360
+    }
+    func testNativeHeaderAccessibilityAudit() throws {
+        guard #available(iOS 17.0,*) else { throw XCTSkip("Apple's automated accessibility audit requires iOS 17; the iOS 16 functional UI test still runs.") }
+        let app=XCUIApplication()
+        app.launch()
+        defer { app.terminate() }
+        let menu=app.buttons.matching(identifier:"native-menu").firstMatch
+        XCTAssertTrue(menu.waitForExistence(timeout:60))
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:60),.completed)
+        let web=app.webViews.firstMatch
+        XCTAssertTrue(web.waitForExistence(timeout:60))
+        XCTAssertFalse(web.label.isEmpty)
+        let webTop=web.frame.minY
+        XCTAssertGreaterThan(webTop,menu.frame.maxY)
+        var findings=[[String:String]](),nativeFailures=[String]()
+        try app.performAccessibilityAudit(for:[.contrast,.hitRegion,.sufficientElementDescription]) { issue in
+            let element=issue.element
+            let frame=element?.frame ?? .zero
+            let native=element != nil && frame.width>0 && frame.height>0 && frame.maxY<=webTop+0.5
+            let knownWeb=element != nil && frame.width>0 && frame.height>0 && frame.minY>=webTop-0.5
+            let scope=native ? "native header":knownWeb ? "web content":"unclassified"
+            findings.append(["scope":scope,"description":issue.compactDescription,"identifier":element?.identifier ?? "","frame":String(describing:frame)])
+            if !knownWeb { nativeFailures.append(scope+": "+issue.compactDescription) }
+            return true // Record every issue; fail below for the declared native scope.
+        }
+        let data=try JSONSerialization.data(withJSONObject:["scope":"Visible native header only; Web has separate axe scans","types":["contrast","hitRegion","sufficientElementDescription"],"findings":findings],options:[.prettyPrinted,.sortedKeys])
+        let attachment=XCTAttachment(data:data,uniformTypeIdentifier:"public.json")
+        attachment.name="Apple native header accessibility audit"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        XCTAssertTrue(nativeFailures.isEmpty,nativeFailures.joined(separator:"; "))
+        print("NATIVE_ACCESSIBILITY_AUDIT: nativeFailures=\(nativeFailures.count) totalRecorded=\(findings.count)")
     }
     func testSearchNavigationSharingRotationAndRelaunch() {
         let app=XCUIApplication()
@@ -71,7 +104,19 @@ final class ReaderUITests: XCTestCase {
         XCTAssertTrue(search.waitForExistence(timeout:10))
         XCUIDevice.shared.orientation = .portrait
         let shot=XCTAttachment(screenshot:app.screenshot());shot.name="Reader actual simulator UI";shot.lifetime = .keepAlways;add(shot)
-        app.terminate();app.launch()
+        // Leave the app on its Home Screen, then launch through the installed icon.
+        XCUIDevice.shared.press(.home);app.terminate()
+        let springboard=XCUIApplication(bundleIdentifier:"com.apple.springboard")
+        let icons=springboard.icons.matching(NSPredicate(format:"label BEGINSWITH %@","חוק הגנת הצרכן"))
+        var launcher:XCUIElement?
+        for attempt in 0..<4 {
+            launcher=icons.allElementsBoundByIndex.first(where:{$0.isHittable})
+            if launcher != nil {break}
+            if attempt<3 {springboard.swipeLeft()}
+        }
+        XCTAssertNotNil(launcher,"Installed native app must be reachable from its persistent Home Screen icon: "+springboard.debugDescription)
+        launcher?.tap()
+        XCTAssertTrue(app.wait(for:.runningForeground,timeout:30))
         XCTAssertTrue(menu.waitForExistence(timeout:60))
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:60),.completed)
         openSearch()

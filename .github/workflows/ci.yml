@@ -73,6 +73,7 @@ jobs:
     timeout-minutes: 12
     strategy:
       fail-fast: false
+      max-parallel: 2
       matrix:
         width: [320, 430, 768, 1180]
     steps:
@@ -161,6 +162,7 @@ jobs:
     timeout-minutes: 35
     strategy:
       fail-fast: false
+      max-parallel: 2
       matrix:
         include:
           - api: 26
