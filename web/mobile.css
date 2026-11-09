@@ -25,7 +25,9 @@ table.article>tbody>tr>td:only-child{grid-column:1/-1}.subsection{display:table-
 #index{display:block;margin:24px 0!important;padding:14px;border:1px solid var(--line);border-radius:12px;background:#f8faf9}#index>tbody{display:block!important}#index_title{font-size:19px!important;line-height:1.6!important;font-weight:700;cursor:pointer}#index_content{margin-top:12px}.chapter_link,.subchapter_link,.appendix_link{font-size:18px!important;line-height:1.7!important;padding-top:12px}.article_link,.subappendix_link{font-size:16px!important;line-height:1.8!important;padding-inline-start:12px!important}#index .note td{line-height:1.5!important;font-size:14px!important}
 #navigator,#contextMenu,#contextMenu_index,.sources_box,.bills_box,.protocols_box,.history_box{display:none!important}
 #pastafari_current_date_widget{position:static!important;max-width:100%!important;width:auto!important;margin:12px 0 0!important;font:13px/1.6 Arial,sans-serif!important;color:var(--muted)!important;white-space:normal!important;background:none!important;padding:0!important}
-.m-table-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;margin:12px 0;padding-bottom:8px;border:1px solid var(--line);border-radius:6px}.m-table-scroll>table{display:table!important;width:max(100%,var(--table-width,620px))!important;min-width:100%;max-width:none!important;table-layout:fixed!important}.m-table-scroll th,.m-table-scroll td{font-size:15px!important;line-height:1.6!important;padding:8px!important}.m-table-scroll .numbering{min-width:2.2em}
+.m-table-scroll{width:100%;min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;margin:12px 0;padding-bottom:8px;border:1px solid var(--line);border-radius:6px}
+:is(#frame,.m-sheet-body) .m-table-scroll>table.m-data-table{display:table!important;width:100%!important;min-width:100%;max-width:none!important;table-layout:auto!important}
+:is(#frame,.m-sheet-body) .m-table-scroll :is(th,td){font-size:inherit!important;line-height:1.6!important;padding:8px!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important}
 footer{max-width:900px;margin:20px auto 0!important;padding:18px!important;font:14px/1.7 Arial,sans-serif!important;color:var(--muted)}footer span{font-size:inherit!important}
 .m-top{position:fixed;z-index:200;inset:0 0 auto;background:#142f41;color:#fff;padding:13px max(18px,env(safe-area-inset-right)) 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 2px 8px #10233220;font-family:Arial,sans-serif}
 .m-brand{font-size:19px;font-weight:700;line-height:1.4}.m-subtitle{display:block;font-size:12px;font-weight:400;color:#bdd0d9;margin-top:2px}.m-status{white-space:nowrap;font-size:11px;line-height:1.4;color:#cce8dd;border:1px solid #52756f;border-radius:20px;padding:5px 8px}
@@ -123,10 +125,8 @@ body {overflow-wrap:break-word!important;word-break:normal!important}
   overflow-wrap:break-word!important;box-decoration-break:clone;
 }
 #frame table.content {display:table!important;width:100%!important;table-layout:auto!important}
-#frame table.content tr,#frame table.article tr.subsection,#frame table.article tr.detail {
-  display:table-row!important;
-}
-#frame .article table:not(.article):not(.appendix){max-width:100%!important;table-layout:auto!important}
+#frame table.content:not(.m-prose-table)>tbody>tr {display:table-row!important}
+#frame .article table:not(.article):not(.appendix):not(.m-data-table){max-width:100%!important;table-layout:auto!important}
 #frame .m-article-actions,#frame .m-source-tools{display:none!important}
 .m-bottom {grid-template-columns:repeat(4,minmax(0,1fr))!important}
 .m-bottom button {min-width:0}
@@ -155,14 +155,20 @@ html.m-justify #frame .article .definition {
   text-align:justify!important;text-align-last:right!important;
 }
 
-/* Two-column legal subsection lists are prose, never shrink-to-fit HTML tables. */
-#frame table.m-prose-table {display:block!important;width:100%!important;max-width:100%!important;table-layout:auto!important}
-#frame table.m-prose-table>tbody{display:block!important;width:100%!important}
-#frame table.m-prose-table>tbody>tr.subsection,
-#frame table.m-prose-table>tbody>tr.detail{display:grid!important;grid-template-columns:2em minmax(0,1fr)!important;gap:0 5px;align-items:start;width:100%!important}
-#frame table.m-prose-table>tbody>tr>td{display:block!important;min-width:0!important;width:auto!important;max-width:100%!important;padding:0!important}
-#frame table.m-prose-table>tbody>tr>td.numbering{grid-column:1!important;white-space:nowrap!important}
-#frame table.m-prose-table>tbody>tr>td:not(.numbering){grid-column:2!important}
+/* A numbered paragraph stays beside its marker when there is room; at large
+   text sizes it moves below the marker instead of accumulating fixed indents. */
+:is(#frame,.m-sheet-body) table.m-prose-table{display:block!important;width:100%!important;max-width:100%!important;table-layout:auto!important}
+:is(#frame,.m-sheet-body) table.m-prose-table>tbody{display:block!important;width:100%!important}
+:is(#frame,.m-sheet-body) table.m-prose-table>tbody>tr{display:flex!important;flex-wrap:wrap;gap:0 5px;align-items:flex-start;width:100%!important}
+:is(#frame,.m-sheet-body) table.m-prose-table>tbody>tr>:is(td,th){display:block!important;min-width:0!important;width:auto!important;max-width:100%!important;padding:0!important;flex:1 1 8em;overflow-wrap:anywhere!important}
+:is(#frame,.m-sheet-body) table.m-prose-table>tbody>tr>:is(td,th):first-child:not(:only-child){flex:0 0 2em;white-space:normal!important}
+:is(#frame,.m-sheet-body) table.m-prose-table>tbody>tr>:is(td,th):only-child{flex-basis:100%}
+:is(#frame,.m-sheet-body) table.m-prose-table>tbody>tr>:is(td,th):nth-child(2):not(:last-child){flex:0 1 auto}
+
+:is(#frame,.m-sheet-body) table.m-flow-table,
+:is(#frame,.m-sheet-body) table.m-flow-table>tbody,
+:is(#frame,.m-sheet-body) table.m-flow-table>tbody>tr,
+:is(#frame,.m-sheet-body) table.m-flow-table>tbody>tr>:is(td,th){display:block!important;width:100%!important;min-width:0!important;max-width:100%!important}
 
 /* v1.2.2 legal document fidelity and navigation-highlight lifecycle */
 /* Section side-headings are part of the enacted text, not colored editorial labels.
@@ -204,7 +210,7 @@ html.m-justify #frame .article .definition {
    prose at phone sizes; no implicit 479px switch to ragged-right. */
 html.m-justify #frame table.article>tbody>tr>td:not(.side_title):not(.article_number):not(.numbering),
 html.m-justify #frame table.article_deleted>tbody>tr>td:not(.side_title):not(.article_number):not(.numbering),
-html.m-justify #frame table.m-prose-table>tbody>tr>td:not(.numbering),
+html.m-justify #frame table.m-prose-table>tbody>tr>:is(td,th):not(.numbering),
 html.m-justify #frame .delegated_legislation p.opening,
 html.m-justify #frame .delegated_legislation p:not(.opening):not(.intext_title),
 html.m-justify #frame .definition,
@@ -347,15 +353,11 @@ html.m-justify #frame #law_name td.title {
    Preserve its DOM for the fixed bottom 'תוכן עניינים' button. */
 #frame #index{display:none!important}
 
-/* Keep mixed subsection/provenance rows in their available reading column. */
-#frame table.m-prose-table>tbody>tr{display:grid!important;grid-template-columns:2em minmax(0,1fr)!important;gap:0 5px;width:100%!important}
-#frame table.m-prose-table>tbody>tr>td:only-child{grid-column:1/-1!important}
 .m-search-meta{flex-wrap:wrap}.m-search-meta select{min-width:0;min-height:44px;max-width:100%;flex:1 1 120px}
 .m-search-meta [role=status]{flex:1 0 100%}
 .m-close{width:44px;height:44px}
 select:focus-visible,summary:focus-visible{outline:3px solid #0c8c84!important;outline-offset:2px}
 
-#frame table.m-prose-table>tbody>tr>td:first-child:not(:only-child){grid-column:1!important}
 
 /* Preserve the source's status distinction with sufficient contrast on its surfaces. */
 html:not(.m-contrast-dark):not(.m-contrast-blue) #frame .expired,html:not(.m-contrast-dark):not(.m-contrast-blue) #frame .effective_date,html:not(.m-contrast-dark):not(.m-contrast-blue) #frame .amendment_of_other_laws{color:#58656e!important}
@@ -367,3 +369,5 @@ html.m-contrast-dark{--ink:#ffe869;--muted:#ffe869;--accent:#ffe869;--paper:#111
 html.m-contrast-blue{--ink:#000;--muted:#000;--accent:#000;--paper:#d9edff}
 html.m-contrast-dark footer,html.m-contrast-dark footer *{color:#ffe869!important;background-color:transparent!important}
 html.m-contrast-blue footer,html.m-contrast-blue footer *{color:#000!important;background-color:transparent!important}
+
+@media print{:is(#frame,.m-sheet-body) .m-table-scroll>table.m-data-table{width:100%!important;min-width:0;max-width:100%!important;table-layout:fixed!important}:is(#frame,.m-sheet-body) .m-table-scroll :is(th,td){overflow-wrap:anywhere!important}}

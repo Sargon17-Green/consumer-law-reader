@@ -10,7 +10,7 @@ CLASSES=BUILD/'classes';CLASSES.mkdir(exist_ok=True)
 def run(*args):subprocess.run([str(x)for x in args],check=True)
 run('java','-jar',TOOLS/'ecj.jar','-source','8','-target','8','-encoding','UTF-8','-warn:none','-classpath',ANDROID,'-d',CLASSES,*sorted((ROOT/'android/qa').rglob('*.java')))
 run('java','-cp',SDK/'lib/d8.jar','com.android.tools.r8.D8','--min-api','26','--lib',ANDROID,'--output',BUILD,*sorted(CLASSES.rglob('*.class')))
-run(SDK/'aapt2','link','-I',ANDROID,'--manifest',ROOT/'android/qa/AndroidManifest.xml','-o',BUILD/'resources.apk')
+run(SDK/'aapt2','link','-I',ANDROID,'--manifest',ROOT/'android/qa/AndroidManifest.xml','-A',ROOT/'tests/fixtures','-o',BUILD/'resources.apk')
 with zipfile.ZipFile(BUILD/'resources.apk') as src,zipfile.ZipFile(BUILD/'unsigned.apk','w') as dst:
  for info in src.infolist():dst.writestr(info,src.read(info))
  dst.write(BUILD/'classes.dex','classes.dex')

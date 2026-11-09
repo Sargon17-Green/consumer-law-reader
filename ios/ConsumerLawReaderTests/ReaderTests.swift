@@ -106,6 +106,24 @@ final class ReaderIntegrationTests: XCTestCase {
         XCTFail("Actual WKWebView did not reach application readiness")
         throw NSError(domain:"ReaderQA",code:1)
     }
+    func testReadingLayoutInActualWKWebView() async throws {
+        let reader=try await openReader()
+        defer { closeTestWindow() }
+        let resource=try XCTUnwrap(Bundle(for:ReaderIntegrationTests.self).url(forResource:"reader_layout_probe",withExtension:"js"))
+        let probe=try String(contentsOf:resource,encoding:.utf8)
+        let options="{sizes:[18,28,48],regulationIds:['used_vehicle_trading_regulations','Calculation_of_annual_interest_rate','Calculation_of_annual_interest_rate_2','Disclosure_of_material_detail_regarding_diamonds_gems_pearls_and_gold_products']}"
+        let result=try await script(reader,"JSON.stringify(("+probe+")("+options+"))") as? String
+        let data=try XCTUnwrap(result?.data(using:.utf8))
+        let report=try XCTUnwrap(JSONSerialization.jsonObject(with:data) as? [String:Any])
+        XCTAssertEqual(report["regulations"] as? Int,4)
+        XCTAssertEqual((report["issues"] as? [Any])?.count,0,result ?? "No result")
+        let attachment=XCTAttachment(data:data,uniformTypeIdentifier:"public.json")
+        attachment.name="Actual WKWebView responsive layout";attachment.lifetime = .keepAlways;add(attachment)
+        _ = try await script(reader,"(lawMobile.goTo('article_14',false,false),true)")
+        try await Task.sleep(nanoseconds:300_000_000)
+        XCTAssertLessThanOrEqual(reader.webView.scrollView.contentSize.width,reader.webView.bounds.width+1,"The native scroll view must fit the screen at the default zoom")
+        print("NATIVE_READING_LAYOUT: \(result ?? "missing")")
+    }
     func testActualOfflineReaderSearchBackupAndLifecycle() async throws {
         let reader=try await openReader()
         defer { closeTestWindow() }

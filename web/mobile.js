@@ -138,8 +138,60 @@ function showPrivacy(){const panel=openSheet('מדיניות פרטיות ותק
 function setSystemFontScale(scale){if(safeGet('law-reader-font')===null&&Number.isFinite(scale)&&scale>0){const size=Math.max(16,Math.min(48,19*scale))+'px';if(readingLayout().size===size)return;const anchor=currentArticle()||document.getElementById('law_name');pointRestore++;document.documentElement.style.setProperty('--reading-size',size);anchor?.scrollIntoView({block:'start',behavior:'instant'});}}
 function showAccessibility(){const target=openSheet('נגישות');const apply=(name,on)=>{document.documentElement.classList.toggle(name,on);safeSet('law-a11y-'+name,on?'1':'0');};for(const [name,label] of [['m-contrast-dark','ניגודיות: צהוב על שחור'],['m-contrast-blue','ניגודיות: שחור על כחול בהיר'],['m-underline','קו תחתון לקישורים'],['m-no-motion','עצירת הנפשות'],['m-gray','תמונות בגווני אפור'],['m-serif','גופן עם תגיות']]){const b=action(label,()=>{const on=!document.documentElement.classList.contains(name);if(name==='m-contrast-dark')apply('m-contrast-blue',false);if(name==='m-contrast-blue')apply('m-contrast-dark',false);apply(name,on);showAccessibility();});b.setAttribute('aria-pressed',document.documentElement.classList.contains(name)?'true':'false');target.append(b);}target.append(action('שחזור הגדרות תצוגה',()=>{['m-contrast-dark','m-contrast-blue','m-underline','m-no-motion','m-gray','m-serif'].forEach(n=>apply(n,false));document.documentElement.style.removeProperty('--reading-size');safeRemove('law-reader-font');document.documentElement.classList.add('m-justify');document.documentElement.dataset.lawAlign='justify';safeRemove('law-reader-align');showAccessibility();}));}
 
-function installInstructions(){const target=openSheet('התקנת האפליקציה');if(deferredInstall){target.append(action('התקנה במסך הבית',async()=>{await deferredInstall.prompt();deferredInstall=null,searchState=null;}));}const p=document.createElement('p');p.textContent=/iPhone|iPad|iPod/.test(navigator.userAgent)?'ב־Safari: פתח את תפריט השיתוף, בחר ״הוספה למסך הבית״ ואשר.':'ב־Chrome: פתח את תפריט הדפדפן ובחר ״התקנת האפליקציה״ או ״הוספה למסך הבית״. אפשר להתקין ב־Android גם את קובץ ה־APK שנמסר בנפרד.';target.append(p);}
-function init(){try{window.LawCore.recover(localStorage);}catch{toast('לא ניתן לשחזר את ההגדרות הקודמות');return;}const editorLabel=$('.m-subtitle');if(editorLabel)editorLabel.textContent='נוסח נבדק: '+editorialDate();const storedAlign=safeGet('law-reader-align');const preferredAlign=storedAlign==='right'?'right':'justify';document.documentElement.dataset.lawAlign=preferredAlign;document.documentElement.classList.toggle('m-justify',preferredAlign==='justify');['m-contrast-dark','m-contrast-blue','m-underline','m-no-motion','m-gray','m-serif'].forEach(n=>document.documentElement.classList.toggle(n,safeGet('law-a11y-'+n)==='1'));$$('#frame .defined').forEach(e=>{e.setAttribute('role','button');e.tabIndex=0;const term=e.cloneNode(true);$$('.the_definition',term).forEach(node=>node.remove());e.setAttribute('aria-label','הצגת הגדרה: '+cleanText(term.textContent).slice(0,120));e.addEventListener('keydown',v=>{if(v.key==='Enter'||v.key===' '){v.preventDefault();pressLink(e);definition(e);}});});$$('#frame .name[onclick]').forEach(e=>{if(e.querySelector('a[href],button,input,select,[role=button]'))return;e.setAttribute('role','button');e.tabIndex=0;e.addEventListener('keydown',v=>{if(v.key==='Enter'||v.key===' '){v.preventDefault();e.click();}});});$$('a[tabindex="-1"]').forEach(e=>e.removeAttribute('tabindex'));$$('#frame a[href^="#"][onclick]').forEach(a=>{if((a.getAttribute('onclick')||'').includes('mark_and_verify_open('))a.removeAttribute('onclick');});document.onclick=null;document.oncontextmenu=null;$$('[oncontextmenu]').forEach(e=>e.removeAttribute('oncontextmenu'));const font=Number(safeGet('law-reader-font'));if(font>=16&&font<=28)document.documentElement.style.setProperty('--reading-size',font+'px');$('#index_content').style.display='none';$('#index_title').style.listStyle='disclosure-closed';const proseTables=$$('#frame table').filter(t=>!t.closest('.sources_box,.bills_box,.protocols_box,.history_box'));for(const table of proseTables){if(table.classList.contains('article')||table.classList.contains('appendix')||table.querySelector(':scope>tbody>tr>th'))continue;const rows=$$(':scope>tbody>tr',table);if(rows.length&&rows.some(row=>row.children.length===2&&row.firstElementChild.classList.contains('numbering'))&&rows.every(row=>(row.children.length===2&&(row.firstElementChild.classList.contains('numbering')||(!row.firstElementChild.textContent.trim()&&row.lastElementChild.classList.contains('done_accordingly'))))||(row.children.length===1&&row.firstElementChild.matches('.done_accordingly,[colspan]'))))table.classList.add('m-prose-table');}$$('#frame table.m-prose-table').forEach(e=>e.setAttribute('role','presentation'));$$('#frame table[id]').filter(t=>!t.classList.contains('article')&&!t.classList.contains('appendix')&&(/_table\d*$|_contnet$/.test(t.id))&&t.querySelector('th')).forEach(t=>{if(t.closest('.m-table-scroll'))return;const w=document.createElement('div');w.className='m-table-scroll';w.tabIndex=0;w.setAttribute('role','region');w.setAttribute('aria-label','טבלה לגלילה אופקית');t.before(w);w.style.setProperty('--table-width',Math.max(560,Math.max(...$$('tr',t).map(r=>r.children.length))*130)+'px');w.append(t);});window.copy_article=()=>activeArticle&&copy(textForCopy(activeArticle));window.copy_selected=()=>copy(window.getSelection()?.toString()||'');$('#mobile-sheet-close').onclick=closeSheet;sheet.addEventListener('cancel',e=>{e.preventDefault();closeSheet();});$('#mobile-return').onclick=returnToSearch;$('#mobile-regulation-back').onclick=closeRegulation;sheet.addEventListener('click',e=>{if(e.target===sheet){const r=sheet.getBoundingClientRect();if(e.clientY<r.top||e.clientX<r.left||e.clientX>r.right)closeSheet();}});// The nested legacy note body already toggles itself via inline onclick.
+function installInstructions(){
+  const target=openSheet('התקנת האפליקציה');
+  const installed=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  const p=document.createElement('p');
+  if(installed){p.textContent='האפליקציה כבר נפתחה מהתקנה במסך הבית. אפשר לחזור אליה מהסמל הקבוע, בלי לחפש שוב את הקישור.';target.append(p);return;}
+  p.textContent='התקנה תיצור סמל קבוע במסך הבית, שממנו אפשר לפתוח את האפליקציה ישירות. האישור הסופי נעשה בחלון של מערכת ההפעלה או הדפדפן.';
+  target.append(p);
+  if(deferredInstall)target.append(action('התקנה במסך הבית',async()=>{
+    const prompt=deferredInstall;deferredInstall=null;
+    try{await prompt.prompt();const choice=await prompt.userChoice;
+      toast(choice?.outcome==='accepted'?'בקשת ההתקנה אושרה':'ההתקנה בוטלה; אפשר לנסות שוב מתפריט הדפדפן');
+    }catch{toast('לא ניתן לפתוח התקנה כעת. אפשר להוסיף למסך הבית מתפריט הדפדפן');}
+  }));
+  const instructions=document.createElement('p');
+  const apple=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  instructions.textContent=apple?'ב־Safari: פתח את תפריט השיתוף, בחר ״הוספה למסך הבית״ ואשר.':'ב־Chrome: פתח את תפריט הדפדפן ובחר ״התקנת האפליקציה״ או ״הוספה למסך הבית״.';
+  target.append(instructions);
+  if(/Android/.test(navigator.userAgent)){
+    const link=document.createElement('a');link.className='m-original-link';
+    link.href='https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/main/downloads/latest.apk';
+    link.textContent='הורדת אפליקציית Android המקורית — בטא ציבורית 1.3.5';
+    target.append(link);
+    const note=document.createElement('p');note.className='m-hint';
+    note.textContent='זהו קובץ APK מההפצה החתומה הקיימת, עם סמל ברשימת היישומים. פתח את הקובץ ואשר התקנה ב־Android. אל תסיר גרסה קיימת במקרה של אי־התאמת חתימה, כדי לשמור על הנתונים.';
+    target.append(note);
+  }
+}
+// Numbered legal prose can reflow. Genuine forms and data keep their two-dimensional cells.
+function prepareReadingTables(){
+  const tables=$$('#frame table').filter(t=>!t.closest('.sources_box,.bills_box,.protocols_box,.history_box'));
+  for(const table of tables){
+    if(table.matches('.article,.article_deleted,.appendix'))continue;
+    const rows=$$(':scope>tbody>tr',table);
+    if(rows.length&&rows.some(row=>row.children.length>=2&&row.firstElementChild.classList.contains('numbering'))&&rows.every(row=>
+      ((row.children.length===2||row.children.length===3)&&row.firstElementChild.classList.contains('numbering'))||
+      (row.children.length===2&&!row.firstElementChild.textContent.trim()&&row.lastElementChild.classList.contains('done_accordingly'))||
+      (row.children.length===1&&row.firstElementChild.matches('.done_accordingly,[colspan]')))){
+      table.classList.add('m-prose-table');table.setAttribute('role','presentation');
+    }
+  }
+  for(const table of tables){
+    if(table.matches('.article,.article_deleted,.m-prose-table,.chapter_title,.subchapter_title,.appendix_title,.subappendix_title,#law_name,#index')||table.closest('.m-table-scroll'))continue;
+    const rows=$$(':scope>tbody>tr,:scope>thead>tr,:scope>tfoot>tr',table);
+    const columns=Math.max(0,...rows.map(row=>[...row.children].reduce((n,cell)=>n+(cell.colSpan||1),0)));
+    if(columns<=1&&rows.every(row=>row.children.length===1)){table.classList.add('m-flow-table');table.setAttribute('role','presentation');continue;}
+    // Original forms and mathematical rows can have neither IDs nor TH cells.
+    // Preserve their cells; a one-cell document heading is not a data table.
+    if(columns<=1)continue;
+    const wrap=document.createElement('div');wrap.className='m-table-scroll';wrap.tabIndex=0;
+    wrap.setAttribute('role','region');wrap.setAttribute('aria-label','טבלה לגלילה אופקית');
+    table.classList.add('m-data-table');table.before(wrap);wrap.append(table);
+  }
+}
+function init(){try{window.LawCore.recover(localStorage);}catch{toast('לא ניתן לשחזר את ההגדרות הקודמות');return;}const editorLabel=$('.m-subtitle');if(editorLabel)editorLabel.textContent='נוסח נבדק: '+editorialDate();const storedAlign=safeGet('law-reader-align');const preferredAlign=storedAlign==='right'?'right':'justify';document.documentElement.dataset.lawAlign=preferredAlign;document.documentElement.classList.toggle('m-justify',preferredAlign==='justify');['m-contrast-dark','m-contrast-blue','m-underline','m-no-motion','m-gray','m-serif'].forEach(n=>document.documentElement.classList.toggle(n,safeGet('law-a11y-'+n)==='1'));$$('#frame .defined').forEach(e=>{e.setAttribute('role','button');e.tabIndex=0;const term=e.cloneNode(true);$$('.the_definition',term).forEach(node=>node.remove());e.setAttribute('aria-label','הצגת הגדרה: '+cleanText(term.textContent).slice(0,120));e.addEventListener('keydown',v=>{if(v.key==='Enter'||v.key===' '){v.preventDefault();pressLink(e);definition(e);}});});$$('#frame .name[onclick]').forEach(e=>{if(e.querySelector('a[href],button,input,select,[role=button]'))return;e.setAttribute('role','button');e.tabIndex=0;e.addEventListener('keydown',v=>{if(v.key==='Enter'||v.key===' '){v.preventDefault();e.click();}});});$$('a[tabindex="-1"]').forEach(e=>e.removeAttribute('tabindex'));$$('#frame a[href^="#"][onclick]').forEach(a=>{if((a.getAttribute('onclick')||'').includes('mark_and_verify_open('))a.removeAttribute('onclick');});document.onclick=null;document.oncontextmenu=null;$$('[oncontextmenu]').forEach(e=>e.removeAttribute('oncontextmenu'));const font=Number(safeGet('law-reader-font'));if(font>=16&&font<=28)document.documentElement.style.setProperty('--reading-size',font+'px');$('#index_content').style.display='none';$('#index_title').style.listStyle='disclosure-closed';prepareReadingTables();window.copy_article=()=>activeArticle&&copy(textForCopy(activeArticle));window.copy_selected=()=>copy(window.getSelection()?.toString()||'');$('#mobile-sheet-close').onclick=closeSheet;sheet.addEventListener('cancel',e=>{e.preventDefault();closeSheet();});$('#mobile-return').onclick=returnToSearch;$('#mobile-regulation-back').onclick=closeRegulation;sheet.addEventListener('click',e=>{if(e.target===sheet){const r=sheet.getBoundingClientRect();if(e.clientY<r.top||e.clientX<r.left||e.clientX>r.right)closeSheet();}});// The nested legacy note body already toggles itself via inline onclick.
 // Stop its click from reaching the outer note_button, which would toggle twice.
 $$('#frame .note_button_text').forEach(label=>{const parent=label.closest('.note_button');if(!parent||label.querySelector('a,button'))return;label.setAttribute('role','button');label.tabIndex=0;const update=()=>label.setAttribute('aria-expanded',String(getComputedStyle(parent.querySelector('.note_div')).display!=='none'));update();parent.addEventListener('click',update);label.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();label.click();}});});
 $$('#frame .note_button > .note_div[onclick]').forEach(div=>div.addEventListener('click',e=>e.stopPropagation()));
@@ -170,5 +222,6 @@ const b=e.target.closest('[data-mobile]');if(b){({search:showSearch,toc:showToc,
 async function initOffline(){if(!('serviceWorker' in navigator))return;try{await navigator.serviceWorker.register('./sw.js');}catch{}}
 
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
+window.addEventListener('appinstalled',()=>{deferredInstall=null;toast('האפליקציה הותקנה; אפשר לפתוח אותה מהסמל הקבוע');});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

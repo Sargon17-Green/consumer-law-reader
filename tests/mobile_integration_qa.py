@@ -31,15 +31,38 @@ axe_source=(ROOT/'tests/qa/node_modules/axe-core/axe.min.js').read_text()
 accessibility=[]
 with sync_playwright() as pw:
     options={'args':['--no-sandbox','--disable-dev-shm-usage']}
-    if shutil.which('chromium'):options['executable_path']=shutil.which('chromium')
+    if os.environ.get('LAW_QA_CHROMIUM'):options['executable_path']=os.environ['LAW_QA_CHROMIUM']
+    elif shutil.which('chromium'):options['executable_path']=shutil.which('chromium')
     browser=pw.chromium.launch(**options)
     for width,height in dimensions:
         context=browser.new_context(viewport={'width':width,'height':height},has_touch=width<800,reduced_motion='reduce',service_workers='block')
         context.route('**/*',serve)
+        context.add_init_script("""if(!localStorage.getItem('law-reader-topics-v1'))localStorage.setItem('law-reader-topics-v1',JSON.stringify({schema:1,userTopics:[{id:'u:long',title:'א'.repeat(90),parent:null,index:1000}],links:[{id:'u:long-link',topic:'u:long',target:'article_14',title:'ב'.repeat(90)}],titles:{},hidden:{},ranks:{}}));""")
         page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
         started=time.monotonic();page.goto('https://law.local/index.html',wait_until='load',timeout=90000)
         page.wait_for_function("()=>document.documentElement.dataset.lawReady==='true'",timeout=60000)
         opening=(time.monotonic()-started)*1000
+        layout=page.evaluate((ROOT/'tests/fixtures/reader_layout_probe.js').read_text())
+        (EVIDENCE/f'layout-{width}.json').write_text(json.dumps(layout,ensure_ascii=False,indent=2))
+        assert layout['regulations']==66,layout
+        assert not layout['issues'],layout['issues']
+        assert layout['scrollableTables']>0,'Wide data must remain reachable inside its table region'
+        print('Layout',width,'checks',layout['checked'],'issues',len(layout['issues']),flush=True)
+        assert page.evaluate("""()=>{
+          lawMobile.showNavigate();for(const details of document.querySelectorAll('#mobile-sheet-body details'))details.open=true;
+          const sheet=document.getElementById('mobile-sheet'),body=document.getElementById('mobile-sheet-body');
+          if(!body.textContent.includes('א'.repeat(90))||!body.textContent.includes('ב'.repeat(90)))throw Error('Long personal-label fixture must actually be rendered');
+          return sheet.scrollWidth<=sheet.clientWidth+1&&body.scrollWidth<=body.clientWidth+1;
+        }"""),'Long personal topics and links must fit the dialog'
+        page.locator('#mobile-sheet-close').click()
+        if width==320:
+            # A rejected install prompt is handled, with manual instructions still reachable.
+            page.evaluate("""()=>{const event=new Event('beforeinstallprompt',{cancelable:true});event.prompt=()=>Promise.reject(Error('Unavailable'));dispatchEvent(event);lawMobile.showMore();}""")
+            page.get_by_role('button',name='התקנת האפליקציה',exact=True).click()
+            page.get_by_role('button',name='התקנה במסך הבית',exact=True).click()
+            page.wait_for_function("document.getElementById('mobile-toast').textContent.includes('לא ניתן לפתוח התקנה')")
+            assert 'הוספה למסך הבית' in page.locator('#mobile-sheet-body').inner_text()
+            page.locator('#mobile-sheet-close').click()
         metrics=page.evaluate("""()=>{
           const start=performance.now(),records=lawMobile.buildSearch(),index=performance.now()-start;
           const timings=[];for(let i=0;i<50;i++){const at=performance.now();records.filter(r=>r.folded.includes(LawCore.normalized(i%2?'עסקה':'14').text));timings.push(performance.now()-at);}

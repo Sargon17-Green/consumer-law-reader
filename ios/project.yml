@@ -37,7 +37,10 @@ targets:
   ConsumerLawReaderTests:
     type: bundle.unit-test
     platform: iOS
-    sources: [ConsumerLawReaderTests]
+    sources:
+      - path: ConsumerLawReaderTests
+      - path: ../tests/fixtures/reader_layout_probe.js
+        buildPhase: resources
     dependencies:
       - target: ConsumerLawReader
     settings:

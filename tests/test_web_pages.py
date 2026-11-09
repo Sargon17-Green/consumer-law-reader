@@ -42,6 +42,7 @@ class WebPagesReleaseTests(unittest.TestCase):
         self.assertEqual(m["lang"], "he")
         self.assertEqual(m["dir"], "rtl")
         self.assertEqual(m["display"], "standalone")
+        self.assertEqual(m["id"], "./", "Keep the installed app identity stable across builds")
         self.assertEqual(m["start_url"], "./")
         self.assertEqual(m["scope"], "./")
         self.assertTrue(m["name"].startswith("חוק הגנת הצרכן"))

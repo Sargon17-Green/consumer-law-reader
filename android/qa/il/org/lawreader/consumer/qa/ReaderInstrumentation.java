@@ -223,6 +223,29 @@ public final class ReaderInstrumentation extends Instrumentation {
             ready();
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
+    private void testNativeDateURLPolicy(Bundle report) throws Exception {
+        java.lang.reflect.Method policy=activity.getClass().getDeclaredMethod("isApprovedDateSource",android.net.Uri.class);
+        policy.setAccessible(true);
+        check(Boolean.FALSE.equals(policy.invoke(null,(Object)null)),"Null URL is rejected");
+        String[] approved={
+            "https://raw.githubusercontent.com/Sargon17-Green/pastafari-calendar/main/docs/api/seer-now.json",
+            "https://api.github.com/repos/Sargon17-Green/pastafari-calendar/contents/docs/api/seer-now.json",
+            "https://sargon17-green.github.io/pastafari-calendar/api/seer-now.json"
+        };
+        int cases=1;
+        for(String url:approved){
+            check(Boolean.TRUE.equals(policy.invoke(null,android.net.Uri.parse(url))),"Canonical date URL is accepted");cases++;
+            check(Boolean.TRUE.equals(policy.invoke(null,android.net.Uri.parse(url+"?_t=123"))),"Bounded timestamp is accepted");cases++;
+            for(String invalid:new String[]{url.replace("https://","http://"),url.replace("https://","https://user@"),url.replace("seer-now.json","seer%2Dnow.json"),url+"/extra",url+"#fragment",url+"?_t=1&_t=2",url+"?_t=bad",url+"?other=1",url+"?%5Ft=1",url+"?_t=1&%5Ft=2",url+"?ref=main&r%65f=other",url+"?_t=%31",url+"?_t=12345678901234567",url+"?_t=1&"}){
+                check(Boolean.FALSE.equals(policy.invoke(null,android.net.Uri.parse(invalid))),"Unsafe date URL is rejected: "+invalid);cases++;
+            }
+        }
+        check(Boolean.TRUE.equals(policy.invoke(null,android.net.Uri.parse(approved[1]+"?ref=main&_t=123"))),"Canonical REST revision and timestamp are accepted");cases++;
+        for(String invalid:new String[]{"https:opaque","https:opaque?x=1","https:","javascript:alert(1)","file:///data/data/secret","content://external/private","https://example.com/seer-now.json"}){
+            check(Boolean.FALSE.equals(policy.invoke(null,android.net.Uri.parse(invalid))),"Malformed/foreign URI is rejected without throwing: "+invalid);cases++;
+        }
+        report.putInt("nativeDateURLPolicyCases",cases);
+    }
     private AccessibilityNodeInfo editable(AccessibilityNodeInfo node){
         if(node==null)return null;
         if(node.isEditable()&&node.isEnabled())return node;
@@ -235,6 +258,9 @@ public final class ReaderInstrumentation extends Instrumentation {
         for(int attempt=0;attempt<360;attempt++){
             AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
             if(root!=null&&"com.android.printspooler".contentEquals(String.valueOf(root.getPackageName()))){
+                if(findText(root,"Select a printer")!=null){
+                    clickSystemText("Select a printer");clickSystemText("Save as PDF");continue;
+                }
                 if(findText(root,"Save as PDF")==null){Thread.sleep(250);continue;}
                 for(AccessibilityNodeInfo button:root.findAccessibilityNodeInfosByViewId("com.android.printspooler:id/print_button"))
                     if(button.isEnabled()&&button.performAction(AccessibilityNodeInfo.ACTION_CLICK)){clicked=true;break;}
@@ -295,28 +321,21 @@ public final class ReaderInstrumentation extends Instrumentation {
         }
         throw new Exception("Reader resumes after cancelling system print");
     }
-    private void testNativeDateURLPolicy(Bundle report) throws Exception {
-        java.lang.reflect.Method policy=activity.getClass().getDeclaredMethod("isApprovedDateSource",android.net.Uri.class);
-        policy.setAccessible(true);
-        check(Boolean.FALSE.equals(policy.invoke(null,(Object)null)),"Null URL is rejected");
-        String[] approved={
-            "https://raw.githubusercontent.com/Sargon17-Green/pastafari-calendar/main/docs/api/seer-now.json",
-            "https://api.github.com/repos/Sargon17-Green/pastafari-calendar/contents/docs/api/seer-now.json",
-            "https://sargon17-green.github.io/pastafari-calendar/api/seer-now.json"
-        };
-        int cases=1;
-        for(String url:approved){
-            check(Boolean.TRUE.equals(policy.invoke(null,android.net.Uri.parse(url))),"Canonical date URL is accepted");cases++;
-            check(Boolean.TRUE.equals(policy.invoke(null,android.net.Uri.parse(url+"?_t=123"))),"Bounded timestamp is accepted");cases++;
-            for(String invalid:new String[]{url.replace("https://","http://"),url.replace("https://","https://user@"),url.replace("seer-now.json","seer%2Dnow.json"),url+"/extra",url+"#fragment",url+"?_t=1&_t=2",url+"?_t=bad",url+"?other=1",url+"?%5Ft=1",url+"?_t=1&%5Ft=2",url+"?ref=main&r%65f=other",url+"?_t=%31",url+"?_t=12345678901234567",url+"?_t=1&"}){
-                check(Boolean.FALSE.equals(policy.invoke(null,android.net.Uri.parse(invalid))),"Unsafe date URL is rejected: "+invalid);cases++;
-            }
+    private void testReadingLayout(Bundle report) throws Exception {
+        String source;
+        try(java.io.InputStream input=getContext().getAssets().open("reader_layout_probe.js");ByteArrayOutputStream output=new ByteArrayOutputStream()){
+            byte[] buffer=new byte[8192];int count;while((count=input.read(buffer))!=-1)output.write(buffer,0,count);
+            source=new String(output.toByteArray(),"UTF-8");
         }
-        check(Boolean.TRUE.equals(policy.invoke(null,android.net.Uri.parse(approved[1]+"?ref=main&_t=123"))),"Canonical REST revision and timestamp are accepted");cases++;
-        for(String invalid:new String[]{"https:opaque","https:opaque?x=1","https:","javascript:alert(1)","file:///data/data/secret","content://external/private","https://example.com/seer-now.json"}){
-            check(Boolean.FALSE.equals(policy.invoke(null,android.net.Uri.parse(invalid))),"Malformed/foreign URI is rejected without throwing: "+invalid);cases++;
-        }
-        report.putInt("nativeDateURLPolicyCases",cases);
+        String options="{sizes:[18,28,48],regulationIds:['used_vehicle_trading_regulations','Calculation_of_annual_interest_rate','Calculation_of_annual_interest_rate_2','Disclosure_of_material_detail_regarding_diamonds_gems_pearls_and_gold_products']}";
+        JSONObject result=new JSONObject(new org.json.JSONTokener(js("JSON.stringify(("+source+")("+options+"))")).nextValue().toString());
+        check(result.getInt("regulations")==4,"Layout regression fixtures present");
+        check(result.getJSONArray("issues").length()==0,"Native WebView horizontal layout: "+result.toString());
+        report.putString("readingLayout",result.toString());
+        js("lawMobile.goTo('article_14',false,false)");
+        awaitJS("document.documentElement.scrollWidth<=innerWidth+1","Whole reading page fits after restoring font");
+        final boolean[] overflow={false};runOnMainSync(()->overflow[0]=web.canScrollHorizontally(-1)||web.canScrollHorizontally(1));
+        check(!overflow[0],"Actual native WebView cannot pan the whole reading page horizontally");
     }
     @Override public void onStart() {
         Bundle report=new Bundle();
@@ -329,6 +348,9 @@ public final class ReaderInstrumentation extends Instrumentation {
                 getUiAutomation().setServiceInfo(automation);
             }
             Intent intent=getTargetContext().getPackageManager().getLaunchIntentForPackage("il.org.lawreader.consumer");
+            check(intent!=null&&intent.hasCategory(Intent.CATEGORY_LAUNCHER),"Installed app has a permanent launcher entry");
+            check(getTargetContext().getPackageManager().getApplicationIcon("il.org.lawreader.consumer")!=null,"Installed app icon resolves");
+            report.putString("launcher",intent.getComponent().flattenToShortString());
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
             activity=startActivitySync(intent);
             runOnMainSync(()->web=find(activity.findViewById(android.R.id.content)));
@@ -355,6 +377,7 @@ public final class ReaderInstrumentation extends Instrumentation {
                 check(expectedFont.equals(new org.json.JSONTokener(js("localStorage.getItem('law-reader-font')")).nextValue()),"Preferences persist after actual process restart");
             }
             testNativeDateURLPolicy(report);
+            report.putString("stage","responsive native reading layout");testReadingLayout(report);
             if(verifyUpgrade){
                 report.putString("upgradedFont",js("localStorage.getItem('law-reader-font')"));
                 report.putString("upgradedOrigin",js("location.origin"));
