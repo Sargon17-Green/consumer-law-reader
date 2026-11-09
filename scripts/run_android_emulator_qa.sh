@@ -10,6 +10,7 @@ collect() {
   for diagnostic in evidence/api26-provider-selection.txt evidence/api26-system-overlay.txt; do
     if [[ -f "$diagnostic" ]]; then cat "$diagnostic"; fi
   done
+  adb pull /sdcard/Android/data/il.org.lawreader.consumer/files/qa-system-ui.json evidence/android-system-ui.json 2>/dev/null || true
   adb pull /sdcard/Android/data/il.org.lawreader.consumer/files/qa-failure.png evidence/android-failure-at-assertion.png 2>/dev/null || true
   adb pull /sdcard/Android/data/il.org.lawreader.consumer/files/qa-native-document.pdf evidence/android-native-document.pdf 2>/dev/null || true
   adb exec-out screencap -p > evidence/android-emulator.png 2>/dev/null || true
