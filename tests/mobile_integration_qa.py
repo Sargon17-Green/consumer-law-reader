@@ -53,6 +53,24 @@ with sync_playwright() as pw:
         assert page.locator('.m-table-scroll>table[role=presentation]').count()==0, 'Real data tables retain table semantics'
         assert page.evaluate("""()=>lawMobile.buildSearch().every(r=>{const c=r.el.cloneNode(true);for(const e of c.querySelectorAll('.the_definition,.note_button,.note_div,.done_accordingly,.validity,.m-article-actions,.m-source-tools,.sources_box,.bills_box,.protocols_box,.history_box,script,style,noscript'))e.remove();return c.textContent.replace(/\\s+/g,' ').trim()===r.text;})"""), 'Index text must preserve every statutory unit while excluding the documented editorial elements'
         assert page.evaluate("()=>LawCore.snippet('אָב שָׁלוֹם סוף','שלום').mark")=='שָׁלוֹם'
+        assert page.evaluate("""()=>{
+          const boxes=[...document.querySelectorAll('[id="sources_box_article_22k"]')];
+          if(boxes.length!==2)throw Error('Expected unchanged duplicate-ID source fixture');
+          const text=e=>e.textContent.replace(/\\s+/g,' ').trim();
+          const heading=text(boxes[1].firstElementChild);
+          LawSources.showPanel('sources','article_22k');
+          let visible=[...document.querySelectorAll('#mobile-sheet-body .m-source')];
+          if(visible.length!==1||text(visible[0])!==text(boxes[0]))throw Error('Duplicate ID incorrectly merged source associations');
+          LawSources.showHub('sources');
+          const filter=document.querySelector('#mobile-sheet-body input');filter.value=heading;filter.dispatchEvent(new Event('input'));
+          const control=[...document.querySelectorAll('#mobile-source-results button')].find(b=>b.firstChild?.textContent===heading);
+          if(!control)throw Error('Original heading of separate source box must remain reachable');
+          control.click();visible=[...document.querySelectorAll('#mobile-sheet-body .m-source')];
+          if(visible.length!==1||text(visible[0])!==text(boxes[1]))throw Error('Separate source box lost or changed');
+          if([...document.querySelectorAll('#mobile-sheet-body button')].some(b=>b.textContent==='חזרה לסעיף'))throw Error('Must not invent a section association from a conflicting ID');
+          return true;
+        }"""), 'Source boxes with conflicting IDs retain their exact contents and independent supplied headings'
+        page.locator('#mobile-sheet-close').click()
         page.locator('[data-mobile=search]').click();page.locator('#mobile-search').fill('עסקה')
         page.wait_for_function("()=>document.querySelectorAll('.m-result').length>0")
         expected=page.locator('#mobile-search').input_value()

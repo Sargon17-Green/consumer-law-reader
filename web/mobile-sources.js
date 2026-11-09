@@ -6,7 +6,27 @@ const typeLabels={bill:'הצעת חוק',committee_protocol:'פרוטוקול ו
 let app,registry,typedPromise;
 const clean=s=>String(s||'').replace(/\s+/g,' ').trim();
 function element(tag,text,cls){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;}
-function records(){if(registry)return registry;registry=new Map();for(const [kind]of kinds){for(const box of document.querySelectorAll('.'+kind+'_box[id]')){const prefix=kind+'_box_';if(!box.id.startsWith(prefix))continue;const id=box.id.slice(prefix.length);if(!registry.has(id)){const unit=document.getElementById(id);const label=unit?app.articleLabel(unit):clean(box.firstElementChild?.textContent)||id;registry.set(id,{id,unit,label,boxes:{}});}const r=registry.get(id);(r.boxes[kind]??=[]).push(box);}}return registry;}
+function records(){
+ if(registry)return registry;registry=new Map();
+ for(const [kind]of kinds){
+  const seen=new Map();
+  for(const box of document.querySelectorAll('.'+kind+'_box[id]')){
+   const prefix=kind+'_box_';if(!box.id.startsWith(prefix))continue;
+   const sourceId=box.id.slice(prefix.length),occurrence=(seen.get(sourceId)||0)+1;seen.set(sourceId,occurrence);
+   // Repeated source IDs do not establish an additional section association.
+   // Keep each later box separately accessible under its supplied heading;
+   // never infer a legal relationship or alter the original document's IDs.
+   const id=occurrence===1?sourceId:sourceId+'::'+kind+'::'+occurrence;
+   if(!registry.has(id)){
+    const unit=occurrence===1?document.getElementById(sourceId):null;
+    const label=unit?app.articleLabel(unit):clean(box.firstElementChild?.textContent)||sourceId;
+    registry.set(id,{id,unit,label,boxes:{}});
+   }
+   const r=registry.get(id);(r.boxes[kind]??=[]).push(box);
+  }
+ }
+ return registry;
+}
 function available(record,kind){return !!record?.boxes[kind]?.some(b=>clean(b.textContent));}
 function toolbar(id){const r=records().get(id);if(!r)return null;const row=element('div',undefined,'m-source-tools');row.setAttribute('role','group');row.setAttribute('aria-label','מקורות והיסטוריה של '+r.label);for(const[kind,label]of kinds){const b=element('button',label);b.type='button';b.dataset.sourceKind=kind;b.disabled=!available(r,kind);b.setAttribute('aria-label',titles[kind]+' · '+r.label);b.onclick=e=>{e.stopPropagation();showPanel(kind,id);};row.append(b);}return row;}
 function showPanel(kind,id){const r=records().get(id);if(!r)return;const target=app.openSheet(titles[kind]+' · '+r.label);const tabs=element('div',undefined,'m-source-tabs');for(const[k,label]of kinds){const b=element('button',label);b.type='button';b.setAttribute('aria-pressed',String(k===kind));b.disabled=!available(r,k);b.onclick=()=>showPanel(k,id);tabs.append(b);}target.append(tabs);if(r.unit)target.append(app.action('חזרה לסעיף',()=>app.goTo(r.unit)));const info=element('p',kind==='history'?'הנוסחים ההיסטוריים הכלולים בקובץ המקורי.':'קישורים ושיוכים מתוך קובץ המקור.','m-hint');target.append(info);const boxes=r.boxes[kind]||[];if(!boxes.length){target.append(element('p','אין חומר מסוג זה ליחידה זו בקובץ המצורף.','m-empty'));return;}for(const source of boxes){const c=app.stripIds(source.cloneNode(true));c.className='m-source';c.removeAttribute('style');c.querySelectorAll('[tabindex="-1"]').forEach(e=>e.removeAttribute('tabindex'));target.append(c);}target.append(app.action('לכל המקורות וההיסטוריה',()=>showHub(kind)));}
