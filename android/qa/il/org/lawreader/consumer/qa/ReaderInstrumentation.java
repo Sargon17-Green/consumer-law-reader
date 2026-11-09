@@ -101,7 +101,7 @@ public final class ReaderInstrumentation extends Instrumentation {
                 if(completed!=null&&root!=null&&"il.org.lawreader.consumer".contentEquals(String.valueOf(root.getPackageName()))){Thread.sleep(100);continue;}
                 AccessibilityNodeInfo named=findText(root,text),node=named;
                 for(int depth=0;node!=null&&depth<6;depth++,node=node.getParent())
-                    if(node.isVisibleToUser()&&node.isClickable()&&node.isEnabled()&&node.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;
+                    if(node.isClickable()&&node.isEnabled()&&node.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;
                 // Oreo DocumentsUI handles row touches in RecyclerView's item listener;
                 // neither the named filename nor its parents expose ACTION_CLICK.
                 // Target the exact visible label's measured bounds, never guessed coordinates.
