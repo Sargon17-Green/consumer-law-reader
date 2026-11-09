@@ -34,10 +34,18 @@ final class ReaderPolicyTests: XCTestCase {
             for bad in ["http://" + host + path, "https://" + host + ".invalid" + path,
                         "https://user@" + host + path, "https://" + host + ":8443" + path,
                         "https://" + host + path + "?ref=evil", "https://" + host + path + "/extra",
-                        "https://" + host + path + "?_t=1&_t=2"] {
+                        "https://" + host + path + "?_t=1&_t=2",
+                        "https://" + host + path + "?_t=1&",
+                        "https://" + host + path + "?%5Ft=1",
+                        "https://" + host + path + "?_t=%31",
+                        "https://" + host + path + "?ref=main&r%65f=other",
+                        "https://" + host + path.replacingOccurrences(of:"seer-now",with:"seer%2Dnow"),
+                        "https://" + host + path + "?_t=12345678901234567"] {
                 XCTAssertFalse(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string: bad))), bad)
             }
         }
+        XCTAssertTrue(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string:"https://api.github.com/repos/Sargon17-Green/pastafari-calendar/contents/docs/api/seer-now.json?ref=main&_t=123"))))
+        XCTAssertFalse(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string:"https:opaque?x=1"))))
         let website=URL(fileURLWithPath:"/app/dist/index.html")
         XCTAssertTrue(ReaderPolicy.isBundledDocument(website,website:website))
         XCTAssertFalse(ReaderPolicy.isBundledDocument(URL(fileURLWithPath:"/app/dist/other.html"),website:website))

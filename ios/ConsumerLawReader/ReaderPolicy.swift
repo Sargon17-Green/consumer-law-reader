@@ -10,14 +10,21 @@ enum ReaderPolicy {
 
     static func isDateURL(_ url: URL) -> Bool {
         guard url.scheme == "https", url.port == nil, url.user == nil, url.password == nil,
-              url.fragment == nil, let host = url.host, datePaths[host] == url.path,
-              let parts = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return false }
-        var seen = Set<String>()
-        for item in parts.queryItems ?? [] {
-            guard seen.insert(item.name).inserted else { return false }
-            if item.name == "_t" {
-                guard let value = item.value, value.range(of: "^[0-9]{1,16}$", options: .regularExpression) != nil else { return false }
-            } else if !(host == "api.github.com" && item.name == "ref" && item.value == "main") { return false }
+              url.fragment == nil, let host = url.host,
+              let parts = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              datePaths[host] == parts.percentEncodedPath else { return false }
+        guard let query=parts.percentEncodedQuery else { return true }
+        guard query.utf8.count<=64 else { return false }
+        var seen=Set<String>()
+        // Validate the canonical wire spelling, as in the native Android policy
+        // and the WKWebView resource rules; percent-encoded aliases are not exceptions.
+        for item in query.components(separatedBy:"&") {
+            if item.hasPrefix("_t=") {
+                guard seen.insert("_t").inserted,
+                      item.range(of:"^_t=[0-9]{1,16}$",options:.regularExpression) != nil else { return false }
+            } else if item == "ref=main", host == "api.github.com" {
+                guard seen.insert("ref").inserted else { return false }
+            } else { return false }
         }
         return true
     }

@@ -61,13 +61,20 @@ public final class MainActivity extends Activity {
      * fetch destinations remain blocked by the local asset interceptor.
      */
     private static boolean isApprovedDateSource(Uri uri) {
-        if (uri == null || !"https".equals(uri.getScheme()) || uri.getPort() != -1 || uri.getUserInfo() != null || uri.getFragment() != null) return false;
+        if (uri == null || !uri.isHierarchical() || !"https".equals(uri.getScheme()) || uri.getPort() != -1 || uri.getUserInfo() != null || uri.getFragment() != null) return false;
         String host = uri.getHost();
-        String path = uri.getPath();
-        for (String key : uri.getQueryParameterNames()) {
-            if ("_t".equals(key)) { if (!uri.getQueryParameter(key).matches("[0-9]{1,16}")) return false; }
-            else if (!("ref".equals(key) && "api.github.com".equals(host) && "main".equals(uri.getQueryParameter(key)))) return false;
-            if (uri.getQueryParameters(key).size() != 1) return false;
+        String path = uri.getEncodedPath();
+        String query = uri.getEncodedQuery();
+        if (query != null) {
+            if (query.length() > 64) return false;
+            boolean timestamp=false, revision=false;
+            // Match the canonical wire query. Decoded-name enumeration can
+            // overlook aliases such as ref=main&r%65f=another-branch.
+            for (String item : query.split("&",-1)) {
+                if (!timestamp && item.matches("_t=[0-9]{1,16}")) timestamp=true;
+                else if (!revision && "api.github.com".equals(host) && "ref=main".equals(item)) revision=true;
+                else return false;
+            }
         }
         return ("raw.githubusercontent.com".equals(host)
                     && "/Sargon17-Green/pastafari-calendar/main/docs/api/seer-now.json".equals(path))
