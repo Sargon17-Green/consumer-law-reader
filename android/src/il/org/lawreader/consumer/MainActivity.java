@@ -322,7 +322,13 @@ public final class MainActivity extends Activity {
             .putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI,start);
     }
     private void beginImport() {
-        try{startActivityForResult(settingsPicker(Intent.ACTION_OPEN_DOCUMENT),IMPORT_SETTINGS);}
+        try{
+            Intent picker=settingsPicker(Intent.ACTION_OPEN_DOCUMENT).setType("*/*");
+            // Older document providers classify .json as generic binary or text.
+            // MIME is only a picker hint; UTF-8, size and schema remain mandatory.
+            picker.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"application/json","text/json","text/plain","application/octet-stream"});
+            startActivityForResult(picker,IMPORT_SETTINGS);
+        }
         catch(Exception ex){Toast.makeText(this,"בחירת קובץ אינה זמינה",Toast.LENGTH_LONG).show();}
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {

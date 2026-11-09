@@ -25,14 +25,21 @@ final class ReaderUITests: XCTestCase {
         XCTAssertTrue(menu.isEnabled)
         let metrics=XCTMeasureOptions()
         metrics.iterationCount=3
+        func waitForMenu() {
+            XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+                menu.exists && menu.isEnabled && menu.isHittable
+            },object:nil)],timeout:30),.completed,app.debugDescription)
+        }
         measure(metrics:[XCTCPUMetric(application:app),XCTMemoryMetric(application:app),XCTClockMetric()],options:metrics){
+            waitForMenu()
             menu.tap()
             let print=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
             XCTAssertTrue(print.waitForExistence(timeout:5));print.tap()
             let printCancel=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
             XCTAssertTrue(printCancel.waitForExistence(timeout:30),app.debugDescription);printCancel.tap()
-            XCTAssertTrue(menu.waitForExistence(timeout:10))
+            waitForMenu()
         }
+        waitForMenu()
         menu.tap()
         let restore=app.buttons.matching(identifier:"שחזור הגדרות מקובץ").firstMatch
         XCTAssertTrue(restore.waitForExistence(timeout:5));restore.tap()

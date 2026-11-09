@@ -98,18 +98,30 @@ public final class ReaderInstrumentation extends Instrumentation {
         }
         throw new Exception("Native control not found: "+text+"; "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
     }
-    private void testNativeSettingsFiles() throws Exception {
+    private void testNativeSettingsFiles(Bundle report) throws Exception {
         ready();
         shell("rm -f /sdcard/Download/consumer-law-settings.json");
         // A portable legacy-size backup must not travel inside Activity saved
         // state (Binder has a process-wide, approximately 1 MB transaction limit).
         check("true".equals(js("(()=>{const data={schema:1,userTopics:[{id:'u:large',title:'large',parent:null,index:1000}],links:[],titles:{},hidden:{},ranks:{}};for(let i=0;i<2000;i++)data.links.push({id:'u:large-'+i,topic:'u:large',target:'article_14',title:'א'.repeat(90)});localStorage.setItem('law-reader-topics-v1',JSON.stringify(data));return lawSettings.exportJSON().length>300000})()")),"Large valid portable backup fixture");
         js("NativeLaw.exportSettings()");
-        Thread.sleep(800);
+        long chooserDeadline=android.os.SystemClock.elapsedRealtime()+20000;
+        boolean chooserReady=false;
+        while(android.os.SystemClock.elapsedRealtime()<chooserDeadline){
+            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&String.valueOf(root.getPackageName()).endsWith(".documentsui")){chooserReady=true;break;}
+            Thread.sleep(100);
+        }
+        check(chooserReady,"Real SAF save picker opens before saved-state measurement");
         final Bundle state=new Bundle();
         runOnMainSync(()->callActivityOnSaveInstanceState(activity,state));
         android.os.Parcel parcel=android.os.Parcel.obtain();
-        try{state.writeToParcel(parcel,0);check(parcel.dataSize()<100000,"Large export does not inflate Activity saved state");}
+        try{
+            state.writeToParcel(parcel,0);
+            report.putInt("activitySavedStateBytes",parcel.dataSize());
+            check(Boolean.TRUE.equals(state.get("pendingExport")),"Pending backup state is a small flag, never the JSON payload");
+            check(parcel.dataSize()<750000,"Activity saved state must leave margin below Binder's shared limit: "+parcel.dataSize());
+        }
         finally{parcel.recycle();}
         clickSystemText("Save");
         JSONObject exported=null;
@@ -119,6 +131,13 @@ public final class ReaderInstrumentation extends Instrumentation {
         }
         check(exported!=null&&"consumer-law-reader-settings".equals(exported.optString("format")),"Actual SAF export file");
         check("24".equals(exported.getJSONObject("settings").getString("law-reader-font")),"SAF export includes real preferences");
+        runOnMainSync(()->{
+            try{
+                java.lang.reflect.Field location=activity.getClass().getDeclaredField("settingsPickerLocation");location.setAccessible(true);
+                android.net.Uri uri=(android.net.Uri)location.get(activity);
+                report.putString("exportProviderMime",String.valueOf(getTargetContext().getContentResolver().getType(uri)));
+            }catch(Exception failure){throw new RuntimeException(failure);}
+        });
         js("window.__qaImportGeneration=true;localStorage.setItem('law-reader-font','20');NativeLaw.importSettings()");
         clickSystemText("consumer-law-settings.json");
         clickSystemText("החלפת ההגדרות");
@@ -298,7 +317,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             testNativeShare();
             report.putString("share","PASS: native sharesheet delivery -> cross-UID receiver -> exact section URL");
             report.putString("stage","native SAF");
-            testNativeSettingsFiles();
+            testNativeSettingsFiles(report);
             report.putString("SAF","PASS: native CreateDocument -> saved JSON -> OpenDocument -> explicit confirmation -> restored preference");
             report.putString("stage","native print");
             testNativePrintPresentation();

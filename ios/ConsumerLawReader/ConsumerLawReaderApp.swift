@@ -445,10 +445,24 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         info.jobName = "חוק הגנת הצרכן"
         controller.printInfo = info
         controller.printFormatter = webView.viewPrintFormatter()
+        working = true
+        let completion: UIPrintInteractionController.CompletionHandler = { [weak self] controller, _, error in
+            Task { @MainActor in
+                controller.printFormatter = nil
+                self?.working = false
+                if error != nil { self?.showError("לא ניתן להשלים את פעולת ההדפסה.") }
+            }
+        }
+        let presented: Bool
         if UIDevice.current.userInterfaceIdiom == .pad {
-            controller.present(from: CGRect(x: webView.bounds.midX, y: webView.bounds.minY, width: 1, height: 1), in: webView, animated: true, completionHandler: nil)
+            presented = controller.present(from: CGRect(x: webView.bounds.midX, y: webView.bounds.minY, width: 1, height: 1), in: webView, animated: true, completionHandler: completion)
         } else {
-            controller.present(animated: true, completionHandler: nil)
+            presented = controller.present(animated: true, completionHandler: completion)
+        }
+        if !presented {
+            controller.printFormatter = nil
+            working = false
+            showError("לא ניתן לפתוח את אפשרויות ההדפסה.")
         }
     }
 
