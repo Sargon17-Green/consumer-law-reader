@@ -89,8 +89,23 @@ def main():
     aab=unsigned/f'Consumer_Law_Reader_{VERSION}_UNSIGNED_NOT_FOR_UPLOAD.aab'
     aab.unlink(missing_ok=True)
     proto=stage/'proto.apk'
-    run(SDK/'aapt2','link','--proto-format','-I',ANDROID,'--manifest',ROOT/'android/AndroidManifest.xml',
-        '-A',BUILD/'assets','-0','doc','-o',proto,BUILD/'resources.zip')
+    def link_proto(output,resources):
+        run(SDK/'aapt2','link','--proto-format','--exclude-sources','-I',ANDROID,'--manifest',ROOT/'android/AndroidManifest.xml',
+            '-A',BUILD/'assets','-0','doc','-o',output,resources)
+    link_proto(proto,BUILD/'resources.zip')
+    # Exercise identical resources compiled from a genuinely different path.
+    # Absolute source paths otherwise enter resources.pb and break reproduction.
+    relocated=stage/'relocated-source'
+    shutil.copytree(ROOT/'android/res',relocated)
+    alternate_resources=stage/'relocated-resources.zip'
+    run(SDK/'aapt2','compile','--dir',relocated,'-o',alternate_resources)
+    alternate_proto=stage/'relocated-proto.apk'
+    link_proto(alternate_proto,alternate_resources)
+    with zipfile.ZipFile(proto) as first,zipfile.ZipFile(alternate_proto) as second:
+        original_entries=zip_members(first);relocated_entries=zip_members(second)
+        if original_entries.keys()!=relocated_entries.keys() or any(
+                first.read(info)!=second.read(relocated_entries[name]) for name,info in original_entries.items()):
+            raise ValueError('Relocating identical resource sources changed the linked bundle payload')
     module=stage/'base.zip'
     with zipfile.ZipFile(proto) as source,zipfile.ZipFile(module,'w') as target:
         for name,info in sorted(zip_members(source).items()):
@@ -143,6 +158,7 @@ def main():
             'universalQA':universal.name,'universalQASHA256':sha256(universal.read_bytes()),
             'qaSignerSHA256':next(iter(actual_signers)),
             'exactCodeAndAssetsMatch':True,'payloadEntries':len(payload(debug)),
+            'reproducibleResourcesAcrossSourcePaths':True,
             'limitations':'Unsigned AAB; disposable QA APK cannot upgrade the public release; no Play upload'}
     for artifact in (aab,universal):
         artifact.with_suffix(artifact.suffix+'.sha256.txt').write_text(sha256(artifact.read_bytes())+'  '+artifact.name+'\n')
