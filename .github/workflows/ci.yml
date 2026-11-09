@@ -126,6 +126,8 @@ jobs:
         run: |
           python scripts/build_android.py --unsigned
           python scripts/verify_release.py --apk "unsigned-build/Consumer_Law_Reader_$(cat VERSION)_UNSIGNED_NOT_INSTALLABLE.apk"
+      - name: Validate unsigned Android App Bundle and matching QA APK
+        run: python scripts/build_android_bundle.py
       - name: Save debug binary and verification evidence
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
@@ -187,6 +189,9 @@ jobs:
           python scripts/build_android.py --debug
           python scripts/build_android_qa.py
           python scripts/prepare_android_upgrade.py
+      - name: Generate bundle-derived APK for real Android 16 installation tests
+        if: matrix.api == 36
+        run: python scripts/build_android_bundle.py
       - name: Fetch official modern test WebView for the minimum OS
         if: matrix.api == 26
         run: python scripts/fetch_api26_webview.py

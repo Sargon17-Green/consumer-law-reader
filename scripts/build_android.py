@@ -2,6 +2,8 @@
 """Build and sign the offline APK with pinned Android command-line tools (Linux)."""
 from pathlib import Path
 import os,subprocess,zipfile,json,hashlib,shutil,sys
+from android_build_inputs import fingerprints
+from bundled_assets import zip_members
 ROOT=Path(__file__).resolve().parents[1]
 VERSION=(ROOT/'VERSION').read_text().strip()
 DEBUG='--debug' in sys.argv
@@ -15,7 +17,7 @@ android=TOOLS/'platforms-android-36/android-36/android.jar'
 def run(*args):subprocess.run([str(a) for a in args],check=True,cwd=ROOT)
 if not android.exists() or not (sdk/'aapt2').exists():
     raise SystemExit('First run: python3 scripts/fetch_tools.py')
-run('python3',ROOT/'scripts/build_web.py')
+run(sys.executable,ROOT/'scripts/build_web.py')
 classes=BUILD/'classes';dex=BUILD/'dex'
 for p in [classes,dex]:
     if p.exists():shutil.rmtree(p)
@@ -30,11 +32,9 @@ run(sdk/'aapt2','link','-I',android,'--manifest',ROOT/'android/AndroidManifest.x
 # aapt2 emits UTF-8 asset names without the ZIP UTF-8 flag. Normalize before
 # Python writes the central directory, otherwise Hebrew names become mojibake.
 with zipfile.ZipFile(BUILD/'resource-package.apk','r') as source, zipfile.ZipFile(BUILD/'unsigned.apk','w') as z:
-    for info in source.infolist():
+    for name,info in zip_members(source).items():
         data=source.read(info)
-        if not info.flag_bits & 0x800:
-            try:info.filename=info.filename.encode('cp437').decode('utf-8')
-            except UnicodeDecodeError:pass
+        info.filename=name
         z.writestr(info,data)
     for p in dex.glob('*.dex'):z.write(p,p.name,compress_type=zipfile.ZIP_DEFLATED)
 run(sdk/'zipalign','-f','-p','4',BUILD/'unsigned.apk',BUILD/'aligned.apk')
@@ -70,5 +70,7 @@ run(sdk/'zipalign','-c','-p','4',apk)
 details=subprocess.check_output([str(sdk/'aapt'),'dump','badging',str(apk)],text=True)
 (ROOT/'evidence/apk-badging.txt').write_text(details)
 sha=hashlib.sha256(apk.read_bytes()).hexdigest()
+if DEBUG:
+    (ROOT/'evidence/android-debug-inputs.json').write_text(json.dumps({'schema':1,'apkSHA256':sha,'inputs':fingerprints(ROOT)},indent=2))
 (OUT/(apk.name+'.sha256.txt')).write_text(sha+'  '+apk.name+'\n')
 print(json.dumps({'apk':str(apk),'bytes':apk.stat().st_size,'sha256':sha,'signature':'verified','min_sdk':26,'target_sdk':36}))

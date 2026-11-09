@@ -8,7 +8,7 @@ from collections import Counter
 from zipfile import ZipFile
 import argparse, hashlib, json
 from bs4 import BeautifulSoup
-from bundled_assets import is_bundled_asset
+from bundled_assets import is_bundled_asset,zip_members
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'original/Consumer_Protection_Law.html'
@@ -46,9 +46,10 @@ def verify(apk=None):
         apk=Path(apk).resolve()
         with ZipFile(apk) as z:
             check('APK archive integrity',z.testzip() is None)
+            members=zip_members(z)
             for p in sorted(DIST.iterdir()):
                 if p.is_file():
-                    check('APK web asset exact bytes: '+p.name,z.read('assets/www/'+p.name)==p.read_bytes())
+                    check('APK web asset exact bytes: '+p.name,z.read(members['assets/www/'+p.name])==p.read_bytes())
             check('Native classes present',bool(z.read('classes.dex')))
         report['apk_sha256']=hashlib.sha256(apk.read_bytes()).hexdigest()
     report.update({'status':'PASS','checks_passed':len(checks)})

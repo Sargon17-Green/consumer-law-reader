@@ -21,7 +21,11 @@ adb shell am instrument -w -e seed true il.org.lawreader.consumer.qa/.ReaderInst
 grep -q 'QA_STATUS=PASS' evidence/android-upgrade-seed.txt
 adb shell am instrument -w -e verifySeed true il.org.lawreader.consumer.qa/.ReaderInstrumentation | tee evidence/android-upgrade-seed-restart.txt
 grep -q 'QA_STATUS=PASS' evidence/android-upgrade-seed-restart.txt
-adb install -r debug-build/*DEBUG_NOT_FOR_UPGRADE.apk
+if [[ "$1" == 36 ]]; then
+  adb install -r debug-build/*DEBUG_NOT_FOR_UPGRADE_BUNDLE.apk
+else
+  adb install -r debug-build/*DEBUG_NOT_FOR_UPGRADE.apk
+fi
 EXPECT_DATE=$(python tests/date_network_probe.py)
 adb shell am instrument -w -e verifyUpgrade true -e expectDate "$EXPECT_DATE" il.org.lawreader.consumer.qa/.ReaderInstrumentation | tee evidence/android-online-instrumentation.txt
 grep -q 'QA_STATUS=PASS' evidence/android-online-instrumentation.txt
