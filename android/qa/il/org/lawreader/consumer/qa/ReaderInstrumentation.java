@@ -34,6 +34,14 @@ public final class ReaderInstrumentation extends Instrumentation {
         return value[0];
     }
     private void check(boolean value,String label) throws Exception {if(!value)throw new Exception(label);}
+    private void awaitJS(String expression,String label) throws Exception {
+        long deadline=android.os.SystemClock.elapsedRealtime()+20000;
+        do{
+            if("true".equals(js("Boolean("+expression+")")))return;
+            Thread.sleep(100);
+        }while(android.os.SystemClock.elapsedRealtime()<deadline);
+        throw new Exception(label+"; condition="+expression);
+    }
     private void ready() throws Exception {
         for(int i=0;i<240;i++) {
             if("true".equals(js((seed||verifySeed)?"!!window.lawMobile":"document.documentElement.dataset.lawReady === 'true' && document.visibilityState === 'visible' && !matchMedia('print').matches"))){
@@ -43,7 +51,9 @@ public final class ReaderInstrumentation extends Instrumentation {
                     try{java.lang.reflect.Field field=activity.getClass().getDeclaredField("ready");field.setAccessible(true);nativeReady[0]=field.getBoolean(activity);}
                     catch(ReflectiveOperationException failure){throw new RuntimeException(failure);}
                 });
-                if(nativeReady[0])return;
+                final boolean[] focused={false};
+                runOnMainSync(()->focused[0]=activity.hasWindowFocus());
+                if(nativeReady[0]&&focused[0])return;
             }
             Thread.sleep(250);
         }
@@ -73,9 +83,14 @@ public final class ReaderInstrumentation extends Instrumentation {
         return out.substring(0,Math.min(4000,out.length()));
     }
     private void clickSystemText(String text) throws Exception {
+        clickSystemText(text,null);
+    }
+    private void clickSystemText(String text,CountDownLatch completed) throws Exception {
         try{getUiAutomation().waitForIdle(700,8000);}catch(java.util.concurrent.TimeoutException busy){}
         for(int attempt=0;attempt<100;attempt++){
+            if(completed!=null&&completed.getCount()==0)return;
             AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(completed!=null&&root!=null&&"il.org.lawreader.consumer".contentEquals(String.valueOf(root.getPackageName()))){Thread.sleep(100);continue;}
             AccessibilityNodeInfo node=findText(root,text);
             for(int depth=0;node!=null&&depth<6;depth++,node=node.getParent())
                 if(node.isClickable()&&node.isEnabled()&&node.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;
@@ -84,6 +99,7 @@ public final class ReaderInstrumentation extends Instrumentation {
         throw new Exception("Native control not found: "+text+"; "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
     }
     private void testNativeSettingsFiles() throws Exception {
+        ready();
         shell("rm -f /sdcard/Download/consumer-law-settings.json");
         // A portable legacy-size backup must not travel inside Activity saved
         // state (Binder has a process-wide, approximately 1 MB transaction limit).
@@ -115,6 +131,7 @@ public final class ReaderInstrumentation extends Instrumentation {
         check("\"24\"".equals(js("localStorage.getItem('law-reader-font')")),"Actual SAF confirmed import");
     }
     private void testAttachmentAndClipboard() throws Exception {
+        ready();
         final String[] result={null};final CountDownLatch received=new CountDownLatch(1);
         android.content.BroadcastReceiver receiver=new android.content.BroadcastReceiver(){
             @Override public void onReceive(android.content.Context context,Intent intent){result[0]=intent.getStringExtra("sha256");received.countDown();}
@@ -131,7 +148,8 @@ public final class ReaderInstrumentation extends Instrumentation {
             js("NativeLaw.openAttachment("+JSONObject.quote(name)+")");
             check(received.await(15,TimeUnit.SECONDS),"Cross-UID attachment intent received");
             check(expected.toString().equals(result[0]),"Attachment bytes and read-only URI permission");
-            Thread.sleep(300);js("NativeLaw.copy('QA clipboard fixture')");Thread.sleep(150);
+            ready();js("NativeLaw.copy('QA clipboard fixture')");
+            awaitJS("document.getElementById('mobile-toast').textContent==='הטקסט הועתק'","Native clipboard completion acknowledgement");
             final String[] clipboard={null};runOnMainSync(()->{
                 android.content.ClipboardManager manager=(android.content.ClipboardManager)getTargetContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
                 if(manager.hasPrimaryClip())clipboard[0]=manager.getPrimaryClip().getItemAt(0).getText().toString();
@@ -142,8 +160,8 @@ public final class ReaderInstrumentation extends Instrumentation {
                 android.content.ClipData.newPlainText("QA",new String(new char[600000]).replace('\0','א')).writeToParcel(parcel,0);
                 check(parcel.dataSize()>1048576,"Previous clipboard bound could exceed the actual Binder transaction limit");
             }finally{parcel.recycle();}
-            js("NativeLaw.copy('א'.repeat(450001))");Thread.sleep(300);
-            check("true".equals(js("document.getElementById('mobile-toast').textContent.includes('לא הושלמה')")),"Oversized native clipboard rejected honestly without crashing");
+            js("NativeLaw.copy('א'.repeat(450001))");
+            awaitJS("document.getElementById('mobile-toast').textContent.includes('לא הושלמה')","Oversized native clipboard rejected honestly without crashing");
             runOnMainSync(()->{
                 android.content.ClipboardManager manager=(android.content.ClipboardManager)getTargetContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
                 clipboard[0]=manager.hasPrimaryClip()?manager.getPrimaryClip().getItemAt(0).getText().toString():null;
@@ -156,6 +174,7 @@ public final class ReaderInstrumentation extends Instrumentation {
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
     private void testNativeShare() throws Exception {
+        ready();
         final String[] text={null};final CountDownLatch received=new CountDownLatch(1);
         android.content.BroadcastReceiver receiver=new android.content.BroadcastReceiver(){
             @Override public void onReceive(android.content.Context context,Intent intent){text[0]=intent.getStringExtra("text");received.countDown();}
@@ -166,12 +185,12 @@ public final class ReaderInstrumentation extends Instrumentation {
         try{
             js("lawMobile.shareLink('article_14')");
             for(int attempt=0;attempt<3&&received.getCount()>0;attempt++){
-                clickSystemText("Reader QA link receiver");
-                if(received.await(3,TimeUnit.SECONDS))break;
+                clickSystemText("Reader QA link receiver",received);
+                if(received.await(10,TimeUnit.SECONDS))break;
             }
             check(received.await(15,TimeUnit.SECONDS),"Real sharesheet destination received the intent");
             check("https://sargon17-green.github.io/consumer-law-reader/reader/#article_14".equals(text[0]),"Native share retains the exact public section URL");
-            Thread.sleep(300);
+            ready();
         }finally{getTargetContext().unregisterReceiver(receiver);}
     }
     private void testNativePrintPresentation() throws Exception {
@@ -199,7 +218,7 @@ public final class ReaderInstrumentation extends Instrumentation {
         try{
             android.accessibilityservice.AccessibilityServiceInfo automation=getUiAutomation().getServiceInfo();
             if(automation!=null){
-                automation.flags|=android.accessibilityservice.AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS|android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+                automation.flags|=android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
                 getUiAutomation().setServiceInfo(automation);
             }
             Intent intent=getTargetContext().getPackageManager().getLaunchIntentForPackage("il.org.lawreader.consumer");
@@ -254,14 +273,17 @@ public final class ReaderInstrumentation extends Instrumentation {
                 "check(!lawSettings.prepareImport('{\"schema\":99}').ok,'invalid backup');"+
                 "document.querySelector('[data-mobile=search]').click();const input=document.getElementById('mobile-search');"+
                 "input.value='14';input.dispatchEvent(new Event('input'));return true;})()";
-            check("true".equals(js(test)),"Shared reader checks");Thread.sleep(500);
-            check("true".equals(js("document.querySelectorAll('.m-result').length>0")),"Search through actual DOM");
+            check("true".equals(js(test)),"Shared reader checks");
+            awaitJS("document.querySelectorAll('.m-result').length>0","Search through actual DOM");
             js("document.querySelector('.m-result').click()");
             check("true".equals(js("location.hash.length>1")),"Result navigation");
             js("lawMobile.goTo('article_14');lawMobile.saveSession()");
             runOnMainSync(()->activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE));Thread.sleep(500);
             check("true".equals(js("!!document.getElementById('article_14')")),"Rotation");
-            runOnMainSync(()->web.reload());Thread.sleep(500);ready();
+            js("window.__qaReloadGeneration=true");
+            runOnMainSync(()->web.reload());
+            awaitJS("typeof window.__qaReloadGeneration==='undefined'","Reader reload must replace the document");
+            ready();
             check("\"24\"".equals(js("localStorage.getItem('law-reader-font')")),"Preferences after reload");
             check("\"#article_14\"".equals(js("location.hash")),"Reading location after reload");
             js("window.__remoteBlocked=null;fetch('https://example.com/blocked').then(r=>window.__remoteBlocked=!r.ok).catch(()=>window.__remoteBlocked=true)");
