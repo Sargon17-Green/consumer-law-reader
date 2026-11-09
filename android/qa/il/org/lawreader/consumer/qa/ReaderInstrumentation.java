@@ -20,8 +20,9 @@ public final class ReaderInstrumentation extends Instrumentation {
     private Activity activity;
     private WebView web;
     private boolean expectDate,seed,verifySeed,verifyUpgrade;
-    private String expectedFont;
-    @Override public void onCreate(Bundle arguments) { super.onCreate(arguments);expectedFont=arguments==null?null:arguments.getString("expectedFont");expectDate=arguments!=null&&"true".equals(arguments.getString("expectDate"));seed=arguments!=null&&"true".equals(arguments.getString("seed"));verifySeed=arguments!=null&&"true".equals(arguments.getString("verifySeed"));verifyUpgrade=arguments!=null&&"true".equals(arguments.getString("verifyUpgrade"));start(); }
+    private String expectedFont,printOrientation;
+    private boolean keepWebResumed;
+    @Override public void onCreate(Bundle arguments) { super.onCreate(arguments);printOrientation=arguments==null?null:arguments.getString("printOnly");keepWebResumed=arguments!=null&&"true".equals(arguments.getString("keepWebResumed"));expectedFont=arguments==null?null:arguments.getString("expectedFont");expectDate=arguments!=null&&"true".equals(arguments.getString("expectDate"));seed=arguments!=null&&"true".equals(arguments.getString("seed"));verifySeed=arguments!=null&&"true".equals(arguments.getString("verifySeed"));verifyUpgrade=arguments!=null&&"true".equals(arguments.getString("verifyUpgrade"));start(); }
     private WebView find(View view) {
         if(view instanceof WebView)return (WebView)view;
         if(view instanceof ViewGroup){ViewGroup g=(ViewGroup)view;for(int i=0;i<g.getChildCount();i++){WebView found=find(g.getChildAt(i));if(found!=null)return found;}}
@@ -279,6 +280,26 @@ public final class ReaderInstrumentation extends Instrumentation {
         for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo found=editable(node.getChild(i));if(found!=null)return found;}
         return null;
     }
+    private boolean tapVisibleControl(AccessibilityNodeInfo node) throws Exception {
+        if(node==null||!node.refresh()||!node.isVisibleToUser()||!node.isEnabled())return false;
+        android.graphics.Rect bounds=new android.graphics.Rect();node.getBoundsInScreen(bounds);
+        if(bounds.isEmpty())return false;
+        long start=android.os.SystemClock.uptimeMillis();
+        android.view.MotionEvent down=android.view.MotionEvent.obtain(start,start,android.view.MotionEvent.ACTION_DOWN,bounds.centerX(),bounds.centerY(),0);
+        down.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);boolean pressed=getUiAutomation().injectInputEvent(down,true);down.recycle();
+        Thread.sleep(60);
+        android.view.MotionEvent up=android.view.MotionEvent.obtain(start,android.os.SystemClock.uptimeMillis(),android.view.MotionEvent.ACTION_UP,bounds.centerX(),bounds.centerY(),0);
+        up.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);boolean released=getUiAutomation().injectInputEvent(up,true);up.recycle();
+        return pressed&&released;
+    }
+    private void capturePrintReady(Bundle report) throws Exception {
+        AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+        report.putString("printReadyControls",systemLabels(root,0));
+        org.json.JSONArray nodes=new org.json.JSONArray();recordSystemTree(root,nodes,0);
+        try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-print-ready.json"))){out.write(nodes.toString(2).getBytes("UTF-8"));}
+        android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
+        if(shot!=null){try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-print-ready.png"))){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,out);}shot.recycle();}
+    }
     private void saveAndVerifySystemPDF(Bundle report) throws Exception {
         shell("rm -f /sdcard/Download/consumer-law-qa.pdf");
         boolean clicked=false;
@@ -292,22 +313,24 @@ public final class ReaderInstrumentation extends Instrumentation {
                 for(AccessibilityNodeInfo button:root.findAccessibilityNodeInfosByViewId("com.android.printspooler:id/print_button"))
                     // The framework keeps this view enabled while setting it GONE
                     // until the document update is complete. ID lookup alone also finds hidden views.
-                    if(button.refresh()&&button.isVisibleToUser()&&button.isClickable()&&button.isEnabled()&&button.performAction(AccessibilityNodeInfo.ACTION_CLICK)){clicked=true;break;}
+                    if(button.refresh()&&button.isVisibleToUser()&&button.isClickable()&&button.isEnabled()){capturePrintReady(report);if(tapVisibleControl(button)){clicked=true;break;}}
             }
             if(clicked)break;
             Thread.sleep(250);
         }
         check(clicked,"Enabled system Save as PDF control: "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
-        boolean named=false;
+        boolean named=false;java.util.Set<String> seenWindows=new java.util.LinkedHashSet<>();
         for(int attempt=0;attempt<160;attempt++){
             AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(root!=null)seenWindows.add(String.valueOf(root.getPackageName()));
             if(root!=null&&String.valueOf(root.getPackageName()).endsWith(".documentsui")){
                 AccessibilityNodeInfo input=editable(root);
                 if(input!=null){Bundle value=new Bundle();value.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,"consumer-law-qa.pdf");named=input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,value);if(named)break;}
             }
             Thread.sleep(250);
         }
-        check(named,"Real PDF save picker exposes its filename input");
+        report.putString("printSaveWindows",seenWindows.toString());
+        check(named,"Real PDF save picker exposes its filename input; windows="+seenWindows+" controls="+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
         clickSystemText("Save");
         boolean generated=false;
         for(int attempt=0;attempt<180;attempt++){
@@ -340,6 +363,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             if(root!=null&&root.getPackageName()!=null&&"com.android.printspooler".contentEquals(root.getPackageName())){opened=true;break;}
             Thread.sleep(250);
         }
+        if(keepWebResumed){runOnMainSync(()->web.onResume());report.putString("diagnosticWebResume","EXPERIMENT: WebView resumed after system Print UI; this is not the production lifecycle");}
         check(opened,"Real Android system print interface opens; "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
         if(android.os.Build.VERSION.SDK_INT>=36){saveAndVerifySystemPDF(report);return;}
         shell("input keyevent KEYCODE_BACK");
@@ -404,6 +428,13 @@ public final class ReaderInstrumentation extends Instrumentation {
             if(expectedFont!=null){
                 report.putString("reopenedFont",js("localStorage.getItem('law-reader-font')"));
                 check(expectedFont.equals(new org.json.JSONTokener(js("localStorage.getItem('law-reader-font')")).nextValue()),"Preferences persist after actual process restart");
+            }
+            if(printOrientation!=null){
+                report.putString("stage","fresh system print experiment");report.putString("printOrientation",printOrientation);
+                runOnMainSync(()->activity.setRequestedOrientation("landscape".equals(printOrientation)?ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:ActivityInfo.SCREEN_ORIENTATION_PORTRAIT));
+                awaitJS("matchMedia('(orientation:landscape)').matches === "+"landscape".equals(printOrientation),"Print experiment orientation settles");
+                js("localStorage.setItem('law-reader-font','24');document.documentElement.style.setProperty('--reading-size','24px');lawMobile.goTo('law_name',false,false)");
+                ready();testNativePrintPresentation(report);report.putString("QA_STATUS","PASS");finish(Activity.RESULT_OK,report);return;
             }
             testNativeDateURLPolicy(report);
             report.putString("stage","responsive native reading layout");testReadingLayout(report);

@@ -1,0 +1,86 @@
+name: Fresh Android PDF lifecycle diagnosis
+on:
+  push:
+    branches: [work/mobile-print-lifecycle-20261110]
+permissions:
+  contents: read
+jobs:
+  android-emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - api: 36
+            arch: x86_64
+            target: google_apis
+            orientation: portrait
+            resume: 'false'
+          - api: 36
+            arch: x86_64
+            target: google_apis
+            orientation: landscape
+            resume: 'false'
+          - api: 36
+            arch: x86_64
+            target: google_apis
+            orientation: landscape
+            resume: 'true'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: python -m pip install -r requirements-qa.txt
+      - name: Build real app and platform instrumentation
+        run: |
+          python scripts/fetch_tools.py
+          python scripts/build_android.py --debug
+          python scripts/build_android_qa.py
+          python scripts/prepare_android_upgrade.py
+      - name: Generate bundle-derived APK for real Android 16 installation tests
+        if: matrix.api == 36
+        run: python scripts/build_android_bundle.py
+      - name: Fetch official modern test WebView for the minimum OS
+        if: matrix.api == 26
+        run: python scripts/fetch_api26_webview.py
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install and exercise actual Android WebView without network
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          profile: pixel_2
+          ram-size: 2048M
+          heap-size: 256M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none ${{ matrix.system-options }}
+          disable-animations: true
+          script: |
+            adb install build/android-qa/reader-qa.apk
+            adb install debug-build/*DEBUG_NOT_FOR_UPGRADE_BUNDLE.apk
+            adb shell am instrument -w -e printOnly ${{ matrix.orientation }} -e keepWebResumed ${{ matrix.resume }} il.org.lawreader.consumer.qa/.ReaderInstrumentation | tee evidence/android-fresh-print.txt
+            adb pull /sdcard/Android/data/il.org.lawreader.consumer/files/qa-print-ready.json evidence/android-print-ready.json 2>/dev/null || true
+            adb pull /sdcard/Android/data/il.org.lawreader.consumer/files/qa-print-ready.png evidence/android-print-ready.png 2>/dev/null || true
+            adb pull /sdcard/Android/data/il.org.lawreader.consumer/files/qa-native-document.pdf evidence/android-native-document.pdf 2>/dev/null || true
+            adb pull /sdcard/Android/data/il.org.lawreader.consumer/files/qa-system-ui.json evidence/android-system-ui.json 2>/dev/null || true
+            adb pull /sdcard/Android/data/il.org.lawreader.consumer/files/qa-failure.png evidence/android-failure.png 2>/dev/null || true
+            adb logcat -d -v threadtime > evidence/android-logcat.txt
+            grep -q 'QA_STATUS=PASS' evidence/android-fresh-print.txt
+      - name: Preserve emulator diagnostics
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: android-print-${{ matrix.orientation }}-resume-${{ matrix.resume }}
+          path: evidence/
+          retention-days: 30
