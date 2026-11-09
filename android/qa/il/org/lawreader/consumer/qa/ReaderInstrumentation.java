@@ -109,6 +109,28 @@ public final class ReaderInstrumentation extends Instrumentation {
             if(info!=null&&info.flags!=originalFlags){info.flags=originalFlags;getUiAutomation().setServiceInfo(info);}
         }
     }
+    private void useDocumentListView() throws Exception {
+        // Oreo's grid holder omits the filename from its accessibility subtree.
+        // Switch through the visible, labelled system control instead of tapping coordinates.
+        for(int attempt=0;attempt<200;attempt++){
+            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&String.valueOf(root.getPackageName()).endsWith(".documentsui")){
+                if(findText(root,"List view")!=null)clickSystemText("List view");
+                return;
+            }
+            Thread.sleep(100);
+        }
+        throw new Exception("DocumentsUI did not open for list-view selection");
+    }
+    private void recordSystemTree(AccessibilityNodeInfo node,org.json.JSONArray nodes,int depth) throws Exception {
+        if(node==null||depth>24||nodes.length()>=512)return;
+        JSONObject item=new JSONObject();android.graphics.Rect bounds=new android.graphics.Rect();node.getBoundsInScreen(bounds);
+        item.put("class",String.valueOf(node.getClassName()));item.put("id",node.getViewIdResourceName());item.put("bounds",bounds.toShortString());
+        item.put("text",String.valueOf(node.getText()).substring(0,Math.min(180,String.valueOf(node.getText()).length())));
+        item.put("description",String.valueOf(node.getContentDescription()).substring(0,Math.min(180,String.valueOf(node.getContentDescription()).length())));
+        item.put("clickable",node.isClickable());item.put("enabled",node.isEnabled());item.put("depth",depth);nodes.put(item);
+        for(int i=0;i<node.getChildCount()&&nodes.length()<512;i++)recordSystemTree(node.getChild(i),nodes,depth+1);
+    }
     private void testNativeSettingsFiles(Bundle report) throws Exception {
         ready();
         shell("rm -f /sdcard/Download/consumer-law-settings.json");
@@ -150,6 +172,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             }catch(Exception failure){throw new RuntimeException(failure);}
         });
         js("window.__qaImportGeneration=true;localStorage.setItem('law-reader-font','20');NativeLaw.importSettings()");
+        if(android.os.Build.VERSION.SDK_INT==26)useDocumentListView();
         clickSystemText("consumer-law-settings.json");
         clickSystemText("החלפת ההגדרות");
         for(int i=0;i<120;i++){
@@ -448,6 +471,12 @@ public final class ReaderInstrumentation extends Instrumentation {
         }catch(Throwable error){
             report.putString("QA_STATUS","FAIL");report.putString("error",error.toString());
             try{
+                AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+                String pkg=root==null?"":String.valueOf(root.getPackageName());
+                if(pkg.endsWith(".documentsui")||pkg.equals("com.android.printspooler")){
+                    org.json.JSONArray nodes=new org.json.JSONArray();recordSystemTree(root,nodes,0);
+                    try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-system-ui.json"))){output.write(nodes.toString(2).getBytes("UTF-8"));}
+                }
                 android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
                 if(shot!=null){
                     java.io.File file=new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-failure.png");
