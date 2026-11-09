@@ -99,28 +99,33 @@ public final class ReaderInstrumentation extends Instrumentation {
                 int flags=picker?originalFlags|android.accessibilityservice.AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS:originalFlags;
                 if(info!=null&&info.flags!=flags){info.flags=flags;getUiAutomation().setServiceInfo(info);root=getUiAutomation().getRootInActiveWindow();}
                 if(completed!=null&&root!=null&&"il.org.lawreader.consumer".contentEquals(String.valueOf(root.getPackageName()))){Thread.sleep(100);continue;}
-                AccessibilityNodeInfo node=findText(root,text);
+                AccessibilityNodeInfo named=findText(root,text),node=named;
                 for(int depth=0;node!=null&&depth<6;depth++,node=node.getParent())
-                    if(node.isClickable()&&node.isEnabled()&&node.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;
+                    if(node.isVisibleToUser()&&node.isClickable()&&node.isEnabled()&&node.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;
+                // Oreo DocumentsUI handles row touches in RecyclerView's item listener;
+                // neither the named filename nor its parents expose ACTION_CLICK.
+                // Target the exact visible label's measured bounds, never guessed coordinates.
+                if(picker&&named!=null&&named.isVisibleToUser()&&named.isEnabled()){
+                    android.graphics.Rect target=new android.graphics.Rect(),window=new android.graphics.Rect();
+                    named.getBoundsInScreen(target);root.getBoundsInScreen(window);
+                    if(!target.isEmpty()&&window.contains(target.centerX(),target.centerY())){
+                        long downTime=android.os.SystemClock.uptimeMillis();
+                        android.view.MotionEvent down=android.view.MotionEvent.obtain(downTime,downTime,android.view.MotionEvent.ACTION_DOWN,target.centerX(),target.centerY(),0);
+                        down.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);
+                        boolean delivered=getUiAutomation().injectInputEvent(down,true);down.recycle();
+                        Thread.sleep(60);
+                        android.view.MotionEvent up=android.view.MotionEvent.obtain(downTime,android.os.SystemClock.uptimeMillis(),android.view.MotionEvent.ACTION_UP,target.centerX(),target.centerY(),0);
+                        up.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);
+                        boolean released=getUiAutomation().injectInputEvent(up,true);up.recycle();
+                        if(delivered&&released)return;
+                    }
+                }
                 Thread.sleep(100);
             }
             throw new Exception("Native control not found: "+text+"; "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
         }finally{
             if(info!=null&&info.flags!=originalFlags){info.flags=originalFlags;getUiAutomation().setServiceInfo(info);}
         }
-    }
-    private void useDocumentListView() throws Exception {
-        // Oreo's grid holder omits the filename from its accessibility subtree.
-        // Switch through the visible, labelled system control instead of tapping coordinates.
-        for(int attempt=0;attempt<200;attempt++){
-            AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
-            if(root!=null&&String.valueOf(root.getPackageName()).endsWith(".documentsui")){
-                if(findText(root,"List view")!=null)clickSystemText("List view");
-                return;
-            }
-            Thread.sleep(100);
-        }
-        throw new Exception("DocumentsUI did not open for list-view selection");
     }
     private void recordSystemTree(AccessibilityNodeInfo node,org.json.JSONArray nodes,int depth) throws Exception {
         if(node==null||depth>24||nodes.length()>=512)return;
@@ -172,7 +177,6 @@ public final class ReaderInstrumentation extends Instrumentation {
             }catch(Exception failure){throw new RuntimeException(failure);}
         });
         js("window.__qaImportGeneration=true;localStorage.setItem('law-reader-font','20');NativeLaw.importSettings()");
-        if(android.os.Build.VERSION.SDK_INT==26)useDocumentListView();
         clickSystemText("consumer-law-settings.json");
         clickSystemText("החלפת ההגדרות");
         for(int i=0;i<120;i++){
@@ -286,7 +290,9 @@ public final class ReaderInstrumentation extends Instrumentation {
                 }
                 if(findText(root,"Save as PDF")==null){Thread.sleep(250);continue;}
                 for(AccessibilityNodeInfo button:root.findAccessibilityNodeInfosByViewId("com.android.printspooler:id/print_button"))
-                    if(button.isEnabled()&&button.performAction(AccessibilityNodeInfo.ACTION_CLICK)){clicked=true;break;}
+                    // The framework keeps this view enabled while setting it GONE
+                    // until the document update is complete. ID lookup alone also finds hidden views.
+                    if(button.refresh()&&button.isVisibleToUser()&&button.isClickable()&&button.isEnabled()&&button.performAction(AccessibilityNodeInfo.ACTION_CLICK)){clicked=true;break;}
             }
             if(clicked)break;
             Thread.sleep(250);
