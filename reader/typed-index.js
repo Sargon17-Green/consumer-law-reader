@@ -1,0 +1,1 @@
+window.LawTypedIndex={"format":"legal-legislative-source-search-index","format_version":1,"source_schema_sha256":"3bc9cd62e1a34978192b9eca3b4daa3eb5db9a5a3ee070e32b821e439f4373f3","source_archive_sha256":null,"sources":[],"segments":[],"associations":[],"votes":[],"publication_authorized":false};
