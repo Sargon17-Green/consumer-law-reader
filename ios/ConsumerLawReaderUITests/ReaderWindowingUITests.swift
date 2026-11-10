@@ -4,11 +4,20 @@ import UIKit
 final class ReaderWindowingUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure=false
-        executionTimeAllowance=300
+        executionTimeAllowance=360
     }
     private func record(_ app: XCUIApplication,_ label: String) {
-        let tree=XCTAttachment(string:String(app.debugDescription.prefix(24000)))
-        tree.name=label+" accessibility hierarchy";tree.lifetime = .keepAlways;add(tree)
+        let details:String
+        if app.bundleIdentifier == "io.github.sargon17green.consumerlawreader" {
+            let menu=app.buttons.matching(identifier:"native-menu").firstMatch
+            let share=app.buttons.matching(identifier:"native-share").firstMatch
+            let web=app.webViews.firstMatch
+            details="window=\(app.windows.firstMatch.frame)\nweb=\(web.exists ? String(describing:web.frame):"missing")\nmenu=\(menu.exists ? menu.debugDescription:"missing")\nshare=\(share.exists ? share.debugDescription:"missing")"
+        } else {
+            details=String(app.debugDescription.prefix(24000))
+        }
+        let tree=XCTAttachment(string:details)
+        tree.name=label+" actual native accessibility controls and geometry";tree.lifetime = .keepAlways;add(tree)
         let screen=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
         screen.name=label+" actual simulator screen";screen.lifetime = .keepAlways;add(screen)
     }
@@ -48,9 +57,16 @@ final class ReaderWindowingUITests: XCTestCase {
         XCTAssertTrue(search.waitForExistence(timeout:30));search.tap()
         let input=web.searchFields.firstMatch
         XCTAssertTrue(input.waitForExistence(timeout:20));input.tap()
-        if let existing=input.value as? String,!existing.isEmpty {input.typeText(String(repeating:XCUIKeyboardKey.delete.rawValue,count:existing.count))}
-        input.typeText("14")
-        let result=web.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14")).firstMatch
+        // The preceding full-suite relaunch test can leave the same query.
+        // Preserve it; deleting at an unknown restored caret may produce1414.
+        if (input.value as? String) != "14" {
+            if let existing=input.value as? String,!existing.isEmpty,existing != input.placeholderValue {
+                XCTFail("Unexpected prior search fixture: " + existing);return
+            }
+            input.typeText("14")
+        }
+        XCTAssertEqual(input.value as? String,"14")
+        let result=web.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14 ·")).firstMatch
         XCTAssertTrue(result.waitForExistence(timeout:20));result.tap()
         let returnToSearch=web.buttons.matching(identifier:"חזרה לתוצאות החיפוש").firstMatch
         XCTAssertTrue(returnToSearch.waitForExistence(timeout:20),app.debugDescription)
@@ -76,6 +92,21 @@ final class ReaderWindowingUITests: XCTestCase {
         record(app,"After actual iPad window resize")
         XCTAssertGreaterThanOrEqual(menu.frame.width,44)
         XCTAssertGreaterThanOrEqual(menu.frame.height,44)
+        // A44pt AX frame does not prove reachability: system window controls
+        // may overlap a custom header. Perform real native actions after resize.
+        let innerMenu=menu.buttons.firstMatch
+        (innerMenu.exists ? innerMenu:menu).tap()
+        let printAction=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
+        record(app,"After actual resized native menu tap")
+        record(springboard,"System controls after native menu tap")
+        XCTAssertTrue(printAction.waitForExistence(timeout:10),"Native menu must open after the real pointer/touch tap, despite system window controls")
+        web.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.22)).tap()
+        let share=app.buttons.matching(identifier:"native-share").firstMatch
+        XCTAssertTrue(share.isHittable)
+        share.tap()
+        XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout:10) || app.buttons.matching(identifier:"Copy").firstMatch.exists,"Native share must open from the resized header")
+        record(app,"Actual resized native share presentation")
+        app.swipeDown()
         XCTAssertTrue(returnToSearch.isHittable,"Return control remains reachable in the resized native window")
         returnToSearch.tap()
         XCTAssertTrue(input.waitForExistence(timeout:20))

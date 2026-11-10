@@ -60,7 +60,7 @@ final class ReaderUITests: XCTestCase {
         }
         openSearch()
         input.tap();input.typeText("14")
-        let hit=app.webViews.firstMatch.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14")).firstMatch
+        let hit=app.webViews.firstMatch.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14 ·")).firstMatch
         XCTAssertTrue(hit.waitForExistence(timeout:15));hit.tap()
         XCTAssertTrue(menu.isEnabled)
         let metrics=XCTMeasureOptions()
