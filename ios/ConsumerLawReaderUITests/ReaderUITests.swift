@@ -59,7 +59,16 @@ final class ReaderUITests: XCTestCase {
             XCTAssertTrue(input.waitForExistence(timeout:30),app.debugDescription)
         }
         openSearch()
-        input.tap();input.typeText("14")
+        input.tap()
+        let keyboard=app.keyboards.firstMatch
+        XCTAssertTrue(keyboard.waitForExistence(timeout:8),"This native UI scenario requires the actual software keyboard")
+        XCTAssertGreaterThan(keyboard.frame.height,100,"A hardware-keyboard suggestion bar is not a software keyboard test")
+        XCTAssertGreaterThan(input.frame.height,0)
+        XCTAssertLessThanOrEqual(input.frame.maxY,keyboard.frame.minY+1,"Native software keyboard must not cover the actual search field")
+        Swift.print("NATIVE_KEYBOARD_BOUNDS: input=\(input.frame) keyboard=\(keyboard.frame) web=\(app.webViews.firstMatch.frame)")
+        let keyboardShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+        keyboardShot.name="Actual native software keyboard and reachable search";keyboardShot.lifetime = .keepAlways;add(keyboardShot)
+        input.typeText("14")
         let hit=app.webViews.firstMatch.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14 ·")).firstMatch
         XCTAssertTrue(hit.waitForExistence(timeout:15));hit.tap()
         XCTAssertTrue(menu.isEnabled)

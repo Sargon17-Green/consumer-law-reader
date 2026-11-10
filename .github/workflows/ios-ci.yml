@@ -1,8 +1,8 @@
-name: Actual complete UIKit PDF output
+name: Actual iOS accessibility text size and keyboard
 
 on:
   push:
-    branches: [work/ios-complete-pdf-20261110]
+    branches: [work/ios-accessibility-ime-20261110]
   workflow_dispatch:
 
 concurrency:
@@ -107,6 +107,10 @@ jobs:
           echo "QA_LABEL=$LABEL" >> "$GITHUB_ENV"
           xcrun simctl boot "$DEVICE"
           xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl ui "$DEVICE" content_size > build/accessibility-size-before.txt
+          xcrun simctl ui "$DEVICE" content_size accessibility-extra-extra-extra-large
+          xcrun simctl ui "$DEVICE" content_size | tee build/accessibility-size-actual.txt
+          grep -Eiq 'accessibility.*extra.*extra.*extra.*large' build/accessibility-size-actual.txt
           xcrun simctl status_bar "$DEVICE" override --time '9:41'
           python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$LABEL-runtime.json"
           if [[ "$OS" == '16.0' ]]; then
@@ -116,7 +120,7 @@ jobs:
             xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
             xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
           fi
-          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderTests/ReaderIntegrationTests/testNativePrintFormatterProducesRenderablePDF CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderUITests/ReaderUITests CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |
