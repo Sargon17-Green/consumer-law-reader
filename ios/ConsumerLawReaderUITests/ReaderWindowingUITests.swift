@@ -31,7 +31,10 @@ final class ReaderWindowingUITests: XCTestCase {
         let windowed=settings.descendants(matching:.any).matching(NSPredicate(format:"label == %@","Windowed Apps")).firstMatch
         XCTAssertTrue(windowed.waitForExistence(timeout:20),settings.debugDescription)
         record(settings,"Windowed Apps choice")
-        try XCTUnwrap(visible(settings,"Windowed Apps")).tap()
+        let choice=settings.buttons.matching(identifier:"com.apple.settings.multitaskingAndGestures.windowedApps").firstMatch
+        XCTAssertTrue(choice.exists)
+        if !choice.isSelected {choice.tap()}
+        XCTAssertTrue(choice.isSelected,"The actual system windowing mode must be selected")
         settings.terminate()
         let app=XCUIApplication()
         app.launch()
@@ -52,11 +55,16 @@ final class ReaderWindowingUITests: XCTestCase {
         record(app,"Before actual iPad window resize")
         let original=web.frame
         let window=app.windows.firstMatch
-        // Apple's documented resize gesture starts at the measured bottom-right
-        // corner of the current window; this is a real OS gesture, not a Web resize.
-        let start=window.coordinate(withNormalizedOffset:CGVector(dx:0.99,dy:0.99))
+        // The first touch gesture did not resize. Its actual screenshot exposes
+        // the handle in the bottom-right 28pt square. Test a public pointer drag
+        // over that observed handle, with system hierarchy and dimensions recorded.
+        record(XCUIApplication(bundleIdentifier:"com.apple.springboard"),"System resize controls before pointer drag")
+        let start=window.coordinate(withNormalizedOffset:CGVector(dx:1,dy:1)).withOffset(CGVector(dx:-14,dy:-14))
         let end=window.coordinate(withNormalizedOffset:CGVector(dx:0.58,dy:0.72))
-        start.press(forDuration:0.5,thenDragTo:end)
+        print("IPAD_WINDOW_POINTER: from=\(start.screenPoint) to=\(end.screenPoint) originalWeb=\(original)")
+        start.hover()
+        start.click(forDuration:0.2,thenDragTo:end)
+        record(app,"Immediately after pointer resize gesture")
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
             web.exists && web.frame.width<original.width*0.85 && web.frame.width>250
         },object:nil)],timeout:20),.completed,"The actual OS-managed app window must shrink; changing CSS or a test container does not qualify")

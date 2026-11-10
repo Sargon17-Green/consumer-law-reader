@@ -7,3 +7,6 @@
 XCTest מצרף צילומי מסך אמיתיים ועצי נגישות לפני/אחרי הפעולות. אם Setting/handle אינו נגיש, יש לקרוא את הראיות ולתקן את האוטומציה; אין לטעון שחסר אישור משתמש או לגשת ל־private preference. אם שינוי גודל אינו מתרחש — הבדיקה נכשלת. בניסוי זה אין שינוי הגדרות במכשיר משתמש ואין פעולה בחשבון Apple.
 
 מקורות רשמיים שנקראו ב־10.11.2026: https://developer.apple.com/videos/play/wwdc2025/208/ (מחוות resize בפינה הימנית התחתונה; הגדרת חלונות גמישים), https://support.apple.com/guide/ipad/work-with-multiple-windows-at-the-same-time-ipad08c9970c/ipados (Windowed Apps בהגדרות), https://developer.apple.com/documentation/xcuiautomation/xcuielement (מחוות ו־coordinates לפי אלמנט נמדד). המקורות אינם הוכחה שהמחווה כבר עברה בסימולטור זה.
+
+
+ניסיון ראשון f35c1214 / run42765418790 נכשל רק בקריטריון שינוי הגודל: Windowed Apps נבחר בפועל, חיפוש/14 וחזרה הוצגו, מחוות touch לא הקטינה את החלון. artifact13739722986 SHA2561241ddce99ceb854e3cb21f1e8541c3fa8dc6ce44a154b19e9608cfcbcb8ae9b. בצילום2064×2752 ידית אפורה נראתה בפיקסלים2008..2054,2696..2742; אין להסיק הצלחת resize מעצם הופעתה. הגרסה הבאה מחליפה touch ב־pointer click-and-drag הציבורי של XCUICoordinate, מתעדת גם SpringBoard וצילום מיד אחרי המחווה לפני assertion, ודורשת שוב הקטנה אמיתית. אין שינוי מוצר או private API. מקור: https://developer.apple.com/documentation/xcuiautomation/xcuicoordinate .
