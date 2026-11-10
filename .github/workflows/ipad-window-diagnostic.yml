@@ -1,0 +1,146 @@
+name: Actual iPad window resize diagnosis
+
+on:
+  push:
+    branches: [work/ipad-window-resize-20261110]
+
+concurrency:
+  group: ipad-window-diagnosis-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+jobs:
+  ios-simulator:
+    name: ${{ matrix.family }} iOS ${{ matrix.os }} ${{ matrix.os == '16.0' && '(runtime availability)' || '' }}
+    runs-on: macos-15
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - family: iPad
+            os: '26.2'
+            archive: false
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Select a pinned App Store compatible SDK
+        run: |
+          test -d /Applications/Xcode_26.3.app
+          sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer
+          xcodebuild -version
+      - name: Install verification dependencies
+        run: python3 -m pip install -r requirements-qa.txt
+      - name: Build and verify bundled legal text
+        run: |
+          python3 scripts/build_web.py
+          python3 scripts/verify_release.py
+          python3 -m unittest discover -s tests -p 'test_web_pages.py' -v
+          python3 -m unittest discover -s tests -p 'test_ios_source.py' -v
+      - name: Install project generator
+        run: brew install xcodegen
+      - name: Record actual build environment
+        run: |
+          mkdir -p build
+          xcodebuild -version > build/ios-environment.txt
+          sw_vers >> build/ios-environment.txt
+          xcrun simctl list runtimes >> build/ios-environment.txt
+          xcodegen --version >> build/ios-environment.txt
+      - name: Check whether Apple's minimum-OS simulator can be acquired without an account
+        id: minimum-runtime
+        if: matrix.os == '16.0'
+        run: python3 ios/scripts/acquire_minimum_runtime.py
+      - name: Generate native app and icon
+        run: |
+          bash ios/scripts/prepare_assets.sh
+          xcodegen generate --spec ios/project.yml --project ios
+      - name: Check Swift syntax and compile iOS simulator app
+        run: |
+          set -o pipefail
+          mkdir -p build
+          xcrun swiftc -frontend -parse ios/ConsumerLawReader/ConsumerLawReaderApp.swift
+          xcodebuild \
+            -project ios/ConsumerLawReader.xcodeproj \
+            -scheme ConsumerLawReader \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/ios-derived \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee build/ios-build.log
+      - name: Verify actual built .app contains the offline legal document
+        run: |
+          APP="build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app"
+          test -d "$APP"
+          test -s "$APP/dist/index.html"
+          test -s "$APP/dist/mobile.js"
+          test -s "$APP/dist/manifest.webmanifest"
+          test -s "$APP/dist/typed-index.js"
+          test -s "$APP/dist/PEGI_18_plus.png"
+          echo "Built iOS simulator .app includes the original legal text and offline assets."
+      - name: Exercise the actual simulator app with XCTest and XCUITest
+        if: steps.minimum-runtime.outputs.available != 'false'
+        env:
+          FAMILY: ${{ matrix.family }}
+          OS: ${{ matrix.os }}
+        run: |
+          set -euo pipefail
+          export LAW_EXPECT_SEER="$(python3 tests/date_network_probe.py)"
+          LABEL="$FAMILY-ios-$OS"
+          DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; family,version=sys.argv[1:]; key="com.apple.CoreSimulator.SimRuntime.iOS-"+version.replace(".","-"); print(next(d["udid"] for d in json.load(sys.stdin)["devices"].get(key,[]) if d["name"].startswith(family)))' "$FAMILY" "$OS")"
+          echo "QA_DEVICE=$DEVICE" >> "$GITHUB_ENV"
+          echo "QA_LABEL=$LABEL" >> "$GITHUB_ENV"
+          xcrun simctl boot "$DEVICE"
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl status_bar "$DEVICE" override --time '9:41'
+          python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$LABEL-runtime.json"
+          if [[ "$OS" == '16.0' ]]; then
+            APP="build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app"
+            xcrun simctl install "$DEVICE" "$APP"
+            xcrun simctl get_app_container "$DEVICE" io.github.sargon17green.consumerlawreader app
+            xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
+            xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
+          fi
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -only-testing:ConsumerLawReaderUITests/ReaderWindowingUITests/testIPadWindowResizePreservesSearchAndControls -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+      - name: Collect simulator evidence and shut it down after success or failure
+        if: always()
+        run: |
+          if [[ -n "${QA_DEVICE:-}" ]]; then
+            xcrun simctl io "$QA_DEVICE" screenshot "build/$QA_LABEL-simulator.png" || true
+            if [[ -d "build/$QA_LABEL-tests.xcresult" ]]; then
+              xcrun xcresulttool export attachments --path "build/$QA_LABEL-tests.xcresult" --output-path "build/$QA_LABEL-attachments" || true
+            fi
+            xcrun simctl shutdown "$QA_DEVICE" || true
+          fi
+      - name: Prepare unsigned device archive for future original-account signing
+        if: success() && matrix.archive
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -configuration Release -destination 'generic/platform=iOS' -archivePath build/ConsumerLawReader-unsigned.xcarchive CODE_SIGNING_ALLOWED=NO archive | tee build/ios-unsigned-archive.log
+      - name: Save build report and unsigned simulator binary for QA
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: ios-${{ matrix.family }}-${{ matrix.os }}-evidence
+          path: |
+            build/ios-build.log
+            build/ios-environment.txt
+            build/ios-unsigned-archive.log
+            build/ConsumerLawReader-unsigned.xcarchive
+            build/*-simulator.png
+            build/*-tests.log
+            build/*-runtime.json
+            build/*-tests.xcresult
+            build/*-attachments
+            build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
+            evidence/content-manifest.json
+            evidence/release-verification.json
+            build/ios16-runtime-availability.json
+            build/ios16-runtime-acquisition.log
+          retention-days: 7
+          if-no-files-found: warn
