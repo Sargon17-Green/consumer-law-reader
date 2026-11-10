@@ -16,7 +16,7 @@ final class ReaderWindowingUITests: XCTestCase {
         app.descendants(matching:.any).matching(NSPredicate(format:"label == %@",label)).allElementsBoundByIndex.first(where:{$0.isHittable})
     }
     func testIPadWindowResizePreservesSearchAndControls() throws {
-        XCTAssertEqual(UIDevice.current.userInterfaceIdiom,.pad,"This diagnostic must run on an actual iPad simulator")
+        guard UIDevice.current.userInterfaceIdiom == .pad else {throw XCTSkip("OS-managed iPad window resize requires the iPad CI job; iPhone functional tests run separately") }
         let settings=XCUIApplication(bundleIdentifier:"com.apple.Preferences")
         settings.launch()
         var multitasking:XCUIElement?
@@ -47,7 +47,9 @@ final class ReaderWindowingUITests: XCTestCase {
         let search=web.buttons.matching(identifier:"חיפוש").firstMatch
         XCTAssertTrue(search.waitForExistence(timeout:30));search.tap()
         let input=web.searchFields.firstMatch
-        XCTAssertTrue(input.waitForExistence(timeout:20));input.tap();input.typeText("14")
+        XCTAssertTrue(input.waitForExistence(timeout:20));input.tap()
+        if let existing=input.value as? String,!existing.isEmpty {input.typeText(String(repeating:XCUIKeyboardKey.delete.rawValue,count:existing.count))}
+        input.typeText("14")
         let result=web.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14")).firstMatch
         XCTAssertTrue(result.waitForExistence(timeout:20));result.tap()
         let returnToSearch=web.buttons.matching(identifier:"חזרה לתוצאות החיפוש").firstMatch
@@ -58,8 +60,11 @@ final class ReaderWindowingUITests: XCTestCase {
         // The first touch gesture did not resize. Its actual screenshot exposes
         // the handle in the bottom-right 28pt square. Test a public pointer drag
         // over that observed handle, with system hierarchy and dimensions recorded.
-        record(XCUIApplication(bundleIdentifier:"com.apple.springboard"),"System resize controls before pointer drag")
-        let start=window.coordinate(withNormalizedOffset:CGVector(dx:1,dy:1)).withOffset(CGVector(dx:-14,dy:-14))
+        let springboard=XCUIApplication(bundleIdentifier:"com.apple.springboard")
+        record(springboard,"System resize controls before pointer drag")
+        let handles=springboard.otherElements.matching(identifier:"resize-grabber").allElementsBoundByIndex
+        let handle=try XCTUnwrap(handles.first(where:{$0.label.contains("חוק הגנת הצרכן") && ($0.value as? String)=="Bottom Right"}),"Use the actual observed system resize handle")
+        let start=handle.coordinate(withNormalizedOffset:CGVector(dx:0,dy:0)).withOffset(CGVector(dx:6,dy:6))
         let end=window.coordinate(withNormalizedOffset:CGVector(dx:0.58,dy:0.72))
         print("IPAD_WINDOW_POINTER: from=\(start.screenPoint) to=\(end.screenPoint) originalWeb=\(original)")
         start.hover()

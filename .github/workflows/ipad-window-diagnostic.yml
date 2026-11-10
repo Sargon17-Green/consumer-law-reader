@@ -106,7 +106,7 @@ jobs:
             xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
             xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
           fi
-          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -only-testing:ConsumerLawReaderUITests/ReaderWindowingUITests/testIPadWindowResizePreservesSearchAndControls -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -only-testing:ConsumerLawReaderUITests/ReaderWindowingUITests/testIPadWindowResizePreservesSearchAndControls -only-testing:ConsumerLawReaderTests/ReaderPolicyTests/testBuiltAppDeclaresAdaptiveIPadOrientations -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |
@@ -135,9 +135,7 @@ jobs:
             build/*-simulator.png
             build/*-tests.log
             build/*-runtime.json
-            build/*-tests.xcresult
             build/*-attachments
-            build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
             evidence/content-manifest.json
             evidence/release-verification.json
             build/ios16-runtime-availability.json

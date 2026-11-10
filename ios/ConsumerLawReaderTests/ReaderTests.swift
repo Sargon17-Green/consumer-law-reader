@@ -28,6 +28,15 @@ private final class ReaderPDFRenderer: UIPrintPageRenderer {
 }
 
 final class ReaderPolicyTests: XCTestCase {
+    func testBuiltAppDeclaresAdaptiveIPadOrientations() throws {
+        let values=try XCTUnwrap(Bundle.main.infoDictionary)
+        let orientations=try XCTUnwrap(values["UISupportedInterfaceOrientations"] as? [String])
+        XCTAssertEqual(Set(orientations),Set(["UIInterfaceOrientationPortrait","UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"]))
+        let iPad=try XCTUnwrap((values["UISupportedInterfaceOrientations~ipad"] ?? values["UISupportedInterfaceOrientations~iPad"]) as? [String])
+        XCTAssertEqual(Set(iPad),Set(["UIInterfaceOrientationPortrait","UIInterfaceOrientationPortraitUpsideDown","UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"]))
+        XCTAssertNotEqual(values["UIRequiresFullScreen"] as? Bool,true)
+    }
+
     func testDateURLsAndHostileInputs() throws {
         for (host,path) in ReaderPolicy.datePaths {
             XCTAssertTrue(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string: "https://" + host + path + "?_t=123"))))
