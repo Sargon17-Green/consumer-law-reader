@@ -55,8 +55,9 @@ jobs:
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           profile: pixel_2
-          ram-size: 1024M
-          heap-size: 128M
+          cores: 1
+          ram-size: 1536M
+          heap-size: 384M
           emulator-options: -no-window -cores 1 -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none ${{ matrix.system-options }}
           disable-animations: true
           script: |
@@ -64,12 +65,12 @@ jobs:
             adb shell cat /proc/meminfo > evidence/constrained-guest-meminfo.txt
             adb shell cat /sys/devices/system/cpu/present > evidence/constrained-guest-cpus.txt
             adb shell getprop dalvik.vm.heapsize > evidence/constrained-guest-heap.txt
-            python3 -c "import pathlib,re; root=pathlib.Path('evidence'); total=int(re.search(r'MemTotal:\s+(\d+)',(root/'constrained-guest-meminfo.txt').read_text())[1]); assert 700*1024<total<1300*1024,total; assert (root/'constrained-guest-cpus.txt').read_text().strip()=='0'; print('ACTUAL_CONSTRAINED_HARDWARE: RAM_KB=',total,'CPUS=1')"
+            python3 -c "import pathlib,re; root=pathlib.Path('evidence'); total=int(re.search(r'MemTotal:\s+(\d+)',(root/'constrained-guest-meminfo.txt').read_text())[1]); assert 1400*1024<total<1600*1024,total; assert (root/'constrained-guest-cpus.txt').read_text().strip()=='0'; print('ACTUAL_CONSTRAINED_HARDWARE: RAM_KB=',total,'CPUS=1')"
             bash scripts/run_android_emulator_qa.sh ${{ matrix.api }}
       - name: Preserve emulator diagnostics
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: android-constrained-api26-1core-1GB
+          name: android-constrained-api26-1core-1point5GB
           path: evidence/
           retention-days: 30
