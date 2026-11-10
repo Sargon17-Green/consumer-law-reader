@@ -1,112 +1,11 @@
-name: Source, web and Android debug integrity
+name: Actual Android software keyboard focus before clearing
 on:
   push:
-    branches: [main]
-  pull_request:
-concurrency:
-  group: mobile-ci-${{ github.event.pull_request.head.ref || github.ref_name }}
-  cancel-in-progress: true
+    branches: [work/android-ime-focus-20261110]
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  source-and-browser:
-    permissions:
-      contents: read
-      pages: read
-    runs-on: ubuntu-latest
-    timeout-minutes: 22
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.12'
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '22'
-      - name: Install test dependencies
-        run: |
-          python -m pip install -r requirements-qa.txt
-          python -m pip install playwright==1.57.0
-          python -m playwright install chromium
-      - name: Build and verify source without signed APK
-        run: |
-          python scripts/build_web.py
-          python -m unittest discover -s tests -p 'test_*.py' -v
-          python scripts/verify_release.py
-          python scripts/validate_project_docs.py
-      - name: Inspect public Pages source without changing it
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api "repos/$GITHUB_REPOSITORY/pages" > evidence/pages-configuration.json
-          jq '{build_type,source,html_url}' evidence/pages-configuration.json
-          jq -e '.build_type == "workflow" or (.build_type == "legacy" and .source.branch == "gh-pages" and .source.path == "/")' evidence/pages-configuration.json
-      - name: Scan current trust policies and full Git history
-        run: |
-          python scripts/mobile_security_audit.py
-          python scripts/run_secret_scan.py
-      - name: Check browser scripts
-        run: |
-          node --check web/mobile-core.js
-          node --check web/mobile-settings.js
-          node tests/mobile_core_qa.js
-          node --check web/mobile.js
-          node --check web/mobile-sources.js
-          node --check web/mobile-topics.js
-          node --check tests/pastafari_widget_qa.js
-          node tests/pastafari_widget_qa.js
-      - name: Test search and editorial UI at mobile widths
-        run: |
-          python tests/technical_smoke_134.py
-          python tests/pwa_offline_qa.py
-          python tests/search_state_qa.py
-      - name: Save source verification evidence
-        if: always()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: shared-reader-source-evidence
-          path: evidence/
-          retention-days: 30
-      - name: QA topic navigation against the original document
-        run: python tests/topic_navigation_qa.py
-  browser-integration:
-    name: Bundled browser and accessibility (${{ matrix.width }})
-    runs-on: ubuntu-latest
-    timeout-minutes: 12
-    strategy:
-      fail-fast: false
-      max-parallel: 2
-      matrix:
-        width: [320, 430, 768, 1180]
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.12'
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '22'
-      - name: Install pinned interaction and accessibility tools
-        run: |
-          python -m pip install -r requirements-qa.txt playwright==1.57.0
-          python -m playwright install chromium
-          npm ci --prefix tests/qa --ignore-scripts --no-audit --no-fund
-      - name: Build and verify the same immutable source
-        run: |
-          python scripts/build_web.py
-          python scripts/verify_release.py
-      - name: Exercise the full bundled DOM at the assigned screen width
-        env:
-          LAW_QA_WIDTH: ${{ matrix.width }}
-        run: python tests/mobile_integration_qa.py
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        if: always()
-        with:
-          name: shared-reader-browser-${{ matrix.width }}
-          path: evidence/
-          retention-days: 30
   android-debug:
     runs-on: ubuntu-latest
     timeout-minutes: 25

@@ -130,12 +130,19 @@ public final class ReaderInstrumentation extends Instrumentation {
                 input=editable(getUiAutomation().getRootInActiveWindow(),0);if(input!=null)break;Thread.sleep(100);
             }
             check(input!=null,"Real search field is exposed as a visible native editable node");
-            Bundle empty=new Bundle();empty.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,"");
-            check(input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,empty),"Native editable field can be cleared without JavaScript text assignment");
+            // Focus by an actual touch before changing the query. Clearing
+            // first can shrink the bottom-anchored sheet while AX still holds
+            // its old input bounds, turning the tap into a backdrop dismissal.
             android.graphics.Rect target=new android.graphics.Rect();input.getBoundsInScreen(target);tapBounds(target);
             android.graphics.Rect keyboard=null;
             for(int i=0;i<100;i++){keyboard=keyboardBounds();if(keyboard!=null)break;Thread.sleep(100);}
             check(keyboard!=null,"A real TYPE_INPUT_METHOD system window must be visible; CSS resizing does not qualify");
+            awaitJS("document.activeElement===document.getElementById('mobile-search') && document.getElementById('mobile-sheet').open","The actual touch focuses the live search field");
+            input=editable(getUiAutomation().getRootInActiveWindow(),0);
+            check(input!=null,"The focused editable field remains in the actual native tree");
+            Bundle empty=new Bundle();empty.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,"");
+            check(input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,empty),"Native editable field can be cleared without JavaScript text assignment");
+            awaitJS("document.getElementById('mobile-search').value==='' && document.getElementById('mobile-sheet').open","Native clear completes in the focused field before typing");
             sendStringSync("14");
             awaitJS("document.getElementById('mobile-search').value==='14' && document.querySelectorAll('.m-result').length>0","Native key input produces actual search results");
             final int[] geometry=new int[3];
