@@ -12,7 +12,7 @@ final class ReaderWindowingUITests: XCTestCase {
             let menu=app.buttons.matching(identifier:"native-menu").firstMatch
             let share=app.buttons.matching(identifier:"native-share").firstMatch
             let web=app.webViews.firstMatch
-            details="window=\(app.windows.firstMatch.frame)\nweb=\(web.exists ? String(describing:web.frame):"missing")\nmenu=\(menu.exists ? menu.debugDescription:"missing")\nshare=\(share.exists ? share.debugDescription:"missing")"
+            details="window=\(app.windows.firstMatch.frame)\nweb=\(web.exists ? String(describing:web.frame):"missing")\nmenu=\(menu.exists ? String(describing:menu.frame):"missing")\nshare=\(share.exists ? String(describing:share.frame):"missing")"
         } else {
             details=String(app.debugDescription.prefix(24000))
         }
@@ -82,7 +82,7 @@ final class ReaderWindowingUITests: XCTestCase {
         let result=web.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14 ·")).firstMatch
         XCTAssertTrue(result.waitForExistence(timeout:20));result.tap()
         let returnToSearch=web.buttons.matching(identifier:"חזרה לתוצאות החיפוש").firstMatch
-        XCTAssertTrue(returnToSearch.waitForExistence(timeout:20),app.debugDescription)
+        XCTAssertTrue(returnToSearch.waitForExistence(timeout:20),"Reader return control must exist")
         record(app,"Before actual iPad window resize")
         let original=web.frame
         let window=app.windows.firstMatch
@@ -107,8 +107,10 @@ final class ReaderWindowingUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(menu.frame.height,44)
         // A44pt AX frame does not prove reachability: system window controls
         // may overlap a custom header. Perform real native actions after resize.
-        let innerMenu=menu.buttons.firstMatch
-        (innerMenu.exists ? innerMenu:menu).tap()
+        // Tap the center of the measured native44pt frame. Do not ask
+        // XCTest to scroll a nested SwiftUI Menu proxy into view. The
+        // observable Print action below must still open from this real touch.
+        menu.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
         let printAction=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
         record(app,"After actual resized native menu tap")
         record(springboard,"System controls after native menu tap",native:false)
@@ -128,7 +130,7 @@ final class ReaderWindowingUITests: XCTestCase {
         record(app,"Restored search in the resized native window")
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in result.isHittable },object:nil)],timeout:10),.completed,"The selected search result stays visible after layout changes, before any automatic tap scrolling")
         result.tap()
-        XCTAssertTrue(returnToSearch.waitForExistence(timeout:20),app.debugDescription)
+        XCTAssertTrue(returnToSearch.waitForExistence(timeout:20),"Reader return control must exist")
         let summary="IPAD_WINDOW_RESIZE: original=\(original) resized=\(web.frame) search preserved; real OS window gesture; simulator only"
         let report=XCTAttachment(string:summary);report.name="iPad window resize result";report.lifetime = .keepAlways;add(report)
         print(summary)
