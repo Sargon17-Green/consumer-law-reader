@@ -87,14 +87,28 @@ final class ReaderUITests: XCTestCase {
         }
         func openNativeMenu() {
             waitForMenu()
-            let inner=menu.buttons.firstMatch
-            (inner.exists ? inner:menu).tap()
+            menu.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
         }
         openNativeMenu()
         let print=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
         XCTAssertTrue(print.waitForExistence(timeout:10));print.tap()
         let printCancel=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
-        XCTAssertTrue(printCancel.waitForExistence(timeout:45),app.debugDescription);printCancel.tap()
+        XCTAssertTrue(printCancel.waitForExistence(timeout:45),app.debugDescription)
+        if #available(iOS 26.0,*) {
+            // The redesigned print UI exposes Close while the long document
+            // preview is still being prepared. Require an actual page preview
+            // before testing a completed print interaction.
+            let firstPage=app.cells.matching(NSPredicate(format:"label BEGINSWITH %@","Page 1 of ")).firstMatch
+            XCTAssertTrue(firstPage.waitForExistence(timeout:45),"The actual system print preview must contain the first document page")
+            XCTAssertGreaterThan(firstPage.frame.width,0)
+            XCTAssertGreaterThan(firstPage.frame.height,0)
+        }
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            printCancel.exists && printCancel.isEnabled && printCancel.isHittable
+        },object:nil)],timeout:20),.completed,"The actual system Close must be ready")
+        let printShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+        printShot.name="Actual system print preview before native Close";printShot.lifetime = .keepAlways;add(printShot)
+        printCancel.tap()
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
             !printCancel.exists
         },object:nil)],timeout:30),.completed,app.debugDescription)
