@@ -1,0 +1,45 @@
+name: Diagnose hosted runner allocation without rerunning native tests
+on:
+  push:
+    branches: [work/ci-allocation-diagnostics-20261110]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+  checks: read
+jobs:
+  allocation-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read actual failed job annotations and official service status
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          gh api repos/Sargon17-Green/consumer-law-reader/check-runs/129977847230 > evidence/failed-macos-check.json
+          gh api repos/Sargon17-Green/consumer-law-reader/check-runs/129977847230/annotations > evidence/failed-macos-annotations.json
+          gh api repos/Sargon17-Green/consumer-law-reader/actions/runs/42858470735/jobs > evidence/failed-allocation-jobs.json
+          gh api repos/Sargon17-Green/consumer-law-reader/actions/runs/42861539523/jobs > evidence/current-ios-jobs.json
+          curl --fail --location --max-time 30 https://www.githubstatus.com/api/v2/incidents/unresolved.json --output evidence/official-unresolved-incidents.json
+          python3 - <<'PY'
+          import json,pathlib
+          root=pathlib.Path('evidence')
+          check=json.loads((root/'failed-macos-check.json').read_text())
+          annotations=json.loads((root/'failed-macos-annotations.json').read_text())
+          jobs=json.loads((root/'failed-allocation-jobs.json').read_text())
+          print('RUNNER_CHECK_OUTPUT: '+json.dumps(check.get('output'),ensure_ascii=False))
+          print('RUNNER_FAILURE_ANNOTATIONS: '+json.dumps(annotations,ensure_ascii=False))
+          print('FAILED_ALLOCATION: '+json.dumps([{'id':j['id'],'status':j['status'],'conclusion':j['conclusion'],'runner_id':j.get('runner_id'),'runner_name':j.get('runner_name'),'steps':j.get('steps')} for j in jobs['jobs']],ensure_ascii=False))
+          status=json.loads((root/'official-unresolved-incidents.json').read_text())
+          print('OFFICIAL_UNRESOLVED_INCIDENTS: '+json.dumps(status,ensure_ascii=False))
+          PY
+      - name: Retain read-only diagnostics
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: hosted-runner-allocation-diagnostics
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: error
