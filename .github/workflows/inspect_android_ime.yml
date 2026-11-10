@@ -28,7 +28,7 @@ jobs:
                   if name in source.namelist():
                       text=source.read(name).decode()
                       print('ACTUAL_ANDROID_FILE_'+name+': '+text[:18000].replace('\n',' '))
-              images=[n for n in source.namelist() if n.endswith('qa-failure.png')]
+              images=[n for n in source.namelist() if n.endswith('android-failure-at-assertion.png') or n.endswith('qa-failure.png')]
               if not images: images=[n for n in source.namelist() if n=='android-emulator.png']
               assert images,'No actual screenshot exported'
               for index,name in enumerate(images[:1]):
