@@ -62,9 +62,12 @@ jobs:
                       duration=float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',str(path)],text=True))
                       durations.append((abs(duration-183.832),duration,name,path))
                   _,duration,name,path=min(durations,key=lambda v:v[0])
-                  sample=min(duration-1,180)
-                  subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-ss',str(sample),'-i',str(path),'-frames:v','1','-q:v','2','actual-print-frame.jpg'],check=True,timeout=40)
-                  image=pathlib.Path('actual-print-frame.jpg').read_bytes()
+                  print('ACTUAL_IPAD_RECORDING_INFO: '+subprocess.check_output(['ffprobe','-v','error','-show_entries','stream=start_time,duration,nb_frames:format=duration,start_time','-of','json',str(path)],text=True))
+                  subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-i',str(path),'-vf','fps=1/5','-q:v','3','actual-print-frame-%04d.jpg'],check=True,timeout=90)
+                  frames=sorted(pathlib.Path('.').glob('actual-print-frame-*.jpg'))
+                  assert frames, 'Decoded recording must contain actual frames'
+                  sample=(len(frames)-1)*5
+                  image=frames[-1].read_bytes()
                   chosen={'exportedFileName':name,'frameSeconds':sample,'recordingSeconds':duration,'scope':'Unresized frame extracted from the actual simulator recording, not a new device screenshot'}
               assert len(image)<8000000
               mime='image/png' if image.startswith(b'\x89PNG') else 'image/jpeg'
