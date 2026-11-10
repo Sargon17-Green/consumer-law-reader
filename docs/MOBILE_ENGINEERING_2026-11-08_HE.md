@@ -1,6 +1,6 @@
 # מחזור ההנדסה למובייל — תוצרים וראיות
 
-עודכן ב־10.11.2026. **בטא Web/PWA1.3.9-dev פורסמה** ב[קישור הקבוע](https://sargon17-green.github.io/consumer-law-reader/reader/), עם74 בדיקות HTTP/SHA256 שעברו ושימור alpha וה־APK הציבורי. Native Android/iOS לא פורסמו במהדורה חדשה: חסרות חתימות מקוריות ו־API36 עדיין דורש קבלת שמירת PDF מלאה. מצב מתעדכן לפי [IMPLEMENTATION_STATUS](../IMPLEMENTATION_STATUS.md); כל דרישה רשומה ב־[PRODUCT_REQUIREMENTS](../PRODUCT_REQUIREMENTS.md).
+עודכן ב־10.11.2026. **בטא Web/PWA1.3.9-dev פורסמה** ב[קישור הקבוע](https://sargon17-green.github.io/consumer-law-reader/reader/), תיקון2 עם75 בדיקות HTTP/SHA256 שעברו ושימור alpha וה־APK הציבורי. Native Android/iOS לא פורסמו במהדורה חדשה: חסרות חתימות מקוריות; קבלתAPI36 עברה706, וקוד ההמשך דורש רגרסיה נפרדת. מצב מתעדכן לפי [IMPLEMENTATION_STATUS](../IMPLEMENTATION_STATUS.md); כל דרישה רשומה ב־[PRODUCT_REQUIREMENTS](../PRODUCT_REQUIREMENTS.md).
 
 העבודה ממשיכה את [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11), על בסיס main016b3de352dabe97f51b34b78ff803965b6cd40d. נבדקו12ענפים, PRs1–11, Issue7, היסטוריית commits/Releases ו־Actions; תיקונים תקינים שכבר מוזגו לא יושמו מחדש. PR1 הוא ביקורת ישנה ולא מקור ממצאים אוטומטי.
 
@@ -96,3 +96,15 @@ Android1.3.9-dev/code17: Debug מאומת, unsigned APK מיושר ו־AAB לא 
 iOS1.3.9/build17: ארבע בניות סימולטור ומבחנים עברו; מסלול device archive לא חתום הוכן. אין IPA חתום, TestFlight, אישור חנות או בדיקת iPhone פיזי. Web1.3.9-devפורסם בנפרד, ניתן להוספה למסך הבית, ואינו Native.
 
 החסמים היחידים הדורשים גורם חיצוני: המפתח ההיסטורי של Android, גישת Apple Team/profiles/ASC, מכשיר/ציוד פיזי שאינו זמין, והצהרות בעל זכויות/חשבון. הפרטים והצעדים הקצרים ב־[EXTERNAL_ACTIONS](../EXTERNAL_ACTIONS.md). כל שאר העבודה פתוחה ב־[BACKLOG](../BACKLOG.md) והכניסה העצמאית ב־[PROJECT_HANDOFF](../PROJECT_HANDOFF.md).
+
+## מחזור המשך10.11 — קבלה משולבת נדרשת
+
+| שיפור | פלטפורמה | ממצא וסיבה | מימוש | בדיקה וראיה | מצב |
+|---|---|---|---|---|---|
+| SEARCH-005 | משותף | raw pixel scroll אינו מתאים לתוצאות שעברו reflow או לגובה חלון חדש | web/mobile.js: target נבחר+offset+layout, תחום נראה; באותה פריסה offset נשמר | tests/search_state_qa.py; before/after-local תחתqa |5רצפים מקומיים עברו;CI/פרסום ממתינים |
+| NATIVE-003 | iOS | Info.plist חסר orientation flags, windowing scaled44pt→30.9pt | ios/project.yml:3iPhone/4iPad; raw-plist XCTest + ReaderWindowingUITests | run42772416090/job129683054613,artifact13742524176 | ניסוי אמיתי עבר; רגרסיה משולבת נדרשת |
+| QA-PRIVATE | Android | run-as אינו מורשה; raw exec-out עשוי להחזיר שגיאה עם status0 | scripts/collect_android_private_evidence.py: emulator/root/stat/bounds/magic/SHA; run_android_emulator_qa.sh שומרכשל |5unit כוללPNGכוזב/PDFשונה/physicalrefusal; fullCI ידרושexportedPDF | מימוש, ללאPASSריצהכוללתחדש |
+| QA-RENDERER | Android | כשל תהליךrenderer לא נבדק ברגרסיה | ReaderInstrumentation ציבוריterminate, NativeRecovery/NewActivity/Ready/section/font/query | ניסויc08 functional31/36 עבר אך overallFAIL collector; בדיקהחזקה יותר משולבת | רגרסיה משולבת נדרשת; לאOOM |
+| CI-004 | CI/iOS | PR paths החסירוmetadata/fixtures/dependencies | ios-ci.yml רשימותpush/PRתואמות | unit/build ו־4סימולטורים עלהמועמד | מימוש; קבלהמשולבתנדרשת |
+
+מסמכי מצב/קטלוג/העברה עודכנו תוך הסרת טענות pending ישנות. מזההcommit של כל שינוי יופיע בהיסטוריית PR11; אין למלא SHA עתידי או להסיקPASSמהימצאותהבדיקה.

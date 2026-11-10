@@ -1663,15 +1663,25 @@
         "iOS": "מומש"
       },
       "implementation": [
-        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift",
-        "ios/project.yml"
+        "ios/project.yml",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift"
       ],
       "tests": [
-        "ios/ConsumerLawReaderUITests/ReaderUITests.swift"
+        "ios/ConsumerLawReaderTests/ReaderTests.swift",
+        "ios/ConsumerLawReaderUITests/ReaderWindowingUITests.swift"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "commit": "81b5f774510dff6538eff966fae1943f62a28aa3",
+          "run": 42772416090,
+          "job": 129683054613,
+          "result": "PASS: targeted iPad26.2 actual OS window resize and raw orientation plist",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42772416090",
+          "scope": "Actual1032->375pt viewport; menu remains44x44; query and result navigation retained. No pre-tap selected-row visibility proof or full combined candidate claim"
+        }
+      ],
       "dependencies": [
-        "f61/run42767188687 proved OS window changed but UI scaled44→30.9pt; actual app plist missing orientation declarations. ae772d9 orientation metadata fix and actual bundle/UI checks pending."
+        "Issue13: full combined4-simulator regression including selected-row visibility after resize remains required; targeted metadata fix passed81b5f77"
       ],
       "published": {
         "iOS": null
@@ -2250,7 +2260,9 @@
         "scripts/configure_api26_webview.sh"
       ],
       "tests": [
-        ".github/workflows/ci.yml"
+        ".github/workflows/ci.yml",
+        "scripts/collect_android_private_evidence.py",
+        "tests/test_android_evidence.py"
       ],
       "evidence": [],
       "dependencies": [
@@ -3081,6 +3093,45 @@
       "published": {
         "iOS": null
       }
+    },
+    {
+      "id": "SEARCH-005",
+      "title": "שחזור תוצאת חיפוש לאחר שינוי פריסה",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "לאחר חיפוש14, בחירת סעיף14, שינוי רוחב או גובה חלון וחזרה לתוצאות, אותה תוצאה נשארת נראית והשאילתה/תחום/מצב ההתאמה נשמרים",
+        "שינוי1032×1255→375×697,375×697→1032×1255,430×932→320×740 והקטנת גובה1032×1255→1032×650 עוברים ב־DOM מלא ללא רשת",
+        "כאשר הפריסה זהה נשמר offset בהפרש≤2px; חזרה נוספת אינה גורמת לקפיצה",
+        "בדיקת iPad Native משנה חלון מערכת בפועל ודורשת result.isHittable לפני tap שעלול לגלול אוטומטית"
+      ],
+      "status": {
+        "Android": "מומש",
+        "iOS": "מומש",
+        "Web": "מומש"
+      },
+      "implementation": [
+        "web/mobile.js"
+      ],
+      "tests": [
+        "tests/search_state_qa.py",
+        "ios/ConsumerLawReaderUITests/ReaderWindowingUITests.swift"
+      ],
+      "evidence": [],
+      "dependencies": [
+        "Local actual full-DOM before/after evidence: qa/mobile-2026-11-08/search-layout-before.json and search-layout-after-local.json; sourceDirty true explicitly recorded",
+        "Combined source/browser/Android/iOS completed CI and subsequent public HTTP publication required"
+      ],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
     }
-  ]
+  ],
+  "integrationCandidateBranch": "fix/pastafari-date-android-20261028",
+  "candidateMeaning": "candidateHead/tree identify last fully completed706 baseline; combined follow-up code requires its own completed run before replacing this proof"
 }

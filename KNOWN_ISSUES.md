@@ -8,7 +8,7 @@
 | DEPLOY-ENVIRONMENT | מגבלת workflow, לא הוכחת כשל אתר חי | env github-pages מתיר רק main/gh-pages; deploy מה־release branch נדחה. אין לשנות הגנה; פרסום gh-pages42718136476 וה־HTTP עברו. CI-003 מפריד verifier לקריאה בלבד מ־deployment workflow המוגן, ללא שינוי policy |
 | SIGN-ANDROID | חסם חיצוני | המפתח הפרטי ההיסטורי אינו זמין; אין Debug כשדרוג.1.3.5 הציבורי נשמר |
 | SIGN-IOS | חסם חיצוני | אין גישת Team/profiles/ASC לחתימה והפצה; סימולטור/unsigned archive בלבד |
-| COVERAGE-IPAD-WINDOW | כיסוי חסר | rotation וגדלי Web נבדקו; Split View ומנהל החלונות לא הוכחו כאינטראקציה Native מלאה |
+| COVERAGE-IPAD-WINDOW | תיקון ממוקד עבר; קבלה משולבת נדרשת | Issue13: orientations חסרים גרמו scaling44→30.9pt. הצהרה מפורשת עברה81b5f77/run42772416090 עם חלון375pt ו־Native44×44; נדרשת רגרסיה מלאה עם SEARCH-005 |
 | COVERAGE-LOW-MEMORY | כיסוי חלקי | process recovery וקוד טיפול קיימים; sustained pressure וכלל תהליכי Web אינם מכוסים בכל חומרה |
 | COVERAGE-PHYSICAL | לא נבדק | מכשירים פיזיים, TalkBack/VoiceOver אנושיים, מדפסת פיזית ורינדור במסמך Word חיצוני |
 | LINKS-NATIVE | הבדל מוצדק | HTTPS נפתח לסעיף ב־Web; אין Universal/App Links מאומתים לתוך Native ואין Team ID מומצא |
@@ -17,4 +17,8 @@
 
 ארטיפקטי Actions זמניים (Native iOS7ימים, האחרים בדרך כלל30, פריסה90); סיכומים ודיגסטים נשמרים ב־Git. היעלמות artifact אינה PASS או כשל חדש; אפשר לבנות מחדש מהמקור. אין ידיעה שהחוק מדויק משפטית מכוח מחזור זה, והמקור/מועד אימותו נשמרים.
 
-NAV-006/PWA-001: שוחזרו יעד תקנות מוסתר ומטמון חסר שנספר כמלא. תוקנו ופורסמו ב־c3e9d9e עם75HTTP; Android עבר706. אין שינוי במקור. ניסוי iPad window ראשוןf35/run42765418790 נכשל במחוות resize בלבד; מצב Windowed Apps אומת בתמונה. ניסוי pointer f61/run42767188687 חשף שינוי חלון עם scaling: native-menu44→30.9pt, ו־Info.plist בנוי חסר הצהרת orientations. NATIVE-003 הוא ממצא ממשי. ae772d9 בודק הצהרה מפורשת3כיווני iPhone/4iPad ו־XCTest plist; אין עדיין PASS לתיקון.
+NAV-006/PWA-001 פורסמו בתיקון2 לאחר כל שערי706. עדות iPad before/after ב־qa/mobile-2026-11-08/ipad-window-scaling-before.json ו־ipad-window-resize-accepted.json; בדיקת full-screen הישנה לא כיסתה windowing.
+
+SEARCH-005: raw scroll השאיר את סעיף14 מחוץ למסך לאחר reflow (במקרה1032→375 ביותר מ־2800px; גם הקטנת גובה בלבד שוחזרה). תיקון anchor+offset ובדיקת5רצפים קיימים במועמד המשולב, טרם קבלתCI/פרסום.
+
+QA-EVIDENCE-PRIVATE: ניסוי38ebb עבר PdfRenderer בתוך האפליקציה אך run-as נכשל; bytes חיצוניים לא אומתו. c08 עבר renderer recovery ב־31/36 אך collector נכשל כוללנית, משום raw exec-out אינו מעביר בהכרח remote exit. stat shell-v2/אימותmagic/גודל/SHA ושמירת exit status נוספו; נדרשת ראיה אמיתית מהריצה המשולבת. אין לשנות debuggable או SELinux של המוצר כדי לתקן איסוףQA.

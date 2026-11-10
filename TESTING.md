@@ -19,6 +19,7 @@ python tests/technical_smoke_134.py
 python tests/topic_navigation_qa.py
 python tests/mobile_integration_qa.py
 python tests/pwa_offline_qa.py
+python tests/search_state_qa.py
 python scripts/validate_project_docs.py
 ```
 
@@ -39,3 +40,7 @@ iOS: `.github/workflows/ios-ci.yml`, Xcode26.3/macOS15, iPhone26.2/iPad26.2/iPho
 `tests/pwa_offline_qa.py` מפעיל ServiceWorker אמיתי במקור loopback מאובטח ובהתאמת reader/; לאחר activation מנותקת כל הרשת, מבוצעים reload/search/14/פתיחה חדשה, ואז נמחק CSS חובה ומוסף נכס זר. מספר38 הרשומות נשאר קבוע אך מוכנות חייבת להיכשל ולהופיע בלוח ההתקנה. `reader_layout_probe.js` בודק גם סעיף וחלק בתוספת מתחת לכפתור חזרה בפועל אחרי focus. `test_public_reader.py` דורש owner marker ומונע PASS על redirect/bytes ישנים. בניסוי Print נדרש עמוד preview ולא רק enabled/visible; קובץ PDF אמיתי עדיין נבדק ב־PdfRenderer. אין טענת מכשיר פיזי.
 
 ראיות Android QA נשמרות כעת ב־files הפרטי ונאספות באמצעות run-as של Debug; PDF שהמשתמש שמר בפועל דרך Print/SAF נקרא כזרם בינרי תחום32MB, נבדק ב־PdfRenderer וב־SHA256. אין shell cp או כתיבת screenshots ל־FUSE המשותף. הניסוי38ebb34 עבר בשני הכיוונים; קוד המוצר והרשאותיו לא שונו.
+
+רגרסיות10.11: search_state_qa.py מריץ5רצפי full-DOM ללא רשת (רוחב/גובה/אותה פריסה וחזרה חוזרת). בדיקת Windowed Apps ב־ReaderWindowingUITests משנה את חלון המערכת של iPad26.2 עם pointer על resize-grabber שנצפה; אין CSS-mock. היא מדולגת במפורש ב־iPhone, ששאר בדיקותיו רצות. ReaderPolicyTests קורא raw Info.plist של האפליקציה הבנויה, ולא infoDictionary שממזג device override. Android API29+ עוצר renderer אמיתי דרך API ציבורי, דורש חלון פתיחה מחדש, Activity/WebView חדשים ו־Ready עם גופן/סעיף/שאילתה. API26 אינו מקבל PASS ל־API שאינו קיים בו. זה אינו עומס זיכרון או OOM פיזי.
+
+איסוף Android הפרטי פועל אחרי התרחיש ורק באמולטור המזדההqemu=1/UID0/SELinux Enforcing. יש whitelist קבצים ואין שינוי בהרשאות המוצר. stat shell-v2 לפני exec-out מונע שמירת שגיאות ADB כתמונות; PNG/JSON/PDF נבדקים. API36 מחייב PDF שגיבובו תואם ללוג PdfRenderer Native. trap שומר את exit status המקורי וגם מכשיל ריצה שהצליחה תפקודית אך לא סיפקה את הראיות הנדרשות. tests/test_android_evidence.py בודק5מקרי קבלה/סירוב.
