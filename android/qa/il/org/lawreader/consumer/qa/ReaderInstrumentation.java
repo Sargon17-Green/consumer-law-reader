@@ -279,6 +279,33 @@ public final class ReaderInstrumentation extends Instrumentation {
         for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo found=editable(node.getChild(i));if(found!=null)return found;}
         return null;
     }
+    private boolean hasPreparedPrintPage(AccessibilityNodeInfo node){
+        if(node==null)return false;
+        String label=String.valueOf(node.getText())+" "+String.valueOf(node.getContentDescription());
+        if(node.isVisibleToUser()&&java.util.regex.Pattern.compile("\\bPage\\s+[0-9]+\\s+of\\s+[0-9]+\\b").matcher(label).find())return true;
+        for(int i=0;i<node.getChildCount();i++)if(hasPreparedPrintPage(node.getChild(i)))return true;
+        return false;
+    }
+    private boolean tapVisibleControl(AccessibilityNodeInfo node) throws Exception {
+        if(node==null||!node.refresh()||!node.isVisibleToUser()||!node.isEnabled())return false;
+        android.graphics.Rect bounds=new android.graphics.Rect();node.getBoundsInScreen(bounds);
+        if(bounds.isEmpty())return false;
+        long start=android.os.SystemClock.uptimeMillis();
+        android.view.MotionEvent down=android.view.MotionEvent.obtain(start,start,android.view.MotionEvent.ACTION_DOWN,bounds.centerX(),bounds.centerY(),0);
+        down.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);boolean pressed=getUiAutomation().injectInputEvent(down,true);down.recycle();
+        Thread.sleep(60);
+        android.view.MotionEvent up=android.view.MotionEvent.obtain(start,android.os.SystemClock.uptimeMillis(),android.view.MotionEvent.ACTION_UP,bounds.centerX(),bounds.centerY(),0);
+        up.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);boolean released=getUiAutomation().injectInputEvent(up,true);up.recycle();
+        return pressed&&released;
+    }
+    private void capturePrintReady(Bundle report) throws Exception {
+        AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+        report.putString("printReadyControls",systemLabels(root,0));
+        org.json.JSONArray nodes=new org.json.JSONArray();recordSystemTree(root,nodes,0);
+        try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-print-ready.json"))){out.write(nodes.toString(2).getBytes("UTF-8"));}
+        android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
+        if(shot!=null){try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-print-ready.png"))){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,out);}shot.recycle();}
+    }
     private void saveAndVerifySystemPDF(Bundle report) throws Exception {
         shell("rm -f /sdcard/Download/consumer-law-qa.pdf");
         boolean clicked=false;
@@ -292,12 +319,12 @@ public final class ReaderInstrumentation extends Instrumentation {
                 for(AccessibilityNodeInfo button:root.findAccessibilityNodeInfosByViewId("com.android.printspooler:id/print_button"))
                     // The framework keeps this view enabled while setting it GONE
                     // until the document update is complete. ID lookup alone also finds hidden views.
-                    if(button.refresh()&&button.isVisibleToUser()&&button.isClickable()&&button.isEnabled()&&button.performAction(AccessibilityNodeInfo.ACTION_CLICK)){clicked=true;break;}
+                    if(hasPreparedPrintPage(root)&&button.refresh()&&button.isVisibleToUser()&&button.isClickable()&&button.isEnabled()){capturePrintReady(report);if(tapVisibleControl(button)){clicked=true;break;}}
             }
             if(clicked)break;
             Thread.sleep(250);
         }
-        check(clicked,"Enabled system Save as PDF control: "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
+        check(clicked,"A prepared print-preview page and visible Save as PDF control: "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
         boolean named=false;
         for(int attempt=0;attempt<160;attempt++){
             AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
