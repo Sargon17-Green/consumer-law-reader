@@ -115,7 +115,16 @@ final class ReaderWindowingUITests: XCTestCase {
         record(app,"After actual resized native menu tap")
         record(springboard,"System controls after native menu tap",native:false)
         XCTAssertTrue(printAction.waitForExistence(timeout:10),"Native menu must open after the real pointer/touch tap, despite system window controls")
-        web.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.22)).tap()
+        // A normalized WebView point can fall inside this floating menu:
+        //31b reproduced that mistake. Dismiss below the observed last item,
+        // within the actual reading frame, and require the menu to disappear.
+        let homeAction=app.buttons.matching(identifier:"חזרה לתחילת החוק").firstMatch
+        XCTAssertTrue(homeAction.exists)
+        let readingFrame=web.frame,dismissY=homeAction.frame.maxY+44
+        XCTAssertGreaterThan(dismissY,readingFrame.minY)
+        XCTAssertLessThan(dismissY,readingFrame.maxY-44)
+        web.coordinate(withNormalizedOffset:CGVector(dx:0,dy:0)).withOffset(CGVector(dx:readingFrame.width/2,dy:dismissY-readingFrame.minY)).tap()
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !printAction.exists },object:nil)],timeout:10),.completed,"Native actions menu must close before sharing")
         let share=app.buttons.matching(identifier:"native-share").firstMatch
         XCTAssertTrue(share.isHittable)
         share.tap()
@@ -131,11 +140,18 @@ final class ReaderWindowingUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !activities.exists },object:nil)],timeout:20),.completed,"The actual native share presentation must close before returning to the reader")
         XCTAssertTrue(returnToSearch.isHittable,"Return control remains reachable in the resized native window")
         returnToSearch.tap()
-        XCTAssertTrue(input.waitForExistence(timeout:20))
-        XCTAssertEqual(input.value as? String,"14")
         XCTAssertTrue(result.waitForExistence(timeout:20))
         record(app,"Restored search in the resized native window")
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in result.isHittable },object:nil)],timeout:10),.completed,"The selected search result stays visible after layout changes, before any automatic tap scrolling")
+        // Inspect selection visibility first. The preserved result-list scroll
+        // can leave the search field above the viewport; reveal it by actual
+        // reading gestures only after that regression assertion has passed.
+        for _ in 0..<12 {
+            if input.exists && input.isHittable {break}
+            web.swipeDown()
+        }
+        XCTAssertTrue(input.waitForExistence(timeout:10))
+        XCTAssertEqual(input.value as? String,"14")
         result.tap()
         XCTAssertTrue(returnToSearch.waitForExistence(timeout:20),"Reader return control must exist")
         let summary="IPAD_WINDOW_RESIZE: original=\(original) resized=\(web.frame) search preserved; real OS window gesture; simulator only"
