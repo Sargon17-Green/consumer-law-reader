@@ -18,4 +18,9 @@
 | DEC-014 | ידע הפרויקט במאגר בלבד: קטלוג דרישות, מצב, ראיות, backlog/handoff | אין תלות בשיחה; כל מחזור מעדכן הקשרים ומספרי commit אמיתיים |
 | DEC-015 | אין ניסיונות CI זהים ללא השערה חדשה; pending אינו חסם | max-parallel2 בעקבות GitHub500 שמנע יצירת jobs; רק completed/log מוכיחים PASS |
 
+| DEC-016 | מוכנות offline דורשת את כל שמות נכסי החובה, ולא ספירת רשומות; מוצגת מתוך worker שולט בלבד | כשל/timeout מוצגים בלי לחסום קריאה; מטמון פגום אינו מסומן מוכן |
+| DEC-017 | יישור יעד תקנות נעשה אחרי focus, עם מדידת כפתור החזרה בפועל | focus עשוי להזיז scroller גם עם preventScroll; אין hardcoded offset או שינוי מקור |
+| DEC-018 | legacy Pages נפרס במסלול gh-pages הקיים; job נוסף מאמת GET בלבד | אין בקשת deployment מ־release branch ואין החלשת environment; workflow-mode ממשיך לדרוש אותו |
+| DEC-019 | PDF QA ממתין ל־Page n of total ומקיש לפי bounds מדודים | lifecycle/orientation לבדם הופרכו בניסוי; אין שינוי production onPause ללא ראיה |
+
 המאגר ציבורי מלכתחילה. אין שינוי פרטיות, רכישות, קבלת תנאים, סודות או force-push במחזור זה. המלצות Apple/Google נבדקות במקורות הרשמיים המופנים ב־docs/STORE_PREPARATION_HE.md. התקן לחבילות Windows נמצא מחוץ למאגר; אין ליצור חבילה כזו בלי לקרוא את הגרסה הקנונית המלאה. כרגע אין צורך בחבילת Windows.

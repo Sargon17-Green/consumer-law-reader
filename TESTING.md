@@ -33,3 +33,7 @@ iOS: `.github/workflows/ios-ci.yml`, Xcode26.3/macOS15, iPhone26.2/iPad26.2/iPho
 שער Web עצמאי: source hash/DOM, Node/backup/date/security, ארבעה browser jobs ומטמון offline, שימור alpha ו־APK, ולאחר פרסום השוואת כל הבתים ב־HTTP. כשל Native שאינו מופעל ב־Web אינו הופך את מבחני Web לכושלים; הכשל חייב להישאר גלוי ומתועד.
 
 שער Native: בדיקות הפלטפורמה על אותו checkout/tree, חתימה נכונה לשדרוג, בדיקות חבילה והתקנה/שדרוג; אין שחרור ציבורי Debug/unsigned או סימולטור. קבלה מלאה אינה מבוססת רק על קומפילציה, צילום מסך, ניסיון חיצוני או jobs שטרם הסתיימו. logs/artifacts מוגבלים בזמן; סיכומים חתומים בגיבוב ומזהי run/commit נשמרים ב־qa/ ובמסמכי הפרויקט.
+
+## רגרסיות שנוספו ב־10.11.2026
+
+`tests/pwa_offline_qa.py` מפעיל ServiceWorker אמיתי במקור loopback מאובטח ובהתאמת reader/; לאחר activation מנותקת כל הרשת, מבוצעים reload/search/14/פתיחה חדשה, ואז נמחק CSS חובה ומוסף נכס זר. מספר38 הרשומות נשאר קבוע אך מוכנות חייבת להיכשל ולהופיע בלוח ההתקנה. `reader_layout_probe.js` בודק גם סעיף וחלק בתוספת מתחת לכפתור חזרה בפועל אחרי focus. `test_public_reader.py` דורש owner marker ומונע PASS על redirect/bytes ישנים. בניסוי Print נדרש עמוד preview ולא רק enabled/visible; קובץ PDF אמיתי עדיין נבדק ב־PdfRenderer. אין טענת מכשיר פיזי.

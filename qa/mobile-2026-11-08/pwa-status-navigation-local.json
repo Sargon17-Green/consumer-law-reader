@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "baselineCommit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+  "sourceDirty": true,
+  "environment": "Linux Work, Python3.12, Playwright1.57.0, official Chrome-for-Testing157.0.8103.38 headless; not a phone",
+  "filesSha256": {
+    "web/mobile.js": "13a682973d1ec70ad273d9d88bda449689163b817c64947881e7c9b6f802938a",
+    "scripts/build_web.py": "64defeada0d464e2fd1d43e86fdbeffc773f3bf8b04a86b2cc9590a4f8493a7b",
+    "scripts/verify_public_reader.py": "5d3935b844ee75ec2fe760e2f750006e7cccac8253809007d7ee3be63aa52eee",
+    "tests/fixtures/reader_layout_probe.js": "029657d6b14309c3d06aed93d05bd941a9be8dd1b2afe9650c869dc3c5ff840e",
+    "tests/pwa_offline_qa.py": "d4bf9cab180afb52a7a67f8ee90e140827ae58e8fbbd59384447292d1e86b451",
+    "tests/mobile_integration_qa.py": "1c8b1e59ea58402c8e0d3e78a18f6b3855037bef2d8bafcb67aedcb3e8be0a65",
+    "tests/test_public_reader.py": "1553a109cd8f05d803a5c5285cb7b227b1f90b78b436b83e761aab09acfcfd3c",
+    ".github/workflows/deploy_web.yml": "0279563f65b040b89130ec8f8cba1d8cb6bf24eed3c0d19085576c242d69860e"
+  },
+  "unitTests": {
+    "passed": 47,
+    "logSha256": "68ee80b06ed337bf2d74b115e0dbbe2248f1822a2bd890c83379e44f84af5548"
+  },
+  "sourceIntegrity": {
+    "checksPassed": 35,
+    "sha256": "de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9",
+    "legalVerificationDate": "2026-10-28"
+  },
+  "node": "PASS500 generated normalized UTF16 cases and date fallback failure modes",
+  "pwa": {
+    "schema": 1,
+    "sourceCommit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+    "sourceDirty": true,
+    "result": "PASS",
+    "environment": "Actual Chromium ServiceWorker at trusted loopback origin, canonical /consumer-law-reader/reader/ subpath, Playwright network fully offline after cache activation",
+    "coverage": [
+      "real complete cache activation and OFFLINE_STATUS reply",
+      "visible installed-app offline readiness and missing-cache failure",
+      "stable manifest identity/start_url/scope/standalone",
+      "offline reload, Hebrew search and exact section navigation",
+      "new page at home-screen start URL with query/hash and preserved preferences",
+      "required CSS deleted and unrelated entry added: unchanged count must still report OFFLINE_ERROR"
+    ],
+    "cache": {
+      "names": [
+        "law-reader-721a4e865027bc53"
+      ],
+      "files": 38,
+      "script": "http://127.0.0.1:38717/consumer-law-reader/reader/sw.js"
+    },
+    "negativeCacheCase": {
+      "before": 38,
+      "after": 38
+    },
+    "limitations": "Not a physical Android/iOS installation or OS home-screen icon test; native launcher tests are separate"
+  },
+  "layout": {
+    "viewport": 320,
+    "sizes": [
+      18,
+      24,
+      28,
+      48
+    ],
+    "regulations": 66,
+    "checked": 268,
+    "navigationTargets": 276,
+    "scrollableTables": 309,
+    "issues": []
+  },
+  "browser": "PASS: actual full DOM, long topics, interaction flow,8 axe states at320px",
+  "limitations": [
+    "Dirty-tree local evidence; new immutable commit must still passCI",
+    "Remaining widths and native navigation change awaitCI",
+    "No new public patch yet; no physical device or signing claim"
+  ]
+}

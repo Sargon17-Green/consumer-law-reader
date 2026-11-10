@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "commit": "e120c5dd75fa0710f399af03815c6bce1eb86e17",
+  "run": 42726433709,
+  "result": "partial; not full native acceptance",
+  "landscape": {
+    "job": 129533139190,
+    "result": "PASS",
+    "artifact": 13722647224,
+    "artifactSha256": "964cfc0e2824b3433dc371aa52b5ed905b03d1b64a772de12e7084aae28c3e8b",
+    "PDF": {
+      "pages": 146,
+      "bytes": 1515150,
+      "sha256": "9c1a4a59b6ced54de878a2cd2abcf6e2e840c7157f312e814d4a38455c87d2fc",
+      "verification": "Real Print -> Save as PDF -> SAF; PdfRenderer page count and visible first-page ink assertion passed"
+    }
+  },
+  "portrait": {
+    "job": 129533138770,
+    "result": "FAIL: instrumentation process exited",
+    "artifact": 13722952312,
+    "artifactSha256": "eeb5b3fe42c8947850e949f467f31990beac8f3a1c334e2443f07b526faa4793",
+    "observed": "First fatal log: system MediaProvider FuseDaemon node-inl.h:114 active_nodes_ assertion; Downloads android.process.media NPE then reader process exited. DocumentsUI had opened. No reader Java exception found; root cause not proven."
+  },
+  "falsifiedHypotheses": [
+    "Fresh launch alone: failed42722603381",
+    "Portrait vs landscape alone: both failed42722603381",
+    "Explicit WebView resume while Print UI visible: failed42722603381; no production lifecycle change justified"
+  ],
+  "acceptedTestChange": "Wait for Page n of total in actual visible Print UI in addition to visible enabled control, then measured pointer tap; keep real PDF validation",
+  "limitations": [
+    "Fresh-print diagnostic, not online/offline full sequence",
+    "Google APIs emulator API36 with WebView133.0.6943.137; not physical Android",
+    "No change in production print or WebView lifecycle based on this experiment"
+  ]
+}

@@ -3,9 +3,9 @@
   "project": "Sargon17-Green/consumer-law-reader",
   "asOf": "2026-11-10 Asia/Jerusalem",
   "sourceBaseline": "016b3de352dabe97f51b34b78ff803965b6cd40d",
-  "candidateHead": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-  "candidateTree": "cadba5f98945b5b122f87ffcecd1455a63f9d2f1",
-  "testedPRMergeCommit": "d178bb6d1765707732e9ad8f5ed448a1de5ebac3",
+  "candidateHead": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+  "candidateTree": "7578188ec14ef4421f70bcb177cd90c0fd698a22",
+  "testedPRMergeCommit": "46d170c70555cdb637066bb6927601e747fc2800",
   "statusMeanings": {
     "טרם התחיל": "לא קיים מימוש",
     "בפיתוח": "קבלה פתוחה או מימוש משתנה",
@@ -44,26 +44,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -105,26 +105,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -168,26 +168,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -233,26 +233,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -296,26 +296,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -358,26 +358,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -419,26 +419,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -481,26 +481,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -543,26 +543,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -606,26 +606,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -667,26 +667,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -729,26 +729,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -790,19 +790,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -838,26 +838,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -901,26 +901,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -963,26 +963,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1028,26 +1028,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1091,26 +1091,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1152,19 +1152,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1203,26 +1203,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1265,26 +1265,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1330,26 +1330,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1390,19 +1390,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1439,19 +1439,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1486,19 +1486,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1536,26 +1536,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1597,19 +1597,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1704,26 +1704,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1832,19 +1832,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1914,26 +1914,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -1975,19 +1975,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2051,26 +2051,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2105,19 +2105,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2183,26 +2183,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2264,11 +2264,11 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         }
       ],
       "dependencies": [],
@@ -2304,26 +2304,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2361,26 +2361,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2417,19 +2417,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2464,19 +2464,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2572,19 +2572,19 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2620,11 +2620,11 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         }
       ],
       "dependencies": [],
@@ -2772,26 +2772,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2829,26 +2829,26 @@
       ],
       "evidence": [
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "result": "PASS: source + 4 browser jobs only; Android26/36 jobs failed",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176",
-          "scope": "40 Python tests, Node 500 cases, exact DOM/hash, 4 widths × 8 axe states; see individual job logs"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "result": "PASS: source + 4 browser + build + Android26/31; Android36 PDF failed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913",
+          "scope": "46 Python tests, Node500, real PWA offline, 32 axe scans; actual PR merge checkout46d170c with same tree. No overall PASS."
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016332,
-          "result": "PASS: all 4 simulator jobs",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332",
-          "scope": "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; Apple audit only where available; not physical devices"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
         },
         {
-          "commit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
-          "run": 42683016176,
-          "job": 129382997932,
-          "result": "PASS: API31 only; API26/36 acceptance incomplete",
-          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176/job/129382997932",
-          "scope": "API31 online/offline installed Native flow; requirements not reached on other APIs remain unverified there"
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
         }
       ],
       "dependencies": [],
@@ -2889,6 +2889,99 @@
       "published": {
         "Android": null,
         "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "NAV-006",
+      "title": "יעדי חקיקת משנה מתחת לכפתור החזרה",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "יעד סעיף/חלק בתוספת מגיע לפחות10px מתחת לכפתור החזרה לאחר focus וגלילה",
+        "כל66 התקנות, גופנים18/24/28/48 וארבעה רוחבים: אפס יעדים מוסתרים; בדיקה משותפת גם במעטפות Native"
+      ],
+      "status": {
+        "Android": "מומש",
+        "iOS": "מומש",
+        "Web": "מומש"
+      },
+      "implementation": [
+        "web/mobile.js"
+      ],
+      "tests": [
+        "tests/fixtures/reader_layout_probe.js",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [],
+      "dependencies": [
+        "שערי Web ו־Native על קוד התיקון לפני קבלת הפלטפורמה; אין שינוי במקור המשפטי"
+      ],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "PWA-001",
+      "title": "מוכנות עותק מקומי מלאה ומוצגת",
+      "platforms": [
+        "Web"
+      ],
+      "acceptance": [
+        "לוח התקנה מציג שמירה/מוכן/לא ניתן לאמת מתוך תשובת ServiceWorker השולט בלבד; כשל או60שניות לא נשארים כהצלחה",
+        "כל38 נכסי החובה קיימים: מחיקת CSS והוספת נכס זר אינן מוכנות אף שמספר רשומות המטמון נשאר38",
+        "reload, חיפוש עברי, מעבר14, פתיחה מחדש ושמירת העדפות עוברים כאשר הרשת מנותקת"
+      ],
+      "status": {
+        "Web": "מומש"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "scripts/build_web.py"
+      ],
+      "tests": [
+        "tests/pwa_offline_qa.py",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [],
+      "dependencies": [
+        "CI ופרסום תיקון נפרדים; אין טענת התקנה פיזית"
+      ],
+      "published": {
+        "Web": null
+      }
+    },
+    {
+      "id": "CI-003",
+      "title": "אימות פרסום מדויק במסלול Pages הקיים",
+      "platforms": [
+        "Web"
+      ],
+      "acceptance": [
+        "מצב legacy מאומת ב־GET בלבד בלי environment, pages:write או בקשת deployment; פריסת workflow ממשיכה לדרוש environment מאושר",
+        "כל נכסי reader כולל קובץ בעלות sourceCommit והקבצים הציבוריים הקודמים ו־APK נבדקים ב־HTTP200 ללא הפניה ו־SHA256 זהה",
+        "עד8 בקשות עצמאיות במקביל, מגבלות גודל וזמן, דוח חלקי וניסיון חוזר רק לקבצים שנכשלו"
+      ],
+      "status": {
+        "Web": "מומש"
+      },
+      "implementation": [
+        ".github/workflows/deploy_web.yml",
+        "scripts/verify_public_reader.py"
+      ],
+      "tests": [
+        "tests/test_public_reader.py"
+      ],
+      "evidence": [],
+      "dependencies": [
+        "אימות חי לאחר פרסום לפני מעבר למצב פורסם; אין שינוי הגנת branch/environment"
+      ],
+      "published": {
         "Web": null
       }
     }

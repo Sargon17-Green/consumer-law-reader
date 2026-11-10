@@ -1,15 +1,15 @@
 # מצב מימוש, אימות ופרסום
 
-נכון למחזור 10.11.2026; יש לרענן מ־GitHub לפני פעולה. מצב כל דרישה נמצא ב־[docs/requirements.json](docs/requirements.json) ובתצוגה [PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md). אין להסיק פרסום מהשלמת קוד.
+נכון ל־10.11.2026. [קטלוג הדרישות](docs/requirements.json) הוא המקור המובנה; [PRODUCT_REQUIREMENTS](PRODUCT_REQUIREMENTS.md) נגזר ממנו. מימוש, אימות ופרסום נפרדים.
 
-| ערוץ | מימוש/אימות | פרסום |
+| ערוץ | ראיה שהסתיימה | פרסום |
 |---|---|---|
-| Web/PWA 1.3.9-dev (בטא) | source וארבעה browser jobs עברו ב־2f91d12; 32 סריקות axe; רוחב/חיפוש/גיבוי/היסטוריה | **פורסם** ב־reader/ מתוך source83fe5ec. אימות HTTP עבר לכל74 הקבצים, כולל alpha ו־APK, ב־10.11.2026; ראיה ב־qa/mobile-2026-11-08/public-web-http-verification.json |
-| Android1.3.9-dev/code17 | build Debug + unsigned APK/AAB עברו; API31 online/offline עבר; API26 עבר בענף אבחון לאחר תיקון פעולת בדיקה; API36 עדיין דורש קבלת PDF/sharesheet | אין APK חדש חתום במפתח ההפצה; הציבורי נשאר1.3.5-beta |
-| iOS1.3.9/build17 | ארבע משימות הסימולטור הסתיימו בהצלחה: iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0; גם אייקון Home Screen; device archive לא חתום במסלול CI | אין IPA חתום, TestFlight או App Store שנבדקו |
+| Web/PWA1.3.9-dev | source וארבעת רוחבי הדפדפן על4ee85a3 עברו;32 סריקות axe ובדיקת ServiceWorker offline אמיתית | פורסם source83fe5ec ב־reader/;74 GET/SHA256 עברו כולל alpha ו־APK. Pages הרגיל42718136476 הסתיים success |
+| Android1.3.9-dev/code17 | build ו־API26/31 online/offline על4ee85a3 עברו; API36 נכשל בשמירת PDF. בניסוי ממוקד e120c5d, המתנת preview אמיתי אפשרה PDF146עמודים במצב לרוחב; לאורך נכשל בתהליך עם קריסת רכיב מערכת | אין חתימה חדשה במפתח המקורי; הציבורי1.3.5-beta נשמר |
+| iOS1.3.9/build17 | על4ee85a3 ארבעת jobs עברו: iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0. Native UI ו־Home Screen; archive מכשיר לא חתום | אין IPA חתום או TestFlight |
 
-ראיות: [Linux42683016176](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176) נכשל כוללנית בשני תרחישי Native; אין להציגו כריצה ירוקה. source+4browser+build+API31 הצליחו. [iOS42683016332](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332) הצליח כוללנית. [אבחון42685860051](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42685860051) עבר API26 ונכשל API36 בבחירת יעד sharesheet; תוצרי בדיקה בלבד.
+[Linux42721600913](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913) נכשל כוללנית רק ב־API36; אין להציגו כ־PASS כולל. [iOS42721601016](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016) הצליח כוללנית. מקורPR4ee85a379bcd9700125916133e1638a2fdd4f00a נבדק ב־merge-ref46d170c70555cdb637066bb6927601e747fc2800; לשניהם tree7578188ec14ef4421f70bcb177cd90c0fd698a22. [סיכום קבוע](qa/mobile-2026-11-08/acceptance-4ee85a3.json).
 
-PR head2f91d12787f37a8b75d33e3f60d8813c6ecd081d; checkout הבדיקות היה merge commit d178bb6d1765707732e9ad8f5ed448a1de5ebac3, עם tree זהה cadba5f98945b5b122f87ffcecd1455a63f9d2f1. GitHub merge-ref אינו commit הפצה; התוצרים נושאים sourceCommit/tree מדויקים.
+תיקוני NAV-006/PWA-001/CI-003 במחזור הנוכחי ממומשים וממתינים לשערי CI ולפרסום נפרד: מוכנות מטמון לפי כל נכס נדרש והודעה למשתמש; יעדי תקנות מתחת לכפתור החזרה לאחר focus; אימות legacy Pages בקריאה בלבד. אין לייחס להם פרסום83fe או אימות Native ישן. בדיקת Print עודכנה להמתין לעמוד preview ממשי; קוד ההדפסה ומחזור החיים של המוצר לא שונו.
 
-פרטי שיפורים, קבצים/בדיקות/commits ומטריצת יכולות: [הדוח ההנדסי](docs/MOBILE_ENGINEERING_2026-11-08_HE.md). תוצאות מסך וביצועים: `qa/mobile-2026-11-08/`. מעבר pending ל־PASS מותר רק לפי job completed/log/artifact, ומעבר ל־פורסם דורש בדיקת כתובת חיה או חתימה ותוצר הפצה.
+[אבחון PDF](qa/mobile-2026-11-08/android-print-preview-diagnosis.json) הוא ראיה מוגבלת, ולא קבלת Android מלאה. פרטי שיפורים ומטריצה: [הדוח ההנדסי](docs/MOBILE_ENGINEERING_2026-11-08_HE.md). מעבר ל־פורסם דורש bytes חיים/תוצר חתום, ומעבר ל־אומת דורש completed/log בתחום המוצהר.

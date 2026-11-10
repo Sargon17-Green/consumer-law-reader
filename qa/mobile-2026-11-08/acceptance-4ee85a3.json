@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "sourceHead": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+  "testedCheckout": "46d170c70555cdb637066bb6927601e747fc2800",
+  "sameTree": "7578188ec14ef4421f70bcb177cd90c0fd698a22",
+  "linux": {
+    "run": 42721600913,
+    "conclusion": "failure",
+    "passedJobs": [
+      129516652153,
+      129516652697,
+      129516652742,
+      129516652769,
+      129516652882,
+      129516652904,
+      129517151932,
+      129517152088
+    ],
+    "failedJobs": [
+      129517152120
+    ],
+    "scope": "source, four browser widths, build, Android26/31 online/offline passed; Android36 failed at real PDF save"
+  },
+  "ios": {
+    "run": 42721601016,
+    "conclusion": "success",
+    "jobs": [
+      129516652269,
+      129516652870,
+      129516652937,
+      129516652944
+    ],
+    "scope": "Four actual simulator UI jobs; no signed distribution or physical device"
+  },
+  "publicPages": {
+    "run": 42718136476,
+    "conclusion": "success",
+    "source": "83fe5ec4a0d17c209088354c4ff748f63d7188a0",
+    "siteCommit": "b19d298d06f15f9aa1ca778be42291cbe7d256c8",
+    "httpProof": "qa/mobile-2026-11-08/public-web-http-verification.json"
+  }
+}

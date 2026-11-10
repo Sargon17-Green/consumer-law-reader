@@ -11,21 +11,21 @@
 
 ## מצב והפניות קבועות
 
-- main baseline016b3de352dabe97f51b34b78ff803965b6cd40d; אין להניח שעדיין HEAD — לבדוק GitHub לפני עריכה.
-- העבודה הראשית ב־**fix/pastafari-date-android-20261028**, [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11), head הנבדק2f91d12787f37a8b75d33e3f60d8813c6ecd081d. קוד1.3.9-dev/build17. להמשיך ממנו ולא ליצור מימוש מקביל.
-- ענף **release/web-reader-1.3.9-preview**, commit83fe5ec4a0d17c209088354c4ff748f63d7188a0, הוא אותו קוד Web שנבדק עם trigger פרסום נוסף. **פורסם** ב־reader/. אימות HTTP/SHA256 של74 הקבצים עבר ב־10.11.2026, כולל alpha/latest.apk; ראיה ב־qa/mobile-2026-11-08/public-web-http-verification.json.
-- [CI Linux42683016176](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016176): source+4browser+build+API31 הצליחו; API26/36 נכשלו. אין PASS כולל.
-- [CI iOS42683016332](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42683016332):4jobs הצליחו, כולל iOS16, Home Screen ו־Native audit היכן שנתמך; archive מכשיר לא חתום בלבד.
-- ענף אבחון **work/mobile-android26-picker-20261109**: e50a137 list-view לא פתר; cadaa9c הוכיח pointer לפי filename bounds ב־API26 (run42685860051), ו־API36 נכשל ב־sharesheet לאחר החמרת visibility כללית. dc18fecbe3e1c726984ec9b479e561941b3d29e2 שומר visible רק ל־print_button ומחזיר אישור Intent הקודם. יש לעקוב אחרי הריצה שלו, לתקן ולהכניס רק את קוד הבדיקה הנחוץ ל־PR11. workflow האבחון אינו מוצר.
-- Android ציבורי נשאר1.3.5-beta מה־[קישור הקבוע](https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/main/downloads/latest.apk); אין מפתח פרטי נגיש. iOS לא הופץ ב־TestFlight. מדיניות חתימות ו־SHA ב־RELEASE_PROCESS.
+- main baseline016b3de352dabe97f51b34b78ff803965b6cd40d; לרענן head/PR/runs מ־GitHub לפני עריכה.
+- העבודה הראשית **fix/pastafari-date-android-20261028**, [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11), קוד1.3.9-dev/build17. ממשיכים ממנה. commit4ee85a3 נבדק ב־merge46d170c עם tree זהה7578188ec14ef4421f70bcb177cd90c0fd698a22.
+- **Web פורסם** מתוך release/web-reader-1.3.9-preview/source83fe5ec4a0d17c209088354c4ff748f63d7188a0. [reader](https://sargon17-green.github.io/consumer-law-reader/reader/) תומך הוספה למסך הבית. Pages42718136476 success;74GET/SHA256 עברו כולל alpha/latest.apk. ראיה: [HTTP](qa/mobile-2026-11-08/public-web-http-verification.json).
+- [Linux42721600913](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913): source+4browser+build+Android26/31 הצליחו; **Android36 נכשל ב־PDF**. אין PASS כולל.
+- [iOS42721601016](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016): כל4jobs הצליחו, כולל iOS16, iPad, Home Screen ו־Native audit היכן שנתמך; device archive לא חתום. [סיכום קבוע](qa/mobile-2026-11-08/acceptance-4ee85a3.json).
+- אבחון work/mobile-print-lifecycle-20261110/e120c5dd75fa0710f399af03815c6bce1eb86e17: [run42726433709](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42726433709) landscape עבר לאחר המתנה לעמוד preview: PDF146עמודים/1,515,150bytes, hash בדוח. portrait נכשל; fatal ראשון ב־system MediaProvider/FuseDaemon, ואז יציאת reader instrumentation. אין הוכחת סיבת שורש באפליקציה. [אבחון וארטיפקטים](qa/mobile-2026-11-08/android-print-preview-diagnosis.json). lifecycle resume/orientation בלבד לא פתרו; אין לשנות production על בסיס זה. workflow האבחון אינו מוצר.
+- Android ציבורי נשאר1.3.5-beta מה־[קישור הקבוע](https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/main/downloads/latest.apk); אין מפתח פרטי נגיש. iOS לא הופץ ב־TestFlight. פרטי זהויות וחתימות ב־RELEASE_PROCESS.
 
 ## הצעד הבא
 
-א. פרסום Web מוקדם ואימות HTTP הושלמו. לעדכן את CI עם בדיקת ServiceWorker/cache offline אמיתי וסטטוס מוכנות המטמון. ה־deploy job של run42718069159 נדחה ב־environment; זה מתועד, ופרסום gh-pages הרגיל מאומת בנפרד. אין להסיר הגנה.
+א. לקבל ולפרסם בנפרד את תיקוני Web NAV-006/PWA-001/CI-003 שבמחזור הנוכחי. אין להמתין ל־Native. תיקון cache נבדק מול מחיקת CSS והוספת נכס זר ללא שינוי ספירה. fixture משותף בודק כל66 התקנות ×4גדלי גופן, כולל מיקום יעדים מתחת לחזרה. לדרוש CI completed ו־HTTP כולל owner marker לפני פרסום. legacy verifier אינו deployment ואין לשנות environment protection.
 
-ב. להשלים full API36 online/offline ו־PDF ממשי; להכניס את תיקון Android8 (קובץ נמצא ב־AX depth17; לשורה אין ACTION_CLICK; צריך pointer בגבולות השם המדויק) ואת המתנת Print גלוי, ואז להריץ שערים על commit סופי. לא למזג שינוי שנכשל בבדיקה חיונית.
+ב. להריץ full API26/31/36 עם המתנת preview שנלקחה מאבחון e120. להשאיר אישור Intent ב־UID אחר, SAF/PdfRenderer והחזרה ל־reader. לא למחוק בדיקה כושלת או לסמן run חלקי כ־PASS. Android26 filename-depth17 נפתר כבר ב־4ee באמצעות pointer מדוד; אין ליישמו שוב.
 
-ג. לעדכן את כל המסמכים/ראיות, להכין PR למיזוג בהתאם לכללים, להמשיך בדיקות נוספות ב־BACKLOG. אין להשאיר מידע חיוני בשיחה.
+ג. לעדכן קטלוג60 הדרישות, מצב/ראיות/פרסום והעברה לאחר כל מחזור. להמשיך iPad window/low memory לפי BACKLOG. אין למזג כשל מהותי; pending אינו חסם. אין צורך בחבילת Windows.
 
 ## גבולות קשיחים
 
