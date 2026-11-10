@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "asOf": "2026-11-10T18:13:00Z",
+  "asOf": "2026-11-10T18:24:00Z",
   "candidate": {
     "head": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
     "tree": "c530ca59ea89d78b28bf5bb244e57ebc4bcc7276",
@@ -133,19 +133,44 @@
       "branch": "work/ios-system-pdf-save-20261110",
       "head": "278d13e361af6e52f45b235ca356b73cdf157a63",
       "run": 42870543669,
-      "result": "pending, actual hittable Print Close/callback trace and system Share-to-Files controls; temporary debug trace not release code"
+      "result": "completed FAILURE overall: focused actual Print Close PASS on both iPhone26.2(115.276s)/iPad26.2(109.464s), each single native Close then enabled reader. Save-to-Files query failed because actual activity is Cell, not Button. Production DEBUG trace delegate was present in this component; it is not final acceptance."
     },
     {
       "branch": "work/android-ime-native-edit-20261110",
       "head": "94dabd542effbd797d829f2f0a59df8a02a2a415",
       "run": 42871943171,
-      "result": "pending API31 full online/offline; selects text with native ACTION_SET_SELECTION then actual Delete and native14 keys; no JavaScript value assignment or weaker IME assertion"
+      "result": "completed FAILURE. API31 online full native flow PASS incl key14/focus; offline Native Delete failed before empty-query assertion. No product change; original IME assertions retained."
     },
     {
       "branch": "work/ios-lifecycle-trace-20261110",
       "head": "475d9fadcfe8637cb31fa5d5598d471ec77e69b2",
       "run": 42871844738,
-      "result": "pending, explicit Swift return corrects diagnostic helper; trace exact18.5 lifecycle stage"
+      "result": "completed PASS lifecycle7.796s. Trace did not reproduce original ReferenceError; not proof of its cause."
+    },
+    {
+      "branch": "work/android-ime-native-edit-20261110",
+      "head": "6d246d3397b04ae68333a4469ebaca74c921d483",
+      "run": 42873698707,
+      "result": "pending API31 online/offline. Require settled actual WebView/IME geometry + native window/input focus; delete by native End/Delete using bounded live query length; capture exact DOM/focus on failure. Post-key invariants prepared for integrated candidate."
+    },
+    {
+      "branch": "work/ios-files-cell-save-20261110",
+      "head": "060fbaca723a645bb115e896d15063813430ead1",
+      "run": 42873707617,
+      "result": "pending actual system Save-to-Files Cell selection and observation of Files browser; original production Swift027 unchanged. Observation alone does not claim actual file saved."
+    },
+    {
+      "branch": "work/ipad-print-ready-20261110",
+      "head": "c853d3ba3338eda89bcc09d68c0b2458b9806278",
+      "run": 42874102662,
+      "result": "pending full iPad functional UI. Require actual first-page print preview, ready hittable Close and actual screenshot before single tap. Original production Swift unchanged; timings/diagnostic delegate are not transplanted."
+    },
+    {
+      "branch": "work/ios-readiness-generation-20261110",
+      "head": "200d5b7c615e23986904823847e8ebf41683ef6d",
+      "run": 42874533215,
+      "issue": 16,
+      "result": "pending lifecycle +8 repeated real native retry loads on18.5. Permanent product guard invalidates generation synchronously and rejects stale JS callbacks or loading documents; not asserted as unique cause of027 failure."
     }
   ],
   "gates": "Keep PR11 draft. Do not merge any candidate until essential completed checks pass on exact integrated tree. Diagnostic artifact decoding success is not app acceptance.",
@@ -179,5 +204,19 @@
     "dateFallback": "PASS raw/REST/Pages stale/malformed/DNS/offline/HTTP/timeout/partial-body/exact allowlist",
     "artifact": 13789861776,
     "scope": "Pure documentation/source validation; not native acceptance or publication"
+  },
+  "storePolicyRecheck": {
+    "date": "2026-11-10",
+    "androidTarget": 36,
+    "iOSMinimum": 16,
+    "Xcode": "26.3",
+    "sources": [
+      "https://support.google.com/googleplay/android-developer/answer/11926878?hl=en",
+      "https://developer.apple.com/news/upcoming-requirements/?id=04282026a",
+      "https://developer.apple.com/news/upcoming-requirements/?id=0992026a",
+      "https://support.google.com/googleplay/android-developer/answer/18265346?hl=en",
+      "https://developer.apple.com/app-store/review/guidelines/"
+    ],
+    "result": "Current target/SDK settings already satisfy retrieved submission minima; no store approval or account access is inferred."
   }
 }

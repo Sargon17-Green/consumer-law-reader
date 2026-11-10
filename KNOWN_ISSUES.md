@@ -6,7 +6,7 @@
 |---|---|---|
 | QA-IME-027 | כשל fixture מאומת, תיקון בבדיקה | API36 offline הציג search סגור אחרי clear-before-touch;850 העביר26 אך31 מצא את חלון המקלדת במקום חלון היישום. bfcb7e1 ממתין לרגרסיה בכל3API. [ראיות](qa/mobile-2026-11-08/candidate-027-followup.json) |
 | IOS-PRINT-027 | פתוח; גורם טרם הוכח | iPad26.2 נשאר ב־Print Options אחרי tap361.5,74 בתוך Close. הקלטה מקורית אומתה; אין להציג זאת כטעות קואורדינטות. אבחון callbacks/hittability בענף PDF; אין החלשת assertion |
-| IOS-LIFECYCLE-027 | פתוח; גורם טרם הוכח | iPhone18.5: ReferenceError lawMobile בבדיקת lifecycle; UI/מקלדת/שיתוף עברו. f522c22 מתעד את פקודת JS המדויקת. אין להסיק שגיאת נוסח חוק |
+| IOS-LIFECYCLE-027 / Issue16 | guard מומש וממתין; גורם הכשל המקורי טרם הוכח | iPhone18.5: ReferenceError lawMobile בבדיקת lifecycle; UI/מקלדת/שיתוף עברו. f522c22 מתעד את פקודת JS המדויקת. אין להסיק שגיאת נוסח חוק |
 | IO-002 / Issue15 | תיקון שיתוף עבר ברכיב; קבלה כוללת פתוחה | ב־545 iOS16 נשאר sharesheet אחרי Close ממשי, בעוד iPad18.5 עבר. חיבור completion ל־SwiftUI לפי UUID, עם המתנת Close מפורשת, עבר בשני המכשירים ב־4bc. אין להציג selector כגורם היחיד. [לפני](qa/mobile-2026-11-08/ios-legacy-share-diagnosis.json), [אחרי](qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json) |
 | DATA-003 / Issue14 | Android94 עבר; סגירה אחרי מיזוג מאומת | Binder קרס ב־06 במצב1.2MB. AtomicFile והפניה קטנה עברו בכל3API עם cache עוין. [קבלה94](qa/mobile-2026-11-08/acceptance-94cdf7d.json) |
 | NATIVE-003 / Issue13 | iPad26/94 עבר במלואו | scaling וחפיפת SystemClose תוקנו;375pt/44pt/תפריט/שיתוף/סגירה/תוצאה גלויה לפני tap עברו. [ראיה](qa/mobile-2026-11-08/ipad-window-94cdf7d.json) |

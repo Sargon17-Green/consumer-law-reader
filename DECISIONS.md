@@ -49,3 +49,7 @@ The06/API36fatal proves the fullWebViewBundle cannot travel through Binder. Pres
 ## 10.11.2026 — כשלים במועמד027 נשמרים ללא שינוי מקור משפטי
 
 אין לכנות תמונת Home Screen לאחר cleanup כתמונת הכשל; נשמרה תמונת assertion המדויקת. Android מאתר editable בחלון יישום כש־IME פעיל, ושומר בדיקת חלון TYPE_INPUT_METHOD אמיתי. מגע Print Close נמצא בתוך הכפתור; אבחון UIKit קודם לתיקון התנהגות. traces זמניים ו־only-testing אינם עוברים למועמד. [תוצאות וענפים](qa/mobile-2026-11-08/candidate-027-followup.json).
+
+## 10.11.2026 — Ready לפי דור מסמך, ואבחון לפי AX ממשי
+
+ניסוי trace475 עבר ואינו מוכיח את מקור ReferenceError027. guard200 מאפס ready מיד בטעינה, מזהה generation ומוודא !isLoading וממשקי JS חיים לפני enabling. הוא מלווה ב־8טעינות Native אמיתיות ו־Issue16, ונבדק לפני מיזוג. System Save-to-Files הוא Cell בעץ26.2; אין להכריז על תכונה חסרה כי בדיקה חיפשה Button. wait ל־Print preview ו־Close מוכן הוא תנאי בדיקה, ואינו הוכחה לתיקון UIKit או שורש הכשל.

@@ -41,3 +41,5 @@ Parcel cache זמני ומותנה באותה התקנת OS/app/provider; אינ
 בדיקת checkpoint a06c91f/run42871114992/job130022342617 הסתיימהPASS:12מסמכים/63דרישות,52יחידות,35SHA/DOM,500UTF16 ותאריך fallback. [תמונות מקוריות קבועות](qa/mobile-2026-11-08/screens/README.md) נשמרו ב־Git. אין להסיק מכך קבלה של Native.
 
 ראשי הניסויים והתרחישים המלאים: [candidate-027-followup.json](qa/mobile-2026-11-08/candidate-027-followup.json). מקור המועמד עדיין PR11/027; ענף docs מכיל את הראיות העדכניות. לאחר תוצאה חדשה יש לעדכן את הקטלוג, לא להסתמך על מצבי pending ההיסטוריים למעלה.
+
+מצב הניסויים ב־18:24UTC: lifecycle475/run42871844738 עבר בלי לשחזר את הכשל;94dab/run42871943171 עבר הקלדה ב־online ונכשל במחיקה ב־offline. המשכו6d246d3/run42873698707 בודק פוקוס וגאומטריה לפני הקלדה. Print Close עבר בניסוי ממוקד בשני26.2, אבל Save-to-Files חיפש Button במקום Cell;060fbac/run42873707617 ממשיך לפי ה־AX שנצפה. c853d3b/run42874102662 בודק רצף iPad מלא עם preview ממשי;200d5b7/run42874533215 מוסיף generation guard ו־8טעינות Native ב־18.5 ([Issue16](https://github.com/Sargon17-Green/consumer-law-reader/issues/16)). אף ניסוי pending אינו PASS; אין לערבב DEBUG trace delegate עם קוד מועמד.
