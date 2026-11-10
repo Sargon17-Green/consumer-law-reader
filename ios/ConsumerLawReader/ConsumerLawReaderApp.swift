@@ -74,6 +74,7 @@ struct ReaderScreen: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
+            .avoidingWindowControls()
             .background(Color(uiColor: .secondarySystemBackground))
 
             if !reader.ready {
@@ -125,6 +126,17 @@ struct ReaderScreen: View {
         .alert(item: $reader.notice) { item in
             Alert(title: Text("חוק הגנת הצרכן"), message: Text(item.message),
                   dismissButton: .default(Text("אישור")))
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func avoidingWindowControls() -> some View {
+        if #available(iOS 26.0, *) {
+            self.containerCornerOffset(.horizontal, sizeToFit: true)
+        } else {
+            self
         }
     }
 }

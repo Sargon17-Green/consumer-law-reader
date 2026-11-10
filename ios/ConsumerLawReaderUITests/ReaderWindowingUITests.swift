@@ -48,8 +48,16 @@ final class ReaderWindowingUITests: XCTestCase {
         XCTAssertTrue(search.waitForExistence(timeout:30));search.tap()
         let input=web.searchFields.firstMatch
         XCTAssertTrue(input.waitForExistence(timeout:20));input.tap()
-        if let existing=input.value as? String,!existing.isEmpty {input.typeText(String(repeating:XCUIKeyboardKey.delete.rawValue,count:existing.count))}
-        input.typeText("14")
+        // The preceding full-suite relaunch test can leave the same query.
+        // Preserve it; deleting at an unknown restored caret may produce1414.
+        if (input.value as? String) != "14" {
+            if let existing=input.value as? String,!existing.isEmpty {
+                XCTFail("Unexpected prior search fixture: " + existing);return
+            }
+            input.typeText("14")
+        }
+        record(app,"Search query before result selection")
+        XCTAssertEqual(input.value as? String,"14")
         let result=web.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14")).firstMatch
         XCTAssertTrue(result.waitForExistence(timeout:20));result.tap()
         let returnToSearch=web.buttons.matching(identifier:"חזרה לתוצאות החיפוש").firstMatch
