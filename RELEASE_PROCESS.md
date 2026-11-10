@@ -26,6 +26,6 @@ Debug נחתם במפתח QA זמני ואינו משדרג את הציבורי.
 
 ## iOS/iPadOS
 
-`ios/project.yml` הוא מקור ההגדרות; assets נוצרים ב־prepare_assets.sh, והפרויקט ב־XcodeGen. CI בונה סימולטורים ו־device archive לא חתום לאחר מבחני UIKit/WK/UI. למסלול חתימה משתמשים ב־`ios/scripts/archive_for_testflight.sh` עם APPLE_TEAM_ID ו־IOS_BUNDLE_ID מתוך חשבון מורשה בלבד. הפירוט ב־IOS_TESTFLIGHT_HE.md. אין לייחס קיומו של archive ל־IPA להפצה, TestFlight או אישור Apple.
+`ios/project.yml` הוא מקור ההגדרות; assets נוצרים ב־prepare_assets.sh, והפרויקט ב־XcodeGen2.46.0. ה־CI מוריד את נכס ההפצה הרשמי ומאמת SHA256 לפני ההפעלה; אין תלות בגרסת Homebrew האחרונה. סקריפט archive דורש אותה גרסת generator. CI בונה סימולטורים ו־device archive לא חתום לאחר מבחני UIKit/WK/UI. למסלול חתימה משתמשים ב־`ios/scripts/archive_for_testflight.sh` עם APPLE_TEAM_ID ו־IOS_BUNDLE_ID מתוך חשבון מורשה בלבד. הפירוט ב־IOS_TESTFLIGHT_HE.md. אין לייחס קיומו של archive ל־IPA להפצה, TestFlight או אישור Apple.
 
 בכל שחרור: גרסה/build תואמים; בדיקות מתייחסות ל־sourceCommit/tree של התוצר; מעדכנים requirements/status/history/known issues/handoff וראיות. לא מתקינים כלים במחשב המשתמש כאשר אפשר CI. אין תשלום או קבלת תנאים בשם המשתמש.

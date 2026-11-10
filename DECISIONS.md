@@ -30,3 +30,10 @@ CI-004: רשימות קלט iOS זהות ב־push וב־pull_request, כולל f
 ## Android transient state cache — DATA-003
 
 The06/API36fatal proves the fullWebViewBundle cannot travel through Binder. Preserve the opaque fullhistory in privateAtomicFile cache; systemstate contains onlyUUID+SHA. Parcel is deliberately treated as transient: exactOSfingerprint/appinstallation/providerinstallation signature and format/digest/size checks invalidate incompatible bytes. Missing/corrupt/evicted cache reopens the bundled law and durablelogicalsession; settings are never removed. This avoids discarding workingBack/Forward merely to reduceBundle size. No newpermission, dependency, externalstore or cloud service.
+
+
+## קיבוע XcodeGen באותו כלי שנמדד
+
+ריצות iOS מ־10.11 תיעדו XcodeGen2.46.0, אך `brew install xcodegen` לא קיבע גרסה. CI משתמש כעת ב־[נכס הרשמי2.46.0](https://github.com/yonaskolb/XcodeGen/releases/tag/2.46.0), ארכיון4,278,764בתים עם SHA256 `4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806`, שאומת גם בהורדה עצמאית. הבינרי וה־SettingPresets נפרסים תחת RUNNER_TEMP, והגרסה נרשמת בדוח הסביבה. אין התקנה מערכתית חדשה. archive_for_testflight דורש אותה גרסה; קבלת הבינרי בסימולטורים תיקבע ברגרסיה המשולבת.
+
+לבדיקת מקלדת Android מודדים חלון מערכת מסוג TYPE_INPUT_METHOD, מגע ב־editable node, הקלדה native וגבולות WebView; אין להסיק כיסוי IME משינוי CSS בלבד. [תיעוד Android](https://developer.android.com/develop/ui/views/layout/sw-keyboard) ו־[AccessibilityWindowInfo](https://developer.android.com/reference/android/view/accessibility/AccessibilityWindowInfo) נבדקו. בדיקת QA משנה זמנית show_ime_with_hard_keyboard ומשחזרת את ערכה ואת orientation/דגלי השירות ב־finally.

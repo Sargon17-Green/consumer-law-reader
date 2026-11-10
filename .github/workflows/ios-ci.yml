@@ -66,6 +66,9 @@ jobs:
           - family: iPhone
             os: '18.5'
             archive: false
+          - family: iPad
+            os: '18.5'
+            archive: false
           - family: iPhone
             os: '16.0'
             archive: false
@@ -88,8 +91,17 @@ jobs:
           python3 scripts/verify_release.py
           python3 -m unittest discover -s tests -p 'test_web_pages.py' -v
           python3 -m unittest discover -s tests -p 'test_ios_source.py' -v
-      - name: Install project generator
-        run: brew install xcodegen
+      - name: Install checksum-pinned XcodeGen 2.46.0
+        run: |
+          set -euo pipefail
+          GENERATOR_ROOT="$RUNNER_TEMP/law-reader-xcodegen-2.46.0"
+          mkdir -p "$GENERATOR_ROOT"
+          curl --fail --location --retry 2 --max-time 90 \
+            https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip \
+            --output "$GENERATOR_ROOT/xcodegen.zip"
+          (cd "$GENERATOR_ROOT" && echo '4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806  xcodegen.zip' | shasum -a 256 -c -)
+          unzip -q "$GENERATOR_ROOT/xcodegen.zip" -d "$GENERATOR_ROOT"
+          echo "$GENERATOR_ROOT/xcodegen/bin" >> "$GITHUB_PATH"
       - name: Record actual build environment
         run: |
           mkdir -p build

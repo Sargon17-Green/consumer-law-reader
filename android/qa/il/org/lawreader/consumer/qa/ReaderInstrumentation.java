@@ -85,6 +85,80 @@ public final class ReaderInstrumentation extends Instrumentation {
         for(int i=0;i<node.getChildCount()&&out.length()<4000;i++)out.append(systemLabels(node.getChild(i),depth+1));
         return out.substring(0,Math.min(4000,out.length()));
     }
+    private AccessibilityNodeInfo editable(AccessibilityNodeInfo node,int depth) {
+        if(node==null||depth>24)return null;
+        if(node.isEditable()&&node.isVisibleToUser())return node;
+        for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo found=editable(node.getChild(i),depth+1);if(found!=null)return found;}
+        return null;
+    }
+    private android.graphics.Rect keyboardBounds() {
+        for(android.view.accessibility.AccessibilityWindowInfo window:getUiAutomation().getWindows())
+            if(window.getType()==android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD){android.graphics.Rect bounds=new android.graphics.Rect();window.getBoundsInScreen(bounds);if(!bounds.isEmpty())return bounds;}
+        return null;
+    }
+    private void tapBounds(android.graphics.Rect target) throws Exception {
+        check(!target.isEmpty(),"Actual touch target must have measured bounds");
+        long time=android.os.SystemClock.uptimeMillis();
+        android.view.MotionEvent down=android.view.MotionEvent.obtain(time,time,android.view.MotionEvent.ACTION_DOWN,target.centerX(),target.centerY(),0);
+        down.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);boolean delivered=getUiAutomation().injectInputEvent(down,true);down.recycle();
+        Thread.sleep(60);
+        android.view.MotionEvent up=android.view.MotionEvent.obtain(time,android.os.SystemClock.uptimeMillis(),android.view.MotionEvent.ACTION_UP,target.centerX(),target.centerY(),0);
+        up.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);boolean released=getUiAutomation().injectInputEvent(up,true);up.recycle();
+        check(delivered&&released,"The actual native touch must be delivered");
+    }
+    private void testNativeKeyboard(Bundle report) throws Exception {
+        ready();
+        final int[] orientation={0};runOnMainSync(()->orientation[0]=activity.getRequestedOrientation());
+        String previous=shell("settings get secure show_ime_with_hard_keyboard").trim();
+        check(previous.equals("null")||previous.equals("0")||previous.equals("1"),"Known emulator keyboard setting before temporary override");
+        android.accessibilityservice.AccessibilityServiceInfo service=getUiAutomation().getServiceInfo();
+        check(service!=null,"UI automation accessibility service exists");int flags=service.flags;
+        try{
+            service.flags=flags|android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;getUiAutomation().setServiceInfo(service);
+            shell("settings put secure show_ime_with_hard_keyboard 1");
+            runOnMainSync(()->activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT));
+            awaitJS("innerHeight>innerWidth","Actual portrait viewport before keyboard");Thread.sleep(350);
+            final int[] originalHeight={0};runOnMainSync(()->originalHeight[0]=web.getHeight());
+            js("lawMobile.showSearch();requestAnimationFrame(()=>requestAnimationFrame(()=>{document.getElementById('mobile-search').scrollIntoView({block:'center'});window.__qaEditableVisible=true}))");
+            // Returning from a selected result deliberately preserves the list
+            // scroll. Prepare the editing interaction by scrolling its field
+            // into view after that restoration; never assign query text in JS.
+            awaitJS("window.__qaEditableVisible && (()=>{const r=document.getElementById('mobile-search').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()","Editing fixture exposes the actual restored search field");
+            js("delete window.__qaEditableVisible");
+            AccessibilityNodeInfo input=null;
+            for(int i=0;i<100;i++){
+                input=editable(getUiAutomation().getRootInActiveWindow(),0);if(input!=null)break;Thread.sleep(100);
+            }
+            check(input!=null,"Real search field is exposed as a visible native editable node");
+            Bundle empty=new Bundle();empty.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,"");
+            check(input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,empty),"Native editable field can be cleared without JavaScript text assignment");
+            android.graphics.Rect target=new android.graphics.Rect();input.getBoundsInScreen(target);tapBounds(target);
+            android.graphics.Rect keyboard=null;
+            for(int i=0;i<100;i++){keyboard=keyboardBounds();if(keyboard!=null)break;Thread.sleep(100);}
+            check(keyboard!=null,"A real TYPE_INPUT_METHOD system window must be visible; CSS resizing does not qualify");
+            sendStringSync("14");
+            awaitJS("document.getElementById('mobile-search').value==='14' && document.querySelectorAll('.m-result').length>0","Native key input produces actual search results");
+            final int[] geometry=new int[3];
+            for(int i=0;i<100;i++){
+                runOnMainSync(()->{int[] location=new int[2];web.getLocationOnScreen(location);geometry[0]=location[1];geometry[1]=web.getHeight();geometry[2]=location[1]+web.getHeight();});
+                if(geometry[2]<=keyboard.top+4&&geometry[1]<originalHeight[0]-100)break;Thread.sleep(100);
+            }
+            JSONObject measurements=new JSONObject();measurements.put("ime",keyboard.toShortString());measurements.put("originalWebHeight",originalHeight[0]);measurements.put("webTop",geometry[0]);measurements.put("webHeight",geometry[1]);measurements.put("webBottom",geometry[2]);
+            report.putString("keyboardGeometry",measurements.toString());
+            check(geometry[2]<=keyboard.top+4&&geometry[1]<originalHeight[0]-100,"Actual WebView fits above the software keyboard: "+measurements);
+            awaitJS("(()=>{const r=document.getElementById('mobile-search').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()","Search field remains visible above actual IME");
+            sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
+            boolean hidden=false;for(int i=0;i<100;i++){if(keyboardBounds()==null){hidden=true;break;}Thread.sleep(100);}
+            check(hidden,"System Back dismisses the actual software keyboard");
+            awaitJS("document.getElementById('mobile-sheet').open && document.getElementById('mobile-search').value==='14' && document.querySelectorAll('.m-result').length>0","Back hides IME while keeping search/query/results");
+            report.putString("nativeKeyboard","PASS: actual editable-node touch, visible system IME, native14 input, WebView/input above keyboard, Back hides IME and preserves search");
+        }finally{
+            if(keyboardBounds()!=null)sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
+            shell(previous.equals("null")?"settings delete secure show_ime_with_hard_keyboard":"settings put secure show_ime_with_hard_keyboard "+previous);
+            service.flags=flags;getUiAutomation().setServiceInfo(service);
+            runOnMainSync(()->activity.setRequestedOrientation(orientation[0]));
+        }
+    }
     private void clickSystemText(String text) throws Exception {
         clickSystemText(text,null);
     }
@@ -568,6 +642,7 @@ public final class ReaderInstrumentation extends Instrumentation {
                 check(date,"Fresh upstream Seer snapshot must render through actual native WebView/CORS policy");
                 report.putString("date",js("document.getElementById('pastafari_current_date_text').textContent"));
             }
+            report.putString("stage","actual native software keyboard");testNativeKeyboard(report);
             js("lawMobile.showToc()");sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);Thread.sleep(350);
             check("false".equals(js("document.getElementById('mobile-sheet').open")),"Actual Android Back closes the sheet");
             report.putString("indexMilliseconds",js("(()=>{const t=performance.now();lawMobile.buildSearch();return performance.now()-t})()"));

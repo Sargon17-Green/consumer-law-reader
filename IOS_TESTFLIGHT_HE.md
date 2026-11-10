@@ -16,7 +16,7 @@
 
 ## בנייה והתקנה במחשב Mac
 
-דרישות: macOS עם Xcode 26.3 או SDK מתאים לדרישות Apple העדכניות, XcodeGen (`brew install xcodegen`), Python 3 וחיבור למאגר הפרויקט.
+דרישות: macOS עם Xcode 26.3 או SDK מתאים לדרישות Apple העדכניות, XcodeGen2.46.0 (התקנה מקובעת בגיבוב ב־`.github/workflows/ios-ci.yml`), Python 3 וחיבור למאגר הפרויקט.
 
 ```bash
 git clone https://github.com/Sargon17-Green/consumer-law-reader.git

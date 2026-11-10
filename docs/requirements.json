@@ -3,9 +3,6 @@
   "project": "Sargon17-Green/consumer-law-reader",
   "asOf": "2026-11-10 Asia/Jerusalem",
   "sourceBaseline": "016b3de352dabe97f51b34b78ff803965b6cd40d",
-  "candidateHead": "06e55335cd69601f6c1ea55e23ec073627dda777",
-  "candidateTree": "56d0fbc622190a0526823d6fded304264d5b5971",
-  "testedPRMergeCommit": "a7d6f42bb9ce6099bd92a55daba4df7b52b45464",
   "statusMeanings": {
     "טרם התחיל": "לא קיים מימוש",
     "בפיתוח": "קבלה פתוחה או מימוש משתנה",
@@ -1627,9 +1624,19 @@
       ],
       "tests": [
         "tests/mobile_integration_qa.py",
-        "ios/ConsumerLawReaderUITests/ReaderUITests.swift"
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift",
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "commit": "5797c940b613b033f805ad853b66626bfe65a299",
+          "run": 42814952882,
+          "job": 129825958205,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42814952882/job/129825958205",
+          "result": "PASS: API26 online/offline real software keyboard and Back/query preservation",
+          "scope": "TYPE_INPUT_METHOD bounds[0,1019][1080,1894]; actual WebView bottom1019, height1731->956. No CSS-only simulation; API31 online also passed but offline fixture failed. Remaining platforms and combined acceptance not inferred."
+        }
+      ],
       "dependencies": [],
       "published": {
         "Android": null,
@@ -1672,10 +1679,18 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42810117955",
           "result": "FAIL:360-second XCTest execution allowance exceeded; no accepted post-resize menu/share claim",
           "scope": "Actual width1032->375 and menu44pt observed with corner inset. Test diagnostics consumed allowance; no native-hit acceptance. See qa/mobile-2026-11-08/ipad-window-hit-test-progress.json"
+        },
+        {
+          "commit": "0d3ef3f10830710456a4a29c09e07e6166e05c7b",
+          "run": 42813510160,
+          "job": 129820626413,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42813510160",
+          "result": "PARTIAL: actual resized44pt menu and share open; overall FAIL at return with share still presented",
+          "scope": "Actual OS1032->375pt resize, real center touch opens Print action and ActivityListView. No accepted search return. Permanent proof qa/mobile-2026-11-08/ipad-native-actions-partial.json"
         }
       ],
       "dependencies": [
-        "Issue13: orientation metadata accepted in81b5f77; actual menu obstruction reproduced2e88de9. Corner-inset production code compiles and4c actual window is375pt/menu44pt, but4c timed out during menu tap. Frame-only fixture0d3ef3f/run42813510160 awaits result; full combined iOS gate required."
+        "Issue13: scaling fixed;0d actual menu/share after375pt resize passed, but test did not dismiss system share before returning.31b/run42815502889 asserts observed Close/disappearance. Final combined5-simulator gate includes legacy iPad18.5 and is still required."
       ],
       "published": {
         "iOS": null
@@ -1821,7 +1836,7 @@
         }
       ],
       "dependencies": [
-        "Actual full Android26/31/36 long usage passed706; isolated private-evidence portrait/landscape passed38ebb34. Integrated QA route awaits final full regression; no physical printer."
+        "Full component Android4819 passed3APIs including actual PDFs/private bytes; final combined gate still required. No physical printer or tagged-PDF accessibility claim."
       ],
       "published": {
         "Android": null,
@@ -3084,7 +3099,7 @@
       ],
       "evidence": [],
       "dependencies": [
-        "רשימת תלויות נבדקה מול imports ופקודות workflow; נדרשת ריצת CI של הקומיט המשולב. אין טענת ניסוי GitHub event נפרד לכל glob."
+        "Final combined5-simulator gate required after adding legacy iPad18.5 and checksum-pinned XcodeGen2.46.0. No claim of a separate GitHub event experiment for each path glob."
       ],
       "published": {
         "iOS": null
@@ -3196,9 +3211,22 @@
       "result": "PASS within component scope"
     },
     "iPad": {
-      "commit": "0d3ef3f10830710456a4a29c09e07e6166e05c7b",
-      "run": 42813510160,
-      "result": "pending; no acceptance inferred"
+      "commit": "31b870aa06e6b53fd0cec5601023400e5c5bc7dc",
+      "run": 42815502889,
+      "result": "pending;0d proved real menu/share but failed return while share remained open"
+    },
+    "AndroidIME": {
+      "commit": "5797c940b613b033f805ad853b66626bfe65a299",
+      "run": 42814952882,
+      "result": "API26 full PASS, API31 online PASS/offline fixture failed because restored search input is out of view; fixture scrolls field into view before native input in final candidate; API36 pending"
     }
-  }
+  },
+  "lastCombinedCandidate": {
+    "head": "06e55335cd69601f6c1ea55e23ec073627dda777",
+    "tree": "56d0fbc622190a0526823d6fded304264d5b5971",
+    "testedPRMergeCommit": "a7d6f42bb9ce6099bd92a55daba4df7b52b45464",
+    "result": "FAIL: Android36 Binder and iPad fixture; historical result only"
+  },
+  "candidateBranch": "fix/pastafari-date-android-20261028",
+  "candidateResolution": "Resolve current PR11 head; no self-referential commit hash is embedded in its own files. Require exact tree comparison and completed combined CI."
 }

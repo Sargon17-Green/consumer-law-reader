@@ -99,7 +99,10 @@ final class ReaderUITests: XCTestCase {
         let share=app.buttons.matching(identifier:"native-share").firstMatch
         XCTAssertTrue(share.isEnabled);share.tap()
         XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout:8) || app.buttons.matching(identifier:"Copy").firstMatch.exists || app.buttons.matching(identifier:"העתק").firstMatch.exists)
-        app.swipeDown()
+        let activities=app.otherElements["ActivityListView"].firstMatch
+        let closeShare=app.buttons.matching(identifier:"header.closeButton").firstMatch
+        if closeShare.exists && closeShare.isHittable {closeShare.tap()} else {app.swipeDown()}
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !activities.exists },object:nil)],timeout:20),.completed,"Native sharing must be dismissed before rotation and relaunch")
         XCUIDevice.shared.orientation = .landscapeLeft
         XCTAssertTrue(search.waitForExistence(timeout:10))
         XCUIDevice.shared.orientation = .portrait
