@@ -1,0 +1,92 @@
+name: Verify completed native PDF and published reader evidence
+on:
+  push:
+    branches: [work/verify-completed-evidence-20261110]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  independent-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Prepare independent PDF parser
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          if ! command -v pdfinfo >/dev/null || ! command -v pdftotext >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends poppler-utils
+          fi
+          pdfinfo -v 2> evidence/poppler-version.txt
+          gh --version > evidence/github-cli-version.txt
+      - name: Download only the identified completed PDF artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/Sargon17-Green/consumer-law-reader/actions/artifacts/13784265542 > evidence/original-artifact-metadata.json
+          gh api repos/Sargon17-Green/consumer-law-reader/actions/artifacts/13784265542/zip > evidence/original-artifact.zip
+      - name: Independently decode complete UIKit output with Poppler
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib,re,subprocess,zipfile
+          root=pathlib.Path('evidence')
+          archive=root/'original-artifact.zip'
+          raw=archive.read_bytes()
+          expected='176ef417043fe26891b4fdb88c8046be1418ee9e0729cc6b90bdad9f5b53aef2'
+          assert len(raw)==14235893
+          assert hashlib.sha256(raw).hexdigest()==expected
+          metadata=json.loads((root/'original-artifact-metadata.json').read_text())
+          assert metadata['id']==13784265542 and metadata['workflow_run']['head_sha']=='b91623549a235597f3005eb3100a72c274c0565b'
+          entry='build/iPhone-ios-26.2-attachments/B7863ECF-8FC2-46D9-9545-86E8AFFF79F0.pdf'
+          with zipfile.ZipFile(archive) as source:
+              info=source.getinfo(entry)
+              assert info.file_size==1465513
+              data=source.read(info)
+          assert data.startswith(b'%PDF-')
+          pdf=root/'ios-complete-document.pdf'
+          pdf.write_bytes(data)
+          details=subprocess.check_output(['pdfinfo',str(pdf)],text=True,timeout=30)
+          (root/'ios-complete-pdf-info.txt').write_text(details)
+          assert re.search(r'^Pages:\s+126\s*$',details,re.M)
+          samples={}
+          for page in [1,64,126]:
+              target=root/('ios-page-'+str(page)+'.txt')
+              subprocess.run(['pdftotext','-f',str(page),'-l',str(page),str(pdf),str(target)],check=True,timeout=30)
+              text=target.read_text().strip()
+              assert len(text)>20,(page,len(text))
+              samples[str(page)]={'textCharacters':len(text)}
+          result={'schema':1,'sourceCommit':'b91623549a235597f3005eb3100a72c274c0565b','nativeRun':42856626665,'nativeJob':129971306884,'artifactId':13784265542,'archiveBytes':len(raw),'archiveSha256':expected,'pdfBytes':len(data),'pdfSha256':hashlib.sha256(data).hexdigest(),'pages':126,'samples':samples,'parserVersion':(root/'poppler-version.txt').read_text().strip(),'result':'PASS','scope':'Independent Ubuntu/Poppler verification of actual UIKit full-document attachment; not physical printing or system Files-save UI'}
+          (root/'ios-complete-pdf-independent.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+          print('RETAINED_PDF_VERIFIED: '+json.dumps(result,ensure_ascii=False))
+          PY
+      - name: Recheck all 75 actual public URLs and checksums without deploying
+        run: |
+          python3 - <<'PY'
+          import json,pathlib,sys
+          sys.path.insert(0,'scripts')
+          from verify_public_reader import verify
+          old=json.loads(pathlib.Path('qa/mobile-2026-11-08/public-web-patch3-http-verification.json').read_text())
+          assert old['passed'] is True and len(old['verified'])==75
+          expected={'schema':1,'sourceCommit':old['sourceCommit'],'checks':[{'url':x['url'],'sha256':x['sha256']} for x in old['verified']]}
+          result=verify(expected,'evidence/public-reader-recheck.json')
+          assert result['passed'] and len(result['verified'])==75
+          print('CURRENT_PUBLIC_READER_VERIFIED: '+json.dumps({'sourceCommit':result['sourceCommit'],'verifiedFiles':75,'passed':True}))
+          PY
+      - name: Save bounded evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: independent-completed-evidence
+          path: |
+            evidence/*.json
+            evidence/*.txt
+            evidence/ios-complete-document.pdf
+          retention-days: 30
+          if-no-files-found: error
