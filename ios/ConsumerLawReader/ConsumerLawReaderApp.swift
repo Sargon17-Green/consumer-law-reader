@@ -468,6 +468,12 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         }
         guard ready, !working else { return }
         let controller = UIPrintInteractionController.shared
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["LAW_PRINT_QA"] == "1" {
+            Swift.print("PRINT_QA_PRESENT: webWindow=\(webView.window != nil) working=\(working)")
+            controller.delegate = self
+        }
+        #endif
         let info = UIPrintInfo(dictionary: nil)
         info.outputType = .general
         info.jobName = "חוק הגנת הצרכן"
@@ -476,6 +482,9 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         working = true
         let completion: UIPrintInteractionController.CompletionHandler = { [weak self] controller, _, error in
             Task { @MainActor in
+                #if DEBUG
+                if ProcessInfo.processInfo.environment["LAW_PRINT_QA"] == "1" { Swift.print("PRINT_QA_COMPLETION: error=\(String(describing:error))") }
+                #endif
                 controller.printFormatter = nil
                 self?.working = false
                 if error != nil { self?.showError("לא ניתן להשלים את פעולת ההדפסה.") }
@@ -604,3 +613,17 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         }
     }
 }
+
+#if DEBUG
+extension OfflineLawReader: UIPrintInteractionControllerDelegate {
+    func printInteractionControllerDidPresentPrinterOptions(_ printInteractionController: UIPrintInteractionController) {
+        Swift.print("PRINT_QA_DID_PRESENT")
+    }
+    func printInteractionControllerWillDismissPrinterOptions(_ printInteractionController: UIPrintInteractionController) {
+        Swift.print("PRINT_QA_WILL_DISMISS")
+    }
+    func printInteractionControllerDidDismissPrinterOptions(_ printInteractionController: UIPrintInteractionController) {
+        Swift.print("PRINT_QA_DID_DISMISS")
+    }
+}
+#endif
