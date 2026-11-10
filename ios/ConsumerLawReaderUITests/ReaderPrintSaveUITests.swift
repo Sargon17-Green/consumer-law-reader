@@ -40,6 +40,11 @@ final class ReaderPrintSaveUITests: XCTestCase {
         let app=XCUIApplication()
         defer {app.terminate()}
         openPrint(app)
+        let firstPage=app.cells.matching(NSPredicate(format:"label BEGINSWITH %@","Page 1 of ")).firstMatch
+        XCTAssertTrue(firstPage.waitForExistence(timeout:45),"Actual complete system preview must exist")
+        let expectedPages=Int(firstPage.label.split(separator:" ").last ?? "") ?? 0
+        XCTAssertGreaterThan(expectedPages,10)
+        Swift.print("SYSTEM_PRINT_EXPECTED_PAGES: "+String(expectedPages))
         let systemShare=app.buttons.matching(identifier:"Share").firstMatch
         XCTAssertTrue(systemShare.waitForExistence(timeout:60),"The actual system print preview has a Share control")
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in systemShare.exists && systemShare.isEnabled && systemShare.isHittable },object:nil)],timeout:30),.completed)
@@ -54,10 +59,39 @@ final class ReaderPrintSaveUITests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout:15),"System print PDF must offer Save to Files: "+String(activities.debugDescription.prefix(14000)))
         record("SAVE_TO_FILES",save)
         save.tap()
-        let browser=app.navigationBars.firstMatch
-        XCTAssertTrue(browser.waitForExistence(timeout:30))
-        let snap=XCTAttachment(string:String(app.debugDescription.prefix(22000)))
-        snap.name="Actual system Files save browser controls";snap.lifetime = .keepAlways;add(snap)
-        Swift.print("SYSTEM_FILES_BROWSER: "+String(app.debugDescription.prefix(22000)))
+        // Save-to-Files may use a remote document-service process. An
+        // arbitrary existing print navigation bar is not proof of a Files UI.
+        let targets=[app,XCUIApplication(bundleIdentifier:"com.apple.DocumentManagerService"),XCUIApplication(bundleIdentifier:"com.apple.DocumentsApp"),XCUIApplication(bundleIdentifier:"com.apple.springboard")]
+        var actualSave:XCUIElement?
+        for _ in 0..<3 {
+            for target in targets where target.state != .notRunning {
+                let candidate=target.buttons.matching(NSPredicate(format:"label IN %@",["Save","שמירה"])).firstMatch
+                if candidate.waitForExistence(timeout:2),candidate.isEnabled,candidate.isHittable {
+                    actualSave=candidate;break
+                }
+            }
+            if actualSave != nil { break }
+        }
+        if actualSave == nil {
+            for target in targets where target.state != .notRunning {
+                Swift.print("SYSTEM_FILES_SERVICE_STATE: "+target.bundleIdentifier+" "+String(describing:target.state))
+                Swift.print("SYSTEM_FILES_NAVIGATION: "+String(target.navigationBars.debugDescription.prefix(9000)))
+                Swift.print("SYSTEM_FILES_TEXT_FIELDS: "+String(target.textFields.debugDescription.prefix(6000)))
+            }
+            XCTFail("No actual enabled system Files Save control; print Options alone does not qualify")
+            return
+        }
+        record("FILES_SAVE_READY",actualSave!)
+        actualSave!.tap()
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !actualSave!.exists },object:nil)],timeout:30),.completed,"System Files Save must complete and dismiss")
+        let options=app.navigationBars["Options"].firstMatch
+        let close=options.buttons.matching(NSPredicate(format:"label IN %@",["Close","Cancel","ביטול"])).firstMatch
+        XCTAssertTrue(close.waitForExistence(timeout:30))
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in close.isEnabled && close.isHittable },object:nil)],timeout:20),.completed)
+        close.tap()
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !options.exists },object:nil)],timeout:30),.completed)
+        let menu=app.buttons.matching(identifier:"native-menu").firstMatch
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:20),.completed)
+        Swift.print("SYSTEM_PDF_SAVE_UI: actual system Save tap, document-service dismissal and enabled reader; host verifies new local PDF bytes separately")
     }
 }

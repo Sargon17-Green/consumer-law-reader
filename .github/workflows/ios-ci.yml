@@ -116,7 +116,11 @@ jobs:
             xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
             xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
           fi
+          python3 ios/scripts/collect_system_pdf.py before "$DEVICE" "build/$LABEL-system-files"
           xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderUITests/ReaderPrintSaveUITests/testInspectActualSystemPrintPreview CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          python3 ios/scripts/collect_system_pdf.py after "$DEVICE" "build/$LABEL-system-files"
+          EXPECTED_PAGES="$(python3 -c 'import pathlib,re,sys; s=pathlib.Path(sys.argv[1]).read_text(); m=re.search(r"SYSTEM_PRINT_EXPECTED_PAGES: ([0-9]+)",s); assert m; print(m[1])' "build/$LABEL-tests.log")"
+          xcrun swift ios/scripts/verify_system_pdf.swift "build/$LABEL-system-files-saved.pdf" "$EXPECTED_PAGES" | tee "build/$LABEL-system-files-verified.json"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |
@@ -145,6 +149,7 @@ jobs:
             build/*-simulator.png
             build/*-tests.log
             build/*-runtime.json
+            build/*-system-files*
             build/*-tests.xcresult
             build/*-attachments
             build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
