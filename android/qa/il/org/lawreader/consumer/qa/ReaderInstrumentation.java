@@ -20,8 +20,8 @@ public final class ReaderInstrumentation extends Instrumentation {
     private Activity activity;
     private WebView web;
     private boolean expectDate,seed,verifySeed,verifyUpgrade;
-    private String expectedFont;
-    @Override public void onCreate(Bundle arguments) { super.onCreate(arguments);expectedFont=arguments==null?null:arguments.getString("expectedFont");expectDate=arguments!=null&&"true".equals(arguments.getString("expectDate"));seed=arguments!=null&&"true".equals(arguments.getString("seed"));verifySeed=arguments!=null&&"true".equals(arguments.getString("verifySeed"));verifyUpgrade=arguments!=null&&"true".equals(arguments.getString("verifyUpgrade"));start(); }
+    private String expectedFont,printOrientation;
+    @Override public void onCreate(Bundle arguments) { super.onCreate(arguments);printOrientation=arguments==null?null:arguments.getString("printOnly");expectedFont=arguments==null?null:arguments.getString("expectedFont");expectDate=arguments!=null&&"true".equals(arguments.getString("expectDate"));seed=arguments!=null&&"true".equals(arguments.getString("seed"));verifySeed=arguments!=null&&"true".equals(arguments.getString("verifySeed"));verifyUpgrade=arguments!=null&&"true".equals(arguments.getString("verifyUpgrade"));start(); }
     private WebView find(View view) {
         if(view instanceof WebView)return (WebView)view;
         if(view instanceof ViewGroup){ViewGroup g=(ViewGroup)view;for(int i=0;i<g.getChildCount();i++){WebView found=find(g.getChildAt(i));if(found!=null)return found;}}
@@ -302,9 +302,9 @@ public final class ReaderInstrumentation extends Instrumentation {
         AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
         report.putString("printReadyControls",systemLabels(root,0));
         org.json.JSONArray nodes=new org.json.JSONArray();recordSystemTree(root,nodes,0);
-        try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-print-ready.json"))){out.write(nodes.toString(2).getBytes("UTF-8"));}
+        try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-print-ready.json"))){out.write(nodes.toString(2).getBytes("UTF-8"));}
         android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
-        if(shot!=null){try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-print-ready.png"))){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,out);}shot.recycle();}
+        if(shot!=null){try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-print-ready.png"))){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,out);}shot.recycle();}
     }
     private void saveAndVerifySystemPDF(Bundle report) throws Exception {
         shell("rm -f /sdcard/Download/consumer-law-qa.pdf");
@@ -335,6 +335,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             Thread.sleep(250);
         }
         check(named,"Real PDF save picker exposes its filename input");
+        android.util.Log.i("ReaderPDFQA","Actual SAF filename set; requesting Save");
         clickSystemText("Save");
         boolean generated=false;
         for(int attempt=0;attempt<180;attempt++){
@@ -343,8 +344,16 @@ public final class ReaderInstrumentation extends Instrumentation {
         }
         check(generated,"System print framework saved actual PDF bytes");
         ready();
-        java.io.File file=new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-native-document.pdf");
-        shell("cp /sdcard/Download/consumer-law-qa.pdf /sdcard/Android/data/il.org.lawreader.consumer/files/qa-native-document.pdf");
+        java.io.File file=new java.io.File(getTargetContext().getFilesDir(),"qa-native-document.pdf");
+        android.util.Log.i("ReaderPDFQA","Reading completed SAF document into private QA evidence; no external cp/setattr");
+        java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");
+        try(ParcelFileDescriptor descriptor=getUiAutomation().executeShellCommand("cat /sdcard/Download/consumer-law-qa.pdf");
+            java.io.InputStream input=new ParcelFileDescriptor.AutoCloseInputStream(descriptor);
+            java.io.FileOutputStream output=new java.io.FileOutputStream(file)){
+            byte[] buffer=new byte[16384];int count,total=0;
+            while((count=input.read(buffer))!=-1){total+=count;check(total<=32*1024*1024,"Bounded PDF evidence stream");output.write(buffer,0,count);digest.update(buffer,0,count);}
+        }
+        android.util.Log.i("ReaderPDFQA","Private PDF evidence complete bytes="+file.length());
         int pages;
         try(android.graphics.pdf.PdfRenderer pdf=new android.graphics.pdf.PdfRenderer(ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY))){
             pages=pdf.getPageCount();check(pages>0,"Native saved PDF has pages");
@@ -355,7 +364,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             int ink=0;for(int pixel:pixels)if((pixel>>>24)>200&&(pixel&0x00ffffff)<0x00dddddd)ink++;
             check(ink>20,"Saved PDF must render visible ink, not an empty page");
         }
-        String checksum=shell("sha256sum /sdcard/Android/data/il.org.lawreader.consumer/files/qa-native-document.pdf").split(" ")[0];
+        StringBuilder checksum=new StringBuilder();for(byte b:digest.digest())checksum.append(String.format("%02x",b&255));
         report.putString("PDF","PASS: actual system Print -> Save as PDF -> SAF file; pages="+pages+" bytes="+file.length()+" sha256="+checksum);
     }
     private void testNativePrintPresentation(Bundle report) throws Exception {
@@ -431,6 +440,13 @@ public final class ReaderInstrumentation extends Instrumentation {
             if(expectedFont!=null){
                 report.putString("reopenedFont",js("localStorage.getItem('law-reader-font')"));
                 check(expectedFont.equals(new org.json.JSONTokener(js("localStorage.getItem('law-reader-font')")).nextValue()),"Preferences persist after actual process restart");
+            }
+            if(printOrientation!=null){
+                report.putString("stage","fresh print with private QA evidence");report.putString("printOrientation",printOrientation);
+                runOnMainSync(()->activity.setRequestedOrientation("landscape".equals(printOrientation)?ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:ActivityInfo.SCREEN_ORIENTATION_PORTRAIT));
+                awaitJS("matchMedia('(orientation:landscape)').matches === "+"landscape".equals(printOrientation),"Print orientation settles");
+                js("document.documentElement.style.setProperty('--reading-size','24px');lawMobile.goTo('law_name',false,false)");
+                ready();testNativePrintPresentation(report);report.putString("QA_STATUS","PASS");finish(Activity.RESULT_OK,report);return;
             }
             testNativeDateURLPolicy(report);
             report.putString("stage","responsive native reading layout");testReadingLayout(report);
@@ -508,11 +524,11 @@ public final class ReaderInstrumentation extends Instrumentation {
                 String pkg=root==null?"":String.valueOf(root.getPackageName());
                 if(pkg.endsWith(".documentsui")||pkg.equals("com.android.printspooler")){
                     org.json.JSONArray nodes=new org.json.JSONArray();recordSystemTree(root,nodes,0);
-                    try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-system-ui.json"))){output.write(nodes.toString(2).getBytes("UTF-8"));}
+                    try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-system-ui.json"))){output.write(nodes.toString(2).getBytes("UTF-8"));}
                 }
                 android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
                 if(shot!=null){
-                    java.io.File file=new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-failure.png");
+                    java.io.File file=new java.io.File(getTargetContext().getFilesDir(),"qa-failure.png");
                     try(java.io.FileOutputStream output=new java.io.FileOutputStream(file)){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,output);}
                     shot.recycle();report.putString("failureScreenshot",file.toString());
                 }
