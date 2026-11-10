@@ -8,11 +8,17 @@
 | Android1.3.9-dev/code17 |94 עבר את כל9 Linux/Android, API26/31/36 online/offline, IME אמיתי, cache עוין, שדרוג בזהות QA, SAF ושיתוף; PDF146עמודים אומת עצמאית. תצורת1.5GB/ליבה אחת עברה בנפרד |הציבורי נשאר1.3.5-beta במפתח המקורי; מועמד חדש Debug/unsigned בלבד |
 | iOS1.3.9/build17 |iPad26/94 עבר חלון מערכת375pt/פקדים44pt וכל רצף התפריט/שיתוף/חזרה.4bc עבר iPhone16/iPad18.5 עם Close ממשי ושחזור חיפוש. PDF מלא126עמודים עבר ב־b916 ואומת ב־Poppler |סימולטורים וארכיון מכשיר לא חתום; אין IPA חתום או TestFlight |
 
+## מצב הרגרסיה027 — אין אישור למיזוג
+
+[ראיות ומעקב](qa/mobile-2026-11-08/candidate-027-followup.json): ריצה42861539480 הסתיימה8/9Linux/Android PASS, אך API36 offline נכשל לפני הקלדה במקלדת. ב־42861539523 עברו iPhone26.2/16 ו־iPad18.5; iPad26.2 נכשל בסגירת Print למרות מגע במרכז Close, ו־iPhone18.5 נכשל ב־ReferenceError במהלך בדיקת lifecycle. בדיקות ה־UI שלו עברו. פרופיל XXXL עדיין רץ בזמן התיעוד. אין הסקת PASS מהמתנה.
+
+ניסוי Android850 העביר26 אך חשף איתור editable בחלון IME ב־31. התיקון הבא bfcb7e1 מאתר חלון יישום וממשיך לדרוש IME אמיתי, שדה גלוי, קלט Native ו־Back משמר חיפוש. ניסויי iOS f522c22 ו־278d13e עוקבים בנפרד אחרי lifecycle וסגירת Print/שמירה דרך Files; אין להעביר traces או only-testing למועמד. כל ניסוי נשמר ב־GitHub.
+
 ## קבלה משולבת נדרשת
 
 [94cdf7d](qa/mobile-2026-11-08/acceptance-94cdf7d.json) הסתיים9 Linux PASS ושלושה מחמישה iOS PASS; שני מבחני שיתוף ישנים נכשלו. הוא אינו מועמד מאושר למיזוג. תיקון ההמשך מחבר UIKit completion למצב SwiftUI לפי UUID, ממתין ל־Close hittable ואינו משתמש ב־swipe כתחליף לסגירה.
 
-[4bc / ריצה42854077139](qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json) העביר iPhone16 ו־iPad18.5: ביטול שיתוף, היעלמות ActivityListView, סיבוב, הפעלה מהסמל ושאילתה14. callback ישן אינו סוגר שיתוף חדש. [b916 / ריצה42856626665](qa/mobile-2026-11-08/ios-complete-pdf-component.json) הפיק את כל126 עמודי UIKit; Ubuntu/Poppler בדק באופן עצמאי את ה־ZIP, PDF, מניין העמודים וטקסט בתחילה/אמצע/סוף. זו אינה שמירה בממשק Files או מדפסת פיזית.
+[4bc / ריצה42854077139](qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json) העביר iPhone16 ו־iPad18.5: ביטול שיתוף, היעלמות ActivityListView, סיבוב, הפעלה מהסמל ושאילתה14. callback ישן אינו סוגר שיתוף חדש. [b916 / ריצה42856626665](qa/mobile-2026-11-08/ios-complete-pdf-component.json) הפיק את כל126 עמודי UIKit; Ubuntu/Poppler בדק independently את ה־ZIP, PDF, מניין העמודים וטקסט בתחילה/אמצע/סוף. זו אינה שמירה בממשק Files או מדפסת פיזית.
 
 [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11) מרכז כעת את הקוד, התיעוד והבדיקות הקבועות. ראש המועמד נקבע מ־GitHub ולא מ־hash עצמי בתוך קובץ. השער הסופי הוא **9 Linux/Android ו־6 מקרי סימולטור iOS** על tree אחד: שלושת iPhone26.2/18.5/16, שני iPad26.2/18.5 ועוד iPhone26.2 בגודל נגישות XXXL. הבדיקות החדשות דורשות גם מקלדת תוכנה אמיתית ושדה חיפוש מעליה. אין קבלה שלהן עד completed PASS. ניסוי הגודל הממוקד0c9507a/run42858470735 נבחן בנפרד; queued אינו חסם.
 

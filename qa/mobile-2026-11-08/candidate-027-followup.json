@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "asOf": "2026-11-10T18:03:00Z",
+  "candidate": {
+    "head": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+    "tree": "c530ca59ea89d78b28bf5bb244e57ebc4bcc7276",
+    "testedPRMergeCommit": "0bf9297bba93aabb1ffa93f1d5d4e50fc3b9b863",
+    "sameTreeVerified": true,
+    "accepted": false
+  },
+  "linux": {
+    "run": 42861539480,
+    "result": "completed FAILURE;8 of9 jobs PASS",
+    "api26": "PASS",
+    "api31": "PASS",
+    "api36": {
+      "job": 129989394943,
+      "online": "PASS including full146-page system PDF and actual renderer recovery",
+      "offline": "FAIL at actual native software keyboard; sheet closed before typing",
+      "artifact": 13786815880,
+      "zipSHA256": "1d8107a0b36c7ea2ed5f4080b8063402f6de9a7a80d5261feae313001915c5e4",
+      "failureScreenshot": {
+        "file": "android-failure-at-assertion.png",
+        "bytes": 157043,
+        "sha256": "fd2bf91df274cc9556e006d14aa4b27f98b7310b17dd46591b10207713dbe5c8",
+        "meaning": "Exact assertion-time screenshot; final Android Home Screen image is not the failure screen"
+      },
+      "diagnosis": "Test cleared native editable text before touching cached AX bounds. Delayed search results can shrink bottom-anchored sheet; stale touch can hit backdrop. Product search change not yet justified."
+    }
+  },
+  "ios": {
+    "run": 42861539523,
+    "overall": "FAIL; one profile still running at this snapshot",
+    "profiles": [
+      {
+        "name": "iPhone26.2",
+        "job": 129988671239,
+        "result": "completed PASS"
+      },
+      {
+        "name": "iPad26.2",
+        "job": 129988670523,
+        "result": "completed FAIL in functional Print Close; all8 policy/WK, keyboard, header audit and separate actual window resize PASS"
+      },
+      {
+        "name": "iPhone18.5",
+        "job": 129988670957,
+        "result": "completed FAIL in integration lifecycle script ReferenceError lawMobile; actual functional UI and keyboard/header audit PASS"
+      },
+      {
+        "name": "iPad18.5",
+        "job": 129988671034,
+        "result": "completed PASS"
+      },
+      {
+        "name": "iPhone16",
+        "job": 129988671055,
+        "result": "completed PASS; actual software keyboard, sharing Close, installed icon relaunch and query14"
+      },
+      {
+        "name": "iPhone26.2 accessibility XXXL",
+        "job": 129988671238,
+        "result": "in_progress; no PASS inferred"
+      }
+    ],
+    "ipadPrint": {
+      "artifact": 13787730646,
+      "zipSHA256": "601d76546ccab03ccf7eb593cbf6b61935aeeea17eea1ce6bce85d9d2f0f5dc5",
+      "actualCloseTap": {
+        "x": 361.5,
+        "y": 74
+      },
+      "closeBounds": {
+        "x": 343.5,
+        "y": 56,
+        "width": 36,
+        "height": 36
+      },
+      "conclusion": "Tap is geometrically correct. This does not prove readiness or root cause.",
+      "actualRecording": {
+        "file": "65D1EF41-59BF-49DA-A489-744AF76ADF71.mp4",
+        "durationSeconds": 183.29,
+        "inspectionCommit": "0608339e6173a3675ea59cbce70d157a1bcd028b",
+        "inspectionRun": 42870160225,
+        "inspectionJob": 130018963526,
+        "extractedFrameSHA256": "073c01af8a1e394561925c5fd9169402f7f1ad30603cea8574ac563bc6ec0af9",
+        "observed": "Actual system Print Options, rendered preview1of199, Close still visible. Frame extracted unresized from original simulator recording; not physical device."
+      }
+    }
+  },
+  "experiments": [
+    {
+      "branch": "work/android-ime-focus-20261110",
+      "head": "85003da0b924869ebbb28203e3d3529e61b50b3a",
+      "run": 42868099970,
+      "result": "API26 PASS; API31 FAIL reacquiring editable in active IME window; API36 pending at original snapshot",
+      "lesson": "After real IME appears, active accessibility root may be keyboard; query app TYPE_APPLICATION window."
+    },
+    {
+      "branch": "work/android-ime-focus-20261110",
+      "head": "bfcb7e11f2d354c878984e9fa504085b41f5ff65",
+      "run": 42870233731,
+      "result": "pending; permanent Java fixture only, no product change or weaker IME assertion"
+    },
+    {
+      "branch": "work/ios-lifecycle-trace-20261110",
+      "head": "f522c224c78f4c8e196f1f7df1dc2ce67f9c80ee",
+      "run": 42870553619,
+      "result": "pending, traces exact failing JS stage on18.5; no product behavior change"
+    },
+    {
+      "branch": "work/ios-system-pdf-save-20261110",
+      "head": "278d13e361af6e52f45b235ca356b73cdf157a63",
+      "run": 42870543669,
+      "result": "pending, actual hittable Print Close/callback trace and system Share-to-Files controls; temporary debug trace not release code"
+    }
+  ],
+  "gates": "Keep PR11 draft. Do not merge any candidate until essential completed checks pass on exact integrated tree. Diagnostic artifact decoding success is not app acceptance.",
+  "legal": {
+    "sha256": "de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9",
+    "verifiedDate": "2026-10-28",
+    "changed": false
+  },
+  "public": {
+    "web": "Web/PWA preview3 remains live and75HTTP/SHA PASS42859574863",
+    "android": "v1.3.5-beta original signed APK unchanged",
+    "newNativeRelease": false
+  },
+  "recovery": "Local Work environment unavailable. GitHub API + isolated Actions used; no Windows script or installation, no secrets added."
+}

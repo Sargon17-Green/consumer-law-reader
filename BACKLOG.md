@@ -4,6 +4,7 @@
 
 | עדיפות | דרישות | קריטריון המשך |
 |---|---|---|
+| P0 | QA-IME-027, IOS-PRINT-027, IOS-LIFECYCLE-027 | לסיים אבחון/תיקונים של027: מקלדת Android בחלון יישום, Close של Print ב־iPad26.2 ו־JS אחרי lifecycle ב־18.5. [ראיות וענפי ניסוי](qa/mobile-2026-11-08/candidate-027-followup.json). אין להעביר קוד אבחון זמני או להחליש קבלה |
 | P0 | QA-001/002/003, CI-004, DATA-003, NATIVE-003, IO-002 | לקבל9Linux/Android ו־6iOS על ראש/tree המועמד המאוחד, כולל IME ו־accessibility XXXL. רכיבי Android94, חלון iPad26/94, שיתוף4bc ו־PDFb916 עברו בהיקפם. אין להעביר workflow אבחון או להחליש assertions |
 | P0 | DOC-001, GOV-003 | לשמור ראיות, לעדכן PR/דרישות/known issues/handoff, לבדוק הגנות ולמזג רק לאחר completed PASS. Issues13/14/15 פתוחים לקבלה הסופית;12 נסגר לפי Android |
 | P1 | REL-002/003/006 | חתימה מהמועמד שהתקבל: מפתח Android ההיסטורי וגישת Apple Team/profiles/ASC. להמשיך כל עבודה עצמאית; הוראות ב־EXTERNAL_ACTIONS. אין Debug כשדרוג או סימולטור כ־IPA |

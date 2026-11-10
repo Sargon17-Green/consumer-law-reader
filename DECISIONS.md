@@ -45,3 +45,7 @@ The06/API36fatal proves the fullWebViewBundle cannot travel through Binder. Pres
 ב־5450373 נצפתה ב־iOS16 לחיצה אמיתית במרכז Close ללא identifier, אך השיתוף נשאר מוצג. ב־iPad18.5 אותו רצף עבר ול־Close יש identifier. לכן אין להסיק שכל הכשלים הישנים היו רק selector חסר. המועמד4bc27af מחבר את completionWithItemsHandler של UIKit למצב SwiftUI, רק אם UUID השיתוף עדיין תואם; callback ישן אינו סוגר שיתוף חדש. [חוזה Apple](https://developer.apple.com/documentation/uikit/uiactivityviewcontroller/completionwithitemshandler-swift.property) כולל ביטול וסיום שירות. התיקון עבר בשני תרחישי16/iPad18.5 בריצה42854077139; הסיבה המנגנונית נותרת הסקת lifecycle מחוזה UIKit ומהרגרסיה, ולא בדיקת הקוד הפנימי של Apple. בדיקת Close ממתינה במפורש ל־isHittable ואינה נשענת על עיכוב debugDescription.
 
 בדיקת PDF iOS מייצרת מעתה את כל עמודי formatter ומדגמת ראשון/אמצע/סוף; parser עצמאי ב־Ubuntu מאמת את קובץ הארטיפקט. מספר עמודים אינו golden משפטי ותלוי גופן/פריסה. בדיקת מערכת Files-save וציוד פיזי נשארות נפרדות. פרופיל accessibility XXXL נבחר באמצעות simctl ui, עם readback מתועד, ולא שינוי CSS שמתחזה להגדרת מערכת.
+
+## 10.11.2026 — כשלים במועמד027 נשמרים ללא שינוי מקור משפטי
+
+אין לכנות תמונת Home Screen לאחר cleanup כתמונת הכשל; נשמרה תמונת assertion המדויקת. Android מאתר editable בחלון יישום כש־IME פעיל, ושומר בדיקת חלון TYPE_INPUT_METHOD אמיתי. מגע Print Close נמצא בתוך הכפתור; אבחון UIKit קודם לתיקון התנהגות. traces זמניים ו־only-testing אינם עוברים למועמד. [תוצאות וענפים](qa/mobile-2026-11-08/candidate-027-followup.json).
