@@ -434,12 +434,36 @@ public final class ReaderInstrumentation extends Instrumentation {
             runOnMainSync(()->web.goForward());awaitJS("location.hash==='#article_14'","Native Forward after state restoration");
             Class<?> type=Class.forName("il.org.lawreader.consumer.WebViewStateCache");java.lang.reflect.Constructor<?> ctor=type.getDeclaredConstructor(android.content.Context.class);ctor.setAccessible(true);Object cache=ctor.newInstance(getTargetContext());
             java.lang.reflect.Method read=type.getDeclaredMethod("read",String.class);read.setAccessible(true);
+            check(read.invoke(cache,reference) instanceof Bundle,"Same-installation intact cache remains readable");
+            String stale=reference.substring(0,37)+(reference.charAt(37)=='0'?'1':'0')+reference.substring(38);
+            check(read.invoke(cache,stale)==null,"A stale atomic reference cannot restore different file bytes");
             check(read.invoke(cache,"../outside")==null,"Cache rejects path traversal");
             String invalid=java.util.UUID.randomUUID().toString()+reference.substring(36);
             check(read.invoke(cache,invalid)==null,"Missing transient cache is rejected safely");
             java.io.File directory=new java.io.File(getTargetContext().getCacheDir(),"reader-web-state"),corrupt=new java.io.File(directory,invalid.substring(0,36)+".bin");
-            try{try(java.io.FileOutputStream output=new java.io.FileOutputStream(corrupt)){output.write(new byte[]{0,1,2,3,4});}check(read.invoke(cache,invalid)==null,"Corrupt cache cannot restore an invalid state");}finally{corrupt.delete();}
-            report.putString("largeNativeState","PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing cache rejected");
+            java.io.File source=new java.io.File(directory,reference.substring(0,36)+".bin");
+            try{
+                try(java.io.FileOutputStream output=new java.io.FileOutputStream(corrupt)){output.write(new byte[]{0,1,2,3,4});}
+                check(read.invoke(cache,invalid)==null,"Corrupt cache cannot restore an invalid state");
+                byte[] intact=java.nio.file.Files.readAllBytes(source.toPath());
+                byte[] changed=intact.clone();changed[changed.length-1]^=1;
+                try(java.io.FileOutputStream output=new java.io.FileOutputStream(corrupt)){output.write(changed);}
+                check(read.invoke(cache,invalid)==null,"Payload corruption is rejected even with an intact header and reference digest");
+                try(java.io.DataInputStream input=new java.io.DataInputStream(new java.io.ByteArrayInputStream(intact));java.io.DataOutputStream output=new java.io.DataOutputStream(new java.io.FileOutputStream(corrupt))){
+                    output.writeInt(input.readInt());input.readUTF();output.writeUTF("different OS/app/provider installation");
+                    byte[] block=new byte[16384];int length;while((length=input.read(block))!=-1)output.write(block,0,length);
+                }
+                check(read.invoke(cache,invalid)==null,"Different installation cannot restore opaque Parcel bytes");
+                try(java.io.FileOutputStream output=new java.io.FileOutputStream(corrupt)){
+                    byte[] block=new byte[16384];for(int i=0;i<514;i++)output.write(block);
+                }
+                check(read.invoke(cache,invalid)==null,"Oversized cache input is bounded before Parcel decoding");
+                java.lang.reflect.Method write=type.getDeclaredMethod("write",Bundle.class);write.setAccessible(true);
+                Bundle oversized=new Bundle();oversized.putByteArray("qa-size-bound",new byte[8*1024*1024]);
+                check(write.invoke(cache,oversized)==null,"Oversized outgoing state is rejected before an atomic replacement");
+                check(read.invoke(cache,reference) instanceof Bundle,"Rejected writes and untrusted copies preserve the previously accepted snapshot");
+            }finally{corrupt.delete();}
+            report.putString("largeNativeState","PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing/stale/tampered/wrong-installation/oversized cache rejected without replacing the valid snapshot");
         }finally{runOnMainSync(()->app.unregisterActivityLifecycleCallbacks(observer));}
     }
     private void testRealRendererRecovery(Bundle report) throws Exception {

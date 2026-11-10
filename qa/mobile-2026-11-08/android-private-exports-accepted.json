@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "scope": "Known QA files only; emulator userdebug ADB root after the functional flow; production debuggable flag is unchanged",
+  "files": {
+    "android-print-ready.json": {
+      "bytes": 15317,
+      "sha256": "88819e4abe2ef9453523c88d6805264220df4153556438fc2d61a465abbc2b63"
+    },
+    "android-print-ready.png": {
+      "bytes": 341826,
+      "sha256": "c385764c8754c6b5b7a699417f3caa910b01a553cc1522289327146321bc66de"
+    },
+    "android-native-document.pdf": {
+      "bytes": 1515150,
+      "sha256": "96bccce8b3ed143e035c56a0be8ac4d918438917c09fcb2f16f08bc281588351"
+    },
+    "android-renderer-state.json": {
+      "bytes": 403,
+      "sha256": "e0752512f6a509b9aa6a1685a2a43448e3d8134d6b5564ab41a197260266eff0"
+    },
+    "android-renderer-state.png": {
+      "bytes": 120764,
+      "sha256": "7157de37b7c11b8c49ec212721e14d2526704d84846990e9dda5cfa70a9a10c6"
+    }
+  },
+  "missing": {
+    "qa-system-ui.json": "stat: '/data/user/0/il.org.lawreader.consumer/files/qa-system-ui.json': No such file or directory",
+    "qa-failure.png": "stat: '/data/user/0/il.org.lawreader.consumer/files/qa-failure.png': No such file or directory"
+  },
+  "errors": [],
+  "qemu": "1",
+  "adbRoot": "restarting adbd as root",
+  "adbUid": "0",
+  "buildType": "userdebug",
+  "selinux": "Enforcing",
+  "passed": true,
+  "artifact": 13760551174,
+  "sourceCommit": "4819aa83728358312b79834313e18ff92f2e1c74",
+  "run": 42806470326,
+  "job": 129797401074,
+  "independentExportByteValidation": true,
+  "independentPdfInfo": {
+    "Title": "           חוק הגנת הצרכן, התשמ\"א–1981",
+    "Creator": "         Chromium",
+    "Producer": "        Skia/PDF m133",
+    "CreationDate": "    Tue Nov 10 13:29:37 2026 IST",
+    "ModDate": "         Tue Nov 10 13:29:37 2026 IST",
+    "Custom Metadata": " no",
+    "Metadata Stream": " no",
+    "Tagged": "          no",
+    "UserProperties": "  no",
+    "Suspects": "        no",
+    "Form": "            none",
+    "JavaScript": "      no",
+    "Pages": "           146",
+    "Encrypted": "       no",
+    "Page size": "       612 x 792 pts (letter)",
+    "Page rot": "        0",
+    "File size": "       1515150 bytes",
+    "Optimized": "       no",
+    "PDF version": "     1.4"
+  },
+  "limitations": [
+    "Final offline PDF independently downloaded and hash checked; online PDF is separately validated inside native instrumentation",
+    "Tagged: no; do not claim tagged accessible PDF",
+    "No physical printer, retail device, signed upgrade or TestFlight was tested"
+  ]
+}

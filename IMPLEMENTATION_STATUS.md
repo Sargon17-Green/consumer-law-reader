@@ -1,32 +1,27 @@
 # מצב מימוש, אימות ופרסום
 
-## עדכון מחזור10.11 — מצב נוכחי
+עודכן ב־10.11.2026. [קטלוג 63 הדרישות](docs/requirements.json) הוא מקור המצב המובנה; [PRODUCT_REQUIREMENTS](PRODUCT_REQUIREMENTS.md) נגזר ממנו. מימוש, אימות ופרסום מסומנים בנפרד. אין להסיק קבלה מהימצאות קוד או מבדיקה ממתינה.
 
-**Web תיקון3 פורסם בפועל:** sourcecca785ed8b1f3d4c96bf25c0eb50e77b04899566, [פרסום42778620385](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42778620385), כל75HTTP/SHA כולל marker/alpha/APK. [ראיה קבועה](qa/mobile-2026-11-08/public-web-patch3-http-verification.json). runtime453decfde812ec9b נבדק בחמשת שעריWeb של06; Native אינו מעכב הפצה זו.
-
-**קבלת06 הסתיימה ונכשלה Native:** [פירוט](qa/mobile-2026-11-08/acceptance-06e5533.json). Android26/31 ושלושתiPhones עברו; Android36 קרס ב־Binder ו־iPad full-suite נכשל בהכנתquery. iPad hit-test נפרד שיחזר כפתורNativeMenu חסום בפקדי המערכת.52unit/35SHA/DOM ו־Web עברו; אין לייחס להם PASS כולל שלNative.
-
-**תיקוני המשך:** DATA-003/[Issue14](https://github.com/Sargon17-Green/consumer-law-reader/issues/14) מעבירWebViewState לאחסוןAtomicFile פרטי, עםUUID+digest קטנים ב־Bundle. הקובץ זמני ומותנהבזהותOS/app/provider; cache פגום/חסר/ישן משתמש ב־logicalsession. Native regression יוצרstate>1MB ודורשBundle<50KB, recreate אמיתי ו־Back/Forward. iOS/[Issue13](https://github.com/Sargon17-Green/consumer-law-reader/issues/13) מוסיףcontainerCornerOffset הרשמי שלiOS26 לכותרת; תפריט ושיתוף נבדקים בלחיצה אמיתית אחריresize. ניסוי316f399/run42802580935 עדיין אינו קבלה כוללת. הקוד המשולב דורש CI חדש לפני מיזוג.
-
-קטלוג הדרישות גדל ל־63. המקור המשפטי ותאריך2026-10-28 נשמרו. Android הציבורי נשאר1.3.5-beta; אין IPA/TestFlight. חסמים חיצוניים רק ב־EXTERNAL_ACTIONS; יתר התיקונים מבוצעים אוטונומית. פרטים היסטוריים להלן מתארים את בסיס706/ניסוייםקודמים ואינם מצבCI נוכחי.
-
-
-עודכן10.11.2026. קטלוג63 הדרישות ב־[docs/requirements.json](docs/requirements.json) הוא מקור המצב המובנה; [PRODUCT_REQUIREMENTS](PRODUCT_REQUIREMENTS.md) נגזר ממנו. מימוש, אימות ופרסום הם מצבים נפרדים.
-
-| ערוץ | הקבלה האחרונה שהסתיימה | מה פורסם בפועל |
+| ערוץ | מצב מאומת | פרסום בפועל |
 |---|---|---|
-| Web/PWA1.3.9-dev | על706a3bc:47unit,35SHA/DOM,Node500,4רוחבים,32axe,66תקנות ומטמוןoffline אמיתי | תיקון2/sourcec3e9d9e;75GET/SHA כולל owner/alpha/APK. [reader](https://sargon17-green.github.io/consumer-law-reader/reader/) מאפשר הוספה למסך הבית |
-| Android1.3.9-dev/code17 | על706a3bc: API26/31/36 online/offline, SAF/שיתוף/העדפות ושניPDF146עמודים ב־API36 | הציבורי נשאר1.3.5-beta בחתימה המקורית. אין APK חדש חתום לשדרוג |
-| iOS1.3.9/build17 | על706a3bc: כל4jobs עברו, iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0, XCTest/XCUITest ו־archive מכשיר לא חתום | אין IPA חתום או TestFlight |
+| Web/PWA 1.3.9-dev, תיקון 3 | חמשת שערי Web של 06 עברו: 52 יחידות, 35 SHA/DOM, Node500, חמישה רצפי חיפוש, ארבעה רוחבים, 32 סריקות axe ומטמון offline | [reader](https://sargon17-green.github.io/consumer-law-reader/reader/), מקור cca785ed8b1f3d4c96bf25c0eb50e77b04899566, מטמון 453decfde812ec9b. פרסום 42778620385 הסתיים בהצלחה; 75 GET/SHA מאומתים, כולל alpha וה־APK |
+| Android 1.3.9-dev/code17 | תיקוני מצב גדול ו־Ready עברו בניסוי רכיב 4819aa8: build ושלוש ריצות API26/31/36, online/offline. קבלה משולבת עדיין נדרשת | הציבורי נשאר 1.3.5-beta בחתימה המקורית. מועמד חדש הוא Debug/unsigned בלבד |
+| iOS 1.3.9/build17 | ב־06 עברו iPhone26.2/18.5/16.0; iPad נכשל. תיקון scaling עבר בנפרד. תיקון חפיפת הכותרת עדיין בבדיקה | בניות סימולטור וארכיון מכשיר לא חתום בלבד; אין IPA חתום או TestFlight |
 
-ראיות קבלה: [Linux706](qa/mobile-2026-11-08/acceptance-706a3bc-linux.json), [iOS706](qa/mobile-2026-11-08/acceptance-706a3bc-ios.json), [HTTP חי](qa/mobile-2026-11-08/public-web-patch-http-verification.json), [תוצר הפרסום](qa/mobile-2026-11-08/web-patch-candidate.json). מועמד706 נבדק ב־merge-ref ed7494e0a1fd2c3c2ae80f6929456e30872beaef; שני trees זהים539895887cecddd5c497f4aea8cf1dd1dc6ff1d5.
+[ראיית פרסום Web](qa/mobile-2026-11-08/public-web-patch3-http-verification.json), [קבלת רכיב Android](qa/mobile-2026-11-08/android-state-cache-accepted.json), [קובצי Android שיוצאו ואומתו](qa/mobile-2026-11-08/android-private-exports-accepted.json).
 
-## המשך משולב — אינו מכוסה אוטומטית בראיות706
+## קבלה משולבת
 
-- **NATIVE-003/Issue13:** שחזור iPad הוכיח scaling וכפתור30.9pt. הצהרת orientations ב־project.yml תיקנה התאמה אמיתית: viewport1032→375pt, כפתור44×44. [ניסוי81b5f77](qa/mobile-2026-11-08/ipad-window-resize-accepted.json) עבר באופן ממוקד; רגרסיית4סימולטורים של המועמד המשולב נדרשת.
-- **SEARCH-005:** בחזרה לתוצאות לאחר הקטנת חלון, סעיף14 נשמר אך היה מחוץ למסך ביותר מ־2800px. התיקון שומר תוצאה נבחרת ו־offset ומחשב מיקום חדש בעת שינוי רוחב/גובה/גופן; במבנה זהה נשמר המיקום הקודם. [לפני](qa/mobile-2026-11-08/search-layout-before.json)/[אחרי מקומי](qa/mobile-2026-11-08/search-layout-after-local.json) מתעדים DOM אמיתי; אין ייחוס dirty source ל־CI. עדיין לא פורסם.
-- **ראיות Android פרטיות:** ניסוי Print fresh portrait/landscape עבר בתוך האפליקציה, אך run-as לא הורשה ולכן bytes שיוצאו לא אומתו. האיסוף החדש מוגבל לאמולטור userdebug/SELinux enforcing, מאמת stat/magic/SHA ואינו משנה debuggable או הרשאות מוצר. API36 חייב לייצא PDF זהה לגיבוב Native כדי לעבור.
-- **התאוששות renderer:** תהליך WebView הופסק בפועל ב־API31/36 והאפליקציה התאוששה לסעיף14 וגופן24; [ניסויc08](qa/mobile-2026-11-08/android-renderer-diagnosis.json) נכשל כוללנית באיסוף ראיות. הרגרסיה המשולבת מוסיפה גם בחירת חיפוש ושחזור השאילתה בפועל. זו אינה בדיקת OOM או חומרה פיזית.
-- **CI-004:** הושוו רשימות קלטי iOS push/PR, לרבות metadata/fixtures/dependencies; ריצה משולבת נדרשת לאימות build.
+הקבלה המלאה האחרונה שעברה היא 706a3bc: [Linux](qa/mobile-2026-11-08/acceptance-706a3bc-linux.json) ו־[iOS](qa/mobile-2026-11-08/acceptance-706a3bc-ios.json). היא אינה מכסה קוד מאוחר יותר.
 
-אין למזג שער מהותי נכשל. queued/in_progress הם מצב ריצה, לא חסם ולא PASS. מצב עדכני נקרא מ־[PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11); [BACKLOG](BACKLOG.md) מפרט עבודה שנותרה, [EXTERNAL_ACTIONS](EXTERNAL_ACTIONS.md) מכיל רק חסמים חיצוניים אמיתיים. המקור המשפטי ותאריך אימותו לא שונו.
+המועמד 06e5533, שנבדק ב־merge checkout a7d6f42 בעל אותו tree, **נכשל בקבלה הכוללת**: ב־Android36 קרס תהליך הקורא ב־TransactionTooLargeException; בדיקת iPad נכשלה בהכנת החיפוש. הצלחות Web, API26/31 ושלושת iPhone נשמרות בהיקפן בלבד. [ראיה מלאה](qa/mobile-2026-11-08/acceptance-06e5533.json). אין למזג את 06 על סמך ההצלחות החלקיות.
+
+## תיקוני ההמשך
+
+- **DATA-003 / Issue14:** המצב האטום של Chromium נשמר ב־AtomicFile פרטי, וב־Bundle הפניית UUID+SHA קטנה. ב־4819aa8 נמדדו 1,615,960–1,617,964 בתים לפני הפיצול לעומת 1,036–1,060 בתים במצב Activity שאחרי הפיצול. יצירה מחדש, מלוא ההיסטוריה ו־Back/Forward עברו בשלושת האמולטורים. בדיקות נוספות לשיבוש digest, זהות התקנה וגבול 8MB נוספו לאחר הניסוי וטרם רצו ב־Native.
+- **NATIVE-001:** המתנה מוגבלת ל־Ready אמיתי, עם generation לביטול callbacks ישנים. התאוששות לאחר עצירת renderer אמיתית ושימור סעיף/גופן/שאילתה עברו ב־API31/36. ב־API26 הפעולה הציבורית אינה קיימת ואינה מסומנת PASS.
+- **IO-003 / QA-PRIVATE:** קובץ PDF אמיתי בן 146 עמודים נאסף ואומת מול גיבוב Native, לצד PNG/JSON תקינים. האיסוף מוגבל לאמולטור userdebug, UID0 ו־SELinux Enforcing; אין שינוי debuggable או הרשאות מוצר. ה־PDF אינו tagged; לא נבדקה מדפסת פיזית.
+- **NATIVE-003 / Issue13:** orientations מפורשים תיקנו scaling של 44→30.9 נקודות. נוסף containerCornerOffset הרשמי של iOS26 לכותרת, עם fallback ל־16+. בניסוי 4c3596a נצפה חלון אמיתי ברוחב 375 נקודות וכפתורים 44×44, אך הבדיקה חרגה מזמן בזמן לחיצת התפריט. אין אישור לפעולות לאחר resize. ניסוי 0d3ef3f/run42813510160 מצמצם איסוף AX יקר ושומר מבחני לחיצה אמיתיים. [מצב מפורט](qa/mobile-2026-11-08/ipad-window-hit-test-progress.json).
+- **SEARCH-005:** תיקון תוצאה נבחרת ו־offset לאחר שינוי פריסה עבר חמישה רצפי DOM נקיים ופורסם ב־Web תיקון 3. בדיקות Native נבחנות בנפרד; אין צורך בפרסום Web זהה נוסף בגלל תיקון Native בלבד.
+
+[PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11) מרכז את המועמד. הענף docs/mobile-release-evidence-20261110 שומר checkpoint ותיעוד; ענפי הרכיבים אינם מסלול הפצה. לאחר קבלתם נדרשת רגרסיה מלאה על tree משולב אחד. המקור המשפטי ומועד אימותו 2026-10-28 נשמרו. [BACKLOG](BACKLOG.md) מפרט עבודה פתוחה; [EXTERNAL_ACTIONS](EXTERNAL_ACTIONS.md) כולל רק פעולות חיצוניות אמיתיות.

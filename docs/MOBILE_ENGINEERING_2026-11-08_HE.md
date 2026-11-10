@@ -1,6 +1,6 @@
 # מחזור ההנדסה למובייל — תוצרים וראיות
 
-עודכן ב־10.11.2026. **בטא Web/PWA1.3.9-dev פורסמה** ב[קישור הקבוע](https://sargon17-green.github.io/consumer-law-reader/reader/), תיקון3 עם75 בדיקות HTTP/SHA256 שעברו ושימור alpha וה־APK הציבורי. Native Android/iOS לא פורסמו במהדורה חדשה: חסרות חתימות מקוריות; קבלתAPI36 עברה706, וקוד ההמשך דורש רגרסיה נפרדת. מצב מתעדכן לפי [IMPLEMENTATION_STATUS](../IMPLEMENTATION_STATUS.md); כל דרישה רשומה ב־[PRODUCT_REQUIREMENTS](../PRODUCT_REQUIREMENTS.md).
+עודכן ב־10.11.2026. **בטא Web/PWA1.3.9-dev פורסמה** ב[קישור הקבוע](https://sargon17-green.github.io/consumer-law-reader/reader/), תיקון3 עם75 בדיקות HTTP/SHA256 שעברו ושימור alpha וה־APK הציבורי. Native Android/iOS לא פורסמו במהדורה חדשה: חסרות חתימות מקוריות; תיקוני Android עברו ברכיב4819/API26/31/36, וקוד ההמשך המשולב עדיין דורש קבלה. iPad נשאר בבדיקת לחיצות אחרי שינוי חלון. מצב מתעדכן לפי [IMPLEMENTATION_STATUS](../IMPLEMENTATION_STATUS.md); כל דרישה רשומה ב־[PRODUCT_REQUIREMENTS](../PRODUCT_REQUIREMENTS.md).
 
 העבודה ממשיכה את [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11), על בסיס main016b3de352dabe97f51b34b78ff803965b6cd40d. נבדקו12ענפים, PRs1–11, Issue7, היסטוריית commits/Releases ו־Actions; תיקונים תקינים שכבר מוזגו לא יושמו מחדש. PR1 הוא ביקורת ישנה ולא מקור ממצאים אוטומטי.
 
@@ -60,7 +60,7 @@
 | קישור נכנס ליעד בדפדפן | URL ציבורי | URL ציבורי | אין App Links/Universal Links מאומתים; לא נרשמה בעלות דומיין חדשה |
 | הפצה ציבורית חתומה | 1.3.5-beta הקיימת | לא קיימת ראיית TestFlight | חסרים מפתח Android המקורי וחשבון/חתימת Apple |
 
-## דוח בדיקות וקבלה
+## דוח בדיקות היסטורי — מקור מפורש בכל שורה
 
 | מקור/סביבה | תוצאה מאומתת | ראיה ומגבלה |
 |---|---|---|
@@ -93,27 +93,20 @@ Native מודד PSS/CPU של תהליך היישום ו־XCTest reading gestures
 
 Android1.3.9-dev/code17: Debug מאומת, unsigned APK מיושר ו־AAB לא חתום; public1.3.5-beta נשמר. APK הציבורי SHA2562772e3d8195de2d9a66edc8cdbc9e0940ac71f8cb55f1597dcc7c122120101af. בדיקת upgrade היא עם עותק בטא במפתח QA, ולא הוכחת שדרוג במפתח המקורי. אין להפיץ unsigned/Debug כשדרוג.
 
-iOS1.3.9/build17: ארבע בניות סימולטור ומבחנים עברו; מסלול device archive לא חתום הוכן. אין IPA חתום, TestFlight, אישור חנות או בדיקת iPhone פיזי. Web1.3.9-devפורסם בנפרד, ניתן להוספה למסך הבית, ואינו Native.
+iOS1.3.9/build17: ארבע בניות סימולטור ומבחנים עברו על706; קבלת06 המאוחרת יותר נכשלה ב־iPad, וכל שלושת iPhone עברו; מסלול device archive לא חתום הוכן. אין IPA חתום, TestFlight, אישור חנות או בדיקת iPhone פיזי. Web1.3.9-devפורסם בנפרד, ניתן להוספה למסך הבית, ואינו Native.
 
 החסמים היחידים הדורשים גורם חיצוני: המפתח ההיסטורי של Android, גישת Apple Team/profiles/ASC, מכשיר/ציוד פיזי שאינו זמין, והצהרות בעל זכויות/חשבון. הפרטים והצעדים הקצרים ב־[EXTERNAL_ACTIONS](../EXTERNAL_ACTIONS.md). כל שאר העבודה פתוחה ב־[BACKLOG](../BACKLOG.md) והכניסה העצמאית ב־[PROJECT_HANDOFF](../PROJECT_HANDOFF.md).
 
-## מחזור המשך10.11 — קבלה משולבת נדרשת
+## קבלת המשך10.11 — מצב נוכחי
 
-| שיפור | פלטפורמה | ממצא וסיבה | מימוש | בדיקה וראיה | מצב |
+| מזהה | פלטפורמה | ממצא וסיבה | מימוש וקבצים | בדיקה ותוצאה | commit |
 |---|---|---|---|---|---|
-| SEARCH-005 | משותף | raw pixel scroll אינו מתאים לתוצאות שעברו reflow או לגובה חלון חדש | web/mobile.js: target נבחר+offset+layout, תחום נראה; באותה פריסה offset נשמר | tests/search_state_qa.py; before/after-local תחתqa |5רצפים מקומיים עברו;CI/פרסום ממתינים |
-| NATIVE-003 | iOS | Info.plist חסר orientation flags, windowing scaled44pt→30.9pt | ios/project.yml:3iPhone/4iPad; raw-plist XCTest + ReaderWindowingUITests | run42772416090/job129683054613,artifact13742524176 | ניסוי אמיתי עבר; רגרסיה משולבת נדרשת |
-| QA-PRIVATE | Android | run-as אינו מורשה; raw exec-out עשוי להחזיר שגיאה עם status0 | scripts/collect_android_private_evidence.py: emulator/root/stat/bounds/magic/SHA; run_android_emulator_qa.sh שומרכשל |5unit כוללPNGכוזב/PDFשונה/physicalrefusal; fullCI ידרושexportedPDF | מימוש, ללאPASSריצהכוללתחדש |
-| QA-RENDERER | Android | כשל תהליךrenderer לא נבדק ברגרסיה | ReaderInstrumentation ציבוריterminate, NativeRecovery/NewActivity/Ready/section/font/query | ניסויc08 functional31/36 עבר אך overallFAIL collector; בדיקהחזקה יותר משולבת | רגרסיה משולבת נדרשת; לאOOM |
-| CI-004 | CI/iOS | PR paths החסירוmetadata/fixtures/dependencies | ios-ci.yml רשימותpush/PRתואמות | unit/build ו־4סימולטורים עלהמועמד | מימוש; קבלהמשולבתנדרשת |
+| SEARCH-005 | משותף | raw pixel scroll אינו מתאים לתוצאות לאחר reflow או שינוי גובה | web/mobile.js: target נבחר, offset וחתימת פריסה; שמירת offset מדויק בפריסה זהה | חמישה רצפי full DOM offline עברו בשער source06; פורסם בתיקוןWeb3 ואומת75HTTP | 06e5533; מקור פרסוםcca785e |
+| DATA-003 | Android | opaque Chromium state בגודל1.2MB נשלח ב־Binder וקרס | MainActivity.java + WebViewStateCache.java: AtomicFile פרטי עד8MB והפניית UUID:SHA קטנה, מותניתOS/app/provider | ב־4819 כל API26/31/36 online/offline עברו: raw1.6MB, Bundle1036/1060bytes, actual recreate/history/Back/Forward. בדיקות digest/installation/8MB החדשות טרם רצו Native | ed5b874, 4819aa8 |
+| NATIVE-001 | Android | בדיקת Ready יחידה נכשלה בזמן init/restore תקין | MainActivity.java: poll מוגבל20שניות ו־generation המבטל callbacks ישנים | API31/36 actual renderer terminate → recovery/newActivity/Ready עם סעיף14, גופן24 ושאילתה14; API26 lifecycle עבר, termination לא זמין | 13d3485; רכיב4819aa8 |
+| QA-PRIVATE / IO-003 | Android | run-as אינו מורשה; exec-out עלול לשמור הודעת שגיאה כקובץ | collect_android_private_evidence.py + run_android_emulator_qa.sh: userdebug/root/SELinux, stat/bounds/magic/SHA ו־exit תקין | חמישה קבצים מ־API36 הורדו ואומתו בנפרד; PDF146עמודים/1,515,150bytes תואם גיבוב Native. PDF אינו tagged ואין מדפסת פיזית | 06e5533; קבלת רכיב4819aa8 |
+| NATIVE-003 | iOS | Info.plist חסר orientations גרם scaling44→30.9pt | ios/project.yml:3phone/4Pad, raw Info.plist XCTest ובדיקת מערכת אמיתית | ניסוי81b עבר1032→375pt וכפתור44; אינו מספיק לאישור נגישות הכפתור | 81b5f77 |
+| NATIVE-002/003 | iOS | SystemClose חפף למרכז NativeMenu למרות44pt | ConsumerLawReaderApp.swift: containerCornerOffset הרשמי ב־26, fallback16+ | 4c הוכיח חלון375pt/Native44pt והזזה חזותית, אך timeout בתפריט. ניסוי0d3ef3f מצמצם AX יקר, דורש menu/share אמיתיים ותוצאה נראית לפניtap. **טרם קבלה** | 88d3946, 4c3596a, 0d3ef3f |
+| CI-004 | CI/iOS | PR paths החסירו metadata/fixtures/dependencies | ios-ci.yml: רשימותpush/PR תואמות | unit/build קיימים; נדרשת קבלת4סימולטורים על המועמד המשולב | 06e5533 |
 
-מסמכי מצב/קטלוג/העברה עודכנו תוך הסרת טענות pending ישנות. מזההcommit של כל שינוי יופיע בהיסטוריית PR11; אין למלא SHA עתידי או להסיקPASSמהימצאותהבדיקה.
-
-## DATA-003 וכותרת iPad — קבלת Native פתוחה
-
-| מזהה | פלטפורמה | בעיה משוחזרת | תיקון וקבצים | אימות נדרש | commit |
-|---|---|---|---|---|---|
-| DATA-003 | Android | מצב Chromium בגודל 1,204,232 בתים נכנס ל־Bundle וגרם ל־TransactionTooLargeException | MainActivity.java ו־WebViewStateCache.java: אחסון פרטי אטומי, הפניה קטנה, הגבלת גודל ודחיית cache לא תואם | רגרסיה עם מצב גדול מ־1MB, חבילה קטנה מ־50KB, יצירה מחדש ו־Back/Forward; שלושה אמולטורים | 6ed474ff959f103b69fe3c8746f97a5cda445309 — טרם קבלה |
-| NATIVE-002/003 | iOS | כפתור פעולות בגודל 44 נקודות נחסם בידי פקד החלון; לחיצה אמיתית נכשלה | ConsumerLawReaderApp.swift: התאמת פינות רשמית ב־iOS26 עם fallback ל־16+; בדיקות תפריט ושיתוף בחלון מוקטן | ניסוי ממוקד ולאחריו ארבעה סימולטורים; placeholder של XCTest מטופל במפורש | תיקון 316f399; המשך בדיקה 2686655 — טרם קבלה |
-
-Web תיקון 3 פורסם ואומת בנפרד בריצה 42778620385. Native06 נכשל, למרות הצלחת 52 בדיקות היחידה, 35 בדיקות המקור וכל שערי Web. אין הפצה חתומה חדשה ואין להסיק PASS לפני סיום הריצות.
+ראיות קבועות: [Android4819](../qa/mobile-2026-11-08/android-state-cache-accepted.json), [קובצי Android](../qa/mobile-2026-11-08/android-private-exports-accepted.json), [התקדמות iPad](../qa/mobile-2026-11-08/ipad-window-hit-test-progress.json), [כשל06](../qa/mobile-2026-11-08/acceptance-06e5533.json), [פרסוםWeb3](../qa/mobile-2026-11-08/public-web-patch3-http-verification.json). הניסויים אינם קבלה משולבת או Native חתום. מקור החוק ומועד האימות נשמרו.

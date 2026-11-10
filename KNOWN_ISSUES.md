@@ -1,28 +1,25 @@
 # תקלות ידועות ומגבלות כיסוי
 
-| מזהה | היקף / מצב | ממצא ודרך המשך |
+עודכן ב־10.11.2026. מצב קבלה ופרסום ב־[IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md); כל דרישה שלא הושלמה נשמרת ב־[BACKLOG](BACKLOG.md) ובקטלוג.
+
+| מזהה | מצב | ממצא ודרך המשך |
 |---|---|---|
-| QA-ANDROID26-ROW | תיקון בדיקה אומת גם ב־PR11/4ee | צילום הוכיח שקובץ JSON קיים; עץ A11y הוכיח שה־filename ב־depth17 ולשורת RecyclerView אין ACTION_CLICK. הקשת pointer לפי bounds של שם מדויק מאפשרת SAF אמיתי. אין צורך לשנות פורמט גיבוי או להחליש הרשאות |
-| QA-ANDROID36-PRINT | שער הקבלה המלא עבר706; fresh portrait פתוח בנפרד | lookup לפי ID מצא print_button מוסתר אך enabled; AOSP16 קובע GONE עד עדכון המסמך. גם כפתור גלוי עשוי להופיע בזמן Preparing preview. המתנה לעמוד Page n of total אפשרה PDF אמיתי במצב לרוחב בניסוי42726433709; מצב לאורך נכשל עם קריסת MediaProvider/FuseDaemon ואז יציאת תהליך reader, ללא חריגת Java באפליקציה שנמצאה. הלוג הוכיח ש־vold איפס אחסון ושלח SIGINT לתהליך הקורא לאחר קריסת MediaProvider. טריגר pf_setattr עדיין אינו מוכח. full API36 online/offline עבר706 עם שניPDF146עמודים; הניסוי38ebb34/run42767425997 עבר portrait וגם landscape לאחר בידוד פעולות ראיות QA מ־FUSE; אין הוכחה שה־cp הוא הגורם היחיד או שה־MediaProvider תוקן |
-| QA-ANDROID36-SHARE | תיקון בדיקה אומת4ee | הוחזרה פעולת ACTION_CLICK של יעד sharesheet; אישור Intent ב־UID אחר עבר API36 לפני כשל PDF. אין להסיר את אישור הקבלה |
-| DEPLOY-ENVIRONMENT | מגבלת workflow, לא הוכחת כשל אתר חי | env github-pages מתיר רק main/gh-pages; deploy מה־release branch נדחה. אין לשנות הגנה; פרסום gh-pages42718136476 וה־HTTP עברו. CI-003 מפריד verifier לקריאה בלבד מ־deployment workflow המוגן, ללא שינוי policy |
-| SIGN-ANDROID | חסם חיצוני | המפתח הפרטי ההיסטורי אינו זמין; אין Debug כשדרוג.1.3.5 הציבורי נשמר |
-| SIGN-IOS | חסם חיצוני | אין גישת Team/profiles/ASC לחתימה והפצה; סימולטור/unsigned archive בלבד |
-| COVERAGE-IPAD-WINDOW | תיקון ממוקד עבר; קבלה משולבת נדרשת | Issue13: orientations חסרים גרמו scaling44→30.9pt. הצהרה מפורשת עברה81b5f77/run42772416090 עם חלון375pt ו־Native44×44; נדרשת רגרסיה מלאה עם SEARCH-005 |
-| COVERAGE-LOW-MEMORY | כיסוי חלקי | process recovery וקוד טיפול קיימים; sustained pressure וכלל תהליכי Web אינם מכוסים בכל חומרה |
-| COVERAGE-PHYSICAL | לא נבדק | מכשירים פיזיים, TalkBack/VoiceOver אנושיים, מדפסת פיזית ורינדור במסמך Word חיצוני |
-| LINKS-NATIVE | הבדל מוצדק | HTTPS נפתח לסעיף ב־Web; אין Universal/App Links מאומתים לתוך Native ואין Team ID מומצא |
+| DATA-003 / Issue14 | תיקון רכיב אומת; קבלה משולבת פתוחה | ב־06/API36 נשלחו 1,204,952 בתים ב־Activity state ונגרמה TransactionTooLargeException. AtomicFile פרטי והפניה קטנה עברו ב־4819/API26/31/36. בדיקות adversarial נוספות ממתינות לרגרסיה המשולבת. [לפני](qa/mobile-2026-11-08/android-binder-state-before.json), [אחרי](qa/mobile-2026-11-08/android-state-cache-accepted.json) |
+| NATIVE-003 / Issue13 | פעולות לאחר resize עדיין לא התקבלו | orientations תיקנו scaling. לחיצה אמיתית בניסוי 2e88de9 הוכיחה חסימה בידי SystemClose. corner inset ב־4c הזיז כפתורים והחזיק 44×44, אך timeout בבדיקת התפריט אינו PASS. [לפני](qa/mobile-2026-11-08/ipad-header-occlusion-before.json), [המשך](qa/mobile-2026-11-08/ipad-window-hit-test-progress.json) |
+| QA-ANDROID36-PRINT | PDF מלא עבר; אין טענה שתוקן MediaProvider | כשל היסטורי היה abort של MediaProvider/FUSE ולא חריגת Java בקורא. שורש pf_setattr לא הוכח. לאחר בידוד איסוף QA ל־files פרטי, portrait/landscape עברו בנפרד; ריצת 4819 המלאה שמרה שני PDF בני146 עמודים. [אבחון](qa/mobile-2026-11-08/android-print-preview-diagnosis.json), [ייצוא מאומת](qa/mobile-2026-11-08/android-private-exports-accepted.json) |
+| QA-EVIDENCE-PRIVATE | collector מתוקן עבר רכיב4819 | run-as לא מורשה באפליקציה שאינה debuggable; exec-out עלול להחזיר טקסט שגיאה ב־exit0. collector מוגבל לאמולטור userdebug/SELinux enforcing, בודק stat/magic/גודל/SHA. אין לקבל ADB error כתמונה או PDF |
+| NATIVE-002 | פער אימות | יש טיפול insets ו־IME, אך אין עדיין ראיה מספקת לכל תרחישי מקלדת תוכנה/מסכים. אין להציג DOM viewport כבדיקת מקלדת Native |
+| COVERAGE-LOW-MEMORY | חלקי | renderer termination/recovery אמיתי עבר API31/36; אינו מבחן OOM או עומס זיכרון מתמשך על כלל תהליכי Web |
+| COVERAGE-PHYSICAL | לא נבדק | מכשירים פיזיים, בדיקות אדם VoiceOver/TalkBack, מדפסת פיזית ורינדור בקורא Word חיצוני |
+| SIGN-ANDROID | חסם חיצוני | המפתח ההיסטורי אינו זמין; הציבורי1.3.5-beta נשמר ואין Debug כשדרוג |
+| SIGN-IOS | חסם חיצוני | אין Team/profiles/ASC מורשים; סימולטור ו־unsigned archive בלבד |
+| LINKS-NATIVE | הבדל מתועד | HTTPS נפתח לסעיף ב־Web; אין Universal/App Links מאומתים לתוך Native |
+| DEPLOY-ENVIRONMENT | חוזה פרסום | github-pages מתיר רק main/gh-pages. אין לעקוף הגנה זו. verifier לקריאה בלבד יכול לרוץ בענף release; הפרסום עצמו ו־HTTP צריכים להיות מאומתים בנפרד |
 
-הגלילה הלא־מכוונת של העמוד/התקנות שוחזרה ותוקנה: לפני התיקון64/35/32/17/3/6 מקרים כושלים בששת הרוחבים; אחרי התיקון0 בכל רוחב. טבלאות נתונים רחבות שומרות גלילה פנימית. פרטים: qa/mobile-2026-11-08/horizontal-layout-before-after.json.
+הגלילה הלא מכוונת שוחזרה ותוקנה: לפני התיקון64/35/32/17/3/6 כשלי root בששת הרוחבים; אחרי התיקון0 בכל רוחב. טבלאות נתונים רחבות שומרות גלילה פנימית נגישה. [ראיה](qa/mobile-2026-11-08/horizontal-layout-before-after.json).
 
-ארטיפקטי Actions זמניים (Native iOS7ימים, האחרים בדרך כלל30, פריסה90); סיכומים ודיגסטים נשמרים ב־Git. היעלמות artifact אינה PASS או כשל חדש; אפשר לבנות מחדש מהמקור. אין ידיעה שהחוק מדויק משפטית מכוח מחזור זה, והמקור/מועד אימותו נשמרים.
+SEARCH-005: raw scroll השאיר את סעיף14 מחוץ לתוצאות לאחר reflow. התיקון עבר חמישה רצפי DOM ופורסם ב־Web תיקון3. אין פער פרסום Web פתוח; Native נשאר בשער קבלה נפרד.
 
-NAV-006/PWA-001 פורסמו בתיקון2 לאחר כל שערי706. עדות iPad before/after ב־qa/mobile-2026-11-08/ipad-window-scaling-before.json ו־ipad-window-resize-accepted.json; בדיקת full-screen הישנה לא כיסתה windowing.
+תיקוני QA היסטוריים נשמרים: ב־API26 שורת filename של SAF נמצאת ב־depth17 ללא ACTION_CLICK, ולכן משתמשים ב־bounds של שם מדויק; ב־API36 אישור יעד sharesheet נבדק ב־UID אחר. אין להסיר את אימות הקבלה או להחליש הרשאות כדי לקצר בדיקה.
 
-SEARCH-005: raw scroll השאיר את סעיף14 מחוץ למסך לאחר reflow (במקרה1032→375 ביותר מ־2800px; גם הקטנת גובה בלבד שוחזרה). תיקון anchor+offset ובדיקת5רצפים קיימים במועמד המשולב, טרם קבלתCI/פרסום.
-
-QA-EVIDENCE-PRIVATE: ניסוי38ebb עבר PdfRenderer בתוך האפליקציה אך run-as נכשל; bytes חיצוניים לא אומתו. c08 עבר renderer recovery ב־31/36 אך collector נכשל כוללנית, משום raw exec-out אינו מעביר בהכרח remote exit. stat shell-v2/אימותmagic/גודל/SHA ושמירת exit status נוספו; נדרשת ראיה אמיתית מהריצה המשולבת. אין לשנות debuggable או SELinux של המוצר כדי לתקן איסוףQA.
-
-DATA-003/Issue14 הואP0 מאומת:06/API36 WEBVIEW_CHROMIUM_STATE1204232bytes גרםTransactionTooLargeException/Activityparcel1204952bytes. PRIVATEcache+reference fix under acceptance; details inqa/mobile-2026-11-08/android-binder-state-before.json. זה אינוFUSE.
-
-iPad header: actualnativeMenu tap failed2e88de9/run42778315390; systemClose covers its center despite44x44AX. Apple corner-inset modifier under test; old sizingPASS is insufficient. qa/mobile-2026-11-08/ipad-header-occlusion-before.json.
+ארטיפקטי Actions מוגבלים בזמן: iOS7ימים, האחרים בדרך כלל30 ופריסה90. מזהי run/commit, דיגסטים וסיכומים קבועים נשמרים ב־Git; אפשר לשחזר מהמקור. היעלמות artifact אינה PASS או כשל חדש. קובץ PDF שנבדק אינו tagged; אין לייחס לו אישור נגישות למסמך PDF. מחזור זה אינו אימות משפטי, והמקור ומועד אימותו נשמרים.

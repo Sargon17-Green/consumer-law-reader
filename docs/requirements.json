@@ -1589,6 +1589,13 @@
           "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
           "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        },
+        {
+          "commit": "4819aa83728358312b79834313e18ff92f2e1c74",
+          "run": 42806470326,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326",
+          "result": "PASS: Android build and API26/31/36 completed success",
+          "scope": "Actual online/offline1.6MB state ->1036/1060-byte system Bundle, real Activity recreation and full history/Back/Forward; renderer termination/recovery on31/36. Component only; combined PR gate still required. See qa/mobile-2026-11-08/android-state-cache-accepted.json"
         }
       ],
       "dependencies": [],
@@ -1657,10 +1664,18 @@
           "result": "PASS: targeted iPad26.2 actual OS window resize and raw orientation plist",
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42772416090",
           "scope": "Actual1032->375pt viewport; menu remains44x44; query and result navigation retained. No pre-tap selected-row visibility proof or full combined candidate claim"
+        },
+        {
+          "commit": "4c3596a0d65f3eb01f56faf7d7507ff824894732",
+          "run": 42810117955,
+          "job": 129809129367,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42810117955",
+          "result": "FAIL:360-second XCTest execution allowance exceeded; no accepted post-resize menu/share claim",
+          "scope": "Actual width1032->375 and menu44pt observed with corner inset. Test diagnostics consumed allowance; no native-hit acceptance. See qa/mobile-2026-11-08/ipad-window-hit-test-progress.json"
         }
       ],
       "dependencies": [
-        "Issue13:44pt sizing fix passed, but actual menu hit test failed2e88de9. Official corner-inset fix is under test316f399/run42802580935; full4-simulator regression required"
+        "Issue13: orientation metadata accepted in81b5f77; actual menu obstruction reproduced2e88de9. Corner-inset production code compiles and4c actual window is375pt/menu44pt, but4c timed out during menu tap. Frame-only fixture0d3ef3f/run42813510160 awaits result; full combined iOS gate required."
       ],
       "published": {
         "iOS": null
@@ -2241,7 +2256,15 @@
         "scripts/collect_android_private_evidence.py",
         "tests/test_android_evidence.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "commit": "4819aa83728358312b79834313e18ff92f2e1c74",
+          "run": 42806470326,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326",
+          "result": "PASS: Android build and API26/31/36 completed success",
+          "scope": "Actual online/offline1.6MB state ->1036/1060-byte system Bundle, real Activity recreation and full history/Back/Forward; renderer termination/recovery on31/36. Component only; combined PR gate still required. See qa/mobile-2026-11-08/android-state-cache-accepted.json"
+        }
+      ],
       "dependencies": [
         "API36 PDF actual system-save acceptance remains open; API26 and API31 passed in the identified runs."
       ],
@@ -3146,10 +3169,17 @@
           "result": "FAIL reproduced:1204952-byte Activity state crashes reader",
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42777451011/job/129699683934",
           "scope": "Before fix; native FATAL TransactionTooLargeException, not MediaProvider. New code compiles and52unit pass locally; no new native PASS yet"
+        },
+        {
+          "commit": "4819aa83728358312b79834313e18ff92f2e1c74",
+          "run": 42806470326,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326",
+          "result": "PASS: Android build and API26/31/36 completed success",
+          "scope": "Actual online/offline1.6MB state ->1036/1060-byte system Bundle, real Activity recreation and full history/Back/Forward; renderer termination/recovery on31/36. Component only; combined PR gate still required. See qa/mobile-2026-11-08/android-state-cache-accepted.json"
         }
       ],
       "dependencies": [
-        "Issue14: full combined acceptance required before merge/native release; pending CI does not block independent Web publication"
+        "Issue14: component4819 passed all3 Android platforms; final combined regression must also execute new digest/installation/8MB adversarial cases before merge. No new signed public APK."
       ],
       "published": {
         "Android": null
@@ -3158,5 +3188,17 @@
   ],
   "integrationCandidateBranch": "fix/pastafari-date-android-20261028",
   "candidateMeaning": "06 completed: Web passes; full Native acceptance fails. Follow-up Binder/header fixes require their own completed runs.",
-  "lastFullyAcceptedCandidate": "706a3bc19f7a75026ccb2bac614816e12c5f5293"
+  "lastFullyAcceptedCandidate": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+  "componentAcceptance": {
+    "Android": {
+      "commit": "4819aa83728358312b79834313e18ff92f2e1c74",
+      "run": 42806470326,
+      "result": "PASS within component scope"
+    },
+    "iPad": {
+      "commit": "0d3ef3f10830710456a4a29c09e07e6166e05c7b",
+      "run": 42813510160,
+      "result": "pending; no acceptance inferred"
+    }
+  }
 }
