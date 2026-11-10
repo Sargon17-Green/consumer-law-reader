@@ -85,6 +85,75 @@ public final class ReaderInstrumentation extends Instrumentation {
         for(int i=0;i<node.getChildCount()&&out.length()<4000;i++)out.append(systemLabels(node.getChild(i),depth+1));
         return out.substring(0,Math.min(4000,out.length()));
     }
+    private AccessibilityNodeInfo editable(AccessibilityNodeInfo node,int depth) {
+        if(node==null||depth>24)return null;
+        if(node.isEditable()&&node.isVisibleToUser())return node;
+        for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo found=editable(node.getChild(i),depth+1);if(found!=null)return found;}
+        return null;
+    }
+    private android.graphics.Rect keyboardBounds() {
+        for(android.view.accessibility.AccessibilityWindowInfo window:getUiAutomation().getWindows())
+            if(window.getType()==android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD){android.graphics.Rect bounds=new android.graphics.Rect();window.getBoundsInScreen(bounds);if(!bounds.isEmpty())return bounds;}
+        return null;
+    }
+    private void tapBounds(android.graphics.Rect target) throws Exception {
+        check(!target.isEmpty(),"Actual touch target must have measured bounds");
+        long time=android.os.SystemClock.uptimeMillis();
+        android.view.MotionEvent down=android.view.MotionEvent.obtain(time,time,android.view.MotionEvent.ACTION_DOWN,target.centerX(),target.centerY(),0);
+        down.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);boolean delivered=getUiAutomation().injectInputEvent(down,true);down.recycle();
+        Thread.sleep(60);
+        android.view.MotionEvent up=android.view.MotionEvent.obtain(time,android.os.SystemClock.uptimeMillis(),android.view.MotionEvent.ACTION_UP,target.centerX(),target.centerY(),0);
+        up.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);boolean released=getUiAutomation().injectInputEvent(up,true);up.recycle();
+        check(delivered&&released,"The actual native touch must be delivered");
+    }
+    private void testNativeKeyboard(Bundle report) throws Exception {
+        ready();
+        final int[] orientation={0};runOnMainSync(()->orientation[0]=activity.getRequestedOrientation());
+        String previous=shell("settings get secure show_ime_with_hard_keyboard").trim();
+        check(previous.equals("null")||previous.equals("0")||previous.equals("1"),"Known emulator keyboard setting before temporary override");
+        android.accessibilityservice.AccessibilityServiceInfo service=getUiAutomation().getServiceInfo();
+        check(service!=null,"UI automation accessibility service exists");int flags=service.flags;
+        try{
+            service.flags=flags|android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;getUiAutomation().setServiceInfo(service);
+            shell("settings put secure show_ime_with_hard_keyboard 1");
+            runOnMainSync(()->activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT));
+            awaitJS("innerHeight>innerWidth","Actual portrait viewport before keyboard");Thread.sleep(350);
+            final int[] originalHeight={0};runOnMainSync(()->originalHeight[0]=web.getHeight());
+            js("lawMobile.showSearch()");
+            AccessibilityNodeInfo input=null;
+            for(int i=0;i<100;i++){
+                input=editable(getUiAutomation().getRootInActiveWindow(),0);if(input!=null)break;Thread.sleep(100);
+            }
+            check(input!=null,"Real search field is exposed as a visible native editable node");
+            Bundle empty=new Bundle();empty.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,"");
+            check(input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,empty),"Native editable field can be cleared without JavaScript text assignment");
+            android.graphics.Rect target=new android.graphics.Rect();input.getBoundsInScreen(target);tapBounds(target);
+            android.graphics.Rect keyboard=null;
+            for(int i=0;i<100;i++){keyboard=keyboardBounds();if(keyboard!=null)break;Thread.sleep(100);}
+            check(keyboard!=null,"A real TYPE_INPUT_METHOD system window must be visible; CSS resizing does not qualify");
+            sendStringSync("14");
+            awaitJS("document.getElementById('mobile-search').value==='14' && document.querySelectorAll('.m-result').length>0","Native key input produces actual search results");
+            final int[] geometry=new int[3];
+            for(int i=0;i<100;i++){
+                runOnMainSync(()->{int[] location=new int[2];web.getLocationOnScreen(location);geometry[0]=location[1];geometry[1]=web.getHeight();geometry[2]=location[1]+web.getHeight();});
+                if(geometry[2]<=keyboard.top+4&&geometry[1]<originalHeight[0]-100)break;Thread.sleep(100);
+            }
+            JSONObject measurements=new JSONObject();measurements.put("ime",keyboard.toShortString());measurements.put("originalWebHeight",originalHeight[0]);measurements.put("webTop",geometry[0]);measurements.put("webHeight",geometry[1]);measurements.put("webBottom",geometry[2]);
+            report.putString("keyboardGeometry",measurements.toString());
+            check(geometry[2]<=keyboard.top+4&&geometry[1]<originalHeight[0]-100,"Actual WebView fits above the software keyboard: "+measurements);
+            awaitJS("(()=>{const r=document.getElementById('mobile-search').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()","Search field remains visible above actual IME");
+            sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
+            boolean hidden=false;for(int i=0;i<100;i++){if(keyboardBounds()==null){hidden=true;break;}Thread.sleep(100);}
+            check(hidden,"System Back dismisses the actual software keyboard");
+            awaitJS("document.getElementById('mobile-sheet').open && document.getElementById('mobile-search').value==='14' && document.querySelectorAll('.m-result').length>0","Back hides IME while keeping search/query/results");
+            report.putString("nativeKeyboard","PASS: actual editable-node touch, visible system IME, native14 input, WebView/input above keyboard, Back hides IME and preserves search");
+        }finally{
+            if(keyboardBounds()!=null)sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
+            shell(previous.equals("null")?"settings delete secure show_ime_with_hard_keyboard":"settings put secure show_ime_with_hard_keyboard "+previous);
+            service.flags=flags;getUiAutomation().setServiceInfo(service);
+            runOnMainSync(()->activity.setRequestedOrientation(orientation[0]));
+        }
+    }
     private void clickSystemText(String text) throws Exception {
         clickSystemText(text,null);
     }
@@ -434,12 +503,36 @@ public final class ReaderInstrumentation extends Instrumentation {
             runOnMainSync(()->web.goForward());awaitJS("location.hash==='#article_14'","Native Forward after state restoration");
             Class<?> type=Class.forName("il.org.lawreader.consumer.WebViewStateCache");java.lang.reflect.Constructor<?> ctor=type.getDeclaredConstructor(android.content.Context.class);ctor.setAccessible(true);Object cache=ctor.newInstance(getTargetContext());
             java.lang.reflect.Method read=type.getDeclaredMethod("read",String.class);read.setAccessible(true);
+            check(read.invoke(cache,reference) instanceof Bundle,"Same-installation intact cache remains readable");
+            String stale=reference.substring(0,37)+(reference.charAt(37)=='0'?'1':'0')+reference.substring(38);
+            check(read.invoke(cache,stale)==null,"A stale atomic reference cannot restore different file bytes");
             check(read.invoke(cache,"../outside")==null,"Cache rejects path traversal");
             String invalid=java.util.UUID.randomUUID().toString()+reference.substring(36);
             check(read.invoke(cache,invalid)==null,"Missing transient cache is rejected safely");
             java.io.File directory=new java.io.File(getTargetContext().getCacheDir(),"reader-web-state"),corrupt=new java.io.File(directory,invalid.substring(0,36)+".bin");
-            try{try(java.io.FileOutputStream output=new java.io.FileOutputStream(corrupt)){output.write(new byte[]{0,1,2,3,4});}check(read.invoke(cache,invalid)==null,"Corrupt cache cannot restore an invalid state");}finally{corrupt.delete();}
-            report.putString("largeNativeState","PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing cache rejected");
+            java.io.File source=new java.io.File(directory,reference.substring(0,36)+".bin");
+            try{
+                try(java.io.FileOutputStream output=new java.io.FileOutputStream(corrupt)){output.write(new byte[]{0,1,2,3,4});}
+                check(read.invoke(cache,invalid)==null,"Corrupt cache cannot restore an invalid state");
+                byte[] intact=java.nio.file.Files.readAllBytes(source.toPath());
+                byte[] changed=intact.clone();changed[changed.length-1]^=1;
+                try(java.io.FileOutputStream output=new java.io.FileOutputStream(corrupt)){output.write(changed);}
+                check(read.invoke(cache,invalid)==null,"Payload corruption is rejected even with an intact header and reference digest");
+                try(java.io.DataInputStream input=new java.io.DataInputStream(new java.io.ByteArrayInputStream(intact));java.io.DataOutputStream output=new java.io.DataOutputStream(new java.io.FileOutputStream(corrupt))){
+                    output.writeInt(input.readInt());input.readUTF();output.writeUTF("different OS/app/provider installation");
+                    byte[] block=new byte[16384];int length;while((length=input.read(block))!=-1)output.write(block,0,length);
+                }
+                check(read.invoke(cache,invalid)==null,"Different installation cannot restore opaque Parcel bytes");
+                try(java.io.FileOutputStream output=new java.io.FileOutputStream(corrupt)){
+                    byte[] block=new byte[16384];for(int i=0;i<514;i++)output.write(block);
+                }
+                check(read.invoke(cache,invalid)==null,"Oversized cache input is bounded before Parcel decoding");
+                java.lang.reflect.Method write=type.getDeclaredMethod("write",Bundle.class);write.setAccessible(true);
+                Bundle oversized=new Bundle();oversized.putByteArray("qa-size-bound",new byte[8*1024*1024]);
+                check(write.invoke(cache,oversized)==null,"Oversized outgoing state is rejected before an atomic replacement");
+                check(read.invoke(cache,reference) instanceof Bundle,"Rejected writes and untrusted copies preserve the previously accepted snapshot");
+            }finally{corrupt.delete();}
+            report.putString("largeNativeState","PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing/stale/tampered/wrong-installation/oversized cache rejected without replacing the valid snapshot");
         }finally{runOnMainSync(()->app.unregisterActivityLifecycleCallbacks(observer));}
     }
     private void testRealRendererRecovery(Bundle report) throws Exception {
@@ -544,6 +637,7 @@ public final class ReaderInstrumentation extends Instrumentation {
                 check(date,"Fresh upstream Seer snapshot must render through actual native WebView/CORS policy");
                 report.putString("date",js("document.getElementById('pastafari_current_date_text').textContent"));
             }
+            report.putString("stage","actual native software keyboard");testNativeKeyboard(report);
             js("lawMobile.showToc()");sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);Thread.sleep(350);
             check("false".equals(js("document.getElementById('mobile-sheet').open")),"Actual Android Back closes the sheet");
             report.putString("indexMilliseconds",js("(()=>{const t=performance.now();lawMobile.buildSearch();return performance.now()-t})()"));
