@@ -111,6 +111,7 @@ jobs:
         if: always()
         run: |
           if [[ -n "${QA_DEVICE:-}" ]]; then
+            xcrun simctl spawn "$QA_DEVICE" log show --style compact --last 10m --predicate '(process == "ConsumerLawReader") OR (process CONTAINS "WebContent") OR (eventMessage CONTAINS "processDidTerminate")' > "build/$QA_LABEL-web-process.log" 2>&1 || true
             xcrun simctl io "$QA_DEVICE" screenshot "build/$QA_LABEL-simulator.png" || true
             if [[ -d "build/$QA_LABEL-tests.xcresult" ]]; then
               xcrun xcresulttool export attachments --path "build/$QA_LABEL-tests.xcresult" --output-path "build/$QA_LABEL-attachments" || true
@@ -134,6 +135,7 @@ jobs:
             build/ConsumerLawReader-unsigned.xcarchive
             build/*-simulator.png
             build/*-tests.log
+            build/*-web-process.log
             build/*-runtime.json
             build/*-attachments
             evidence/content-manifest.json

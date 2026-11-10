@@ -26,6 +26,7 @@ final class ReaderWindowingUITests: XCTestCase {
     }
     func testIPadWindowResizePreservesSearchAndControls() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {throw XCTSkip("OS-managed iPad window resize requires the iPad CI job; iPhone functional tests run separately") }
+        guard #available(iOS 26.0, *) else {throw XCTSkip("Windowed Apps is an iPadOS26 feature; core UI and layout tests still run on earlier systems")}
         let settings=XCUIApplication(bundleIdentifier:"com.apple.Preferences")
         settings.launch()
         var multitasking:XCUIElement?
@@ -53,10 +54,22 @@ final class ReaderWindowingUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.exists && menu.isEnabled },object:nil)],timeout:60),.completed)
         let web=app.webViews.firstMatch
         XCTAssertTrue(web.waitForExistence(timeout:30))
+        let title=app.staticTexts.matching(identifier:"חוק הגנת הצרכן, התשמ״א–1981").firstMatch
+        if title.isHittable {title.tap()}
         let search=web.buttons.matching(identifier:"חיפוש").firstMatch
-        XCTAssertTrue(search.waitForExistence(timeout:30));search.tap()
         let input=web.searchFields.firstMatch
-        XCTAssertTrue(input.waitForExistence(timeout:20));input.tap()
+        XCTAssertTrue(search.waitForExistence(timeout:30));search.tap()
+        if !input.waitForExistence(timeout:8) {
+            // A first touch can activate the window or meet a WebContent
+            // reload. Record the actual state and allow one bounded retry,
+            // as the existing full functional UI test already does.
+            record(app,"Initial search interaction before bounded retry")
+            print("INITIAL_SEARCH_RETRY: menuEnabled=\(menu.isEnabled) nativeLoading=\(app.otherElements.matching(identifier:"native-loading").firstMatch.exists)")
+            XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.exists && menu.isEnabled },object:nil)],timeout:60),.completed)
+            XCTAssertTrue(search.waitForExistence(timeout:20));search.tap()
+        }
+        record(app,"Search interaction outcome")
+        XCTAssertTrue(input.waitForExistence(timeout:20),"Search must open after at most one recorded retry");input.tap()
         // The preceding full-suite relaunch test can leave the same query.
         // Preserve it; deleting at an unknown restored caret may produce1414.
         if (input.value as? String) != "14" {
