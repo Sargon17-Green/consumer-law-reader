@@ -1,6 +1,6 @@
 # מחזור ההנדסה למובייל — תוצרים וראיות
 
-עודכן ב־10.11.2026. **Web/PWA1.3.9-dev תיקון3 פורסם**, עם75 בדיקותHTTP/SHA ושימורalpha/APK. Nativeחדש לא פורסם: איןחתימות תואמותנגישות. במועמד94 עברו9Linux/Android ושלושה מחמשת סימולטוריApple; שניים נכשלו בסגירתsharesheet. iPad26עבר כלרצףהחלוןבפועל. [מצבמדויק](../IMPLEMENTATION_STATUS.md), [63דרישות](../PRODUCT_REQUIREMENTS.md).
+עודכן ב־10.11.2026. Web/PWA תיקון3 פורסם ו־75HTTP/SHA נבדקו שוב. Android94, חלוןiPad26/94, שיתוףiOS4bc ו־PDFמלאb916 עברו בהיקפם. המועמד המאוחד דורש15שערים; אין Native חתום חדש. [מצב עדכני](../IMPLEMENTATION_STATUS.md).
 
 העבודה ממשיכה את [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11), על בסיס main016b3de352dabe97f51b34b78ff803965b6cd40d. נבדקו12ענפים, PRs1–11, Issue7, היסטוריית commits/Releases ו־Actions; תיקונים תקינים שכבר מוזגו לא יושמו מחדש. PR1 הוא ביקורת ישנה ולא מקור ממצאים אוטומטי.
 
@@ -97,19 +97,20 @@ iOS1.3.9/build17: במועמד94 עברוiPhone26.2/18.5ו־iPad26.2 במלוא�
 
 החסמים היחידים הדורשים גורם חיצוני: המפתח ההיסטורי של Android, גישת Apple Team/profiles/ASC, מכשיר/ציוד פיזי שאינו זמין, והצהרות בעל זכויות/חשבון. הפרטים והצעדים הקצרים ב־[EXTERNAL_ACTIONS](../EXTERNAL_ACTIONS.md). כל שאר העבודה פתוחה ב־[BACKLOG](../BACKLOG.md) והכניסה העצמאית ב־[PROJECT_HANDOFF](../PROJECT_HANDOFF.md).
 
-## קבלת המשך 10.11 — מצב נוכחי
+## קבלת המשך 10.11 — תיקונים וראיות נוכחיים
 
-| מזהה | פלטפורמה | הבעיה המקורית | תיקון וקבצים | בדיקה ותוצאה | commit |
+| מזהה | פלטפורמה | בעיה מקורית | תיקון וקבצים | אימות ותוצאה | commit |
 |---|---|---|---|---|---|
-| SEARCH-005 | משותף | raw scroll אינו מתאים לאחר reflow | web/mobile.js: יעד נבחר, offset וחתימת פריסה | חמשת רצפי DOM ו־Android בשלוש מערכות עברו94; חזרת iPad26 עברה. Web תיקון3 פורסם ואומת ב־75HTTP | 06e5533; פרסום cca785e |
-| DATA-003 | Android | מצב Chromium גדול ב־Binder גרם קריסה | MainActivity.java, WebViewStateCache.java: מטמון AtomicFile עד8MB והפניית UUID:SHA עם זהות התקנה |94: שלוש מערכות online/offline; raw1.6MB לעומת1036–1200bytes. recreate/history/Back/Forward וקלטי hash/tamper/installation/8MB עברו | ed5b874,5068baf,17bcd14; קבלה94cdf7d |
-| NATIVE-001 | Android | Ready חד פעמי נכשל באתחול מאוחר | MainActivity.java: המתנה עד20שניות ו־generation |31/36: עצירת renderer והתאוששות עם סעיף14/גופן24/שאילתה14 עברו94. הפעולה אינה זמינה26 |13d3485; קבלה94cdf7d |
-| NATIVE-002 | Android | לא הייתה הוכחת IME אמיתי | ReaderInstrumentation.java: מגע, הקלדה, חלון מערכת, גבולות ו־Back | כל3API online/offline עברו94. השדה המשוחזר נגלל לתצוגה לפני מגע; ההקלדה Native |17bcd14; קבלה94cdf7d |
-| QA-PRIVATE / IO-003 | Android | run-as לא מורשה; exec-out עלול להחזיר טקסט שגיאה | collect_android_private_evidence.py, run_android_emulator_qa.sh: userdebug/root/SELinux/stat/magic/SHA | חמישה קבצים אומתו עצמאית ב־94; PDF146עמודים/1,526,437bytes. אינו tagged; אין מדפסת פיזית |06e5533; קבלה94cdf7d |
-| NATIVE-003 | iOS | orientations חסרים גרמו scaling44→30.9pt | ios/project.yml:3phone/4Pad ובדיקת raw Info.plist | iPad26/94 עבר שינוי חלון מערכת1032→375pt ופקדים44pt |81b5f77; קבלה94cdf7d |
-| NATIVE-003 | iOS | SystemClose חפף ל־NativeMenu | ConsumerLawReaderApp.swift: containerCornerOffset26 עם fallback16+; ReaderWindowingUITests.swift | iPad26/94 עבר את כל הרצף: לחיצות מרכז menu/share, סגירה נצפית, selected row נראית לפני tap, שאילתה14 |88d3946,94cdf7d |
-| QA-IOS-LEGACY-SHARE | iOS | identifier של26 או swipe כללי לא סגרו sharesheet ישן | ReaderUITests.swift: Close נגיש מתוך ActivityListView ותיעוד AX/מסך |94: iPhone16 ו־iPad18.5 נכשלו. ניסוי5450373/run42850867489 בבדיקה; אין PASS כולל |94cdf7d; ניסוי5450373 |
-| PERF-003 | Android | לא נבחנה תצורת חומרה מצומצמת | ענף work/android-constrained-20261110, מוצר ו־QA זהים94 |42819646591 PASS; MemTotal1548780KB, ליבה אחת, heap384MB. ניסיון1GB נדחה כשהאמולטור כפה1.5GB; אין טענת OOM |2227c2e |
-| CI-004 | CI/iOS | קלטים חסרים וכלי XcodeGen לא מקובע | ios-ci.yml: רשימות paths זהות,5 סימולטורים ו־XcodeGen2.46.0 עםSHA; archive_for_testflight.sh |94: כל5 הסביבות נבנו;3jobs PASS ושני UI FAIL. נדרשת קבלה סופית לכל5 |06e5533,17bcd14 |
+| DATA-003 | Android | מצב Chromium גדול ב־Binder גרם קריסה | MainActivity.java/WebViewStateCache.java: AtomicFile8MB והפנייתUUID:SHA מותנית התקנה |94: כל3API online/offline; raw1.6MB→1036–1200bytes; cache עוין/recreate/history עברו |ed5b874,5068baf,17bcd14; קבלה94cdf7d |
+| NATIVE-001/002 | Android | Ready מוקדם והיעדר בדיקת IME | MainActivity.java; ReaderInstrumentation.java |94: מקלדת אמיתית/גבולות/Back בשלוש מערכות; renderer terminate/recovery31/36 |13d3485,17bcd14 |
+| NATIVE-003 | iOS | scaling וחפיפת SystemClose לכותרת | project.yml; ConsumerLawReaderApp.swift; ReaderWindowingUITests.swift |iPad26/94:1032→375pt,44pt, תפריט/שיתוף/סגירה וחיפוש14 עברו |81b5f77,88d3946,94cdf7d |
+| IO-002 / Issue15 | iOS | Close אמיתי לא סגר שיתוף ב־16 | ConsumerLawReaderApp.swift: completion לפיUUID; ReaderUITests.swift: Close hittable והיעלמות; ReaderTests.swift: stale callback/error |4bc/run42854077139: iPhone16 ו־iPad18.5 עברו; UI265.452/261.836שניות; בדיקות רכיב בלבד |4bc27af |
+| IO-003 | iOS | הבדיקה אימתה רק עמוד PDF ראשון | ReaderTests.swift: כל עמודי UIKit, CGPDF ו־ink ראשון/אמצע/סוף |b916:126עמודים/1,465,513bytes,4.716שניות; Poppler24.02 עצמאי אישר עמודים וטקסט. Files-save UI אינו נבדק בכך |b916235 |
+| NATIVE-002 / A11Y | iOS | חסרה הוכחת software keyboard ו־Dynamic Type מלא | ReaderUITests.swift: מקלדת אמיתית ושדה מעליה; ios-ci.yml: פרופיל מערכת XXXL עם readback |נוסף למועמד; completed PASS ב־6פרופילים נדרש. ניסוי0c9507a/run42858470735 נבחן בנפרד; pending אינוPASS |0c9507a; איחוד ב־PR11 |
+| PERF-003 | Android | לא נבחנה חומרה מצומצמת | ענףwork/android-constrained-20261110, מוצר/QA זהים94 |42819646591: actualMemTotal1548780KB/1CPU, online/offline PASS. ניסיון1GB נדחה; איןOOM |2227c2e |
+| CI-004 | CI/iOS | קלטים חסרים וכלי לא מקובע | ios-ci.yml: paths זהים/XcodeGen2.46+SHA/6פרופילים וארטיפקטים נפרדים |רכיבי4bc/b916 עברו; שער סופי15jobs על tree אחד נדרש |06e5533,17bcd14; איחוד ב־PR11 |
+| DOC-001 | תיעוד | ראיות והמשך תלויים בשיחה |12מסמכים,63דרישות, קישורי מקור/run/artifact וגיבובים |52יחידות ו־validator63/12 עברו קודם; נדרשת גם קבלת תוכן האיחוד ב־CI |b091b94,89489be; איחוד ב־PR11 |
 
-[קבלה94](../qa/mobile-2026-11-08/acceptance-94cdf7d.json), [קובצי Android94](../qa/mobile-2026-11-08/android-private-exports-94cdf7d.json), [iPad26 מלא](../qa/mobile-2026-11-08/ipad-window-94cdf7d.json), [חומרה מצומצמת](../qa/mobile-2026-11-08/android-constrained-hardware.json), [זהות נכסי Web](../qa/mobile-2026-11-08/source-94cdf7d.json), [תחום חיפוש המפתח](../qa/mobile-2026-11-08/signing-availability-scope.json). אין קבלה כוללת ל־94 או Native חתום חדש. המקור המשפטי ומועד אימותו נשמרו.
+[קבלה94](../qa/mobile-2026-11-08/acceptance-94cdf7d.json), [שיתוף לאחר תיקון](../qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json), [PDF126עמודים ואימות עצמאי](../qa/mobile-2026-11-08/ios-complete-pdf-component.json), [חומרה מצומצמת](../qa/mobile-2026-11-08/android-constrained-hardware.json), [מדידות Native ותחומן](../qa/mobile-2026-11-08/android-performance-94cdf7d.json), [75HTTP חיים](../qa/mobile-2026-11-08/public-web-readonly-recheck.json).
+
+הנתונים אינם אישור מכשיר פיזי, חתימה, TestFlight או נגישות כוללת. XCTest clock כולל תקורת אוטומציה; indexMilliseconds ב־Android לאחר חיפוש הוא cached access. PDF UIKit ו־Android עשויים להכיל מספר עמודים שונה בגלל גופן ופריסה. מקור החוק ומועד אימותו נשמרו.

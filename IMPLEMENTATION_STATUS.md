@@ -1,29 +1,28 @@
 # מצב מימוש, אימות ופרסום
 
-עודכן ב־10.11.2026. [קטלוג 63 הדרישות](docs/requirements.json) הוא מקור המצב המובנה; PRODUCT_REQUIREMENTS נגזר ממנו. מימוש, אימות ופרסום נבדלים. אין קבלה לפי קוד קיים או CI ממתין.
+עודכן ב־10.11.2026. [63 הדרישות](PRODUCT_REQUIREMENTS.md) נגזרות מ־[קטלוג המצב](docs/requirements.json). מימוש, אימות ופרסום נבדלים; pending אינו PASS או חסם.
 
-| ערוץ | מצב מאומת | פרסום בפועל |
+| ערוץ | מה אומת | מה פורסם |
 |---|---|---|
-| Web/PWA 1.3.9-dev, תיקון3 | במועמד94 עברו52 יחידות,35 SHA/DOM, Node500,5 רצפי חיפוש,4 רוחבים,32 סריקות axe ומטמון offline;38 נכסי runtime זהים לפרסום | [reader](https://sargon17-green.github.io/consumer-law-reader/reader/), מקור cca785ed8b1f3d4c96bf25c0eb50e77b04899566, מטמון453decfde812ec9b. פרסום42778620385 הצליח;75 GET/SHA מאומתים ושימור alpha/APK |
-| Android 1.3.9-dev/code17 | כל9 משימות Linux/Android של94 עברו, כולל API26/31/36 online/offline, IME אמיתי, cache עוין, renderer31/36, SAF/PDF ושדרוג בזהות QA | הציבורי נשאר1.3.5-beta בחתימה המקורית; מועמד חדש Debug/unsigned בלבד |
-| iOS 1.3.9/build17 | ב־94 עברו iPhone26.2/18.5 ו־iPad26.2. iPad26 עבר שינוי חלון אמיתי375pt/פקדים44pt/תפריט/שיתוף/חזרה. iPhone16 ו־iPad18.5 נכשלו בסגירת השיתוף | סימולטורים וארכיון מכשיר לא חתום בלבד; אין IPA חתום או TestFlight |
+| Web/PWA1.3.9-dev, תיקון3 |52 יחידות,35 SHA/DOM,Node500,5 רצפי reflow,4 רוחבים,32 סריקות axe ומטמון offline. [75 HTTP/SHA עברו שוב ב־16:55UTC](qa/mobile-2026-11-08/public-web-readonly-recheck.json) |[reader](https://sargon17-green.github.io/consumer-law-reader/reader/), מקור cca785e ומטמון453decfde812ec9b. ניתן להוספה למסך הבית |
+| Android1.3.9-dev/code17 |94 עבר את כל9 Linux/Android, API26/31/36 online/offline, IME אמיתי, cache עוין, שדרוג בזהות QA, SAF ושיתוף; PDF146עמודים אומת עצמאית. תצורת1.5GB/ליבה אחת עברה בנפרד |הציבורי נשאר1.3.5-beta במפתח המקורי; מועמד חדש Debug/unsigned בלבד |
+| iOS1.3.9/build17 |iPad26/94 עבר חלון מערכת375pt/פקדים44pt וכל רצף התפריט/שיתוף/חזרה.4bc עבר iPhone16/iPad18.5 עם Close ממשי ושחזור חיפוש. PDF מלא126עמודים עבר ב־b916 ואומת ב־Poppler |סימולטורים וארכיון מכשיר לא חתום; אין IPA חתום או TestFlight |
 
-## קבלה משולבת
+## קבלה משולבת נדרשת
 
-המועמד `94cdf7d260372361919d9b3eca74393ee02cde6f`, tree `7cf04c1127e22318f70a36a816c40418b44b3bf7`, נבדק ב־PR checkout `60a5c79bfc281384f4256f6ee592d0b2d67beb14` בעל אותו tree. [Linux42817834059](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059) הסתיים **9/9 PASS**; [iOS42817834181](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834181) הסתיים **3/5 PASS,2 FAIL**. [ראיה](qa/mobile-2026-11-08/acceptance-94cdf7d.json). אין קבלה כוללת או מיזוג למועמד שנכשל.
+[94cdf7d](qa/mobile-2026-11-08/acceptance-94cdf7d.json) הסתיים9 Linux PASS ושלושה מחמישה iOS PASS; שני מבחני שיתוף ישנים נכשלו. הוא אינו מועמד מאושר למיזוג. תיקון ההמשך מחבר UIKit completion למצב SwiftUI לפי UUID, ממתין ל־Close hittable ואינו משתמש ב־swipe כתחליף לסגירה.
 
-בשני הכשלים נדרש ActivityListView להיעלם לפני סיבוב והפעלה מחדש. הבדיקה חיפשה identifier של26 ואז swipe כללי שלא סגר את השיתוף במערכות הישנות. ניסוי `work/ios-legacy-share-20261110` בודק Close נגיש בפועל. אחרי קבלתו מעבירים רק את הבדיקה הקבועה ל־PR11 ומריצים שוב את מלוא14 השערים על tree אחד; workflow האבחון אינו מועבר. כשל קומפילציה בניסוי51f תוקן ב־5450373 ואינו PASS.
+[4bc / ריצה42854077139](qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json) העביר iPhone16 ו־iPad18.5: ביטול שיתוף, היעלמות ActivityListView, סיבוב, הפעלה מהסמל ושאילתה14. callback ישן אינו סוגר שיתוף חדש. [b916 / ריצה42856626665](qa/mobile-2026-11-08/ios-complete-pdf-component.json) הפיק את כל126 עמודי UIKit; Ubuntu/Poppler בדק באופן עצמאי את ה־ZIP, PDF, מניין העמודים וטקסט בתחילה/אמצע/סוף. זו אינה שמירה בממשק Files או מדפסת פיזית.
 
-הקבלה ההיסטורית המלאה האחרונה היא706a3bc: [Linux](qa/mobile-2026-11-08/acceptance-706a3bc-linux.json), [iOS](qa/mobile-2026-11-08/acceptance-706a3bc-ios.json). היא אינה מכסה קוד מאוחר. [כשל06](qa/mobile-2026-11-08/acceptance-06e5533.json) נשמר; רגרסיות Binder ו־iPad שלו עברו ב־94 בהיקף המפורט.
+[PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11) מרכז כעת את הקוד, התיעוד והבדיקות הקבועות. ראש המועמד נקבע מ־GitHub ולא מ־hash עצמי בתוך קובץ. השער הסופי הוא **9 Linux/Android ו־6 מקרי סימולטור iOS** על tree אחד: שלושת iPhone26.2/18.5/16, שני iPad26.2/18.5 ועוד iPhone26.2 בגודל נגישות XXXL. הבדיקות החדשות דורשות גם מקלדת תוכנה אמיתית ושדה חיפוש מעליה. אין קבלה שלהן עד completed PASS. ניסוי הגודל הממוקד0c9507a/run42858470735 נבחן בנפרד; queued אינו חסם.
 
-## תיקונים וגבולות הראיה
+## ראיות ומגבלות
 
-- **DATA-003 / Issue14:** AtomicFile פרטי והפניית UUID:SHA ב־Bundle. ב־94 נמדדו raw Chromium1,615,960–1,617,964bytes לעומת Activity1,036–1,200bytes. עברו recreate/history/Back/Forward, hash ישן, payload משובש, זהות התקנה וגבולות8MB בכל3API בשני מצבי הרשת. [ראיה](qa/mobile-2026-11-08/acceptance-94cdf7d.json).
-- **NATIVE-001:** Ready מוגבל20שניות עם generation. עצירת renderer אמיתית והתאוששות עם סעיף14/גופן24/שאילתה14 עברו31/36. הפעולה הציבורית אינה זמינה26 ואינה מסומנת PASS.
-- **NATIVE-002 Android:** מגע ב־editable, הקלדת Native, חלון IME נצפה, WebView ושדה מעל המקלדת, ו־Back השומר חיפוש עברו בכל3API online/offline. אין ייחוס CSS למקלדת Native.
-- **NATIVE-003 / Issue13:** orientations תיקנו scaling; containerCornerOffset של26 מונע חפיפת SystemClose לכותרת. ב־iPad26/94 התקבל כל הרצף בחלון375pt, כולל תוצאה נראית לפני tap. [ראיה ו־attachments](qa/mobile-2026-11-08/ipad-window-94cdf7d.json). אין עדיין קבלת כל5 הסימולטורים.
-- **IO-003 / QA-PRIVATE:** חמשת קובצי94 אומתו עצמאית: PNG/JSON/PDF146עמודים,1,526,437bytes וגיבוב Native תואם. userdebug/UID0/SELinux Enforcing בלי שינוי מוצר. ה־PDF אינו tagged; אין מדפסת פיזית. [ראיה](qa/mobile-2026-11-08/android-private-exports-94cdf7d.json).
-- **PERF-003:** Android26 עם MemTotal1,548,780KB וליבה אחת עבר online/offline. ניסיון1GB נכשל בקדם משום שהאמולטור העלה אותו בפועל ל־1.5GB. אין טענת1GB, OOM או PSS של כלל Web. [ראיה](qa/mobile-2026-11-08/android-constrained-hardware.json).
-- **SEARCH-005:** חמישה רצפי reflow, Android וחזרת iPad26 עברו. Web תיקון3 פורסם; [38 נכסי runtime זהים לפרסום](qa/mobile-2026-11-08/source-94cdf7d.json).
+- [Android94](qa/mobile-2026-11-08/acceptance-94cdf7d.json): raw Chromium1,615,960–1,617,964bytes מול Activity1,036–1,200bytes; recreate/history/Back/Forward ושיבוש hash/התקנה/8MB עברו. [קובצי הייצוא](qa/mobile-2026-11-08/android-private-exports-94cdf7d.json).
+- [iPad26/94](qa/mobile-2026-11-08/ipad-window-94cdf7d.json): שינוי חלון1032→375pt, תפריט ושיתוף במגע ממשי, סגירה ותוצאה נראית לפני tap. אין לייחס ל־CSS בלבד.
+- [חומרה מצומצמת](qa/mobile-2026-11-08/android-constrained-hardware.json): MemTotal1548780KB וליבה אחת, online/offline. ניסיון1GB נדחה כשהאמולטור כפה1.5GB; אין טענת OOM.
+- [מדידות Native94](qa/mobile-2026-11-08/android-performance-94cdf7d.json): PSS/CPU של תהליך היישום עם instrumentation בלבד; indexMilliseconds אחרי חיפוש הוא cached access. אין להסיק ממנו זמן אינדקס קר.
+- כל38 נכסי Web של94 זהים לפרסום. אין שחרור Web חדש בגלל שינוי Native בלבד. מקור החוק ומועד2026-10-28 נשמרו.
+- [Issue12](https://github.com/Sargon17-Green/consumer-law-reader/issues/12) נסגר לפי קבלת PDF ב־Android. Issues13/14/15 נשארים עד קבלה משולבת ומיזוג; Issue7 עד חתימה/שדרוג/פרסום תואמים.
 
-[PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11) מרכז את המועמד; docs/mobile-release-evidence-20261110 הוא checkpoint. מקור החוק ומועד2026-10-28 נשמרו. [BACKLOG](BACKLOG.md) ו־[EXTERNAL_ACTIONS](EXTERNAL_ACTIONS.md) מפרידים קבלה אוטומטית מפעולות חיצוניות.
+הקבלה המלאה ההיסטורית706a3bc נשמרת בהיקפה; היא אינה מכסה תיקונים חדשים. מגבלות ופעולות המשך ב־[BACKLOG](BACKLOG.md), [KNOWN_ISSUES](KNOWN_ISSUES.md), [EXTERNAL_ACTIONS](EXTERNAL_ACTIONS.md).

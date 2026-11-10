@@ -788,6 +788,13 @@
           "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
           "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        },
+        {
+          "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+          "run": 42854077139,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+          "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
+          "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
         }
       ],
       "dependencies": [],
@@ -1600,6 +1607,13 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
           "result": "PASS all9 Linux/Android jobs completed",
           "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+          "run": 42854077139,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+          "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
+          "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
         }
       ],
       "dependencies": [],
@@ -1712,7 +1726,7 @@
         }
       ],
       "dependencies": [
-        "Issue13 full iPad26 scope passed94. Close issue only after final combined5-simulator gate; legacy share fixture remains separate."
+        "Issue13 full iPad26 scope passed94. Close after final combined6-profile gate and merge; legacy share fix4bc is separately accepted."
       ],
       "published": {
         "iOS": null
@@ -1815,9 +1829,18 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
           "result": "PASS all9 Linux/Android jobs completed",
           "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+          "run": 42854077139,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+          "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
+          "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "Issue15: component4bc passed16/iPad18.5; close only after final combined6-simulator acceptance and merge. No signed native release."
+      ],
       "published": {
         "Android": null,
         "iOS": null,
@@ -1870,10 +1893,18 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
           "result": "PASS all9 Linux/Android jobs completed",
           "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "b91623549a235597f3005eb3100a72c274c0565b",
+          "run": 42856626665,
+          "job": 129971306884,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42856626665/job/129971306884",
+          "result": "PASS complete UIKit126-page PDF; independently verified with Poppler in42859574863",
+          "scope": "1,465,513bytes; CGPDF first/mid/final ink and independent text/pages. Does not claim actual system Files-save UI or physical printing."
         }
       ],
       "dependencies": [
-        "Android94 actual146-page PDF passed and exported bytes independently verified; iOS first-page output and print UI only. No physical printer/taggedPDF claim; final combined gate still required."
+        "Android actual system PDF-save and exported bytes passed94; iOS complete formatter output passedb916. System Files-save UI remains separate; no physical printer/tagged-PDF claim."
       ],
       "published": {
         "Android": null,
@@ -2375,9 +2406,18 @@
           "result": "PASS: all 4 iOS simulator jobs",
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
           "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+          "run": 42854077139,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+          "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
+          "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "Final6-profile CI includes actual system XXXL and keyboard bounds, in addition to iPhone16/18.5/26.2 and iPad18.5/26.2."
+      ],
       "published": {
         "iOS": null
       }
@@ -2989,7 +3029,15 @@
       "tests": [
         "scripts/validate_project_docs.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+          "run": 42854077139,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+          "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
+          "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
+        }
+      ],
       "dependencies": [],
       "published": {
         "Android": null,
@@ -3159,7 +3207,7 @@
       ],
       "evidence": [],
       "dependencies": [
-        "Final combined5-simulator gate required after adding legacy iPad18.5 and checksum-pinned XcodeGen2.46.0. No claim of a separate GitHub event experiment for each path glob."
+        "Final combined6-profile gate includes legacy iPad18.5, checksum-pinned XcodeGen2.46.0 and actual system accessibility XXXL/keyboard assertions. No separate event experiment for every path glob is claimed."
       ],
       "published": {
         "iOS": null
@@ -3276,7 +3324,7 @@
     }
   ],
   "integrationCandidateBranch": "fix/pastafari-date-android-20261028",
-  "candidateMeaning": "94 completed: Linux9 PASS, iOS3 PASS/2 legacy share-dismissal UI FAIL. Current PR head requires completed combined14 gates; no overall acceptance yet.",
+  "candidateMeaning": "Integrated candidate: Android94 and iPad26 passed; iOS4bc legacy sharing and b916 complete PDF passed as components. Require all9 Linux/Android +6 iOS profiles on the current PR head/tree. No self-referential candidate hash or pending PASS.",
   "lastFullyAcceptedCandidate": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
   "componentAcceptance": {
     "Android": {
@@ -3299,9 +3347,21 @@
       "evidence": "qa/mobile-2026-11-08/android-constrained-hardware.json"
     },
     "LegacyShareFixture": {
-      "commit": "5450373c14100424b2d17358cf2acb54659cbf23",
-      "run": 42850867489,
-      "result": "In progress at checkpoint; inspect completed result and actual Close hierarchy; diagnostic workflow only"
+      "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+      "run": 42854077139,
+      "result": "PASS iPhone16 and iPad18.5 selected completion regression and actual full functional UI; combined gate separate",
+      "evidence": "qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
+    },
+    "iOSCompletePDF": {
+      "commit": "b91623549a235597f3005eb3100a72c274c0565b",
+      "run": 42856626665,
+      "result": "PASS full UIKit126pages and independent Ubuntu/Poppler verification42859574863",
+      "evidence": "qa/mobile-2026-11-08/ios-complete-pdf-component.json"
+    },
+    "iOSAccessibilityIME": {
+      "commit": "0c9507a5b486a5e28dd4aeec2743a5f7db255a03",
+      "run": 42858470735,
+      "result": "Resolve completed result; no acceptance from queued state. Final6-profile gate contains permanent keyboard assertions and actual system XXXL configuration."
     }
   },
   "lastCombinedCandidate": {
@@ -3312,5 +3372,5 @@
     "evidence": "qa/mobile-2026-11-08/acceptance-94cdf7d.json"
   },
   "candidateBranch": "fix/pastafari-date-android-20261028",
-  "candidateResolution": "Resolve current PR11 head; no self-referential commit hash is embedded in its own files. Require exact tree comparison and completed combined CI."
+  "candidateResolution": "Resolve current PR11 head and body for latest completed15-gate result and exact tree. After merge resolve main. These files do not embed their own future commit hash; historical component evidence is scoped."
 }

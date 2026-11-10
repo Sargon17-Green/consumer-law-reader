@@ -100,7 +100,9 @@ struct ReaderScreen: View {
             if phase != .active { reader.persistReadingState() }
         }
         .sheet(item: $reader.sharing, onDismiss: { reader.cleanTemporaryExport() }) { share in
-            ActivitySheet(items: share.items)
+            ActivitySheet(items: share.items) { failure in
+                reader.finishSharing(share.id, failure: failure)
+            }
         }
         .fileImporter(
             isPresented: $chooseBackup,
@@ -150,9 +152,15 @@ private struct LawWebView: UIViewRepresentable {
 
 private struct ActivitySheet: UIViewControllerRepresentable {
     let items: [Any]
+    let onComplete: @MainActor (String?) -> Void
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
+        let controller=UIActivityViewController(activityItems: items, applicationActivities: nil)
+        controller.completionWithItemsHandler = { _, _, _, error in
+            let failure=error?.localizedDescription
+            Task { @MainActor in onComplete(failure) }
+        }
+        return controller
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
@@ -418,6 +426,14 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
             return
         }
         sharing = SharePayload(items: [url])
+    }
+
+    func finishSharing(_ id: UUID, failure: String?) {
+        // UIKit completion includes cancellation. Clear the matching SwiftUI
+        // presentation too; a delayed callback must not close a newer share.
+        guard sharing?.id == id else { return }
+        sharing = nil
+        if let failure { showError("השיתוף לא הושלם: " + failure) }
     }
 
     func shareCurrentSection() {

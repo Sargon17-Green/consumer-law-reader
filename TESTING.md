@@ -29,7 +29,7 @@ python scripts/validate_project_docs.py
 
 Android: `.github/workflows/ci.yml` בונה ומתקין Debug, QA instrumentation, ועותק APK ציבורי בחתימת QA מוצהרת לצורך שדרוג. API26/31/36; API36 משתמש ב־APK מתוך AAB. `scripts/run_android_emulator_qa.sh` מריץ actual online/offline, תהליך חדש, תאריך, חיפוש, Back, סיבוב, Clipboard, Word cross-UID, SAF, print ושימוש חוזר. API26 דורש סביבת בדיקה AOSP WebView133 ורכיב RRO בעל משאב אחד עם SELinux enforcing; אין שינוי בבתיו של ספק ה־WebView ואין כיבוי SELinux. זו אינה תמונת retail ללא התאמות.
 
-iOS: `.github/workflows/ios-ci.yml`, Xcode26.3/macOS15, iPhone26.2/iPad26.2/iPhone18.5/iPad18.5/iPhone16.0. iPad18.5 נוסף למסלול הכותרת שלפני26; ב־94 עברו7בדיקות WK/policy ו־audit, אך בדיקת UI נכשלה בסגירת השיתוף. XCTest ו־XCUITest בודקים WK פעיל, גשר זר/child-frame, קובץ גיבוי, print, share, lifecycle, סיבוב ואייקון Home Screen. audit Native זמין מ־iOS17 ומוגבל לכותרת; iOS16 אינו מדולג במבחן התפקודי. workaround של libswiftWebKit ב־18.5 ו־bootstrap ב־16 מתועדים ב־workflow, לא שינוי מינימום מערכת.
+iOS: `.github/workflows/ios-ci.yml`, Xcode26.3/macOS15, iPhone26.2/iPad26.2/iPhone18.5/iPad18.5/iPhone16.0 ועודiPhone26.2 בגודל נגישות XXXL. iPad18.5 נוסף למסלול הכותרת שלפני26; ב־94 עברו7בדיקות WK/policy ו־audit, אך בדיקת UI נכשלה בסגירת השיתוף. XCTest ו־XCUITest בודקים WK פעיל, גשר זר/child-frame, קובץ גיבוי, print, share, lifecycle, סיבוב ואייקון Home Screen. audit Native זמין מ־iOS17 ומוגבל לכותרת; iOS16 אינו מדולג במבחן התפקודי. workaround של libswiftWebKit ב־18.5 ו־bootstrap ב־16 מתועדים ב־workflow, לא שינוי מינימום מערכת.
 
 שער Web עצמאי: source hash/DOM, Node/backup/date/security, ארבעה browser jobs ומטמון offline, שימור alpha ו־APK, ולאחר פרסום השוואת כל הבתים ב־HTTP. כשל Native שאינו מופעל ב־Web אינו הופך את מבחני Web לכושלים; הכשל חייב להישאר גלוי ומתועד.
 
@@ -53,3 +53,11 @@ NATIVE-002: נוספה רגרסיית Android אמיתית של מקלדת תו�
 תצורה מצומצמת: ענף work/android-constrained-20261110, ריצה42819646591, קוד מוצר ובדיקות זהים94. נמדדוMemTotal1548780KB ו־CPU present=0, לא רק ערכיemulator CLI. ניסיון1024MB נכשל בקדם כשהאמולטור כפה1536MB. המבחן המלאonline/offline עבר ב־1536MB/ליבה אחת; אין טענתOOM או1GB. [ראיה](qa/mobile-2026-11-08/android-constrained-hardware.json).
 
 דיוק מדידות: Android indexMilliseconds נמדד אחרי מבחן המקלדת שכבר פתח חיפוש, ולכן זהו זמן גישה לאינדקס ממוטמן, ולא זמן בנייה ראשוני. אין לפרש0ms כאינדוקס חינם. PSS ו־CPU הם של תהליך היישום עם instrumentation; מדידות seed/verify/online/offline נבדלות. זמני אינדקס קר והאטת CPU נמדדו בנפרד בהשוואות browser עם contexts טריים. [דגימות Native94 ותחומן](qa/mobile-2026-11-08/android-performance-94cdf7d.json).
+
+## שערי ההמשך הקבועים
+
+ReaderUITests דורש חלון מקלדת מערכת גבוה מ־100נקודות ושדה חיפוש מעליו, עם צילום וגבולות Native. אין להמיר היעדר מקלדת תוכנה ל־PASS. סגירת שיתוף דורשת Close נצפה ו־hittable, והיעלמות ActivityListView לפני סיבוב והפעלה מחדש; איסוף AX אינו תחליף להמתנה מפורשת.
+
+ReaderIntegrationTests.testNativePrintFormatterProducesRenderablePDF מפיק את כל עמודי UIKit, בודק CGPDFDocument ומדגמת ink בעמוד ראשון/אמצעי/אחרון. רכיבb916 הפיק126עמודים ב־4.716שניות; Poppler24.02.0 ב־Ubuntu אימת את ה־ZIP, ה־PDF וטקסט בשלושה עמודים. [ראיה](qa/mobile-2026-11-08/ios-complete-pdf-component.json). אין לייחס זאת לממשק Save to Files או למדפסת פיזית.
+
+מטריצת iOS כוללת כעת6פרופילים: חמשת מכשירי הבסיס ועודiPhone26.2 עם simctl ui content_size accessibility-extra-extra-extra-large. ערכי before/actual נשמרים; label וארטיפקט ייחודיים. כל פרופיל מריץ את מלוא המבחנים, בלי only-testing של ניסוי האבחון. לצד9Linux/Android נדרשים15 שערים completed PASS על tree אחד. ניסויי work/ios-accessibility-ime-20261110 ו־work/verify-completed-evidence-20261110 הם אבחון/אימות בלתי תלוי; אין להעתיק את workflow המקוצר שלהם למועמד.

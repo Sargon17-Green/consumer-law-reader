@@ -12,7 +12,7 @@
 
 ## בדיקה אוטומטית
 
-הפעולה [Build native iOS app (unsigned simulator)](https://github.com/Sargon17-Green/consumer-law-reader/actions/workflows/ios-ci.yml) רצה על macOS ומייצרת אפליקציית סימולטור לא חתומה, לאחר אימות מקור החוק, התוכן המוטמע ובדיקות התקינות. נבחר Xcode 26.3; XCTest ו־XCUITest מפעילים WKWebView וממשק Native ב־iPhone/iPad iOS 26.2 וב־iPhone iOS 18.5 ו־16.0. דוחות xcresult וצילומים נשמרים ב־Actions, ורק ריצות completed/success הן ראיות PASS. התהליך מכין גם ארכיון מכשיר לא חתום לאחר הצלחת הבדיקות. הצלחה ב-CI אינה תחליף להרצה על אייפון אמיתי.
+הפעולה [Build native iOS app (unsigned simulator)](https://github.com/Sargon17-Green/consumer-law-reader/actions/workflows/ios-ci.yml) רצה על macOS ומייצרת אפליקציית סימולטור לא חתומה, לאחר אימות מקור החוק, התוכן המוטמע ובדיקות התקינות. נבחר Xcode 26.3; XCTest ו־XCUITest מפעילים WKWebView וממשק Native ב־iPhone/iPad iOS26.2/18.5 וב־iPhone iOS16.0, ובפרופילiPhone26.2 נוסף בגודל נגישות XXXL. יש להבחין בין הגדרת המטריצה לתוצאות completed המתועדות. אין צורך להריץ ידנית בדיקות CI. דוחות xcresult וצילומים נשמרים ב־Actions, ורק ריצות completed/success הן ראיות PASS. התהליך מכין גם ארכיון מכשיר לא חתום לאחר הצלחת הבדיקות. הצלחה ב-CI אינה תחליף להרצה על אייפון אמיתי.
 
 ## בנייה והתקנה במחשב Mac
 

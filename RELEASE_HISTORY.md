@@ -17,3 +17,7 @@ Web בטא מוסיף ביחס לממשק הקריאה המוקדם: חיפוש 
 ## Web תיקון3 —10.11.2026, פורסם
 
 Sourcecca785ed8b1f3d4c96bf25c0eb50e77b04899566; runtime453decfde812ec9b. שימור תוצאה נבחרת לאחרreflow/שינוי גובה, ללא שינוי משפטי. source52unit,35SHA/DOM,Node500,5search sequences,4widths/32axe ו־PWAoffline עברו. [run42778620385](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42778620385) completedsuccess וכל75HTTP/SHA עברו. [HTTP](qa/mobile-2026-11-08/public-web-patch3-http-verification.json); alpha וה־APK הציבורי נשמרו. Native06נכשל בבדיקותמשלימות; אין לייחסלו releaseחדש.
+
+## קבלת Native נוספת — 10.11.2026, ללא פרסום חתום
+
+Android94 העביר9Linux/Android, לרבות IME/cache/PDF, ו־Issue12 נסגר. iOS4bc העביר שיתוף ו־relaunch ב־16/iPad18.5; b916 העביר פלט PDF UIKit מלא126עמודים עם אימות Poppler בלתי תלוי. אלה קבלות רכיב ולא Release חדש. הציבוריAndroid1.3.5 וה־Web תיקון3 נשמרו; כל75HTTP נבדקו שוב בהצלחה בריצה42859574863.

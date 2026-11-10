@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+  "verifierCommit": "a587e167fb3bc3e9c7d58a8f4e25968849650065",
+  "run": 42859574863,
+  "job": 129981735823,
+  "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42859574863/job/129981735823",
+  "status": "completed",
+  "conclusion": "success",
+  "passed": true,
+  "verifiedFiles": 75,
+  "completedCheckAt": "2026-11-10T16:55:57Z",
+  "expectedChecks": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json: verified[].url/sha256",
+  "scope": "Read-only recheck of all75 exact public bytes, owner marker, preserved alpha/site and original latest.apk. No deployment or native signing performed."
+}

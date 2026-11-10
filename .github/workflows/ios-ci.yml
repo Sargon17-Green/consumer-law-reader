@@ -49,7 +49,7 @@ permissions:
 
 jobs:
   ios-simulator:
-    name: ${{ matrix.family }} iOS ${{ matrix.os }} ${{ matrix.os == '16.0' && '(runtime availability)' || '' }}
+    name: ${{ matrix.family }} iOS ${{ matrix.os }} ${{ matrix.profile || '' }} ${{ matrix.os == '16.0' && '(runtime availability)' || '' }}
     runs-on: macos-15
     timeout-minutes: 30
     strategy:
@@ -72,6 +72,11 @@ jobs:
           - family: iPhone
             os: '16.0'
             archive: false
+          - family: iPhone
+            os: '26.2'
+            archive: false
+            profile: accessibility-xxxl
+            text_size: accessibility-extra-extra-extra-large
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: Set up Python
@@ -149,12 +154,19 @@ jobs:
         run: |
           set -euo pipefail
           export LAW_EXPECT_SEER="$(python3 tests/date_network_probe.py)"
-          LABEL="$FAMILY-ios-$OS"
+          LABEL="$FAMILY-ios-$OS${{ matrix.profile && format('-{0}', matrix.profile) || '' }}"
           DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; family,version=sys.argv[1:]; key="com.apple.CoreSimulator.SimRuntime.iOS-"+version.replace(".","-"); print(next(d["udid"] for d in json.load(sys.stdin)["devices"].get(key,[]) if d["name"].startswith(family)))' "$FAMILY" "$OS")"
           echo "QA_DEVICE=$DEVICE" >> "$GITHUB_ENV"
           echo "QA_LABEL=$LABEL" >> "$GITHUB_ENV"
           xcrun simctl boot "$DEVICE"
           xcrun simctl bootstatus "$DEVICE" -b
+          PROFILE_TEXT_SIZE="${{ matrix.text_size }}"
+          if [[ -n "$PROFILE_TEXT_SIZE" ]]; then
+            xcrun simctl ui "$DEVICE" content_size > "build/$LABEL-size-before.txt"
+            xcrun simctl ui "$DEVICE" content_size "$PROFILE_TEXT_SIZE"
+            xcrun simctl ui "$DEVICE" content_size | tee "build/$LABEL-size-actual.txt"
+            grep -Fqi "$PROFILE_TEXT_SIZE" "build/$LABEL-size-actual.txt"
+          fi
           xcrun simctl status_bar "$DEVICE" override --time '9:41'
           python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$LABEL-runtime.json"
           if [[ "$OS" == '16.0' ]]; then
@@ -184,7 +196,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: ios-${{ matrix.family }}-${{ matrix.os }}-evidence
+          name: ios-${{ matrix.family }}-${{ matrix.os }}-${{ matrix.profile || 'standard' }}-evidence
           path: |
             build/ios-build.log
             build/ios-environment.txt
@@ -193,6 +205,8 @@ jobs:
             build/*-simulator.png
             build/*-tests.log
             build/*-runtime.json
+            build/*-size-before.txt
+            build/*-size-actual.txt
             build/*-tests.xcresult
             build/*-attachments
             build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
