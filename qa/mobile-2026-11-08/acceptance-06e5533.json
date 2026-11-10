@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "sourceCommit": "06e55335cd69601f6c1ea55e23ec073627dda777",
+  "tree": "56d0fbc622190a0526823d6fded304264d5b5971",
+  "testedCheckout": "a7d6f42bb9ce6099bd92a55daba4df7b52b45464",
+  "linuxRun": 42777451011,
+  "iosRun": 42777451057,
+  "overallResult": "FAIL: Android36 saved-state Binder crash and full-suite iPad window fixture failure; no merge acceptance",
+  "webResult": "PASS:52unit,35SHA/DOM,Node500/datefallback,5search-reflow sequences,PWAoffline,4widths/32axe",
+  "webJobs": [
+    129699187788,
+    129699187897,
+    129699188020,
+    129699187888,
+    129699188006
+  ],
+  "webSourceArtifact": 13744253536,
+  "webSourceArtifactSha256": "9cbcf4c13b256a0be1f0ca64e76cb2f8de93ae7acc181311073e3cc935a1f6b4",
+  "android26": {
+    "job": 129699684201,
+    "result": "PASS"
+  },
+  "android31": {
+    "job": 129699683739,
+    "result": "PASS: online/offline, actual renderer recovery/query preservation, valid exported JSON/PNG",
+    "artifact": 13745600143,
+    "sha256": "3a8f8f557e8637e1b49ccf9d2d81d86ab80bdbf5c01e91876db4dcb616e5b5c1"
+  },
+  "android36": {
+    "job": 129699683934,
+    "result": "FAIL: see android-binder-state-before.json"
+  },
+  "ios": [
+    {
+      "job": 129699187583,
+      "device": "iPhone26.2",
+      "result": "PASS"
+    },
+    {
+      "job": 129699187592,
+      "device": "iPhone16.0",
+      "result": "PASS"
+    },
+    {
+      "job": 129699187679,
+      "device": "iPhone18.5",
+      "result": "PASS"
+    },
+    {
+      "job": 129699187370,
+      "device": "iPad26.2",
+      "result": "FAIL: testWindow result not found before resize; other7unit/integration and2UI tests passed; known header obstruction is independently reproduced"
+    }
+  ],
+  "publicWeb": {
+    "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+    "run": 42778620385,
+    "result": "PASS75HTTP",
+    "proof": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+  }
+}

@@ -3,9 +3,9 @@
   "project": "Sargon17-Green/consumer-law-reader",
   "asOf": "2026-11-10 Asia/Jerusalem",
   "sourceBaseline": "016b3de352dabe97f51b34b78ff803965b6cd40d",
-  "candidateHead": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
-  "candidateTree": "539895887cecddd5c497f4aea8cf1dd1dc6ff1d5",
-  "testedPRMergeCommit": "ed7494e0a1fd2c3c2ae80f6929456e30872beaef",
+  "candidateHead": "06e55335cd69601f6c1ea55e23ec073627dda777",
+  "candidateTree": "56d0fbc622190a0526823d6fded304264d5b5971",
+  "testedPRMergeCommit": "a7d6f42bb9ce6099bd92a55daba4df7b52b45464",
   "statusMeanings": {
     "טרם התחיל": "לא קיים מימוש",
     "בפיתוח": "קבלה פתוחה או מימוש משתנה",
@@ -71,11 +71,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -132,11 +131,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -195,11 +193,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -260,11 +257,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -323,11 +319,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -385,11 +380,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -446,11 +440,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -508,11 +501,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -570,11 +562,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -633,11 +624,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -694,11 +684,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -756,11 +745,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -865,11 +853,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -928,11 +915,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -990,11 +976,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -1055,11 +1040,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -1118,11 +1102,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -1230,11 +1213,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -1292,11 +1274,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -1357,11 +1338,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -1563,11 +1543,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -1681,7 +1660,7 @@
         }
       ],
       "dependencies": [
-        "Issue13: full combined4-simulator regression including selected-row visibility after resize remains required; targeted metadata fix passed81b5f77"
+        "Issue13:44pt sizing fix passed, but actual menu hit test failed2e88de9. Official corner-inset fix is under test316f399/run42802580935; full4-simulator regression required"
       ],
       "published": {
         "iOS": null
@@ -1743,11 +1722,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -1824,7 +1802,7 @@
           "run": 42767425997,
           "result": "PASS: fresh portrait and landscape, actual146-page PDFs with private QA evidence",
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42767425997",
-          "scope": "API36 emulator, no native production print/lifecycle change; MediaProvider cause not claimed fixed"
+          "scope": "API36 emulator, no native production print/lifecycle change; MediaProvider cause not claimed fixed; private exports from38ebb were not actually readable through run-as; in-process PdfRenderer only, see permanent private-evidence report"
         }
       ],
       "dependencies": [
@@ -1970,11 +1948,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -2661,11 +2638,10 @@
       "dependencies": [],
       "published": {
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -2970,11 +2946,10 @@
         "Android": null,
         "iOS": null,
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -3014,11 +2989,10 @@
       ],
       "published": {
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -3057,11 +3031,10 @@
       ],
       "published": {
         "Web": {
-          "version": "1.3.9-dev (Web public beta, patch2)",
-          "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
+          "version": "1.3.9-dev · תיקון3",
           "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
-          "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
-          "date": "2026-11-10 Asia/Jerusalem"
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
         }
       }
     },
@@ -3111,7 +3084,7 @@
       "status": {
         "Android": "מומש",
         "iOS": "מומש",
-        "Web": "מומש"
+        "Web": "פורסם"
       },
       "implementation": [
         "web/mobile.js"
@@ -3120,18 +3093,70 @@
         "tests/search_state_qa.py",
         "ios/ConsumerLawReaderUITests/ReaderWindowingUITests.swift"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "commit": "06e55335cd69601f6c1ea55e23ec073627dda777",
+          "run": 42777451011,
+          "result": "PASS Web scope:52unit,5search-layout sequences,35SHA/DOM,4widths/32axe,PWAoffline",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42777451011",
+          "scope": "Only the five completed source/browser jobs; overall run failed Android36. Public patch3 separately passed75HTTP."
+        }
+      ],
       "dependencies": [
-        "Local actual full-DOM before/after evidence: qa/mobile-2026-11-08/search-layout-before.json and search-layout-after-local.json; sourceDirty true explicitly recorded",
-        "Combined source/browser/Android/iOS completed CI and subsequent public HTTP publication required"
+        "Web published with actual HTTP proof; final Native candidate retains separate acceptance gates"
       ],
       "published": {
         "Android": null,
         "iOS": null,
-        "Web": null
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "DATA-003",
+      "title": "שמירת מצב Android גדול ללא חריגת Binder",
+      "platforms": [
+        "Android"
+      ],
+      "acceptance": [
+        "Actual WebView state exceeding1MB must not enter the system Bundle; saved Activity state stays below50KB",
+        "Atomic private cache retains complete history/index across actual Activity recreation and real Native Back/Forward",
+        "Strict101-char UUID+SHA reference,8MB bound, file digest/schema and exact OS/app/provider installation guard; missing/corrupt/old cache falls back to durable logical reading state",
+        "API26/31/36 online/offline native suites including SAF/PDF/renderer pass without extra permissions or debuggable changes"
+      ],
+      "status": {
+        "Android": "מומש"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "android/src/il/org/lawreader/consumer/WebViewStateCache.java"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java"
+      ],
+      "evidence": [
+        {
+          "commit": "06e55335cd69601f6c1ea55e23ec073627dda777",
+          "run": 42777451011,
+          "job": 129699683934,
+          "result": "FAIL reproduced:1204952-byte Activity state crashes reader",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42777451011/job/129699683934",
+          "scope": "Before fix; native FATAL TransactionTooLargeException, not MediaProvider. New code compiles and52unit pass locally; no new native PASS yet"
+        }
+      ],
+      "dependencies": [
+        "Issue14: full combined acceptance required before merge/native release; pending CI does not block independent Web publication"
+      ],
+      "published": {
+        "Android": null
       }
     }
   ],
   "integrationCandidateBranch": "fix/pastafari-date-android-20261028",
-  "candidateMeaning": "candidateHead/tree identify last fully completed706 baseline; combined follow-up code requires its own completed run before replacing this proof"
+  "candidateMeaning": "06 completed: Web passes; full Native acceptance fails. Follow-up Binder/header fixes require their own completed runs.",
+  "lastFullyAcceptedCandidate": "706a3bc19f7a75026ccb2bac614816e12c5f5293"
 }

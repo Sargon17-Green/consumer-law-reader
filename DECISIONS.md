@@ -26,3 +26,7 @@
 המאגר ציבורי מלכתחילה. אין שינוי פרטיות, רכישות, קבלת תנאים, סודות או force-push במחזור זה. המלצות Apple/Google נבדקות במקורות הרשמיים המופנים ב־docs/STORE_PREPARATION_HE.md. התקן לחבילות Windows נמצא מחוץ למאגר; אין ליצור חבילה כזו בלי לקרוא את הגרסה הקנונית המלאה. כרגע אין צורך בחבילת Windows.
 
 CI-004: רשימות קלט iOS זהות ב־push וב־pull_request, כולל fixture שמשמש את WKWebView ותלויות Python. רשימת build scripts משותפים מפורשת; כלי Android בלבד אינם מפעילים macOS. יש לעדכן רשימה כאשר מוסיפים תלות build חדשה.
+
+## Android transient state cache — DATA-003
+
+The06/API36fatal proves the fullWebViewBundle cannot travel through Binder. Preserve the opaque fullhistory in privateAtomicFile cache; systemstate contains onlyUUID+SHA. Parcel is deliberately treated as transient: exactOSfingerprint/appinstallation/providerinstallation signature and format/digest/size checks invalidate incompatible bytes. Missing/corrupt/evicted cache reopens the bundled law and durablelogicalsession; settings are never removed. This avoids discarding workingBack/Forward merely to reduceBundle size. No newpermission, dependency, externalstore or cloud service.

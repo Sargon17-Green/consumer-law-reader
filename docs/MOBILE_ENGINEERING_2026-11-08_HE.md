@@ -1,6 +1,6 @@
 # מחזור ההנדסה למובייל — תוצרים וראיות
 
-עודכן ב־10.11.2026. **בטא Web/PWA1.3.9-dev פורסמה** ב[קישור הקבוע](https://sargon17-green.github.io/consumer-law-reader/reader/), תיקון2 עם75 בדיקות HTTP/SHA256 שעברו ושימור alpha וה־APK הציבורי. Native Android/iOS לא פורסמו במהדורה חדשה: חסרות חתימות מקוריות; קבלתAPI36 עברה706, וקוד ההמשך דורש רגרסיה נפרדת. מצב מתעדכן לפי [IMPLEMENTATION_STATUS](../IMPLEMENTATION_STATUS.md); כל דרישה רשומה ב־[PRODUCT_REQUIREMENTS](../PRODUCT_REQUIREMENTS.md).
+עודכן ב־10.11.2026. **בטא Web/PWA1.3.9-dev פורסמה** ב[קישור הקבוע](https://sargon17-green.github.io/consumer-law-reader/reader/), תיקון3 עם75 בדיקות HTTP/SHA256 שעברו ושימור alpha וה־APK הציבורי. Native Android/iOS לא פורסמו במהדורה חדשה: חסרות חתימות מקוריות; קבלתAPI36 עברה706, וקוד ההמשך דורש רגרסיה נפרדת. מצב מתעדכן לפי [IMPLEMENTATION_STATUS](../IMPLEMENTATION_STATUS.md); כל דרישה רשומה ב־[PRODUCT_REQUIREMENTS](../PRODUCT_REQUIREMENTS.md).
 
 העבודה ממשיכה את [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11), על בסיס main016b3de352dabe97f51b34b78ff803965b6cd40d. נבדקו12ענפים, PRs1–11, Issue7, היסטוריית commits/Releases ו־Actions; תיקונים תקינים שכבר מוזגו לא יושמו מחדש. PR1 הוא ביקורת ישנה ולא מקור ממצאים אוטומטי.
 
@@ -108,3 +108,12 @@ iOS1.3.9/build17: ארבע בניות סימולטור ומבחנים עברו; 
 | CI-004 | CI/iOS | PR paths החסירוmetadata/fixtures/dependencies | ios-ci.yml רשימותpush/PRתואמות | unit/build ו־4סימולטורים עלהמועמד | מימוש; קבלהמשולבתנדרשת |
 
 מסמכי מצב/קטלוג/העברה עודכנו תוך הסרת טענות pending ישנות. מזההcommit של כל שינוי יופיע בהיסטוריית PR11; אין למלא SHA עתידי או להסיקPASSמהימצאותהבדיקה.
+
+## DATA-003 וכותרת iPad — קבלת Native פתוחה
+
+| מזהה | פלטפורמה | בעיה משוחזרת | תיקון וקבצים | אימות נדרש | commit |
+|---|---|---|---|---|---|
+| DATA-003 | Android | מצב Chromium בגודל 1,204,232 בתים נכנס ל־Bundle וגרם ל־TransactionTooLargeException | MainActivity.java ו־WebViewStateCache.java: אחסון פרטי אטומי, הפניה קטנה, הגבלת גודל ודחיית cache לא תואם | רגרסיה עם מצב גדול מ־1MB, חבילה קטנה מ־50KB, יצירה מחדש ו־Back/Forward; שלושה אמולטורים | 6ed474ff959f103b69fe3c8746f97a5cda445309 — טרם קבלה |
+| NATIVE-002/003 | iOS | כפתור פעולות בגודל 44 נקודות נחסם בידי פקד החלון; לחיצה אמיתית נכשלה | ConsumerLawReaderApp.swift: התאמת פינות רשמית ב־iOS26 עם fallback ל־16+; בדיקות תפריט ושיתוף בחלון מוקטן | ניסוי ממוקד ולאחריו ארבעה סימולטורים; placeholder של XCTest מטופל במפורש | תיקון 316f399; המשך בדיקה 2686655 — טרם קבלה |
+
+Web תיקון 3 פורסם ואומת בנפרד בריצה 42778620385. Native06 נכשל, למרות הצלחת 52 בדיקות היחידה, 35 בדיקות המקור וכל שערי Web. אין הפצה חתומה חדשה ואין להסיק PASS לפני סיום הריצות.

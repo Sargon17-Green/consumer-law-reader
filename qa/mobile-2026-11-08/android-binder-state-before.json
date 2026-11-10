@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "sourceCommit": "06e55335cd69601f6c1ea55e23ec073627dda777",
+  "testedCheckout": "a7d6f42bb9ce6099bd92a55daba4df7b52b45464",
+  "run": 42777451011,
+  "job": 129699683934,
+  "result": "FAIL: actual application TransactionTooLargeException after online PASS and before offline completion",
+  "environment": "Android36 Google APIs emulator, WebView133.0.6943.137",
+  "exception": "java.lang.RuntimeException: android.os.TransactionTooLargeException: data parcel size1204952bytes",
+  "webViewStateBytes": 1204232,
+  "fatalProcess": "il.org.lawreader.consumer",
+  "fatalAt": "2026-11-10T07:56:14Z",
+  "stack": "android.app.servertransaction.PendingTransactionActions$StopInfo.run",
+  "artifact": 13744707702,
+  "artifactSha256": "9eb0e72ee1b38d4b09ccd760371adcda0dd30828b216f3cb9ebd220f257ab414",
+  "priorOnlinePDF": {
+    "pages": 146,
+    "bytes": 1515150,
+    "nativeSha256": "a45ee48826ba85c2a2b3e55ef9e2ae2912b5d41008768ac06d4ce4ac3cfe2d6f"
+  },
+  "issue": "https://github.com/Sargon17-Green/consumer-law-reader/issues/14",
+  "distinction": "The first fatal is in the reader process, not the earlier MediaProvider/FUSE failure. Full run is not PASS.",
+  "nextFix": "Private AtomicFile bounded opaque WebView cache; small UUID+digest reference in system Bundle, exact OS/app/provider installation guard; preserve full history and use durable logical session if cache missing/invalid",
+  "limitation": "Fix code compiles locally; actual new full CI required"
+}

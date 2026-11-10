@@ -1,6 +1,17 @@
 # מצב מימוש, אימות ופרסום
 
-עודכן10.11.2026. קטלוג62 הדרישות ב־[docs/requirements.json](docs/requirements.json) הוא מקור המצב המובנה; [PRODUCT_REQUIREMENTS](PRODUCT_REQUIREMENTS.md) נגזר ממנו. מימוש, אימות ופרסום הם מצבים נפרדים.
+## עדכון מחזור10.11 — מצב נוכחי
+
+**Web תיקון3 פורסם בפועל:** sourcecca785ed8b1f3d4c96bf25c0eb50e77b04899566, [פרסום42778620385](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42778620385), כל75HTTP/SHA כולל marker/alpha/APK. [ראיה קבועה](qa/mobile-2026-11-08/public-web-patch3-http-verification.json). runtime453decfde812ec9b נבדק בחמשת שעריWeb של06; Native אינו מעכב הפצה זו.
+
+**קבלת06 הסתיימה ונכשלה Native:** [פירוט](qa/mobile-2026-11-08/acceptance-06e5533.json). Android26/31 ושלושתiPhones עברו; Android36 קרס ב־Binder ו־iPad full-suite נכשל בהכנתquery. iPad hit-test נפרד שיחזר כפתורNativeMenu חסום בפקדי המערכת.52unit/35SHA/DOM ו־Web עברו; אין לייחס להם PASS כולל שלNative.
+
+**תיקוני המשך:** DATA-003/[Issue14](https://github.com/Sargon17-Green/consumer-law-reader/issues/14) מעבירWebViewState לאחסוןAtomicFile פרטי, עםUUID+digest קטנים ב־Bundle. הקובץ זמני ומותנהבזהותOS/app/provider; cache פגום/חסר/ישן משתמש ב־logicalsession. Native regression יוצרstate>1MB ודורשBundle<50KB, recreate אמיתי ו־Back/Forward. iOS/[Issue13](https://github.com/Sargon17-Green/consumer-law-reader/issues/13) מוסיףcontainerCornerOffset הרשמי שלiOS26 לכותרת; תפריט ושיתוף נבדקים בלחיצה אמיתית אחריresize. ניסוי316f399/run42802580935 עדיין אינו קבלה כוללת. הקוד המשולב דורש CI חדש לפני מיזוג.
+
+קטלוג הדרישות גדל ל־63. המקור המשפטי ותאריך2026-10-28 נשמרו. Android הציבורי נשאר1.3.5-beta; אין IPA/TestFlight. חסמים חיצוניים רק ב־EXTERNAL_ACTIONS; יתר התיקונים מבוצעים אוטונומית. פרטים היסטוריים להלן מתארים את בסיס706/ניסוייםקודמים ואינם מצבCI נוכחי.
+
+
+עודכן10.11.2026. קטלוג63 הדרישות ב־[docs/requirements.json](docs/requirements.json) הוא מקור המצב המובנה; [PRODUCT_REQUIREMENTS](PRODUCT_REQUIREMENTS.md) נגזר ממנו. מימוש, אימות ופרסום הם מצבים נפרדים.
 
 | ערוץ | הקבלה האחרונה שהסתיימה | מה פורסם בפועל |
 |---|---|---|

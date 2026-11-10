@@ -13,3 +13,7 @@ Web בטא מוסיף ביחס לממשק הקריאה המוקדם: חיפוש 
 ## Web1.3.9-dev — תיקון2,10.11.2026
 
 **פורסם בפועל** מתוך commitc3e9d9e5a62454b2d6e857476aae284c093cefef; cache721a4e865027bc53. סטטוס offline מבוסס כל38 נכסי החובה ומוצג בלוח ההתקנה; יעד בחקיקת משנה מגיע מתחת לכפתור החזרה לאחר focus. [פרסום42765882923](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42765882923) ו־[Pages42766006491](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42766006491) הצליחו; gh-pagesdcd37048893b5747a9f794dd0632e7d4534c8c28. [כל75GET/SHA256](qa/mobile-2026-11-08/public-web-patch-http-verification.json) עברו,36 קבצים קיימים נשמרו וה־APK הציבורי נשאר זהה. runtime תואם38נכסים של706a3bc שנבדק בארבעה רוחבים/32axe; build הפרסום עצמו עבר47unit/PWA ושלמות. עדכון מותקן עשוי להופיע בפתיחה הבאה לאחר השלמת עדכון המטמון. זו עדיין בטא Web; לא גרסה Native חתומה חדשה.
+
+## Web תיקון3 —10.11.2026, פורסם
+
+Sourcecca785ed8b1f3d4c96bf25c0eb50e77b04899566; runtime453decfde812ec9b. שימור תוצאה נבחרת לאחרreflow/שינוי גובה, ללא שינוי משפטי. source52unit,35SHA/DOM,Node500,5search sequences,4widths/32axe ו־PWAoffline עברו. [run42778620385](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42778620385) completedsuccess וכל75HTTP/SHA עברו. [HTTP](qa/mobile-2026-11-08/public-web-patch3-http-verification.json); alpha וה־APK הציבורי נשמרו. Native06נכשל בבדיקותמשלימות; אין לייחסלו releaseחדש.

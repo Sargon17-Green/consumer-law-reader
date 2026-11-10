@@ -22,3 +22,7 @@ NAV-006/PWA-001 פורסמו בתיקון2 לאחר כל שערי706. עדות i
 SEARCH-005: raw scroll השאיר את סעיף14 מחוץ למסך לאחר reflow (במקרה1032→375 ביותר מ־2800px; גם הקטנת גובה בלבד שוחזרה). תיקון anchor+offset ובדיקת5רצפים קיימים במועמד המשולב, טרם קבלתCI/פרסום.
 
 QA-EVIDENCE-PRIVATE: ניסוי38ebb עבר PdfRenderer בתוך האפליקציה אך run-as נכשל; bytes חיצוניים לא אומתו. c08 עבר renderer recovery ב־31/36 אך collector נכשל כוללנית, משום raw exec-out אינו מעביר בהכרח remote exit. stat shell-v2/אימותmagic/גודל/SHA ושמירת exit status נוספו; נדרשת ראיה אמיתית מהריצה המשולבת. אין לשנות debuggable או SELinux של המוצר כדי לתקן איסוףQA.
+
+DATA-003/Issue14 הואP0 מאומת:06/API36 WEBVIEW_CHROMIUM_STATE1204232bytes גרםTransactionTooLargeException/Activityparcel1204952bytes. PRIVATEcache+reference fix under acceptance; details inqa/mobile-2026-11-08/android-binder-state-before.json. זה אינוFUSE.
+
+iPad header: actualnativeMenu tap failed2e88de9/run42778315390; systemClose covers its center despite44x44AX. Apple corner-inset modifier under test; old sizingPASS is insufficient. qa/mobile-2026-11-08/ipad-header-occlusion-before.json.
