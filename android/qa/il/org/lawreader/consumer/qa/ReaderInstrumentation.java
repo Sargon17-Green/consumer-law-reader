@@ -280,6 +280,13 @@ public final class ReaderInstrumentation extends Instrumentation {
         for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo found=editable(node.getChild(i));if(found!=null)return found;}
         return null;
     }
+    private boolean hasPreparedPrintPage(AccessibilityNodeInfo node){
+        if(node==null)return false;
+        String label=String.valueOf(node.getText())+" "+String.valueOf(node.getContentDescription());
+        if(node.isVisibleToUser()&&java.util.regex.Pattern.compile("\\bPage\\s+[0-9]+\\s+of\\s+[0-9]+\\b").matcher(label).find())return true;
+        for(int i=0;i<node.getChildCount();i++)if(hasPreparedPrintPage(node.getChild(i)))return true;
+        return false;
+    }
     private boolean tapVisibleControl(AccessibilityNodeInfo node) throws Exception {
         if(node==null||!node.refresh()||!node.isVisibleToUser()||!node.isEnabled())return false;
         android.graphics.Rect bounds=new android.graphics.Rect();node.getBoundsInScreen(bounds);
@@ -313,12 +320,12 @@ public final class ReaderInstrumentation extends Instrumentation {
                 for(AccessibilityNodeInfo button:root.findAccessibilityNodeInfosByViewId("com.android.printspooler:id/print_button"))
                     // The framework keeps this view enabled while setting it GONE
                     // until the document update is complete. ID lookup alone also finds hidden views.
-                    if(button.refresh()&&button.isVisibleToUser()&&button.isClickable()&&button.isEnabled()){capturePrintReady(report);if(tapVisibleControl(button)){clicked=true;break;}}
+                    if(hasPreparedPrintPage(root)&&button.refresh()&&button.isVisibleToUser()&&button.isClickable()&&button.isEnabled()){capturePrintReady(report);if(tapVisibleControl(button)){clicked=true;break;}}
             }
             if(clicked)break;
             Thread.sleep(250);
         }
-        check(clicked,"Enabled system Save as PDF control: "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
+        check(clicked,"A rendered print-preview page and visible Save as PDF control: "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
         boolean named=false;java.util.Set<String> seenWindows=new java.util.LinkedHashSet<>();
         for(int attempt=0;attempt<160;attempt++){
             AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();

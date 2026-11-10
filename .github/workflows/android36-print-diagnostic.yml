@@ -23,11 +23,6 @@ jobs:
             target: google_apis
             orientation: landscape
             resume: 'false'
-          - api: 36
-            arch: x86_64
-            target: google_apis
-            orientation: landscape
-            resume: 'true'
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
