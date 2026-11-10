@@ -1,0 +1,41 @@
+name: Inspect failed Android software keyboard evidence
+on:
+  push:
+    branches: [work/android-ime-evidence-20261110]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Decode only the identified failed emulator artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/Sargon17-Green/consumer-law-reader/actions/artifacts/13786815880/zip > artifact.zip
+          python3 - <<'PY'
+          import base64,hashlib,json,zipfile
+          data=open('artifact.zip','rb').read()
+          assert len(data)==4720761
+          assert hashlib.sha256(data).hexdigest()=='1d8107a0b36c7ea2ed5f4080b8063402f6de9a7a80d5261feae313001915c5e4'
+          with zipfile.ZipFile('artifact.zip') as source:
+              print('ACTUAL_ARTIFACT_FILES: '+json.dumps(source.namelist()))
+              for name in ['android-private-artifacts.json','qa-system-ui.json','android-instrumentation.txt']:
+                  if name in source.namelist():
+                      text=source.read(name).decode()
+                      print('ACTUAL_ANDROID_FILE_'+name+': '+text[:18000].replace('\n',' '))
+              images=[n for n in source.namelist() if n.endswith('qa-failure.png')]
+              if not images: images=[n for n in source.namelist() if n=='android-emulator.png']
+              assert images,'No actual screenshot exported'
+              for index,name in enumerate(images[:1]):
+                  image=source.read(name)
+                  assert image.startswith(b'\x89PNG\r\n\x1a\n') and len(image)<3000000
+                  print('ACTUAL_ANDROID_IMAGE_META: '+json.dumps({'name':name,'bytes':len(image),'sha256':hashlib.sha256(image).hexdigest()}))
+                  encoded=base64.b64encode(image).decode()
+                  for part in range(0,len(encoded),4000):
+                      print('ACTUAL_ANDROID_IMAGE_CHUNK:'+str(part//4000)+':'+encoded[part:part+4000])
+          PY
