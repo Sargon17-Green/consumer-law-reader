@@ -1,0 +1,36 @@
+name: Inspect actual API31 native key input failure
+on:
+  push:
+    branches: [work/android-ime-api31-evidence-20261110]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Verify exact failure artifact and extract actual assertion screen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/Sargon17-Green/consumer-law-reader/actions/artifacts/13789921448/zip > artifact.zip
+          python3 - <<'PY'
+          import base64,hashlib,json,zipfile
+          raw=open('artifact.zip','rb').read()
+          assert len(raw)==1430823
+          assert hashlib.sha256(raw).hexdigest()=='041e2204e9d35897f503f551c9cceb279998253f453d0b7abafafd4d0c04a633'
+          with zipfile.ZipFile('artifact.zip') as z:
+              names=z.namelist()
+              print('ACTUAL_API31_FILES: '+json.dumps(names))
+              for name in names:
+                  if name.endswith('.json') and z.getinfo(name).file_size<30000:
+                      print('ACTUAL_API31_JSON: '+name+' '+z.read(name).decode('utf-8'))
+              imageName=next(n for n in names if n.endswith('android-failure-at-assertion.png'))
+              data=z.read(imageName)
+              print('ACTUAL_API31_IMAGE_META: '+json.dumps({'file':imageName,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
+              enc=base64.b64encode(data).decode()
+              for start in range(0,len(enc),4000):
+                  print('ACTUAL_API31_IMAGE_CHUNK:'+str(start//4000)+':'+enc[start:start+4000])
+          PY
