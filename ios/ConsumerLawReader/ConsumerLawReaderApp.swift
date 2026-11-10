@@ -194,6 +194,7 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     private var pendingSettings: String?
     private var temporaryExport: URL?
     private var resourcePolicyReady = false
+    private var readinessGeneration: UInt64 = 0
     private let website: URL?
     private static let publicURL = "https://sargon17-green.github.io/consumer-law-reader/reader/"
 
@@ -278,12 +279,18 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         notice = ReaderNotice(message: value)
     }
 
+    private func invalidateReadiness() {
+        readinessGeneration &+= 1
+        ready = false
+    }
+
     func retryLoading() {
-        ready = false; loadFailed = false
+        invalidateReadiness(); loadFailed = false
         if resourcePolicyReady { openBundledLaw() } else { configureResourcePolicy() }
     }
 
     private func openBundledLaw() {
+        invalidateReadiness()
         guard let website, FileManager.default.fileExists(atPath: website.path) else {
             loadFailed = true
             showError("קובץ החוק חסר בחבילת ההתקנה. יש לבנות מחדש את יישום iOS.")
@@ -293,14 +300,18 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     }
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        ready = false
+        invalidateReadiness()
         loadFailed = false
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        webView.evaluateJavaScript("document.documentElement.dataset.lawReady === 'true'") { [weak self] value, error in
+        let generation = readinessGeneration
+        webView.evaluateJavaScript("document.documentElement.dataset.lawReady === 'true' && !!window.lawMobile && !!window.LawCore && !!window.lawSettings") { [weak self] value, error in
             Task { @MainActor in
-                guard let self else { return }
+                // A completion from an older document must never enable native
+                // actions while another local navigation is still loading.
+                guard let self, self.readinessGeneration == generation,
+                      !self.webView.isLoading else { return }
                 self.ready = error == nil && value as? Bool == true
                 if self.ready { self.applyDynamicType() }
                 if !self.ready { self.loadFailed = true; self.showError("ממשק הקריאה לא אותחל. אפשר לסגור ולפתוח שוב את האפליקציה.") }
@@ -320,7 +331,7 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-        ready = false
+        invalidateReadiness()
         openBundledLaw()
     }
 
@@ -333,13 +344,13 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!,
                  withError error: Error) {
-        ready = false; loadFailed = true
+        invalidateReadiness(); loadFailed = true
         showError("טעינת נוסח החוק נכשלה: \(error.localizedDescription)")
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!,
                  withError error: Error) {
-        ready = false; loadFailed = true
+        invalidateReadiness(); loadFailed = true
         showError("פתיחת קובץ החוק נכשלה: \(error.localizedDescription)")
     }
 

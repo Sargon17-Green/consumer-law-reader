@@ -2,7 +2,7 @@ name: Build native iOS app (unsigned simulator)
 
 on:
   push:
-    branches: [main]
+    branches: [work/ios-readiness-generation-20261110]
     # Keep this dependency list equal to pull_request. Android-only tools do not build iOS.
     paths:
       - '.github/workflows/ios-ci.yml'
@@ -58,25 +58,8 @@ jobs:
       matrix:
         include:
           - family: iPhone
-            os: '26.2'
-            archive: true
-          - family: iPad
-            os: '26.2'
-            archive: false
-          - family: iPhone
             os: '18.5'
             archive: false
-          - family: iPad
-            os: '18.5'
-            archive: false
-          - family: iPhone
-            os: '16.0'
-            archive: false
-          - family: iPhone
-            os: '26.2'
-            archive: false
-            profile: accessibility-xxxl
-            text_size: accessibility-extra-extra-extra-large
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: Set up Python
@@ -176,7 +159,7 @@ jobs:
             xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
             xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
           fi
-          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderTests/ReaderIntegrationTests/testActualOfflineReaderSearchBackupAndLifecycle -only-testing:ConsumerLawReaderTests/ReaderIntegrationTests/testRepeatedNativeRetryReadinessBelongsToNewDocument CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |

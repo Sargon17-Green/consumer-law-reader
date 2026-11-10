@@ -87,7 +87,15 @@ final class ReaderIntegrationTests: XCTestCase {
             webView.callAsyncJavaScript("return await (" + source + ");", arguments: [:], in: nil, in: .page) { result in
                 Task { @MainActor in
                     deadline.cancel()
-                    reply.finish(result)
+                    switch result {
+                    case .failure(let error):
+                        let original=error as NSError
+                        var info=original.userInfo
+                        info["ReaderQAScript"]=String(source.prefix(260))
+                        reply.finish(.failure(NSError(domain:original.domain,code:original.code,userInfo:info)))
+                    case .success:
+                        reply.finish(result)
+                    }
                 }
             }
         }
@@ -199,7 +207,9 @@ final class ReaderIntegrationTests: XCTestCase {
         _ = try await script(reader,"(lawMobile.goTo('article_14'),true)")
         reader.persistReadingState()
         reader.webView.reload()
-        for _ in 0..<80 { try await Task.sleep(nanoseconds:250_000_000);if reader.ready { break } }
+        for _ in 0..<240 { try await Task.sleep(nanoseconds:250_000_000);if reader.ready && !reader.webView.isLoading { break } }
+        XCTAssertTrue(reader.ready,"Reload must reach actual application readiness")
+        XCTAssertFalse(reader.webView.isLoading,"The reload must finish before executing reader commands")
         let savedFont=try await script(reader,"localStorage.getItem('law-reader-font')") as? String
         let savedHash=try await script(reader,"location.hash") as? String
         XCTAssertEqual(savedFont,"24")
@@ -257,6 +267,25 @@ final class ReaderIntegrationTests: XCTestCase {
         XCTAssertFalse(reader.confirmImport)
         XCTAssertNotNil(reader.notice)
     }
+    func testRepeatedNativeRetryReadinessBelongsToNewDocument() async throws {
+        let reader=try await openReader()
+        defer { closeTestWindow() }
+        for index in 0..<8 {
+            _ = try await script(reader,"(window.__qaOldDocumentMarker="+String(index)+",true)")
+            reader.retryLoading()
+            XCTAssertFalse(reader.ready,"A native retry synchronously disables native reader actions")
+            for _ in 0..<240 {
+                try await Task.sleep(nanoseconds:100_000_000)
+                if reader.ready && !reader.webView.isLoading { break }
+            }
+            XCTAssertTrue(reader.ready,"Every repeated local navigation must finish")
+            XCTAssertFalse(reader.webView.isLoading)
+            let current=try await script(reader,"document.documentElement.dataset.lawReady === 'true' && !!window.lawMobile && !!window.LawCore && !!window.lawSettings && typeof window.__qaOldDocumentMarker === 'undefined'") as? Bool
+            XCTAssertEqual(current,true,"Ready belongs to the new live document, never the older marker")
+        }
+        print("NATIVE_REPEATED_READINESS:8 actual native retries; each Ready requires the new live document")
+    }
+
     func testShareCompletionPreservesNewerPresentationAndReportsFailure() async throws {
         let reader=try await openReader()
         defer { closeTestWindow() }
