@@ -14,8 +14,8 @@ for index in Set([1,expected/2+1,expected]).sorted() {
     var pixels=[UInt8](repeating:255,count:width*height*4)
     let ink=pixels.withUnsafeMutableBytes { raw -> Int in
         guard let context=CGContext(data:raw.baseAddress,width:width,height:height,bitsPerComponent:8,bytesPerRow:width*4,space:CGColorSpaceCreateDeviceRGB(),bitmapInfo:CGImageAlphaInfo.premultipliedLast.rawValue|CGBitmapInfo.byteOrder32Big.rawValue) else { return 0 }
-        context.setFillColor(CGColor(gray:1,alpha:1));context.fill(CGRect(x:0,y:0,width:width,height:height))
-        context.concatenate(page.getDrawingTransform(.mediaBox,rect:CGRect(x:0,y:0,width:width,height:height),rotate:0,preserveAspectRatio:true))
+        context.setFillColor(CGColor(gray:1,alpha:1));context.fill(CGRect(x:0,y:0,width:CGFloat(width),height:CGFloat(height)))
+        context.concatenate(page.getDrawingTransform(.mediaBox,rect:CGRect(x:0,y:0,width:CGFloat(width),height:CGFloat(height)),rotate:0,preserveAspectRatio:true))
         context.drawPDFPage(page)
         let bytes=raw.bindMemory(to:UInt8.self)
         return stride(from:0,to:bytes.count,by:4).filter{bytes[$0+3]>200 && (bytes[$0]<220 || bytes[$0+1]<220 || bytes[$0+2]<220)}.count

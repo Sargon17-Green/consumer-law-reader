@@ -14,6 +14,7 @@ def snapshot(device):
         domains.append(identifier)
         if "localstorage" not in identifier.lower(): continue
         group=meta.parent.resolve()
+        if not group.is_relative_to(root.resolve()): raise ValueError("FileProvider domain escapes assigned simulator")
         count=0
         for directory,dirs,names in os.walk(group,followlinks=False):
             dirs[:]=[d for d in dirs if d.lower() not in ("caches","tmp",".trash") and not (pathlib.Path(directory)/d).is_symlink()]
