@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "sourceCommit": "5450373c14100424b2d17358cf2acb54659cbf23",
+  "tree": "0c9c67ef1020129bd8766a5fb6f27bfd8a490d66",
+  "run": 42850867489,
+  "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42850867489",
+  "result": "FAIL overall: iPad18.5 functional UI passed; iPhone16.0 still failed after observed Close tap. No all-iOS acceptance.",
+  "platforms": [
+    {
+      "name": "iPad18.5",
+      "job": 129950847176,
+      "status": "completed",
+      "conclusion": "success",
+      "actualClose": {
+        "label": "Close",
+        "identifier": "header.closeButton",
+        "frame": [
+          632,
+          215,
+          43,
+          44
+        ]
+      },
+      "testSeconds": 312.106,
+      "artifact": {
+        "id": 13781786065,
+        "bytes": 20645104,
+        "sha256": "9cc264ad2780a9d518de0e0db70b6c27009956f88a930948675b5c7dd57d91c5",
+        "independentFullZipHashVerified": true
+      }
+    },
+    {
+      "name": "iPhone16.0",
+      "job": 129950846691,
+      "status": "completed",
+      "conclusion": "failure",
+      "actualClose": {
+        "label": "Close",
+        "identifier": "",
+        "frame": [
+          342,
+          75,
+          43,
+          44
+        ],
+        "nativeSynthesizedTouch": [
+          363.5,
+          97
+        ],
+        "touchDurationSeconds": 0.05
+      },
+      "failure": "After actual native Close tap, ActivityListView still exists at20s. Failure screenshot still shows full sheet. Selector omission alone does not explain this run.",
+      "testSeconds": 246.324,
+      "artifact": {
+        "id": 13780993548,
+        "bytes": 140406777,
+        "sha256": "b3cb895ada043237bbe10fac386e3f255de18f345ad02445ae5f59a223da8dd7",
+        "independentFullZipHashVerified": true
+      }
+    }
+  ],
+  "diagnosis": [
+    "iOS16 actual Close has no identifier; iPad18.5 does have header.closeButton, disproving a blanket legacy-identifier claim",
+    "Close must be awaited as hittable explicitly; collecting debugDescription before a tap can incidentally mask presentation readiness races",
+    "SwiftUI ActivitySheet had no UIKit completion callback clearing its presentation item. Connecting completion with matching UUID is a candidate fix, not yet a proven root cause."
+  ],
+  "candidateFix": {
+    "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+    "branch": "work/ios-legacy-share-20261110",
+    "scope": "Explicit Close readiness, no application-wide swipe, matching-ID sharing completion/error handling, stale callback regression; targeted2-platform trial must be checked completed before integration"
+  },
+  "source": "https://developer.apple.com/documentation/uikit/uiactivityviewcontroller/completionwithitemshandler-swift.property",
+  "limits": [
+    "Simulator only",
+    "No change to legal text",
+    "No new signed native publication",
+    "Diagnostic workflow is not for main"
+  ],
+  "failureAttachments": [
+    {
+      "filename": "D908D86E-F40C-4EF1-8D4B-C03CAFE13D56.jpeg",
+      "bytes": 131338,
+      "sha256": "ab95ed9beb4e0511be6e445bc90ffb46f9e036d990fc2df8b056c18c8c440e7f"
+    },
+    {
+      "filename": "B0F86461-21D8-49E2-A6BB-F0DE71B062BE.txt",
+      "bytes": 10431,
+      "sha256": "5d9397553a7f91e5dbfc6c183b2aa54bd6d74111620f9c43e4a86edfdbe3b040"
+    }
+  ]
+}

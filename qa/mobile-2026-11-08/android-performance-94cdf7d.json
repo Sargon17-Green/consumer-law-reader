@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "sourceCommit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+  "run": 42817834059,
+  "scope": "Observed emulator samples, not a before/after optimization comparison. PSS/CPU cover application+instrumentation process only, not all Chromium/Web renderer processes. Ready measurements include separate seed/verify/online/offline launches.",
+  "samples": [
+    {
+      "api": 26,
+      "job": 129836058696,
+      "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129836058696",
+      "values": {
+        "mainProcessPssKBAtReady": [
+          90449,
+          116699,
+          95529,
+          122997
+        ],
+        "activityToReadyMilliseconds": [
+          3639,
+          3689,
+          3720,
+          4555
+        ],
+        "mainProcessPssKBAfterStress": [
+          116724,
+          119100
+        ],
+        "indexMilliseconds": [
+          0,
+          0
+        ],
+        "mainProcessCpuMilliseconds": [
+          14044,
+          13922
+        ]
+      }
+    },
+    {
+      "api": 31,
+      "job": 129836058843,
+      "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129836058843",
+      "values": {
+        "activityToReadyMilliseconds": [
+          9737,
+          14848,
+          19392,
+          15972
+        ],
+        "mainProcessPssKBAtReady": [
+          66873,
+          94168,
+          109135,
+          137252
+        ],
+        "indexMilliseconds": [
+          0,
+          0
+        ],
+        "mainProcessCpuMilliseconds": [
+          37224,
+          32835
+        ],
+        "mainProcessPssKBAfterStress": [
+          129229,
+          129157
+        ]
+      }
+    },
+    {
+      "api": 36,
+      "job": 129836058781,
+      "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129836058781",
+      "values": {
+        "activityToReadyMilliseconds": [
+          5776,
+          5642,
+          4085,
+          2450
+        ],
+        "mainProcessPssKBAtReady": [
+          72442,
+          78092,
+          79150,
+          80110
+        ],
+        "indexMilliseconds": [
+          0,
+          0
+        ],
+        "mainProcessCpuMilliseconds": [
+          11599,
+          14906
+        ],
+        "mainProcessPssKBAfterStress": [
+          152510,
+          162693
+        ]
+      }
+    }
+  ],
+  "limits": [
+    "indexMilliseconds runs after real keyboard search already builds the cache;0ms is cached access, not cold indexing",
+    "CPU is accumulated during the full native test sequence, not a per-search measurement",
+    "Different API images and runs are not comparable hardware benchmarks",
+    "No sustained memory-pressure or physical-device inference"
+  ]
+}

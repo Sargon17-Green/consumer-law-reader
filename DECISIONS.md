@@ -39,3 +39,7 @@ The06/API36fatal proves the fullWebViewBundle cannot travel through Binder. Pres
 לבדיקת מקלדת Android מודדים חלון מערכת מסוג TYPE_INPUT_METHOD, מגע ב־editable node, הקלדה native וגבולות WebView; אין להסיק כיסוי IME משינוי CSS בלבד. [תיעוד Android](https://developer.android.com/develop/ui/views/layout/sw-keyboard) ו־[AccessibilityWindowInfo](https://developer.android.com/reference/android/view/accessibility/AccessibilityWindowInfo) נבדקו. בדיקת QA משנה זמנית show_ime_with_hard_keyboard ומשחזרת את ערכה ואת orientation/דגלי השירות ב־finally.
 
 ניסוי חומרה מצומצמת דורש מדידה מתוך מערכת האורח לפני הבדיקה: ניסיון1GB נדחה משום שהאמולטור כפה1.5GB. ב־42819646591 התקבלו בפועל MemTotal1548780KB וליבה אחת, והמבחנים online/offline עברו. אין להציג ערכי CLI כמדידה או לייחס זאת ל־OOM/מכשיר פיזי.
+
+## סיום שיתוף ב־SwiftUI/UIKit
+
+ב־5450373 נצפתה ב־iOS16 לחיצה אמיתית במרכז Close ללא identifier, אך השיתוף נשאר מוצג. ב־iPad18.5 אותו רצף עבר ול־Close יש identifier. לכן אין להסיק שכל הכשלים הישנים היו רק selector חסר. המועמד4bc27af מחבר את completionWithItemsHandler של UIKit למצב SwiftUI, רק אם UUID השיתוף עדיין תואם; callback ישן אינו סוגר שיתוף חדש. [חוזה Apple](https://developer.apple.com/documentation/uikit/uiactivityviewcontroller/completionwithitemshandler-swift.property) כולל ביטול וסיום שירות. זהו תיקון מועמד, לא סיבת שורש שהוכחה לפני מבחן iOS16. בדיקת Close ממתינה במפורש ל־isHittable ואינה נשענת על עיכוב debugDescription.
