@@ -28,6 +28,18 @@ private final class ReaderPDFRenderer: UIPrintPageRenderer {
 }
 
 final class ReaderPolicyTests: XCTestCase {
+    func testBuiltAppDeclaresAdaptiveIPadOrientations() throws {
+        // Bundle.infoDictionary can resolve device-specific overrides into the
+        // generic key. Read the actual packaged plist to verify both wire keys.
+        let url=try XCTUnwrap(Bundle.main.url(forResource:"Info",withExtension:"plist"))
+        let values=try XCTUnwrap(PropertyListSerialization.propertyList(from:Data(contentsOf:url),options:[],format:nil) as? [String:Any])
+        let orientations=try XCTUnwrap(values["UISupportedInterfaceOrientations"] as? [String])
+        XCTAssertEqual(Set(orientations),Set(["UIInterfaceOrientationPortrait","UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"]))
+        let iPad=try XCTUnwrap((values["UISupportedInterfaceOrientations~ipad"] ?? values["UISupportedInterfaceOrientations~iPad"]) as? [String])
+        XCTAssertEqual(Set(iPad),Set(["UIInterfaceOrientationPortrait","UIInterfaceOrientationPortraitUpsideDown","UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"]))
+        XCTAssertNotEqual(values["UIRequiresFullScreen"] as? Bool,true)
+    }
+
     func testDateURLsAndHostileInputs() throws {
         for (host,path) in ReaderPolicy.datePaths {
             XCTAssertTrue(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string: "https://" + host + path + "?_t=123"))))

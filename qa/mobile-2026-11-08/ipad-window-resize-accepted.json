@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "sourceCommit": "81b5f774510dff6538eff966fae1943f62a28aa3",
+  "tree": "36559b54d614069440257f78f6b5245743cd6d77",
+  "run": 42772416090,
+  "job": 129683054613,
+  "result": "PASS: completed targeted raw packaged orientation plist and actual OS-managed iPad window resize",
+  "environment": "macOS15, Xcode26.3, iPad Pro13-inch M5 Simulator iOS26.2; actual public system pointer drag over observed resize-grabber",
+  "beforeWeb": [
+    0,
+    96,
+    1032,
+    1260
+  ],
+  "afterWeb": [
+    329,
+    325,
+    375,
+    675.5
+  ],
+  "nativeMenuBefore": [
+    44,
+    44
+  ],
+  "nativeMenuAfter": [
+    44,
+    44
+  ],
+  "artifact": 13742524176,
+  "artifactSha256": "2161da18417e53adabb4ce6df0b2228df348c6583563139c517f069ea3187f3f",
+  "actualAfterScreenshot": {
+    "member": "build/iPad-ios-26.2-attachments/D827060D-711A-4CF4-AE33-2E34D9748B20.png",
+    "sha256": "171b3f57fa79eae9432ace6f345e01e9536ee01f33162287533a4d24cae6f6e1"
+  },
+  "actualAfterAccessibility": {
+    "member": "build/iPad-ios-26.2-attachments/CBE081FE-8ADF-4C91-960F-44C912F8A2CD.txt",
+    "sha256": "2724305ecf066866e81fbe8b9d0e33bcdb7f7062b6f40144c958574508f04cc9"
+  },
+  "fix": "Explicit generated Info.plist orientations: 3 iPhone,4 iPad; no fullscreen restriction and no deployment target/bundle identity change",
+  "limitations": [
+    "Targeted trial only; combined full iOS regression remains necessary",
+    "Search query retained and actual result tap navigates. Tap can scroll a result into view; exact selected-result visibility before tap was NOT proven by this trial",
+    "A separate real DOM reproduction proves raw pixel search restoration loses the selected row on layout changes. The combined candidate fixes that and strengthens this native test",
+    "No physical iPad, signed IPA, App Store or TestFlight claim"
+  ]
+}

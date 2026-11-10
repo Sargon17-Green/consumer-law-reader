@@ -61,6 +61,7 @@ jobs:
         run: |
           python tests/technical_smoke_134.py
           python tests/pwa_offline_qa.py
+          python tests/search_state_qa.py
       - name: Save source verification evidence
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6

@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "sourceHead": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+  "testedCheckout": "ed7494e0a1fd2c3c2ae80f6929456e30872beaef",
+  "tree": "539895887cecddd5c497f4aea8cf1dd1dc6ff1d5",
+  "run": 42764913616,
+  "result": "PASS: four completed simulator jobs in the declared existing suite",
+  "jobs": [
+    {
+      "id": 129659013280,
+      "name": "iPad iOS 26.2",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659013543,
+      "name": "iPhone iOS 16.0 (runtime availability)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659013617,
+      "name": "iPhone iOS 18.5",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659013621,
+      "name": "iPhone iOS 26.2",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "limitations": [
+    "Not physical devices, signed IPA or TestFlight",
+    "The existing suite covered full-screen layout/rotation/lifecycle, not OS window resizing",
+    "A later independent iPad pointer diagnostic f61 found compatibility scaling: native-menu44pt became30.9pt, with missing orientation declarations in the actual app Info.plist. NATIVE-003 remains open until adaptive sizing fix is validated.",
+    "No claim that all original product acceptance criteria are complete"
+  ]
+}

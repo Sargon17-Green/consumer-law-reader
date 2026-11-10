@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "sourceCommit": "ae772d95cfc5bce90e1edf6dcab23983572b0720",
+  "run": 42769394256,
+  "job": 129673363942,
+  "result": "Partial: native adaptation measured; full trial failed two test assertions",
+  "nativeAfter": {
+    "window": [
+      329,
+      240,
+      375,
+      781
+    ],
+    "webView": [
+      329,
+      314,
+      375,
+      697
+    ],
+    "nativeMenuSize": [
+      44,
+      44
+    ]
+  },
+  "beforeReference": "qa/mobile-2026-11-08/ipad-window-scaling-before.json",
+  "artifact": 13741661784,
+  "artifactSha256": "eb3200ee0773b41ef82a951897767d5b7f7051380939056cf29107537eeafc4c",
+  "remaining": [
+    "Read raw packaged Info.plist instead of Bundle.infoDictionary resolving device override",
+    "Perform actual scroll/tap on restored result rather than require pre-scroll isHittable; preserve resize/44pt thresholds"
+  ],
+  "limitation": "Not overall PASS; no physical-device or signed-release claim"
+}

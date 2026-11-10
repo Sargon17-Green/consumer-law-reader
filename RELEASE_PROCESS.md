@@ -7,7 +7,7 @@
 1. בוחרים commit נבדק ושומרים SHA/tree וראיות source/DOM/browser/offline. אין שינוי משפטי.
 2. מריצים `scripts/build_web.py`, `verify_release.py`, בדיקות public_reader/reader_site, ומכינים באמצעות `prepare_reader_site.py` רק reader/ על גבי gh-pages הקיים. `.consumer-law-reader-owner.json` מזהה בעלות, commit וגיבובי38 הנכסים. אין להחליף תיקייה שאינה בבעלות התהליך.
 3. `deploy_web.yml` שומר את קובצי alpha מחוץ ל־reader/ ללא שינוי, ואת public downloads/latest.apk. אין force-push או שינוי הגדרת Pages. סביבת github-pages מתירה main ו־gh-pages בלבד; אין להסיר או לעקוף את ההגנה.
-4. לפי mode legacy מפורסם ענף gh-pages הקיים; לפי workflow משתמשים ב־Actions Pages הרשמיים. workflow עבודה עשוי להיכשל ב־environment אף לאחר שפרסום gh-pages האוטומטי השלים: אין להכריז שה־workflow עבר; מאמתים בנפרד run/HTTP ובתים של האתר החי.
+4. ב־legacy נשמר gh-pages הקיים. ב־main בקשת Pages build נשארת ב־deploy job עם environment מוגן; בענף עבודה ה־verifier הוא GET בלבד וללא הרשאות פריסה. ב־workflow-mode משתמשים ב־Actions Pages הרשמיים ובאותו environment. אין להניח ש־GITHUB_TOKEN push מפעיל Pages: [GitHub מזהיר שאינו מפעיל build](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site). במחזור תיקון2 נצפה Pages42766006491 success בנפרד. תמיד דורשים run של gh-pages והוכחתHTTP של ה־source בפועל; אם אינו מופעל, מפעילים עדכון ענף gh-pages רגיל ומורשה דרך חיבור GitHub, בלי שינוי policy או תוכן מחוץ ל־reader/.
 5. `verify_public_reader.py verify` משווה את כל נכסי Web, marker, alpha ו־APK מול הציפיות שנשמרו לפני הפרסום; רק אז מעדכנים סטטוס ל־פורסם. הוראות Home Screen מבהירות שזה Web/PWA, לא IPA.
 
 ## Android

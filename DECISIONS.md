@@ -24,3 +24,5 @@
 | DEC-019 | PDF QA ממתין ל־Page n of total ומקיש לפי bounds מדודים | lifecycle/orientation לבדם הופרכו בניסוי; אין שינוי production onPause ללא ראיה |
 
 המאגר ציבורי מלכתחילה. אין שינוי פרטיות, רכישות, קבלת תנאים, סודות או force-push במחזור זה. המלצות Apple/Google נבדקות במקורות הרשמיים המופנים ב־docs/STORE_PREPARATION_HE.md. התקן לחבילות Windows נמצא מחוץ למאגר; אין ליצור חבילה כזו בלי לקרוא את הגרסה הקנונית המלאה. כרגע אין צורך בחבילת Windows.
+
+CI-004: רשימות קלט iOS זהות ב־push וב־pull_request, כולל fixture שמשמש את WKWebView ותלויות Python. רשימת build scripts משותפים מפורשת; כלי Android בלבד אינם מפעילים macOS. יש לעדכן רשימה כאשר מוסיפים תלות build חדשה.

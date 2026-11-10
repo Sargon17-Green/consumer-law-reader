@@ -1,20 +1,20 @@
 {
   "schema": 1,
-  "testedHead": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
-  "testedCheckout": "ed7494e0a1fd2c3c2ae80f6929456e30872beaef",
-  "testedTree": "539895887cecddd5c497f4aea8cf1dd1dc6ff1d5",
-  "run": 42764913617,
-  "result": "PASS for Web scope only; native results separate",
+  "testedHead": "06e55335cd69601f6c1ea55e23ec073627dda777",
+  "testedCheckout": "a7d6f42bb9ce6099bd92a55daba4df7b52b45464",
+  "testedTree": "56d0fbc622190a0526823d6fded304264d5b5971",
+  "run": 42777451011,
+  "result": "PASS for completed Web scope only; native results remain separate",
   "completedWebJobs": [
-    129659013662,
-    129659013200,
-    129659013631,
-    129659013338,
-    129659013562
+    129699187788,
+    129699187897,
+    129699188020,
+    129699187888,
+    129699188006
   ],
-  "sourceArtifact": 13738419659,
-  "artifactSha256": "467d2c6b638f4138449c690e5a9492c2555314d95895eb22c9a947972bef652d",
-  "webVersion": "721a4e865027bc53",
+  "sourceArtifact": 13744253536,
+  "artifactSha256": "9cbcf4c13b256a0be1f0ca64e76cb2f8de93ae7acc181311073e3cc935a1f6b4",
+  "webVersion": "453decfde812ec9b",
   "assets": {
     "Emblem_of_Israel_dark_blue_border.png": "f5b0fd8c571d8c53a22c7e654fbc51667935c77ce6e322f1d963429a3afd8579",
     "PEGI_12+.png": "bde68e1d3b41e7b15f1c7eb6d4b95e838ec8b21b689c8b7bc215b499a0b198b9",
@@ -49,18 +49,19 @@
     "mobile-sources.js": "19702859e106cc83c9bc719523ea3a1255a83d027e0811a9855b44f5c7735b06",
     "mobile-topics.js": "6fe1f868e9fa28e18a1600f90c4a0e2c1c8dd682878b3b22c5dd113ef7fbad6d",
     "mobile.css": "27dd9953c291116b914107e998ec863cfd4d22ca06aa8d2caaa3f5828689367d",
-    "mobile.js": "13a682973d1ec70ad273d9d88bda449689163b817c64947881e7c9b6f802938a",
+    "mobile.js": "c735909e5afb93319540dee77d0273189634035ee0048f60fc336dfdc628f4f9",
     "privacy.html": "5bdf44715165def2a752c7320207e0178b01c8cc3a5b8eea67807d4435fa7f38",
-    "sw.js": "8de577a42cdf9b206871158d2ee819f86c71dbafc983f5d598c8dbb4c79c26db",
+    "sw.js": "42e7333048756925aac393fa79059403e4c684e5ef032ce85dee45842d3588e0",
     "typed-index.js": "0701a4bcca5fee7070c903894b37167b789dd846dff4e9d649b9599f24cd9dd0",
     "נוסח מתוקן עלון קרינה שני תקנים 1-7-17.doc": "b8674a7a4061de29c01cdbc496540acf14ab55e371d8e7d200d94d2137e01da9"
   },
   "acceptance": [
-    "47 unit tests and35 exact source checks",
-    "four widths320/430/768/1180 and32 axe states",
-    "268 layout and276 navigation-target checks per width",
-    "actual ServiceWorker offline and missing-required-file negative case"
+    "52 unit and35 exact SHA/DOM checks",
+    "four widths320/430/768/1180 and32axe states",
+    "268layout and276navigation-target checks per width",
+    "actual PWA offline including missing required CSS negative case",
+    "five actual full-DOM search layout-restoration sequences including height-only shrink, identity and repeated return"
   ],
-  "publication": "Not yet published; release workflow must verify same runtime paths and then real75HTTP checks",
-  "deployment": "Protected main legacy build request preserved. Release legacy verifier is read-only. A GITHUB_TOKEN push alone is not assumed to trigger Pages: observe approved gh-pages Pages run or trigger a normal approved-branch update through authorized GitHub connector; never change environment policy."
+  "scope": "Fix selected result restoration after reflow; no normative text change, no native signed release",
+  "deployment": "Preserve legacy Pages/alpha/originalAPK and environment protections; verify75live HTTP identities and bytes after deployment"
 }

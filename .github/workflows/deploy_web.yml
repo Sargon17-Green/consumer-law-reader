@@ -43,9 +43,10 @@ jobs:
           python -m unittest discover -s tests -p 'test_*.py' -v
           python scripts/validate_project_docs.py
           python tests/pwa_offline_qa.py
+          python tests/search_state_qa.py
       - name: Prove runtime equivalence to completed four-width Web acceptance
         if: github.ref_name == 'release/web-reader-1.3.9-preview'
-        run: git diff --exit-code 706a3bc19f7a75026ccb2bac614816e12c5f5293 -- original web typed-sources metadata VERSION scripts/build_web.py
+        run: git diff --exit-code 06e55335cd69601f6c1ea55e23ec073627dda777 -- original web typed-sources metadata VERSION scripts/build_web.py
       - name: Read existing Pages configuration without changing it
         id: pages
         env:

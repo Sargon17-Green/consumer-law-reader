@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "sourceCommit": "f61be841a144019d8b5258b225f4006151f77219",
+  "run": 42767188687,
+  "job": 129666320053,
+  "result": "FAIL: actual native windowing scales controls, not a supported adaptive layout",
+  "environment": "iPad Pro13-inch(M5) Simulator, iPadOS26.2, Xcode26.3; not physical",
+  "artifact": 13740243173,
+  "artifactSha256": "1adbc5666c2ece19317dca4def8b1021160cb75ee33793d69e314bdd66c7e9d0",
+  "builtInfoPlist": {
+    "path": "build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app/Info.plist",
+    "sha256": "d4d2d5cdff4f6f2329ebe5210f589240d513028e09c56f51ac4f41aff4d3a27d",
+    "missing": [
+      "UISupportedInterfaceOrientations",
+      "UISupportedInterfaceOrientations~ipad"
+    ],
+    "present": {
+      "UIApplicationSceneManifest": {
+        "UIApplicationSupportsMultipleScenes": true,
+        "UISceneConfigurations": {}
+      },
+      "UIDeviceFamily": [
+        1,
+        2
+      ],
+      "DTXcode": "2630",
+      "DTSDKName": "iphonesimulator26.2",
+      "UILaunchScreen": {
+        "UILaunchScreen": {}
+      }
+    }
+  },
+  "observedBefore": {
+    "window": [
+      0,
+      0,
+      1032,
+      1376
+    ],
+    "webView": [
+      0,
+      96,
+      1032,
+      1255
+    ],
+    "nativeMenuSize": [
+      44,
+      44
+    ]
+  },
+  "observedAfter": {
+    "window": [
+      34,
+      269.1,
+      965,
+      723.8
+    ],
+    "webView": [
+      34,
+      336.5,
+      965,
+      638.9
+    ],
+    "nativeMenuSize": [
+      30.9,
+      30.9
+    ]
+  },
+  "systemHandle": {
+    "identifier": "resize-grabber",
+    "labelContains": "חוק הגנת הצרכן",
+    "value": "Bottom Right",
+    "frame": [
+      1012,
+      1356,
+      40,
+      40
+    ]
+  },
+  "evidenceSha256": {
+    "55EFF951-B52D-43AC-93C0-6ECC684B90FA.txt": "ce54f5f9752917293288e78f0820ed4b2a61173f1f04a6006b305e685e83826e",
+    "E04F799F-83B6-4B7B-83F1-1F34CCAED368.png": "42e81fefe1152638b9ed9bfe22e68431469a4532d86c996a2db00bfece9698c5",
+    "EFF4B00F-7820-45C8-AF6D-A351C3704410.txt": "e9016ebf97c9ec496586c1d7879cd960eeaf6a07675758bb71cd74dfb5271fb9"
+  },
+  "nextExperiment": "ae772d95cfc5bce90e1edf6dcab23983572b0720/run42769394256 adds explicit orientation metadata and actual-bundle/OS-resize tests; not yet PASS",
+  "interpretation": "The gesture changed window geometry. A failed >=15% width criterion alone must not be described as proof that no resize occurred. The measured control size reveals compatibility scaling; missing metadata is a causal hypothesis until the new test passes."
+}

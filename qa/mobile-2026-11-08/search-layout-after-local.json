@@ -1,0 +1,224 @@
+{
+  "schema": 1,
+  "sourceCommit": "f591bcdeb0ac0a14cd4a41d9e32f264935429588",
+  "sourceDirty": true,
+  "result": "PASS",
+  "environment": "Actual bundled Chromium DOM, network aborted, Playwright; not a physical phone",
+  "cases": [
+    {
+      "original": [
+        1032,
+        1255
+      ],
+      "changed": [
+        375,
+        697
+      ],
+      "scope": "all",
+      "mode": "normalized",
+      "before": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 657.65625,
+        "bottom": 820.34375,
+        "bodyTop": 223.609375,
+        "bodyBottom": 1255,
+        "scroll": 3633,
+        "offset": 434.046875,
+        "fullyVisible": true
+      },
+      "after": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 459.375,
+        "bottom": 696.3125,
+        "bodyTop": 156.640625,
+        "bodyBottom": 697,
+        "scroll": 6216,
+        "offset": 302.734375,
+        "fullyVisible": true
+      },
+      "repeat": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 459.375,
+        "bottom": 696.3125,
+        "bodyTop": 156.640625,
+        "bodyBottom": 697,
+        "scroll": 6216,
+        "offset": 302.734375,
+        "fullyVisible": true
+      },
+      "result": "PASS"
+    },
+    {
+      "original": [
+        375,
+        697
+      ],
+      "changed": [
+        1032,
+        1255
+      ],
+      "scope": "law",
+      "mode": "exact",
+      "before": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 308.453125,
+        "bottom": 545.390625,
+        "bodyTop": 156.640625,
+        "bodyBottom": 697,
+        "scroll": 2061,
+        "offset": 151.8125,
+        "fullyVisible": true
+      },
+      "after": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 375.03125,
+        "bottom": 537.71875,
+        "bodyTop": 223.609375,
+        "bodyBottom": 1255,
+        "scroll": 1408,
+        "offset": 151.421875,
+        "fullyVisible": true
+      },
+      "repeat": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 375.03125,
+        "bottom": 537.71875,
+        "bodyTop": 223.609375,
+        "bodyBottom": 1255,
+        "scroll": 1408,
+        "offset": 151.421875,
+        "fullyVisible": true
+      },
+      "result": "PASS"
+    },
+    {
+      "original": [
+        430,
+        932
+      ],
+      "changed": [
+        320,
+        740
+      ],
+      "scope": "law",
+      "mode": "normalized",
+      "before": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 452.359375,
+        "bottom": 664.546875,
+        "bodyTop": 184.84375,
+        "bodyBottom": 932,
+        "scroll": 1744,
+        "offset": 267.515625,
+        "fullyVisible": true
+      },
+      "after": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 445.265625,
+        "bottom": 706.953125,
+        "bodyTop": 177.8125,
+        "bodyBottom": 740,
+        "scroll": 2277,
+        "offset": 267.453125,
+        "fullyVisible": true
+      },
+      "repeat": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 445.265625,
+        "bottom": 706.953125,
+        "bodyTop": 177.8125,
+        "bodyBottom": 740,
+        "scroll": 2277,
+        "offset": 267.453125,
+        "fullyVisible": true
+      },
+      "result": "PASS"
+    },
+    {
+      "original": [
+        375,
+        697
+      ],
+      "changed": [
+        375,
+        697
+      ],
+      "scope": "all",
+      "mode": "normalized",
+      "before": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 308.375,
+        "bottom": 545.3125,
+        "bodyTop": 156.640625,
+        "bodyBottom": 697,
+        "scroll": 6367,
+        "offset": 151.734375,
+        "fullyVisible": true
+      },
+      "after": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 308.375,
+        "bottom": 545.3125,
+        "bodyTop": 156.640625,
+        "bodyBottom": 697,
+        "scroll": 6367,
+        "offset": 151.734375,
+        "fullyVisible": true
+      },
+      "repeat": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 308.375,
+        "bottom": 545.3125,
+        "bodyTop": 156.640625,
+        "bodyBottom": 697,
+        "scroll": 6367,
+        "offset": 151.734375,
+        "fullyVisible": true
+      },
+      "result": "PASS"
+    },
+    {
+      "original": [
+        1032,
+        1255
+      ],
+      "changed": [
+        1032,
+        650
+      ],
+      "scope": "all",
+      "mode": "normalized",
+      "before": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 657.65625,
+        "bottom": 820.34375,
+        "bodyTop": 223.609375,
+        "bodyBottom": 1255,
+        "scroll": 3633,
+        "offset": 434.046875,
+        "fullyVisible": true
+      },
+      "after": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 487.046875,
+        "bottom": 649.734375,
+        "bodyTop": 151,
+        "bodyBottom": 650,
+        "scroll": 3731,
+        "offset": 336.046875,
+        "fullyVisible": true
+      },
+      "repeat": {
+        "target": "סעיף 14 · עסקה ברוכלות",
+        "top": 487.046875,
+        "bottom": 649.734375,
+        "bodyTop": 151,
+        "bodyBottom": 650,
+        "scroll": 3731,
+        "offset": 336.046875,
+        "fullyVisible": true
+      },
+      "result": "PASS"
+    }
+  ]
+}

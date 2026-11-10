@@ -302,9 +302,9 @@ public final class ReaderInstrumentation extends Instrumentation {
         AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
         report.putString("printReadyControls",systemLabels(root,0));
         org.json.JSONArray nodes=new org.json.JSONArray();recordSystemTree(root,nodes,0);
-        try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-print-ready.json"))){out.write(nodes.toString(2).getBytes("UTF-8"));}
+        try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-print-ready.json"))){out.write(nodes.toString(2).getBytes("UTF-8"));}
         android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
-        if(shot!=null){try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-print-ready.png"))){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,out);}shot.recycle();}
+        if(shot!=null){try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-print-ready.png"))){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,out);}shot.recycle();}
     }
     private void saveAndVerifySystemPDF(Bundle report) throws Exception {
         shell("rm -f /sdcard/Download/consumer-law-qa.pdf");
@@ -343,8 +343,16 @@ public final class ReaderInstrumentation extends Instrumentation {
         }
         check(generated,"System print framework saved actual PDF bytes");
         ready();
-        java.io.File file=new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-native-document.pdf");
-        shell("cp /sdcard/Download/consumer-law-qa.pdf /sdcard/Android/data/il.org.lawreader.consumer/files/qa-native-document.pdf");
+        java.io.File file=new java.io.File(getTargetContext().getFilesDir(),"qa-native-document.pdf");
+        android.util.Log.i("ReaderPDFQA","Reading completed SAF document into private QA evidence; no external cp/setattr");
+        java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");
+        try(ParcelFileDescriptor descriptor=getUiAutomation().executeShellCommand("cat /sdcard/Download/consumer-law-qa.pdf");
+            java.io.InputStream input=new ParcelFileDescriptor.AutoCloseInputStream(descriptor);
+            java.io.FileOutputStream output=new java.io.FileOutputStream(file)){
+            byte[] buffer=new byte[16384];int count,total=0;
+            while((count=input.read(buffer))!=-1){total+=count;check(total<=32*1024*1024,"Bounded PDF evidence stream");output.write(buffer,0,count);digest.update(buffer,0,count);}
+        }
+        android.util.Log.i("ReaderPDFQA","Private PDF evidence complete bytes="+file.length());
         int pages;
         try(android.graphics.pdf.PdfRenderer pdf=new android.graphics.pdf.PdfRenderer(ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY))){
             pages=pdf.getPageCount();check(pages>0,"Native saved PDF has pages");
@@ -355,7 +363,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             int ink=0;for(int pixel:pixels)if((pixel>>>24)>200&&(pixel&0x00ffffff)<0x00dddddd)ink++;
             check(ink>20,"Saved PDF must render visible ink, not an empty page");
         }
-        String checksum=shell("sha256sum /sdcard/Android/data/il.org.lawreader.consumer/files/qa-native-document.pdf").split(" ")[0];
+        StringBuilder checksum=new StringBuilder();for(byte b:digest.digest())checksum.append(String.format("%02x",b&255));
         report.putString("PDF","PASS: actual system Print -> Save as PDF -> SAF file; pages="+pages+" bytes="+file.length()+" sha256="+checksum);
     }
     private void testNativePrintPresentation(Bundle report) throws Exception {
@@ -392,6 +400,54 @@ public final class ReaderInstrumentation extends Instrumentation {
         awaitJS("document.documentElement.scrollWidth<=innerWidth+1","Whole reading page fits after restoring font");
         final boolean[] overflow={false};runOnMainSync(()->overflow[0]=web.canScrollHorizontally(-1)||web.canScrollHorizontally(1));
         check(!overflow[0],"Actual native WebView cannot pan the whole reading page horizontally");
+    }
+    private void testRealRendererRecovery(Bundle report) throws Exception {
+        check(android.os.Build.VERSION.SDK_INT>=29,"Public renderer termination requires API29+");
+        ready();
+        js("localStorage.setItem('law-reader-font','24');document.documentElement.style.setProperty('--reading-size','24px');lawMobile.showSearch();const input=document.getElementById('mobile-search');input.value='14';input.dispatchEvent(new Event('input'))");
+        awaitJS("Array.from(document.querySelectorAll('.m-result strong')).some(e=>e.textContent.startsWith('סעיף 14 ·'))","Actual search result before renderer termination");
+        js("Array.from(document.querySelectorAll('.m-result')).find(e=>e.querySelector('strong').textContent.startsWith('סעיף 14 ·')).click()");
+        awaitJS("lawMobile.currentArticle()?.id==='article_14'","Actual selected section before renderer termination");
+        js("lawMobile.saveSession('article_14')");
+        Activity previous=activity;WebView previousWeb=web;
+        CountDownLatch resumed=new CountDownLatch(1);final Activity[] replacement={null};
+        android.app.Application application=(android.app.Application)getTargetContext().getApplicationContext();
+        android.app.Application.ActivityLifecycleCallbacks observer=new android.app.Application.ActivityLifecycleCallbacks(){
+            public void onActivityCreated(Activity a,Bundle b){}
+            public void onActivityStarted(Activity a){}
+            public void onActivityResumed(Activity a){if(a!=previous&&a.getClass().getName().equals("il.org.lawreader.consumer.MainActivity")){replacement[0]=a;resumed.countDown();}}
+            public void onActivityPaused(Activity a){}
+            public void onActivityStopped(Activity a){}
+            public void onActivitySaveInstanceState(Activity a,Bundle b){}
+            public void onActivityDestroyed(Activity a){}
+        };
+        runOnMainSync(()->application.registerActivityLifecycleCallbacks(observer));
+        try{
+            final boolean[] terminated={false};
+            runOnMainSync(()->{android.webkit.WebViewRenderProcess process=web.getWebViewRenderProcess();terminated[0]=process!=null&&process.terminate();});
+            check(terminated[0],"Actual isolated WebView renderer accepted public terminate()");
+            clickSystemText("פתיחה מחדש");
+            check(resumed.await(60,TimeUnit.SECONDS),"Native recovery must recreate and resume an actual Activity");
+            activity=replacement[0];runOnMainSync(()->web=find(activity.findViewById(android.R.id.content)));
+            check(web!=null&&web!=previousWeb,"Recovery replaces the unusable WebView");
+            ready();
+            check("\"24\"".equals(js("localStorage.getItem('law-reader-font')")),"Renderer termination preserves preferences");
+            // Session restoration reconstructs the logical section without
+            // inserting native WebView history entries. Verify the displayed
+            // section and stored anchor, rather than requiring a URL hash.
+            awaitJS("lawMobile.currentArticle()?.id==='article_14'","Renderer recovery displays the saved exact section");
+            String state=js("({hash:location.hash,current:lawMobile.currentArticle()?.id,font:localStorage.getItem('law-reader-font'),session:JSON.parse(localStorage.getItem('law-reader-session-v1')||'null')})");
+            report.putString("rendererState",state);
+            try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-renderer-state.json"))){output.write(state.getBytes("UTF-8"));}
+            android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
+            if(shot!=null){try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-renderer-state.png"))){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,output);}shot.recycle();}
+            check("article_14".equals(new JSONObject(state).getJSONObject("session").getString("target")),"Renderer recovery keeps the logical stored section");
+            check("14".equals(new JSONObject(state).getJSONObject("session").getJSONObject("search").getString("query")),"Renderer recovery preserves the actual search query");
+            js("document.getElementById('mobile-return').click()");
+            awaitJS("document.getElementById('mobile-search')?.value==='14' && document.querySelectorAll('.m-result').length>0","Recovered search is usable in the actual offline DOM");
+            check("true".equals(js("lawMobile.buildSearch().length>500")),"Recovered real renderer searches the offline law");
+            report.putString("rendererRecovery","PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved");
+        }finally{runOnMainSync(()->application.unregisterActivityLifecycleCallbacks(observer));}
     }
     @Override public void onStart() {
         Bundle report=new Bundle();
@@ -499,7 +555,9 @@ public final class ReaderInstrumentation extends Instrumentation {
             android.os.Debug.getMemoryInfo(finalMemory);
             report.putInt("mainProcessPssKBAfterStress",finalMemory.getTotalPss());
             report.putLong("mainProcessCpuMilliseconds",android.os.Process.getElapsedCpuTime()-cpuStart);
-            report.putString("QA_STATUS","PASS");report.putString("coverage","real WebView, offline content, Hebrew offsets, search->result, restore, rotation, reload, URL/frame isolation, stress");
+            if(android.os.Build.VERSION.SDK_INT>=29){report.putString("stage","actual renderer termination and recovery");testRealRendererRecovery(report);}
+            else report.putString("rendererRecovery","NOT TESTED: public renderer termination requires API29+; API26 ordinary lifecycle tests run above");
+            report.putString("QA_STATUS","PASS");report.putString("coverage","real WebView, offline content, Hebrew offsets, search->result, restore, rotation, reload, URL/frame isolation, stress; actual renderer recovery on API29+");
             finish(Activity.RESULT_OK,report);
         }catch(Throwable error){
             report.putString("QA_STATUS","FAIL");report.putString("error",error.toString());
@@ -508,11 +566,11 @@ public final class ReaderInstrumentation extends Instrumentation {
                 String pkg=root==null?"":String.valueOf(root.getPackageName());
                 if(pkg.endsWith(".documentsui")||pkg.equals("com.android.printspooler")){
                     org.json.JSONArray nodes=new org.json.JSONArray();recordSystemTree(root,nodes,0);
-                    try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-system-ui.json"))){output.write(nodes.toString(2).getBytes("UTF-8"));}
+                    try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-system-ui.json"))){output.write(nodes.toString(2).getBytes("UTF-8"));}
                 }
                 android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
                 if(shot!=null){
-                    java.io.File file=new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-failure.png");
+                    java.io.File file=new java.io.File(getTargetContext().getFilesDir(),"qa-failure.png");
                     try(java.io.FileOutputStream output=new java.io.FileOutputStream(file)){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,output);}
                     shot.recycle();report.putString("failureScreenshot",file.toString());
                 }

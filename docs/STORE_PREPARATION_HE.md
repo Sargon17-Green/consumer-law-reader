@@ -10,13 +10,13 @@
 | Android | `il.org.lawreader.consumer`; versionName `1.3.9-dev`, code 17; min 26, target 36 |
 | iOS | `io.github.sargon17green.consumerlawreader`; marketing 1.3.9, build 17; min iOS 16; משפחות 1,2 |
 | תמיכה | https://github.com/Sargon17-Green/consumer-law-reader/issues |
-| מדיניות פרטיות | `web/privacy.json`, מוצגת באפליקציה; הדף הציבורי המיועד `/reader/privacy.html` חייב להיות נגיש לפני הגשה |
+| מדיניות פרטיות | `web/privacy.json`, מוצגת באפליקציה; [הדף הציבורי](https://sargon17-green.github.io/consumer-law-reader/reader/privacy.html) נגיש ואומת ב־HTTP/SHA256 כחלק75בדיקות תיקון2 |
 | תיאור קצר מוצע | קריאה בעברית, חיפוש וניווט בחוק ובחקיקת המשנה, עם גיבוי הגדרות מקומי |
 | תיאור תפקודי | נוסח ארוז לקריאה ללא רשת, חיפוש עברי מדויק ומנורמל, ניווט לפי סעיף ונושא, קישורים אישיים, העתקה, שיתוף, הדפסה ואפשרויות נגישות. רכיב התאריך משתמש במקורות JSON ציבוריים. |
 
 השם הקצר בחנות הוא שדה מטא־דאטה מוגבל; השם המלא נשמר בשם האפליקציה ובממשק. לפני פרסום ציבורי מחליפים גרסת `-dev` רק במסגרת החלטת מהדורה, עם מספר build חדש ובדיקות על אותו commit.
 
-מקורות רשמיים שנבדקו ב־8.11.2026:
+מקורות רשמיים שנבדקו שוב ב־10.11.2026:
 
 - [Google Play — דרישות target API](https://support.google.com/googleplay/android-developer/answer/11926878): מאז 31.8.2026 אפליקציות חדשות ועדכונים לטלפון מחייבים API 36; המקור כבר מכוון ל־36.
 - [Apple — דרישות הגשה](https://developer.apple.com/news/upcoming-requirements/): מאז 28.4.2026 נדרש Xcode 26 / iOS 26 SDK להגשות; CI בוחר במפורש Xcode 26.3.
@@ -34,3 +34,5 @@
 אפליקציות חדשות ב־Google Play מחויבות ב־[Android App Bundle מאז אוגוסט 2021](https://developer.android.com/guide/app-bundle). נוסף מסלול בנייה של AAB לא חתום, באמצעות bundletool הרשמי בגרסה 1.18.3 ובדיקת SHA-256 מקובעת. המסלול מאמת את המזהה, הגרסה וגרסאות המערכת; משווה את כל קובצי הקוד והתוכן לחבילת ה־APK; ומפיק APK בדיקה מה־AAB עם מפתח QA זמני. ב־CI של API 36 מותקנת החבילה שנוצרה מה־AAB, כדי לבדוק גם את האריזה בפועל. התוצאות הסופיות נמצאות בדוח הבדיקות ובארטיפקטים, ואין להסיק הצלחה מעצם הגדרת התהליך.
 
 לשחזור בסביבת Linux/CI: לאחר התקנת `requirements-qa.txt` והרצת `scripts/fetch_tools.py`, מריצים `python scripts/build_android.py --debug` ואחריו `python scripts/build_android_bundle.py`. שם מועמד ה־AAB מסתיים ב־`UNSIGNED_NOT_FOR_UPLOAD.aab`. הוא אינו מוכן להעלאה ללא זהות חתימה ורישום מורשים. מפתח ה־QA אינו מאפשר שדרוג של הגרסה הציבורית, ואין להשתמש בו כדי להחליף את המפתח ההיסטורי. מסלול iOS מכין ארכיון מכשיר לא חתום ובניית סימולטור; חתימה, פרופיל, הרשאות App Store Connect והעלאה לא בוצעו ללא חשבון מורשה.
+
+Apple מציין מאז9.9.2026 גם minimum deployment target iOS13 בהגשות חדשות (https://developer.apple.com/news/upcoming-requirements/?id=0992026a); הפרויקט מכוון ל־iOS16 ולכן אינו דורש שינוי כדי לעמוד בתנאי המסוים הזה. זו בדיקת הגדרת build בלבד ולא אישור חנות.
