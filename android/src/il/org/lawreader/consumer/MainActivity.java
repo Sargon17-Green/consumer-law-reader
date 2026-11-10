@@ -46,6 +46,7 @@ public final class MainActivity extends Activity {
     private static final String HOST = "law.local";
     private static final String HOME = "https://" + HOST + "/index.html";
     private WebView web;
+    private WebViewStateCache webStateCache;
     private boolean ready;
     private android.window.OnBackInvokedCallback systemBack;
     private boolean pendingExport;
@@ -107,6 +108,7 @@ public final class MainActivity extends Activity {
             });
         }
         web = new WebView(this);
+        webStateCache = new WebViewStateCache(this);
         web.setBackgroundColor(Color.WHITE);
         web.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
         WebSettings settings = web.getSettings();
@@ -183,7 +185,11 @@ public final class MainActivity extends Activity {
         root.addView(web,new FrameLayout.LayoutParams(-1,-1));
         setContentView(root);
         if(Build.VERSION.SDK_INT>=33){systemBack=()->handleBack();getOnBackInvokedDispatcher().registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,systemBack);}
-        if (savedInstanceState == null || web.restoreState(savedInstanceState)==null) web.loadUrl(HOME);
+        Bundle history=savedInstanceState;
+        if(savedInstanceState!=null&&savedInstanceState.containsKey(WebViewStateCache.KEY))history=webStateCache.read(savedInstanceState.getString(WebViewStateCache.KEY));
+        boolean restored=false;
+        if(history!=null)try{restored=web.restoreState(history)!=null;}catch(RuntimeException invalid){ /* Fall back to the durable logical session. */ }
+        if(!restored)web.loadUrl(HOME);
     }
 
     private void showLoadError() {
@@ -389,7 +395,12 @@ public final class MainActivity extends Activity {
             }
         });
     }
-    @Override protected void onSaveInstanceState(Bundle state) { if(web!=null)web.saveState(state);state.putBoolean("pendingExport",pendingExport);if(settingsPickerLocation!=null)state.putString("settingsPickerLocation",settingsPickerLocation.toString());super.onSaveInstanceState(state); }
+    @Override protected void onSaveInstanceState(Bundle state) {
+        if(web!=null){Bundle history=new Bundle();if(web.saveState(history)!=null){String reference=webStateCache.write(history);if(reference!=null)state.putString(WebViewStateCache.KEY,reference);}}
+        state.putBoolean("pendingExport",pendingExport);
+        if(settingsPickerLocation!=null)state.putString("settingsPickerLocation",settingsPickerLocation.toString());
+        super.onSaveInstanceState(state);
+    }
     @Override protected void onPause() { if(web!=null){web.evaluateJavascript("window.lawMobile?.saveSession()",null);web.onPause();}super.onPause(); }
     @Override protected void onResume() { super.onResume();if(web!=null)web.onResume(); }
     @Override protected void onDestroy() { if(Build.VERSION.SDK_INT>=33&&systemBack!=null)getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(systemBack);if(web!=null){web.removeJavascriptInterface("NativeLaw");web.destroy();}super.onDestroy(); }

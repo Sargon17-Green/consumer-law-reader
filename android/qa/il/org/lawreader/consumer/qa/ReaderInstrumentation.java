@@ -401,12 +401,50 @@ public final class ReaderInstrumentation extends Instrumentation {
         final boolean[] overflow={false};runOnMainSync(()->overflow[0]=web.canScrollHorizontally(-1)||web.canScrollHorizontally(1));
         check(!overflow[0],"Actual native WebView cannot pan the whole reading page horizontally");
     }
+    private void testLargeNativeState(Bundle report) throws Exception {
+        ready();
+        // Real Chromium entries with deterministic, varied state bytes.
+        js("(()=>{let seed=12345;const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';for(let i=0;i<60;i++){let payload='';for(let n=0;n<32000;n++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;payload+=alphabet[(seed>>>24)&63];}history.pushState({lawTarget:'article_'+(i%9+1),qaPayload:payload},'','#article_'+(i%9+1));}lawMobile.goTo('article_14');lawMobile.saveSession('article_14');return true})()");
+        final Bundle raw=new Bundle(),saved=new Bundle();final int[] count={0},index={0};
+        runOnMainSync(()->{web.saveState(raw);android.webkit.WebBackForwardList list=web.copyBackForwardList();count[0]=list.getSize();index[0]=list.getCurrentIndex();callActivityOnSaveInstanceState(activity,saved);});
+        android.os.Parcel parcel=android.os.Parcel.obtain();
+        try{raw.writeToParcel(parcel,0);report.putInt("rawWebStateBytes",parcel.dataSize());check(parcel.dataSize()>1000000,"Real Chromium state reproduces an oversized Binder payload");parcel.setDataSize(0);parcel.setDataPosition(0);saved.writeToParcel(parcel,0);report.putInt("boundedActivityStateBytes",parcel.dataSize());check(parcel.dataSize()<50000,"System Activity state must stay below50KB");}
+        finally{parcel.recycle();}
+        String reference=saved.getString("lawWebStateToken");check(reference!=null,"Private reference replaces the opaque oversized bundle");
+        Activity previous=activity;WebView oldWeb=web;CountDownLatch resumed=new CountDownLatch(1);final Activity[] next={null};
+        android.app.Application app=(android.app.Application)getTargetContext().getApplicationContext();
+        android.app.Application.ActivityLifecycleCallbacks observer=new android.app.Application.ActivityLifecycleCallbacks(){
+            public void onActivityCreated(Activity a,Bundle b){}
+            public void onActivityStarted(Activity a){}
+            public void onActivityResumed(Activity a){if(a!=previous&&a.getClass().getName().equals("il.org.lawreader.consumer.MainActivity")){next[0]=a;resumed.countDown();}}
+            public void onActivityPaused(Activity a){}
+            public void onActivityStopped(Activity a){}
+            public void onActivitySaveInstanceState(Activity a,Bundle b){}
+            public void onActivityDestroyed(Activity a){}
+        };
+        runOnMainSync(()->{app.registerActivityLifecycleCallbacks(observer);activity.recreate();});
+        try{
+            check(resumed.await(60,TimeUnit.SECONDS),"Real Activity recreation after oversized WebView state");activity=next[0];runOnMainSync(()->web=find(activity.findViewById(android.R.id.content)));check(web!=null&&web!=oldWeb,"Actual recreated WebView");ready();
+            final boolean[] same={false};runOnMainSync(()->{android.webkit.WebBackForwardList list=web.copyBackForwardList();same[0]=list.getSize()==count[0]&&list.getCurrentIndex()==index[0];});check(same[0],"Full Chromium history and index survive the private cache round-trip");
+            awaitJS("lawMobile.currentArticle()?.id==='article_14'","Displayed section after actual recreation");
+            runOnMainSync(()->web.goBack());awaitJS("location.hash==='#article_6'","Native Back traverses restored actual Chromium history");
+            runOnMainSync(()->web.goForward());awaitJS("location.hash==='#article_14'","Native Forward after state restoration");
+            Class<?> type=Class.forName("il.org.lawreader.consumer.WebViewStateCache");java.lang.reflect.Constructor<?> ctor=type.getDeclaredConstructor(android.content.Context.class);ctor.setAccessible(true);Object cache=ctor.newInstance(getTargetContext());
+            java.lang.reflect.Method read=type.getDeclaredMethod("read",String.class);read.setAccessible(true);
+            check(read.invoke(cache,"../outside")==null,"Cache rejects path traversal");
+            String invalid=java.util.UUID.randomUUID().toString()+reference.substring(36);
+            check(read.invoke(cache,invalid)==null,"Missing transient cache is rejected safely");
+            java.io.File directory=new java.io.File(getTargetContext().getCacheDir(),"reader-web-state"),corrupt=new java.io.File(directory,invalid.substring(0,36)+".bin");
+            try{try(java.io.FileOutputStream output=new java.io.FileOutputStream(corrupt)){output.write(new byte[]{0,1,2,3,4});}check(read.invoke(cache,invalid)==null,"Corrupt cache cannot restore an invalid state");}finally{corrupt.delete();}
+            report.putString("largeNativeState","PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing cache rejected");
+        }finally{runOnMainSync(()->app.unregisterActivityLifecycleCallbacks(observer));}
+    }
     private void testRealRendererRecovery(Bundle report) throws Exception {
         check(android.os.Build.VERSION.SDK_INT>=29,"Public renderer termination requires API29+");
         ready();
         js("localStorage.setItem('law-reader-font','24');document.documentElement.style.setProperty('--reading-size','24px');lawMobile.showSearch();const input=document.getElementById('mobile-search');input.value='14';input.dispatchEvent(new Event('input'))");
         awaitJS("Array.from(document.querySelectorAll('.m-result strong')).some(e=>e.textContent.startsWith('סעיף 14 ·'))","Actual search result before renderer termination");
-        js("Array.from(document.querySelectorAll('.m-result')).find(e=>e.querySelector('strong').textContent.startsWith('סעיף 14 ·')).click()");
+        js("(()=>{const b=Array.from(document.querySelectorAll('.m-result')).find(e=>e.querySelector('strong').textContent.startsWith('סעיף 14 ·'));b.scrollIntoView({block:'center'});b.click()})()");
         awaitJS("lawMobile.currentArticle()?.id==='article_14'","Actual selected section before renderer termination");
         js("lawMobile.saveSession('article_14')");
         Activity previous=activity;WebView previousWeb=web;
@@ -555,6 +593,7 @@ public final class ReaderInstrumentation extends Instrumentation {
             android.os.Debug.getMemoryInfo(finalMemory);
             report.putInt("mainProcessPssKBAfterStress",finalMemory.getTotalPss());
             report.putLong("mainProcessCpuMilliseconds",android.os.Process.getElapsedCpuTime()-cpuStart);
+            report.putString("stage","large native state and actual Activity recreation");testLargeNativeState(report);
             if(android.os.Build.VERSION.SDK_INT>=29){report.putString("stage","actual renderer termination and recovery");testRealRendererRecovery(report);}
             else report.putString("rendererRecovery","NOT TESTED: public renderer termination requires API29+; API26 ordinary lifecycle tests run above");
             report.putString("QA_STATUS","PASS");report.putString("coverage","real WebView, offline content, Hebrew offsets, search->result, restore, rotation, reload, URL/frame isolation, stress; actual renderer recovery on API29+");
