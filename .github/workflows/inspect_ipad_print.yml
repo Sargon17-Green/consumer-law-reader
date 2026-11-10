@@ -16,9 +16,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq; sudo apt-get install -y --no-install-recommends ffmpeg; fi
           gh api repos/Sargon17-Green/consumer-law-reader/actions/artifacts/13787730646/zip > artifact.zip
           python3 - <<'PY'
-          import base64,hashlib,json,pathlib,plistlib,re,zipfile
+          import base64,hashlib,json,pathlib,plistlib,re,subprocess,zipfile
           raw=open('artifact.zip','rb').read()
           assert len(raw)==309820516
           assert hashlib.sha256(raw).hexdigest()=='601d76546ccab03ccf7eb593cbf6b61935aeeea17eea1ce6bce85d9d2f0f5dc5'
@@ -46,9 +47,25 @@ jobs:
                           events=[o for o in objects if isinstance(o,dict) and 'coordinate.x' in o]
                           coords=[{'x':val(o['coordinate.x']),'y':val(o['coordinate.y']),'type':val(o.get('eventType'))} for o in events]
                           print('ACTUAL_IPAD_EVENT: '+json.dumps({'name':name,'coordinates':coords}))
-              assert screenshots,'No failure-time screenshot'
-              _,chosen=max(screenshots,key=lambda v:v[0])
-              image=z.read(directory+chosen['exportedFileName'])
+              print('ACTUAL_IPAD_ATTACHMENTS: '+json.dumps([{'name':a.get('suggestedHumanReadableName',''),'file':a['exportedFileName']} for a in rows[0]['attachments']]))
+              if screenshots:
+                  _,chosen=max(screenshots,key=lambda v:v[0])
+                  image=z.read(directory+chosen['exportedFileName'])
+              else:
+                  videos=[directory+a['exportedFileName'] for a in rows[0]['attachments'] if a['exportedFileName'].endswith('.mp4')]
+                  if not videos: videos=[n for n in z.namelist() if n.startswith(directory) and n.endswith('.mp4')]
+                  assert videos,'No actual simulator recording'
+                  durations=[]
+                  for index,name in enumerate(videos):
+                      info=z.getinfo(name);assert info.file_size<400000000
+                      path=pathlib.Path('recording-'+str(index)+'.mp4');path.write_bytes(z.read(info))
+                      duration=float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',str(path)],text=True))
+                      durations.append((abs(duration-183.832),duration,name,path))
+                  _,duration,name,path=min(durations,key=lambda v:v[0])
+                  sample=min(duration-1,180)
+                  subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-ss',str(sample),'-i',str(path),'-frames:v','1','-q:v','2','actual-print-frame.jpg'],check=True,timeout=40)
+                  image=pathlib.Path('actual-print-frame.jpg').read_bytes()
+                  chosen={'exportedFileName':name,'frameSeconds':sample,'recordingSeconds':duration,'scope':'Unresized frame extracted from the actual simulator recording, not a new device screenshot'}
               assert len(image)<8000000
               mime='image/png' if image.startswith(b'\x89PNG') else 'image/jpeg'
               print('ACTUAL_IPAD_IMAGE_META: '+json.dumps({'mime':mime,'name':chosen,'bytes':len(image),'sha256':hashlib.sha256(image).hexdigest()}))
