@@ -404,7 +404,7 @@ public final class ReaderInstrumentation extends Instrumentation {
     private void testRealRendererRecovery(Bundle report) throws Exception {
         check(android.os.Build.VERSION.SDK_INT>=29,"Public renderer termination requires API29+");
         ready();
-        js("localStorage.setItem('law-reader-font','24');lawMobile.goTo('article_14',false,false);lawMobile.saveSession('article_14')");
+        js("localStorage.setItem('law-reader-font','24');document.documentElement.style.setProperty('--reading-size','24px');lawMobile.goTo('article_14');lawMobile.saveSession('article_14')");
         Activity previous=activity;WebView previousWeb=web;
         CountDownLatch resumed=new CountDownLatch(1);final Activity[] replacement={null};
         android.app.Application application=(android.app.Application)getTargetContext().getApplicationContext();
@@ -428,7 +428,16 @@ public final class ReaderInstrumentation extends Instrumentation {
             check(web!=null&&web!=previousWeb,"Recovery replaces the unusable WebView");
             ready();
             check("\"24\"".equals(js("localStorage.getItem('law-reader-font')")),"Renderer termination preserves preferences");
-            check("\"#article_14\"".equals(js("location.hash")),"Renderer termination preserves the saved exact section");
+            // Session restoration reconstructs the logical section without
+            // inserting native WebView history entries. Verify the displayed
+            // section and stored anchor, rather than requiring a URL hash.
+            awaitJS("lawMobile.currentArticle()?.id==='article_14'","Renderer recovery displays the saved exact section");
+            String state=js("({hash:location.hash,current:lawMobile.currentArticle()?.id,font:localStorage.getItem('law-reader-font'),session:JSON.parse(localStorage.getItem('law-reader-session-v1')||'null')})");
+            report.putString("rendererState",state);
+            try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-renderer-state.json"))){output.write(state.getBytes("UTF-8"));}
+            android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
+            if(shot!=null){try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-renderer-state.png"))){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,output);}shot.recycle();}
+            check("article_14".equals(new JSONObject(state).getJSONObject("session").getString("target")),"Renderer recovery keeps the logical stored section");
             check("true".equals(js("lawMobile.buildSearch().length>500")),"Recovered real renderer searches the offline law");
             report.putString("rendererRecovery","PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved");
         }finally{runOnMainSync(()->application.unregisterActivityLifecycleCallbacks(observer));}

@@ -2,9 +2,16 @@
 set -euo pipefail
 mkdir -p evidence
 collect() {
+  status=$?
+  trap - EXIT
   adb logcat -d -v threadtime > evidence/android-renderer-logcat.txt 2>&1 || true
-  adb exec-out run-as il.org.lawreader.consumer cat files/qa-failure.png > evidence/android-renderer-failure.png 2>/dev/null || true
+  if [[ "$status" == 0 ]]; then
+    python3 scripts/collect_android_private_evidence.py --require-renderer-state || status=1
+  else
+    python3 scripts/collect_android_private_evidence.py || true
+  fi
   adb shell dumpsys webviewupdate > evidence/android-renderer-provider.txt 2>&1 || true
+  exit "$status"
 }
 trap collect EXIT
 adb install build/android-qa/reader-qa.apk
