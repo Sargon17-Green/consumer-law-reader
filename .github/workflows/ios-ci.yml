@@ -3,23 +3,42 @@ name: Build native iOS app (unsigned simulator)
 on:
   push:
     branches: [main]
+    # Keep this dependency list equal to pull_request. Android-only tools do not build iOS.
     paths:
       - '.github/workflows/ios-ci.yml'
       - 'ios/**'
       - 'original/**'
       - 'web/**'
-      - 'scripts/**'
+      - 'scripts/build_web.py'
+      - 'scripts/bundled_assets.py'
+      - 'scripts/prepare_typed_sources.py'
+      - 'scripts/canonical_vendor/**'
+      - 'scripts/verify_release.py'
       - 'typed-sources/**'
       - 'metadata/**'
       - 'VERSION'
       - 'requirements-qa.txt'
-      - 'tests/**'
+      - 'tests/fixtures/**'
+      - 'tests/test_ios_source.py'
+      - 'tests/test_web_pages.py'
   pull_request:
     paths:
       - '.github/workflows/ios-ci.yml'
       - 'ios/**'
+      - 'original/**'
       - 'web/**'
-      - 'scripts/**'
+      - 'scripts/build_web.py'
+      - 'scripts/bundled_assets.py'
+      - 'scripts/prepare_typed_sources.py'
+      - 'scripts/canonical_vendor/**'
+      - 'scripts/verify_release.py'
+      - 'typed-sources/**'
+      - 'metadata/**'
+      - 'VERSION'
+      - 'requirements-qa.txt'
+      - 'tests/fixtures/**'
+      - 'tests/test_ios_source.py'
+      - 'tests/test_web_pages.py'
   workflow_dispatch:
 
 concurrency:

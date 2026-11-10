@@ -21,16 +21,18 @@
 
 ## הצעד הבא
 
-א. תיקוני Web NAV-006/PWA-001/CI-003 כבר פורסמו. לעדכן מעקב ולקבל iOS706 (26.2שניjobs עברו;16/18.5 פעילים בעת כתיבה). אין להמתין ל־Native להפצות Web הבאות. תיקון cache נבדק מול מחיקת CSS והוספת נכס זר ללא שינוי ספירה. fixture משותף בודק כל66 התקנות ×4גדלי גופן, כולל מיקום יעדים מתחת לחזרה. לדרוש CI completed ו־HTTP כולל owner marker לפני פרסום. legacy verifier אינו deployment ואין לשנות environment protection.
+א. תיקוני Web NAV-006/PWA-001/CI-003 כבר פורסמו. לעדכן מעקב ולקבל iOS706 כל4jobs עברו; עם זאת, בדיקת windowing החדשה מצאה scaling/כפתורי30.9pt ולכן NATIVE-003 נשאר פתוח. אין להמתין ל־Native להפצות Web הבאות. תיקון cache נבדק מול מחיקת CSS והוספת נכס זר ללא שינוי ספירה. fixture משותף בודק כל66 התקנות ×4גדלי גופן, כולל מיקום יעדים מתחת לחזרה. לדרוש CI completed ו־HTTP כולל owner marker לפני פרסום. legacy verifier אינו deployment ואין לשנות environment protection.
 
-ב. full API26/31/36 עם המתנת preview כבר עבר706. לעקוב אחר אבחון fresh portrait עם ראיות פרטיות: work/android-pdf-private-evidence-20261110/38ebb344a39326079b967a15895d83b25c9f1a91. הלוג הוכיח vold SIGINT לאחר קריסת FUSE; אין שינוי lifecycle במוצר. להשאיר אישור Intent ב־UID אחר, SAF/PdfRenderer והחזרה ל־reader. לא למחוק בדיקה כושלת או לסמן run חלקי כ־PASS. Android26 filename-depth17 נפתר כבר ב־4ee באמצעות pointer מדוד; אין ליישמו שוב.
+ב. full API26/31/36 עם המתנת preview כבר עבר706. לעקוב אחר אבחון fresh portrait עם ראיות פרטיות: work/android-pdf-private-evidence-20261110/38ebb344a39326079b967a15895d83b25c9f1a91. הלוג הוכיח vold SIGINT לאחר קריסת FUSE; אין שינוי lifecycle במוצר. הניסוי38ebb34/run42767425997 עבר fresh portrait וגם landscape עם146עמודים; הועבר רק נתיב הראיות הפרטי לבדיקה הכללית, ללא דגלי printOnly, ונדרשת רגרסיה מלאה של הקוד המשולב. להשאיר אישור Intent ב־UID אחר, SAF/PdfRenderer והחזרה ל־reader. לא למחוק בדיקה כושלת או לסמן run חלקי כ־PASS. Android26 filename-depth17 נפתר כבר ב־4ee באמצעות pointer מדוד; אין ליישמו שוב.
 
 ג. לעקוב אחר iPad resize: work/ipad-window-resize-20261110/f61be841a144019d8b5258b225f4006151f77219. f35/run42765418790 נכשל במחוות touch למרות מצב Windowed Apps פעיל; הניסוי החדש משתמש במצביע על הידית שנצפתה. אין להכניס workflow אבחון למוצר או להציג כשל אוטומציה כהוכחת באג מוצר.
 
-ד. לעדכן קטלוג60 הדרישות, מצב/ראיות/פרסום והעברה לאחר כל מחזור. להמשיך iPad window/low memory לפי BACKLOG. אין למזג כשל מהותי; pending אינו חסם. אין צורך בחבילת Windows.
+ד. לעדכן קטלוג61 הדרישות, מצב/ראיות/פרסום והעברה לאחר כל מחזור. להמשיך iPad window/low memory לפי BACKLOG. אין למזג כשל מהותי; pending אינו חסם. אין צורך בחבילת Windows.
 
 ## גבולות קשיחים
 
 מקור החוק SHA256de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9; תאריך האימות2026-10-28; אין שינוי משפטי. לשמור RTL/שם מלא/נושאים/מקורות/היסטוריה/נגישות/תאריך/הדפסה/Word/שיתוף. אין ענן/חשבונות/Analytics/פרסומות. אין force-push, מפתח חתימה חלופי, החלפת APK ציבורי ב־Debug, או טענות פיזיות/חנות ללא הוכחה. אין לערבב sourceCommit של PR merge-ref עם head; משווים tree ומדווחים במפורש.
 
 כל תיקון רגיל, בדיקה, build, אבחון, PR ופרסום שעבר את שעריו מותרים אוטונומית. מפתח פרטי/חשבון/תשלום/תנאים/מכשיר שאינו נגיש הם פעולות חיצוניות; הפרטים מרוכזים ב־EXTERNAL_ACTIONS. queued/in_progress אינם חסם או PASS. אין לחזור על ניסיון זהה ללא השערה חדשה. שיפורים ובדיקות משמעותיים נשמרים ב־GitHub בכל מחזור.
+
+ניסוי תיקון כיווני iPad: work/ipad-window-resize-20261110/ae772d95cfc5bce90e1edf6dcab23983572b0720. נוספו הגדרות orientations בלבד + בדיקת plist בנוי. f61 שינה חלון אך scale את UI, לכן הכשל הוא מוצר/metadata ולא רק מחווה. יש לעקוב, לתקן ולהעביר full iOS regression לפני מיזוגו; אין לסמן את NATIVE-003 כמאומת על בסיס בדיקות full-screen הישנות. ראיה של4jobs706 ב־qa/mobile-2026-11-08/acceptance-706a3bc-ios.json.

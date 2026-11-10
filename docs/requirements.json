@@ -1670,7 +1670,9 @@
         "ios/ConsumerLawReaderUITests/ReaderUITests.swift"
       ],
       "evidence": [],
-      "dependencies": [],
+      "dependencies": [
+        "f61/run42767188687 proved OS window changed but UI scaled44→30.9pt; actual app plist missing orientation declarations. ae772d9 orientation metadata fix and actual bundle/UI checks pending."
+      ],
       "published": {
         "iOS": null
       }
@@ -1806,10 +1808,17 @@
           "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
           "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "38ebb344a39326079b967a15895d83b25c9f1a91",
+          "run": 42767425997,
+          "result": "PASS: fresh portrait and landscape, actual146-page PDFs with private QA evidence",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42767425997",
+          "scope": "API36 emulator, no native production print/lifecycle change; MediaProvider cause not claimed fixed"
         }
       ],
       "dependencies": [
-        "Fresh portrait diagnostic42726433709 failed after system MediaProvider/FUSE reset and vold SIGINT. Long online/offline146-page PDF cases passed42764913617; isolated private-evidence follow-up38ebb34 pending. No physical printer."
+        "Actual full Android26/31/36 long usage passed706; isolated private-evidence portrait/landscape passed38ebb34. Integrated QA route awaits final full regression; no physical printer."
       ],
       "published": {
         "Android": null,
@@ -2916,7 +2925,7 @@
       ],
       "status": {
         "Android": "אומת",
-        "iOS": "מומש",
+        "iOS": "אומת",
         "Web": "פורסם"
       },
       "implementation": [
@@ -2933,10 +2942,17 @@
           "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
           "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913616,
+          "result": "PASS: all four existing iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913616",
+          "scope": "Actual WKWebView navigation-target fixture; full-screen layout/rotation, not OS window resize"
         }
       ],
       "dependencies": [
-        "Web פורסם ו־Android אומת על706; iOS26.2 עבר,16/18.5 עדיין ממתינים; אין שינוי במקור המשפטי"
+        "Web פורסם; Android ו־iOS ניווט עברו706; NATIVE-003 window scaling הוא דרישה נפרדת"
       ],
       "published": {
         "Android": null,
@@ -3035,6 +3051,35 @@
           "evidence": "qa/mobile-2026-11-08/public-web-patch-http-verification.json",
           "date": "2026-11-10 Asia/Jerusalem"
         }
+      }
+    },
+    {
+      "id": "CI-004",
+      "title": "כיסוי קלטי build ו־WK fixture ב־iOS CI",
+      "platforms": [
+        "iOS"
+      ],
+      "acceptance": [
+        "מסנני push ו־pull_request כוללים אותם קלטי iOS/Web/מקור/metadata/תלויות/fixtures ובודקי iOS",
+        "שינוי כלי Android בלבד אינו מפעיל macOS ללא צורך; שינוי reader_layout_probe אוrequirements-qa אינו חומק מבדיקת iOS",
+        "כל קלט Python המיובא ב־build_web/verify_release וב־canonical_vendor כלול ברשימת תלויות מפורשת ומתועדת"
+      ],
+      "status": {
+        "iOS": "מומש"
+      },
+      "implementation": [
+        ".github/workflows/ios-ci.yml"
+      ],
+      "tests": [
+        "ios/ConsumerLawReaderTests/ReaderTests.swift",
+        "tests/fixtures/reader_layout_probe.js"
+      ],
+      "evidence": [],
+      "dependencies": [
+        "רשימת תלויות נבדקה מול imports ופקודות workflow; נדרשת ריצת CI של הקומיט המשולב. אין טענת ניסוי GitHub event נפרד לכל glob."
+      ],
+      "published": {
+        "iOS": null
       }
     }
   ]

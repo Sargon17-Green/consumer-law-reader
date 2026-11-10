@@ -37,3 +37,5 @@ iOS: `.github/workflows/ios-ci.yml`, Xcode26.3/macOS15, iPhone26.2/iPad26.2/iPho
 ## רגרסיות שנוספו ב־10.11.2026
 
 `tests/pwa_offline_qa.py` מפעיל ServiceWorker אמיתי במקור loopback מאובטח ובהתאמת reader/; לאחר activation מנותקת כל הרשת, מבוצעים reload/search/14/פתיחה חדשה, ואז נמחק CSS חובה ומוסף נכס זר. מספר38 הרשומות נשאר קבוע אך מוכנות חייבת להיכשל ולהופיע בלוח ההתקנה. `reader_layout_probe.js` בודק גם סעיף וחלק בתוספת מתחת לכפתור חזרה בפועל אחרי focus. `test_public_reader.py` דורש owner marker ומונע PASS על redirect/bytes ישנים. בניסוי Print נדרש עמוד preview ולא רק enabled/visible; קובץ PDF אמיתי עדיין נבדק ב־PdfRenderer. אין טענת מכשיר פיזי.
+
+ראיות Android QA נשמרות כעת ב־files הפרטי ונאספות באמצעות run-as של Debug; PDF שהמשתמש שמר בפועל דרך Print/SAF נקרא כזרם בינרי תחום32MB, נבדק ב־PdfRenderer וב־SHA256. אין shell cp או כתיבת screenshots ל־FUSE המשותף. הניסוי38ebb34 עבר בשני הכיוונים; קוד המוצר והרשאותיו לא שונו.
