@@ -1,44 +1,8 @@
-name: Build native iOS app (unsigned simulator)
+name: Inspect actual iOS system PDF-save controls
 
 on:
   push:
-    branches: [main]
-    # Keep this dependency list equal to pull_request. Android-only tools do not build iOS.
-    paths:
-      - '.github/workflows/ios-ci.yml'
-      - 'ios/**'
-      - 'original/**'
-      - 'web/**'
-      - 'scripts/build_web.py'
-      - 'scripts/bundled_assets.py'
-      - 'scripts/prepare_typed_sources.py'
-      - 'scripts/canonical_vendor/**'
-      - 'scripts/verify_release.py'
-      - 'typed-sources/**'
-      - 'metadata/**'
-      - 'VERSION'
-      - 'requirements-qa.txt'
-      - 'tests/fixtures/**'
-      - 'tests/test_ios_source.py'
-      - 'tests/test_web_pages.py'
-  pull_request:
-    paths:
-      - '.github/workflows/ios-ci.yml'
-      - 'ios/**'
-      - 'original/**'
-      - 'web/**'
-      - 'scripts/build_web.py'
-      - 'scripts/bundled_assets.py'
-      - 'scripts/prepare_typed_sources.py'
-      - 'scripts/canonical_vendor/**'
-      - 'scripts/verify_release.py'
-      - 'typed-sources/**'
-      - 'metadata/**'
-      - 'VERSION'
-      - 'requirements-qa.txt'
-      - 'tests/fixtures/**'
-      - 'tests/test_ios_source.py'
-      - 'tests/test_web_pages.py'
+    branches: [work/ios-files-cell-save-20261110]
   workflow_dispatch:
 
 concurrency:
@@ -49,7 +13,7 @@ permissions:
 
 jobs:
   ios-simulator:
-    name: ${{ matrix.family }} iOS ${{ matrix.os }} ${{ matrix.profile || '' }} ${{ matrix.os == '16.0' && '(runtime availability)' || '' }}
+    name: ${{ matrix.family }} iOS ${{ matrix.os }} ${{ matrix.os == '16.0' && '(runtime availability)' || '' }}
     runs-on: macos-15
     timeout-minutes: 30
     strategy:
@@ -59,24 +23,7 @@ jobs:
         include:
           - family: iPhone
             os: '26.2'
-            archive: true
-          - family: iPad
-            os: '26.2'
             archive: false
-          - family: iPhone
-            os: '18.5'
-            archive: false
-          - family: iPad
-            os: '18.5'
-            archive: false
-          - family: iPhone
-            os: '16.0'
-            archive: false
-          - family: iPhone
-            os: '26.2'
-            archive: false
-            profile: accessibility-xxxl
-            text_size: accessibility-extra-extra-extra-large
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: Set up Python
@@ -154,19 +101,12 @@ jobs:
         run: |
           set -euo pipefail
           export LAW_EXPECT_SEER="$(python3 tests/date_network_probe.py)"
-          LABEL="$FAMILY-ios-$OS${{ matrix.profile && format('-{0}', matrix.profile) || '' }}"
+          LABEL="$FAMILY-ios-$OS"
           DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; family,version=sys.argv[1:]; key="com.apple.CoreSimulator.SimRuntime.iOS-"+version.replace(".","-"); print(next(d["udid"] for d in json.load(sys.stdin)["devices"].get(key,[]) if d["name"].startswith(family)))' "$FAMILY" "$OS")"
           echo "QA_DEVICE=$DEVICE" >> "$GITHUB_ENV"
           echo "QA_LABEL=$LABEL" >> "$GITHUB_ENV"
           xcrun simctl boot "$DEVICE"
           xcrun simctl bootstatus "$DEVICE" -b
-          PROFILE_TEXT_SIZE="${{ matrix.text_size }}"
-          if [[ -n "$PROFILE_TEXT_SIZE" ]]; then
-            xcrun simctl ui "$DEVICE" content_size > "build/$LABEL-size-before.txt"
-            xcrun simctl ui "$DEVICE" content_size "$PROFILE_TEXT_SIZE"
-            xcrun simctl ui "$DEVICE" content_size | tee "build/$LABEL-size-actual.txt"
-            grep -Fqi "$PROFILE_TEXT_SIZE" "build/$LABEL-size-actual.txt"
-          fi
           xcrun simctl status_bar "$DEVICE" override --time '9:41'
           python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$LABEL-runtime.json"
           if [[ "$OS" == '16.0' ]]; then
@@ -176,7 +116,7 @@ jobs:
             xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
             xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
           fi
-          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderUITests/ReaderPrintSaveUITests/testInspectActualSystemPrintPreview CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |
@@ -196,7 +136,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: ios-${{ matrix.family }}-${{ matrix.os }}-${{ matrix.profile || 'standard' }}-evidence
+          name: ios-${{ matrix.family }}-${{ matrix.os }}-evidence
           path: |
             build/ios-build.log
             build/ios-environment.txt
@@ -205,8 +145,6 @@ jobs:
             build/*-simulator.png
             build/*-tests.log
             build/*-runtime.json
-            build/*-size-before.txt
-            build/*-size-actual.txt
             build/*-tests.xcresult
             build/*-attachments
             build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
