@@ -138,8 +138,20 @@ public final class ReaderInstrumentation extends Instrumentation {
             for(int i=0;i<100;i++){keyboard=keyboardBounds();if(keyboard!=null)break;Thread.sleep(100);}
             check(keyboard!=null,"A real TYPE_INPUT_METHOD system window must be visible; CSS resizing does not qualify");
             awaitJS("document.activeElement===document.getElementById('mobile-search') && document.getElementById('mobile-sheet').open","The actual touch focuses the live search field");
-            input=editable(getUiAutomation().getRootInActiveWindow(),0);
-            check(input!=null,"The focused editable field remains in the actual native tree");
+            // The IME may become the active accessibility window. Locate the
+            // field in the reader's application window, not in the keyboard.
+            input=null;
+            for(int attempt=0;attempt<100;attempt++){
+                for(android.view.accessibility.AccessibilityWindowInfo window:getUiAutomation().getWindows()){
+                    if(window.getType()!=android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION)continue;
+                    AccessibilityNodeInfo root=window.getRoot();
+                    if(root!=null&&"il.org.lawreader.consumer".contentEquals(String.valueOf(root.getPackageName()))){
+                        input=editable(root,0);if(input!=null)break;
+                    }
+                }
+                if(input!=null)break;Thread.sleep(100);
+            }
+            check(input!=null,"The focused editable field remains in the reader application window");
             Bundle empty=new Bundle();empty.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,"");
             check(input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,empty),"Native editable field can be cleared without JavaScript text assignment");
             awaitJS("document.getElementById('mobile-search').value==='' && document.getElementById('mobile-sheet').open","Native clear completes in the focused field before typing");
