@@ -48,6 +48,7 @@ public final class MainActivity extends Activity {
     private WebView web;
     private WebViewStateCache webStateCache;
     private boolean ready;
+    private long readyGeneration;
     private android.window.OnBackInvokedCallback systemBack;
     private boolean pendingExport;
     private boolean settingsBusy;
@@ -139,20 +140,15 @@ public final class MainActivity extends Activity {
             @Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return handleNavigation(Uri.parse(url));
             }
-            @Override public void onPageStarted(WebView view,String url,android.graphics.Bitmap icon) { ready=false; }
+            @Override public void onPageStarted(WebView view,String url,android.graphics.Bitmap icon) { ready=false; readyGeneration++; }
             @Override public void onPageFinished(WebView view,String url) {
-                view.evaluateJavascript("document.documentElement.dataset.lawReady === 'true'",result -> {
-                    ready="true".equals(result);
-                    if(!ready && !isFinishing() && !isDestroyed())new AlertDialog.Builder(MainActivity.this)
-                        .setMessage("ממשק הקריאה לא אותחל. יש לוודא ש־Android System WebView או Chrome מעודכנים, ולנסות שוב.")
-                        .setPositiveButton("ניסיון נוסף",(d,w)->web.loadUrl(HOME)).setNegativeButton("ביטול",null).show();
-                });
+                awaitReaderReady(view,++readyGeneration,android.os.SystemClock.uptimeMillis()+20000);
             }
             @Override public void onReceivedError(WebView view,WebResourceRequest request,WebResourceError error) {
-                if(request.isForMainFrame()) { ready=false; showLoadError(); }
+                if(request.isForMainFrame()) { ready=false; readyGeneration++; showLoadError(); }
             }
             @Override public boolean onRenderProcessGone(WebView view,RenderProcessGoneDetail detail) {
-                ready=false;
+                ready=false;readyGeneration++;
                 if(!isFinishing() && !isDestroyed())new AlertDialog.Builder(MainActivity.this).setMessage("תהליך הקריאה נסגר. ההעדפות נשמרו; אפשר לפתוח מחדש.")
                     .setPositiveButton("פתיחה מחדש",(d,w)->recreate()).setCancelable(false).show();
                 if(view.getParent() instanceof android.view.ViewGroup)((android.view.ViewGroup)view.getParent()).removeView(view);
@@ -190,6 +186,21 @@ public final class MainActivity extends Activity {
         boolean restored=false;
         if(history!=null)try{restored=web.restoreState(history)!=null;}catch(RuntimeException invalid){ /* Fall back to the durable logical session. */ }
         if(!restored)web.loadUrl(HOME);
+    }
+
+    private void awaitReaderReady(final WebView view,final long generation,final long deadline) {
+        if(web!=view||generation!=readyGeneration||isFinishing()||isDestroyed())return;
+        // A restored history entry can finish before the replacement document
+        // exposes its DOM. Wait for the real reader signal, with a finite limit.
+        view.evaluateJavascript("Boolean(document.documentElement && window.lawMobile && document.documentElement.dataset.lawReady === 'true')",result->{
+            if(web!=view||generation!=readyGeneration||isFinishing()||isDestroyed())return;
+            if("true".equals(result)){ready=true;return;}
+            ready=false;
+            if(android.os.SystemClock.uptimeMillis()<deadline){view.postDelayed(()->awaitReaderReady(view,generation,deadline),100);return;}
+            new AlertDialog.Builder(MainActivity.this)
+                .setMessage("ממשק הקריאה לא אותחל. יש לוודא ש־Android System WebView או Chrome מעודכנים, ולנסות שוב.")
+                .setPositiveButton("ניסיון נוסף",(d,w)->web.loadUrl(HOME)).setNegativeButton("ביטול",null).show();
+        });
     }
 
     private void showLoadError() {
@@ -396,6 +407,7 @@ public final class MainActivity extends Activity {
         });
     }
     @Override protected void onSaveInstanceState(Bundle state) {
+        state.remove(WebViewStateCache.KEY);
         if(web!=null){Bundle history=new Bundle();if(web.saveState(history)!=null){String reference=webStateCache.write(history);if(reference!=null)state.putString(WebViewStateCache.KEY,reference);}}
         state.putBoolean("pendingExport",pendingExport);
         if(settingsPickerLocation!=null)state.putString("settingsPickerLocation",settingsPickerLocation.toString());
@@ -403,5 +415,5 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onPause() { if(web!=null){web.evaluateJavascript("window.lawMobile?.saveSession()",null);web.onPause();}super.onPause(); }
     @Override protected void onResume() { super.onResume();if(web!=null)web.onResume(); }
-    @Override protected void onDestroy() { if(Build.VERSION.SDK_INT>=33&&systemBack!=null)getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(systemBack);if(web!=null){web.removeJavascriptInterface("NativeLaw");web.destroy();}super.onDestroy(); }
+    @Override protected void onDestroy() { readyGeneration++;if(Build.VERSION.SDK_INT>=33&&systemBack!=null)getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(systemBack);if(web!=null){web.removeJavascriptInterface("NativeLaw");web.destroy();}super.onDestroy(); }
 }
