@@ -79,7 +79,7 @@ final class ReaderIntegrationTests: XCTestCase {
     }
     private func script(_ webView: WKWebView,_ source: String) async throws -> Any {
         Swift.print("READER_QA_SCRIPT: "+String(source.prefix(220)).replacingOccurrences(of:"\n",with:" "))
-        try await withCheckedThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation { continuation in
             let reply=ReaderScriptReply(continuation)
             let deadline=Task { @MainActor in
                 do { try await Task.sleep(nanoseconds:20_000_000_000) } catch { return }
