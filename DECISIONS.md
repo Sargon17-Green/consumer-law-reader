@@ -34,6 +34,8 @@ The06/API36fatal proves the fullWebViewBundle cannot travel through Binder. Pres
 
 ## קיבוע XcodeGen באותו כלי שנמדד
 
-ריצות iOS מ־10.11 תיעדו XcodeGen2.46.0, אך `brew install xcodegen` לא קיבע גרסה. CI משתמש כעת ב־[נכס הרשמי2.46.0](https://github.com/yonaskolb/XcodeGen/releases/tag/2.46.0), ארכיון4,278,764בתים עם SHA256 `4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806`, שאומת גם בהורדה עצמאית. הבינרי וה־SettingPresets נפרסים תחת RUNNER_TEMP, והגרסה נרשמת בדוח הסביבה. אין התקנה מערכתית חדשה. archive_for_testflight דורש אותה גרסה; קבלת הבינרי בסימולטורים תיקבע ברגרסיה המשולבת.
+ריצות iOS מ־10.11 תיעדו XcodeGen2.46.0, אך `brew install xcodegen` לא קיבע גרסה. CI משתמש כעת ב־[נכס הרשמי2.46.0](https://github.com/yonaskolb/XcodeGen/releases/tag/2.46.0), ארכיון4,278,764בתים עם SHA256 `4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806`, שאומת גם בהורדה עצמאית. הבינרי וה־SettingPresets נפרסים תחת RUNNER_TEMP, והגרסה נרשמת בדוח הסביבה. אין התקנה מערכתית חדשה. archive_for_testflight דורש אותה גרסה; ב־94 כל חמש הסביבות בנו עם הבינרי המקובע; שלושה jobs עברו ושני מבחני UI נכשלו בסגירת השיתוף. נדרשת קבלה מלאה למועמד הבא.
 
 לבדיקת מקלדת Android מודדים חלון מערכת מסוג TYPE_INPUT_METHOD, מגע ב־editable node, הקלדה native וגבולות WebView; אין להסיק כיסוי IME משינוי CSS בלבד. [תיעוד Android](https://developer.android.com/develop/ui/views/layout/sw-keyboard) ו־[AccessibilityWindowInfo](https://developer.android.com/reference/android/view/accessibility/AccessibilityWindowInfo) נבדקו. בדיקת QA משנה זמנית show_ime_with_hard_keyboard ומשחזרת את ערכה ואת orientation/דגלי השירות ב־finally.
+
+ניסוי חומרה מצומצמת דורש מדידה מתוך מערכת האורח לפני הבדיקה: ניסיון1GB נדחה משום שהאמולטור כפה1.5GB. ב־42819646591 התקבלו בפועל MemTotal1548780KB וליבה אחת, והמבחנים online/offline עברו. אין להציג ערכי CLI כמדידה או לייחס זאת ל־OOM/מכשיר פיזי.

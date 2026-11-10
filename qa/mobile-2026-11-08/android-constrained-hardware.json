@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "sourceCommit": "2227c2effab0c52e87abad183a86f56f264997e4",
+  "tree": "f6cda87c5a79c6abb31da707da09a98944aacfd8",
+  "productAndPermanentTestsIdenticalTo": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+  "run": 42819646591,
+  "job": 129841573382,
+  "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42819646591/job/129841573382",
+  "status": "completed",
+  "conclusion": "success",
+  "artifact": {
+    "id": 13765489811,
+    "bytes": 687206,
+    "sha256": "3584f85b986d75c5760c2bcb6ae7668e7bba589bcc38b827d2f0beced314a546",
+    "independentDownloadAndHashVerified": true
+  },
+  "actualHardware": {
+    "guestMemTotalKB": 1548780,
+    "guestCpuPresent": "0",
+    "cpuCount": 1,
+    "requestedRamMB": 1536,
+    "requestedHeapMB": 384
+  },
+  "scope": "Actual Android8/API26 installed native flow online and offline, real software IME,1.6MB Web state ->1036-byte Activity Bundle, recreation/history and corrupted-cache cases. CI diagnostic branch only; do not merge its single-job workflow.",
+  "failedPredecessor": {
+    "commit": "748d01254310c9b77c4b45fab0f316772e929ae6",
+    "run": 42818976843,
+    "job": 129839289445,
+    "result": "FAIL hardware preflight: emulator raised requested1024MB to1536MB; no1GB PASS claim"
+  },
+  "limits": [
+    "No physical low-end device",
+    "No actual OOM or sustained whole-Web-renderer PSS claim",
+    "Renderer termination API unavailable on26, explicitly NOT TESTED"
+  ]
+}

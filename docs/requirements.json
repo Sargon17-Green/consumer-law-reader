@@ -1593,6 +1593,13 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326",
           "result": "PASS: Android build and API26/31/36 completed success",
           "scope": "Actual online/offline1.6MB state ->1036/1060-byte system Bundle, real Activity recreation and full history/Back/Forward; renderer termination/recovery on31/36. Component only; combined PR gate still required. See qa/mobile-2026-11-08/android-state-cache-accepted.json"
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
         }
       ],
       "dependencies": [],
@@ -1613,7 +1620,7 @@
         "נבחנים מסך צר וטאבלט; אין שינוי package/minSdk בלי צורך ומבחני רגרסיה"
       ],
       "status": {
-        "Android": "מומש",
+        "Android": "אומת",
         "iOS": "מומש"
       },
       "implementation": [
@@ -1635,6 +1642,13 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42814952882/job/129825958205",
           "result": "PASS: API26 online/offline real software keyboard and Back/query preservation",
           "scope": "TYPE_INPUT_METHOD bounds[0,1019][1080,1894]; actual WebView bottom1019, height1731->956. No CSS-only simulation; API31 online also passed but offline fixture failed. Remaining platforms and combined acceptance not inferred."
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
         }
       ],
       "dependencies": [],
@@ -1653,7 +1667,7 @@
         "שינוי גודל חלון וריבוי חלונות מתאימים למגבלות שטח זמין; יש לבדוק ממשק native בזמן שינוי גודל ולא לייחס לכך בדיקת CSS בלבד"
       ],
       "status": {
-        "iOS": "מומש"
+        "iOS": "אומת"
       },
       "implementation": [
         "ios/project.yml",
@@ -1687,10 +1701,18 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42813510160",
           "result": "PARTIAL: actual resized44pt menu and share open; overall FAIL at return with share still presented",
           "scope": "Actual OS1032->375pt resize, real center touch opens Print action and ActivityListView. No accepted search return. Permanent proof qa/mobile-2026-11-08/ipad-native-actions-partial.json"
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834181,
+          "job": 129836408708,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834181/job/129836408708",
+          "result": "PASS full iPad26.2 job",
+          "scope": "RealOS1032->375pt resize,44ptmenu/share center taps,actual menu/share dismissal,selected row hittable before tap,query14 and navigation preserved.7WK/policy tests+header audit passed. Other legacy iOS jobs failed sharesheet fixture; no overall PASS. See qa/mobile-2026-11-08/ipad-window-94cdf7d.json"
         }
       ],
       "dependencies": [
-        "Issue13: scaling fixed;0d actual menu/share after375pt resize passed, but test did not dismiss system share before returning.31b/run42815502889 asserts observed Close/disappearance. Final combined5-simulator gate includes legacy iPad18.5 and is still required."
+        "Issue13 full iPad26 scope passed94. Close issue only after final combined5-simulator gate; legacy share fixture remains separate."
       ],
       "published": {
         "iOS": null
@@ -1772,7 +1794,7 @@
         "יעד ציבורי עובד גם מחוץ לאפליקציה; Intent/ActivityViewController ומקבל אחר בודקים URL מדויק"
       ],
       "status": {
-        "Android": "מומש",
+        "Android": "אומת",
         "iOS": "מומש",
         "Web": "מומש"
       },
@@ -1786,7 +1808,15 @@
         "ios/ConsumerLawReaderTests/ReaderTests.swift",
         "ios/ConsumerLawReaderUITests/ReaderUITests.swift"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        }
+      ],
       "dependencies": [],
       "published": {
         "Android": null,
@@ -1807,7 +1837,7 @@
         "אין לייחס בדיקת עמוד ראשון או פתיחת UI להדפסה פיזית מלאה"
       ],
       "status": {
-        "Android": "מומש",
+        "Android": "אומת",
         "iOS": "מומש"
       },
       "implementation": [
@@ -1833,10 +1863,17 @@
           "result": "PASS: fresh portrait and landscape, actual146-page PDFs with private QA evidence",
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42767425997",
           "scope": "API36 emulator, no native production print/lifecycle change; MediaProvider cause not claimed fixed; private exports from38ebb were not actually readable through run-as; in-process PdfRenderer only, see permanent private-evidence report"
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
         }
       ],
       "dependencies": [
-        "Full component Android4819 passed3APIs including actual PDFs/private bytes; final combined gate still required. No physical printer or tagged-PDF accessibility claim."
+        "Android94 actual146-page PDF passed and exported bytes independently verified; iOS first-page output and print UI only. No physical printer/taggedPDF claim; final combined gate still required."
       ],
       "published": {
         "Android": null,
@@ -2184,7 +2221,23 @@
       "tests": [
         "ios/ConsumerLawReaderTests/ReaderTests.swift"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "2227c2effab0c52e87abad183a86f56f264997e4",
+          "run": 42819646591,
+          "job": 129841573382,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42819646591/job/129841573382",
+          "result": "PASS actual API26 constrained emulator online/offline",
+          "scope": "MemTotal1548780KB,1CPU, heap384MB; product/tests identical94. Requested1GB was raised by emulator and rejected at preflight. No physical device, actual OOM or whole-renderer PSS claim."
+        }
+      ],
       "dependencies": [],
       "published": {
         "Android": null,
@@ -2278,6 +2331,13 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326",
           "result": "PASS: Android build and API26/31/36 completed success",
           "scope": "Actual online/offline1.6MB state ->1036/1060-byte system Bundle, real Activity recreation and full history/Back/Forward; renderer termination/recovery on31/36. Component only; combined PR gate still required. See qa/mobile-2026-11-08/android-state-cache-accepted.json"
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
         }
       ],
       "dependencies": [
@@ -3120,7 +3180,7 @@
         "בדיקת iPad Native משנה חלון מערכת בפועל ודורשת result.isHittable לפני tap שעלול לגלול אוטומטית"
       ],
       "status": {
-        "Android": "מומש",
+        "Android": "אומת",
         "iOS": "מומש",
         "Web": "פורסם"
       },
@@ -3138,6 +3198,13 @@
           "result": "PASS Web scope:52unit,5search-layout sequences,35SHA/DOM,4widths/32axe,PWAoffline",
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42777451011",
           "scope": "Only the five completed source/browser jobs; overall run failed Android36. Public patch3 separately passed75HTTP."
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
         }
       ],
       "dependencies": [
@@ -3167,7 +3234,7 @@
         "API26/31/36 online/offline native suites including SAF/PDF/renderer pass without extra permissions or debuggable changes"
       ],
       "status": {
-        "Android": "מומש"
+        "Android": "אומת"
       },
       "implementation": [
         "android/src/il/org/lawreader/consumer/MainActivity.java",
@@ -3191,10 +3258,17 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326",
           "result": "PASS: Android build and API26/31/36 completed success",
           "scope": "Actual online/offline1.6MB state ->1036/1060-byte system Bundle, real Activity recreation and full history/Back/Forward; renderer termination/recovery on31/36. Component only; combined PR gate still required. See qa/mobile-2026-11-08/android-state-cache-accepted.json"
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
         }
       ],
       "dependencies": [
-        "Issue14: component4819 passed all3 Android platforms; final combined regression must also execute new digest/installation/8MB adversarial cases before merge. No new signed public APK."
+        "Issue14 closure waits final combined14-gate acceptance before merge. Android94 adversarial/native regression passed. No new signed public APK."
       ],
       "published": {
         "Android": null
@@ -3202,30 +3276,40 @@
     }
   ],
   "integrationCandidateBranch": "fix/pastafari-date-android-20261028",
-  "candidateMeaning": "06 completed: Web passes; full Native acceptance fails. Follow-up Binder/header fixes require their own completed runs.",
+  "candidateMeaning": "94 completed: Linux9 PASS, iOS3 PASS/2 legacy share-dismissal UI FAIL. Current PR head requires completed combined14 gates; no overall acceptance yet.",
   "lastFullyAcceptedCandidate": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
   "componentAcceptance": {
     "Android": {
-      "commit": "4819aa83728358312b79834313e18ff92f2e1c74",
-      "run": 42806470326,
-      "result": "PASS within component scope"
+      "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+      "run": 42817834059,
+      "result": "PASS all9 Linux/Android jobs including API26/31/36 online/offline, real IME and adversarial cache",
+      "evidence": "qa/mobile-2026-11-08/acceptance-94cdf7d.json"
     },
     "iPad": {
-      "commit": "31b870aa06e6b53fd0cec5601023400e5c5bc7dc",
-      "run": 42815502889,
-      "result": "pending;0d proved real menu/share but failed return while share remained open"
+      "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+      "run": 42817834181,
+      "job": 129836408708,
+      "result": "PASS full iPad26.2 job including real window/menu/share/dismiss/visible selection/query; not all iOS acceptance",
+      "evidence": "qa/mobile-2026-11-08/ipad-window-94cdf7d.json"
     },
-    "AndroidIME": {
-      "commit": "5797c940b613b033f805ad853b66626bfe65a299",
-      "run": 42814952882,
-      "result": "API26 full PASS, API31 online PASS/offline fixture failed because restored search input is out of view; fixture scrolls field into view before native input in final candidate; API36 pending"
+    "AndroidConstrained": {
+      "commit": "2227c2effab0c52e87abad183a86f56f264997e4",
+      "run": 42819646591,
+      "result": "PASS actual1.5GB/1CPU API26 online/offline; no1GB/OOM claim",
+      "evidence": "qa/mobile-2026-11-08/android-constrained-hardware.json"
+    },
+    "LegacyShareFixture": {
+      "commit": "5450373c14100424b2d17358cf2acb54659cbf23",
+      "run": 42850867489,
+      "result": "In progress at checkpoint; inspect completed result and actual Close hierarchy; diagnostic workflow only"
     }
   },
   "lastCombinedCandidate": {
-    "head": "06e55335cd69601f6c1ea55e23ec073627dda777",
-    "tree": "56d0fbc622190a0526823d6fded304264d5b5971",
-    "testedPRMergeCommit": "a7d6f42bb9ce6099bd92a55daba4df7b52b45464",
-    "result": "FAIL: Android36 Binder and iPad fixture; historical result only"
+    "head": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+    "tree": "7cf04c1127e22318f70a36a816c40418b44b3bf7",
+    "testedPRMergeCommit": "60a5c79bfc281384f4256f6ee592d0b2d67beb14",
+    "result": "FAIL overall: Linux9/9 PASS, iOS3/5 PASS and2 failed actual share disappearance",
+    "evidence": "qa/mobile-2026-11-08/acceptance-94cdf7d.json"
   },
   "candidateBranch": "fix/pastafari-date-android-20261028",
   "candidateResolution": "Resolve current PR11 head; no self-referential commit hash is embedded in its own files. Require exact tree comparison and completed combined CI."

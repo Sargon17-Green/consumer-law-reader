@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "headCommit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+  "testedCheckout": "60a5c79bfc281384f4256f6ee592d0b2d67beb14",
+  "testedTree": "7cf04c1127e22318f70a36a816c40418b44b3bf7",
+  "sourceDirty": false,
+  "run": 42817834059,
+  "job": 129835431256,
+  "artifact": 13764868178,
+  "artifactSha256": "90e334c8cf40bc37bc9908237156b85514a2f6038114439333ce384c6b80e0e5",
+  "independentDownloadAndHashVerified": true,
+  "scope": "PASS source/web only; not full Native acceptance",
+  "environment": "Ubuntu24.04, Python3.12, Node22, Playwright1.57, actual Chromium143.0.7499.4",
+  "searchResult": "PASS",
+  "searchCases": 5,
+  "legal": {
+    "checks": [
+      {
+        "check": "Exact original HTML SHA256",
+        "passed": true
+      },
+      {
+        "check": "Legal document DOM unchanged except documented PEGI alias",
+        "passed": true
+      },
+      {
+        "check": "Preserved .sources_box",
+        "passed": true
+      },
+      {
+        "check": "Preserved .bills_box",
+        "passed": true
+      },
+      {
+        "check": "Preserved .protocols_box",
+        "passed": true
+      },
+      {
+        "check": "Preserved .history_box",
+        "passed": true
+      },
+      {
+        "check": "Preserved footer",
+        "passed": true
+      },
+      {
+        "check": "Original ID occurrences",
+        "passed": true
+      },
+      {
+        "check": "Original link targets",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_Discrimination.jpg",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_Drugs.jpg",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_Sex.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_Gambling.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: Emblem_of_Israel_dark_blue_border.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_18+.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: נוסח מתוקן עלון קרינה שני תקנים 1-7-17.doc",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: formula3.svg",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: consumer_protection_and_fair_trade_authority.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: legal-document_2710127.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_Fear.jpg",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_16+.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_Bad_language.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_7+.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: formula2.svg",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: formula1.svg",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_3+.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: formula4.svg",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_12+.png",
+        "passed": true
+      },
+      {
+        "check": "Bundled unchanged: PEGI_Violence.jpg",
+        "passed": true
+      },
+      {
+        "check": "PEGI alias 3",
+        "passed": true
+      },
+      {
+        "check": "PEGI alias 7",
+        "passed": true
+      },
+      {
+        "check": "PEGI alias 12",
+        "passed": true
+      },
+      {
+        "check": "PEGI alias 16",
+        "passed": true
+      },
+      {
+        "check": "PEGI alias 18",
+        "passed": true
+      },
+      {
+        "check": "Old external accessibility widget inactive",
+        "passed": true
+      }
+    ],
+    "source_sha256": "de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9",
+    "editorial_verification_date": "2026-10-28",
+    "limitation": "No independent legal-text review; no device installation",
+    "status": "PASS",
+    "checks_passed": 35
+  },
+  "runtimeAssetsEqualPublishedWebPatch3": true,
+  "assetCount": 38,
+  "publicSource": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566"
+}

@@ -1,6 +1,6 @@
 # מחזור ההנדסה למובייל — תוצרים וראיות
 
-עודכן ב־10.11.2026. **בטא Web/PWA1.3.9-dev פורסמה** ב[קישור הקבוע](https://sargon17-green.github.io/consumer-law-reader/reader/), תיקון3 עם75 בדיקות HTTP/SHA256 שעברו ושימור alpha וה־APK הציבורי. Native Android/iOS לא פורסמו במהדורה חדשה: חסרות חתימות מקוריות; תיקוני Android עברו ברכיב4819/API26/31/36, וקוד ההמשך המשולב עדיין דורש קבלה. iPad נשאר בבדיקת לחיצות אחרי שינוי חלון. מצב מתעדכן לפי [IMPLEMENTATION_STATUS](../IMPLEMENTATION_STATUS.md); כל דרישה רשומה ב־[PRODUCT_REQUIREMENTS](../PRODUCT_REQUIREMENTS.md).
+עודכן ב־10.11.2026. **Web/PWA1.3.9-dev תיקון3 פורסם**, עם75 בדיקותHTTP/SHA ושימורalpha/APK. Nativeחדש לא פורסם: איןחתימות תואמותנגישות. במועמד94 עברו9Linux/Android ושלושה מחמשת סימולטוריApple; שניים נכשלו בסגירתsharesheet. iPad26עבר כלרצףהחלוןבפועל. [מצבמדויק](../IMPLEMENTATION_STATUS.md), [63דרישות](../PRODUCT_REQUIREMENTS.md).
 
 העבודה ממשיכה את [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11), על בסיס main016b3de352dabe97f51b34b78ff803965b6cd40d. נבדקו12ענפים, PRs1–11, Issue7, היסטוריית commits/Releases ו־Actions; תיקונים תקינים שכבר מוזגו לא יושמו מחדש. PR1 הוא ביקורת ישנה ולא מקור ממצאים אוטומטי.
 
@@ -87,29 +87,29 @@ checkout של PR היה d178bb6d1765707732e9ad8f5ed448a1de5ebac3/treecadba5f9894
 
 אחרי תיקון הרוחב בוצעה השוואה נפרדת מולb7d8168: Chrome157,375×812,שלושה contexts טריים בכל מצב. חציון פתיחה רגילה1216.54→1208.62ms, אינדקס101.3→99.2ms,100שאילתות9.6→8.9ms. בהאטתCPUסינתטית×4: פתיחה3843.37→3759.61ms, אינדקס465.7→479.7ms, שאילתות52.8→45.8ms. אלו מדידות מקומיות עם תקורת אוטומציה, ללא מובהקות סטטיסטית וללא טענה למכשיר חלש פיזי. [כל הדגימות](../qa/mobile-2026-11-08/layout-performance-before-after.json).
 
-Native מודד PSS/CPU של תהליך היישום ו־XCTest reading gestures בשלוש חזרות. אין לייחסם לסך כל תהליכי WebKit/Chromium או למדידות חומרה פיזית. פירוט CPU/זיכרון/xcresult בארטיפקטים; Split View מלא ו־sustained low-memory נשארים במעקב ולא מסומנים PASS.
+Native מודד PSS/CPU של תהליך היישום ו־XCTest reading gestures בשלוש חזרות. אין לייחסם לסך כל תהליכי WebKit/Chromium או למדידות חומרה פיזית. פירוט CPU/זיכרון/xcresult בארטיפקטים; שינוי חלוןOSאמיתיב־iPad26 עברב־94; sustained low-memory נשאר במעקב. Android26 עבר בתצורת1.5GB/ליבה אחתשנמדדה בפועל, בלי טענתOOM.
 
 ## מועמדים ופעולות חיצוניות
 
 Android1.3.9-dev/code17: Debug מאומת, unsigned APK מיושר ו־AAB לא חתום; public1.3.5-beta נשמר. APK הציבורי SHA2562772e3d8195de2d9a66edc8cdbc9e0940ac71f8cb55f1597dcc7c122120101af. בדיקת upgrade היא עם עותק בטא במפתח QA, ולא הוכחת שדרוג במפתח המקורי. אין להפיץ unsigned/Debug כשדרוג.
 
-iOS1.3.9/build17: ארבע בניות סימולטור ומבחנים עברו על706; קבלת06 המאוחרת יותר נכשלה ב־iPad, וכל שלושת iPhone עברו; מסלול device archive לא חתום הוכן. אין IPA חתום, TestFlight, אישור חנות או בדיקת iPhone פיזי. Web1.3.9-devפורסם בנפרד, ניתן להוספה למסך הבית, ואינו Native.
+iOS1.3.9/build17: במועמד94 עברוiPhone26.2/18.5ו־iPad26.2 במלואם; iPhone16/iPad18.5 נכשלו בסגירתהשיתוף. device archive לאחתום נבנה. קבלה היסטורית706אינה מכסהקודחדש. אין IPA חתום, TestFlight, אישור חנות או בדיקת iPhone פיזי. Web1.3.9-devפורסם בנפרד, ניתן להוספה למסך הבית, ואינו Native.
 
 החסמים היחידים הדורשים גורם חיצוני: המפתח ההיסטורי של Android, גישת Apple Team/profiles/ASC, מכשיר/ציוד פיזי שאינו זמין, והצהרות בעל זכויות/חשבון. הפרטים והצעדים הקצרים ב־[EXTERNAL_ACTIONS](../EXTERNAL_ACTIONS.md). כל שאר העבודה פתוחה ב־[BACKLOG](../BACKLOG.md) והכניסה העצמאית ב־[PROJECT_HANDOFF](../PROJECT_HANDOFF.md).
 
-## קבלת המשך10.11 — מצב נוכחי
+## קבלת המשך 10.11 — מצב נוכחי
 
-| מזהה | פלטפורמה | ממצא וסיבה | מימוש וקבצים | בדיקה ותוצאה | commit |
+| מזהה | פלטפורמה | הבעיה המקורית | תיקון וקבצים | בדיקה ותוצאה | commit |
 |---|---|---|---|---|---|
-| SEARCH-005 | משותף | raw pixel scroll אינו מתאים לתוצאות לאחר reflow או שינוי גובה | web/mobile.js: target נבחר, offset וחתימת פריסה; שמירת offset מדויק בפריסה זהה | חמישה רצפי full DOM offline עברו בשער source06; פורסם בתיקוןWeb3 ואומת75HTTP | 06e5533; מקור פרסוםcca785e |
-| DATA-003 | Android | opaque Chromium state בגודל1.2MB נשלח ב־Binder וקרס | MainActivity.java + WebViewStateCache.java: AtomicFile פרטי עד8MB והפניית UUID:SHA קטנה, מותניתOS/app/provider | ב־4819 כל API26/31/36 online/offline עברו: raw1.6MB, Bundle1036/1060bytes, actual recreate/history/Back/Forward. בדיקות digest/installation/8MB החדשות טרם רצו Native | ed5b874, 4819aa8 |
-| NATIVE-001 | Android | בדיקת Ready יחידה נכשלה בזמן init/restore תקין | MainActivity.java: poll מוגבל20שניות ו־generation המבטל callbacks ישנים | API31/36 actual renderer terminate → recovery/newActivity/Ready עם סעיף14, גופן24 ושאילתה14; API26 lifecycle עבר, termination לא זמין | 13d3485; רכיב4819aa8 |
-| QA-PRIVATE / IO-003 | Android | run-as אינו מורשה; exec-out עלול לשמור הודעת שגיאה כקובץ | collect_android_private_evidence.py + run_android_emulator_qa.sh: userdebug/root/SELinux, stat/bounds/magic/SHA ו־exit תקין | חמישה קבצים מ־API36 הורדו ואומתו בנפרד; PDF146עמודים/1,515,150bytes תואם גיבוב Native. PDF אינו tagged ואין מדפסת פיזית | 06e5533; קבלת רכיב4819aa8 |
-| NATIVE-003 | iOS | Info.plist חסר orientations גרם scaling44→30.9pt | ios/project.yml:3phone/4Pad, raw Info.plist XCTest ובדיקת מערכת אמיתית | ניסוי81b עבר1032→375pt וכפתור44; אינו מספיק לאישור נגישות הכפתור | 81b5f77 |
-| NATIVE-002/003 | iOS | SystemClose חפף למרכז NativeMenu למרות44pt | ConsumerLawReaderApp.swift: containerCornerOffset הרשמי ב־26, fallback16+ | 0d עבר menu/share אמיתיים בחלון375pt/Native44pt, אך כשל בחזרה כשהשיתוף נשאר פתוח.31b דורש Close שנצפה והיעלמות השיתוף. **טרם קבלה משולבת** | 88d3946, 0d3ef3f, 31b870a |
-| CI-004 | CI/iOS | PR paths החסירו metadata/fixtures/dependencies | ios-ci.yml: רשימותpush/PR תואמות | unit/build קיימים; נדרשת קבלת5סימולטורים על המועמד המשולב, כוללiPad18.5 ו־XcodeGen2.46.0 מקובע | 06e5533 |
+| SEARCH-005 | משותף | raw scroll אינו מתאים לאחר reflow | web/mobile.js: יעד נבחר, offset וחתימת פריסה | חמשת רצפי DOM ו־Android בשלוש מערכות עברו94; חזרת iPad26 עברה. Web תיקון3 פורסם ואומת ב־75HTTP | 06e5533; פרסום cca785e |
+| DATA-003 | Android | מצב Chromium גדול ב־Binder גרם קריסה | MainActivity.java, WebViewStateCache.java: מטמון AtomicFile עד8MB והפניית UUID:SHA עם זהות התקנה |94: שלוש מערכות online/offline; raw1.6MB לעומת1036–1200bytes. recreate/history/Back/Forward וקלטי hash/tamper/installation/8MB עברו | ed5b874,5068baf,17bcd14; קבלה94cdf7d |
+| NATIVE-001 | Android | Ready חד פעמי נכשל באתחול מאוחר | MainActivity.java: המתנה עד20שניות ו־generation |31/36: עצירת renderer והתאוששות עם סעיף14/גופן24/שאילתה14 עברו94. הפעולה אינה זמינה26 |13d3485; קבלה94cdf7d |
+| NATIVE-002 | Android | לא הייתה הוכחת IME אמיתי | ReaderInstrumentation.java: מגע, הקלדה, חלון מערכת, גבולות ו־Back | כל3API online/offline עברו94. השדה המשוחזר נגלל לתצוגה לפני מגע; ההקלדה Native |17bcd14; קבלה94cdf7d |
+| QA-PRIVATE / IO-003 | Android | run-as לא מורשה; exec-out עלול להחזיר טקסט שגיאה | collect_android_private_evidence.py, run_android_emulator_qa.sh: userdebug/root/SELinux/stat/magic/SHA | חמישה קבצים אומתו עצמאית ב־94; PDF146עמודים/1,526,437bytes. אינו tagged; אין מדפסת פיזית |06e5533; קבלה94cdf7d |
+| NATIVE-003 | iOS | orientations חסרים גרמו scaling44→30.9pt | ios/project.yml:3phone/4Pad ובדיקת raw Info.plist | iPad26/94 עבר שינוי חלון מערכת1032→375pt ופקדים44pt |81b5f77; קבלה94cdf7d |
+| NATIVE-003 | iOS | SystemClose חפף ל־NativeMenu | ConsumerLawReaderApp.swift: containerCornerOffset26 עם fallback16+; ReaderWindowingUITests.swift | iPad26/94 עבר את כל הרצף: לחיצות מרכז menu/share, סגירה נצפית, selected row נראית לפני tap, שאילתה14 |88d3946,94cdf7d |
+| QA-IOS-LEGACY-SHARE | iOS | identifier של26 או swipe כללי לא סגרו sharesheet ישן | ReaderUITests.swift: Close נגיש מתוך ActivityListView ותיעוד AX/מסך |94: iPhone16 ו־iPad18.5 נכשלו. ניסוי5450373/run42850867489 בבדיקה; אין PASS כולל |94cdf7d; ניסוי5450373 |
+| PERF-003 | Android | לא נבחנה תצורת חומרה מצומצמת | ענף work/android-constrained-20261110, מוצר ו־QA זהים94 |42819646591 PASS; MemTotal1548780KB, ליבה אחת, heap384MB. ניסיון1GB נדחה כשהאמולטור כפה1.5GB; אין טענת OOM |2227c2e |
+| CI-004 | CI/iOS | קלטים חסרים וכלי XcodeGen לא מקובע | ios-ci.yml: רשימות paths זהות,5 סימולטורים ו־XcodeGen2.46.0 עםSHA; archive_for_testflight.sh |94: כל5 הסביבות נבנו;3jobs PASS ושני UI FAIL. נדרשת קבלה סופית לכל5 |06e5533,17bcd14 |
 
-ראיות קבועות: [Android4819](../qa/mobile-2026-11-08/android-state-cache-accepted.json), [קובצי Android](../qa/mobile-2026-11-08/android-private-exports-accepted.json), [התקדמות iPad](../qa/mobile-2026-11-08/ipad-window-hit-test-progress.json), [כשל06](../qa/mobile-2026-11-08/acceptance-06e5533.json), [פרסוםWeb3](../qa/mobile-2026-11-08/public-web-patch3-http-verification.json). הניסויים אינם קבלה משולבת או Native חתום. מקור החוק ומועד האימות נשמרו.
-
-
-הרחבת QA מאוחרת: NATIVE-002 מוסיף IME אמיתי ו־Back (API26 עבר579;31online עבר ו־offline דורש חשיפת שדה משוחזר לפני המגע). ה־fixture המשולב גולל לשדה אחרי השלמת שחזור הרשימה, בלי להקליד באמצעותJS. נוספו גם מקרי stale/tampered/wrong-installation/8MB למטמון;26 עבר את כולם. יש לאמת אותם בכל ה־Native המשולב. אין שינוי נוסף בטקסט או בממשק המשפטי.
+[קבלה94](../qa/mobile-2026-11-08/acceptance-94cdf7d.json), [קובצי Android94](../qa/mobile-2026-11-08/android-private-exports-94cdf7d.json), [iPad26 מלא](../qa/mobile-2026-11-08/ipad-window-94cdf7d.json), [חומרה מצומצמת](../qa/mobile-2026-11-08/android-constrained-hardware.json), [זהות נכסי Web](../qa/mobile-2026-11-08/source-94cdf7d.json), [תחום חיפוש המפתח](../qa/mobile-2026-11-08/signing-availability-scope.json). אין קבלה כוללת ל־94 או Native חתום חדש. המקור המשפטי ומועד אימותו נשמרו.

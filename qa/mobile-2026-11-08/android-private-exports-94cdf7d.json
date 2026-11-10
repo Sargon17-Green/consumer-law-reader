@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "headCommit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+  "run": 42817834059,
+  "job": 129836058781,
+  "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129836058781",
+  "status": "completed",
+  "conclusion": "success",
+  "artifact": {
+    "id": 13765519468,
+    "bytes": 4673634,
+    "sha256": "f72322add33572d1b4465c3836b5aadb8b6dcefee5ff7e36147c71539c97b2cb",
+    "independentFullZipHashVerified": true
+  },
+  "independentFiles": {
+    "android-print-ready.json": {
+      "bytes": 15317,
+      "sha256": "88819e4abe2ef9453523c88d6805264220df4153556438fc2d61a465abbc2b63"
+    },
+    "android-print-ready.png": {
+      "bytes": 341757,
+      "sha256": "4b5e7bd3df41a4aa6b93d5230135b44003a23c994204488aad38d4ca9ccd2df9",
+      "imageWidth": 1920,
+      "imageHeight": 1080
+    },
+    "android-native-document.pdf": {
+      "bytes": 1526437,
+      "sha256": "05ef604d501f3e0c2200c72ac2d8c364f9b9178aaa2d49aacca6fcf4f2779b15"
+    },
+    "android-renderer-state.json": {
+      "bytes": 403,
+      "sha256": "e0752512f6a509b9aa6a1685a2a43448e3d8134d6b5564ab41a197260266eff0"
+    },
+    "android-renderer-state.png": {
+      "bytes": 120683,
+      "sha256": "4c559af617c75d6e694244660e2fbf8d0cf8baebbee59a86853e7f5a1abd7994",
+      "imageWidth": 1920,
+      "imageHeight": 1080
+    }
+  },
+  "pdfInfo": [
+    "Title:           חוק הגנת הצרכן, התשמ\"א–1981",
+    "Creator:         Chromium",
+    "Producer:        Skia/PDF m133",
+    "CreationDate:    Tue Nov 10 14:52:13 2026 IST",
+    "ModDate:         Tue Nov 10 14:52:13 2026 IST",
+    "Custom Metadata: no",
+    "Metadata Stream: no",
+    "Tagged:          no",
+    "UserProperties:  no",
+    "Suspects:        no",
+    "Form:            none",
+    "JavaScript:      no",
+    "Pages:           146",
+    "Encrypted:       no",
+    "Page size:       612 x 792 pts (letter)",
+    "Page rot:        0",
+    "File size:       1526437 bytes",
+    "Optimized:       no",
+    "PDF version:     1.4"
+  ],
+  "collectedWith": {
+    "qemu": "1",
+    "adbUid": "0",
+    "buildType": "userdebug",
+    "selinux": "Enforcing"
+  },
+  "scope": "All5 actual exported files checked independently against collector hashes and file structure. API36 actual Print/Save as PDF/SAF;146-page PDF. Not physical printer; PDF is not tagged. No production debuggable or permission change."
+}

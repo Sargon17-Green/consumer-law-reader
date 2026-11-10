@@ -17,7 +17,7 @@
 
 גבולות אמון: טקסט המקור הארוז אמין; קלט משתמש/קובץ גיבוי/URL/מידע רשת אינם אמינים. אין WebView כללי לאתרים חיצוניים. רק שלושה נתיבי JSON מוגדרים מותרים לנתוני תאריך; אין script/frame חיצוני. קישור חיצוני או שיתוף נפתחים רק בפעולת משתמש.
 
-אחסון: העדפות ונושאים ב־localStorage באותו origin; היסטוריית מיקום/חיפוש נפרדת. גיבוי הוא UTF-8 JSON, whitelist של תשעה מפתחות, 1MB; אין ענן אוטומטי. Android אינו שם גיבוי גדול ב־Bundle: נעשה שימוש ב־AtomicFile פרטי. פרטי schema ומקרי קצה: [פורמט הגיבוי](docs/SETTINGS_BACKUP_FORMAT_HE.md).
+אחסון: העדפות ונושאים ב־localStorage באותו origin; היסטוריית מיקום/חיפוש נפרדת. גיבוי הוא UTF-8 JSON, whitelist של תשעה מפתחות, 1MB; אין ענן אוטומטי. Android שומר היסטוריית WebView גדולה ב־AtomicFile פרטי; ב־Bundle המערכת מועברת הפניה קטנה. זהו מטמון נפרד מגיבוי ההגדרות. פרטי schema ומקרי קצה: [פורמט הגיבוי](docs/SETTINGS_BACKUP_FORMAT_HE.md).
 
 חוזי ממשק: `lawMobile` חושף ניווט/חיפוש/שמירת session; `lawSettings` חושף exportJSON/prepareImport/applyImport; `NativeLaw` קיים רק במעטפת המקורית ומעביר פעולות מערכת. Native מאשר העתקה בפועל; קלט גדול נשמר שלם ב־fallback נגיש. אין להוסיף HTML מתוך קלט או להעביר טקסט חוק דרך רשת.
 
