@@ -115,15 +115,16 @@ function buildSearch(){if(searchRecords)return searchRecords;searchRecords=[];$$
 function appendSnippet(node,text,query,exact=false){const part=window.LawCore.snippet(text,query,exact);node.append(document.createTextNode(part.before));if(part.mark){const mark=document.createElement('mark');mark.textContent=part.mark;node.append(mark);}node.append(document.createTextNode(part.after));}
 function showSearch(){
  const target=openSheet('חיפוש בחוק ובחקיקת המשנה'),restoring=!!searchState,restoreScroll=searchState?.scroll||0;
+ const restoreSelection=searchState?.selection,restoreLayout=searchState?.layout,rendered=new Map();
  const input=document.createElement('input');input.type='search';input.maxLength=512;input.className='m-search-input';input.id='mobile-search';input.placeholder='מילה, צירוף או מספר סעיף';input.setAttribute('aria-label','חיפוש בטקסט');input.value=searchState?.query||'';
  const meta=document.createElement('div');meta.className='m-search-meta';
  const count=document.createElement('span');count.setAttribute('role','status');count.setAttribute('aria-live','polite');
  const scope=document.createElement('select');scope.setAttribute('aria-label','תחום חיפוש');for(const[value,label]of [['all','הכול'],['law','החוק'],['delegated','חקיקת משנה']]){const o=document.createElement('option');o.value=value;o.textContent=label;scope.append(o);}scope.value=searchState?.scope||'all';
  const mode=document.createElement('select');mode.setAttribute('aria-label','אופן התאמה');for(const[value,label]of [['normalized','התאמה מנורמלת'],['exact','התאמה מדויקת']]){const o=document.createElement('option');o.value=value;o.textContent=label;mode.append(o);}mode.value=searchState?.mode||'normalized';
  meta.append(count,scope,mode);const results=document.createElement('div');results.id='mobile-search-results';target.append(input,meta,results);
- const remember=()=>{searchState={query:input.value,scope:scope.value,mode:mode.value,scroll:target.scrollTop,rendered:results.querySelectorAll('.m-result').length};};
+ const remember=()=>{const same=searchState?.query===input.value&&searchState?.scope===scope.value&&searchState?.mode===mode.value;searchState={query:input.value,scope:scope.value,mode:mode.value,scroll:target.scrollTop,rendered:results.querySelectorAll('.m-result').length,selection:same?searchState.selection:null,layout:{...readingLayout(),height:innerHeight}};};
  const run=()=>{
-  if(!input.isConnected)return;results.replaceChildren();const raw=input.value,q=mode.value==='exact'?raw:fold(raw);
+  if(!input.isConnected)return;results.replaceChildren();rendered.clear();const raw=input.value,q=mode.value==='exact'?raw:fold(raw);
   if(!q||q.length>512){count.textContent='';const hint=document.createElement('p');hint.className='m-hint';hint.textContent=q.length>512?'החיפוש מוגבל ל־512 תווים.':'הקלד מילה או ביטוי לחיפוש.';results.append(hint);remember();return;}
   const records=buildSearch(),number=/^(?:סעיף\s*)?[0-9]+[א-ת]*$/.test(q)?q.replace(/^סעיף\s*/,''):null;
   const matches=records.filter(r=>(scope.value==='all'||r.kind===scope.value)&&((mode.value==='exact'?r.text:r.folded).includes(q)||(number&&(r.title.startsWith('סעיף '+number+' ·')||r.title.startsWith('תקנה / סעיף '+number+' ·')))));
@@ -132,12 +133,29 @@ function showSearch(){
   const render=from=>{const fragment=document.createDocumentFragment(),batch=from===0?Math.max(60,Math.min(searchState?.rendered||60,matches.length)):60;
    for(const r of matches.slice(from,from+batch)){
     const b=document.createElement('button');b.type='button';b.className='m-result';const heading=document.createElement('strong'),sub=document.createElement('small'),snippet=document.createElement('span');heading.textContent=r.title;sub.textContent=r.subtitle+' · '+(r.text.includes(raw)?'התאמה מדויקת':'התאמה מנורמלת');appendSnippet(snippet,r.text,raw,mode.value==='exact');b.append(heading,sub,snippet);
-    b.addEventListener('click',()=>{remember();goTo(r.el);$('#mobile-return').hidden=false;saveSession(r.el.id);});fragment.append(b);
+    rendered.set(r.el.id,b);
+    b.addEventListener('click',()=>{remember();searchState.selection={target:r.el.id,offset:b.getBoundingClientRect().top-target.getBoundingClientRect().top};goTo(r.el);$('#mobile-return').hidden=false;saveSession(r.el.id);});fragment.append(b);
    }results.append(fragment);if(from+batch<matches.length){const more=action('תוצאות נוספות',()=>{more.remove();render(from+batch);});results.append(more);}
   };render(0);remember();
  };
+ const restoreIdentity=[input.value,scope.value,mode.value];
  input.addEventListener('input',()=>{remember();clearTimeout(searchTimer);searchTimer=setTimeout(run,160);});scope.addEventListener('change',run);mode.addEventListener('change',run);run();
- if(restoring)requestAnimationFrame(()=>{target.scrollTop=restoreScroll;});else input.focus();
+ if(restoring)requestAnimationFrame(()=>{
+  if(!input.isConnected||!sheet.open||input.value!==restoreIdentity[0]||scope.value!==restoreIdentity[1]||mode.value!==restoreIdentity[2])return;
+  target.scrollTop=restoreScroll;
+  const layout=readingLayout(),changed=!restoreLayout||restoreLayout.width!==layout.width||restoreLayout.size!==layout.size||restoreLayout.height!==innerHeight;
+  if(changed&&typeof restoreSelection?.target==='string'&&restoreSelection.target.length<=512){
+   const button=rendered.get(restoreSelection.target);
+   if(button){
+    const rect=button.getBoundingClientRect(),box=target.getBoundingClientRect();
+    const offset=Number.isFinite(restoreSelection.offset)?restoreSelection.offset:0;
+    const visibleOffset=Math.max(0,Math.min(offset,Math.max(0,target.clientHeight-rect.height)));
+    target.scrollTop+=rect.top-box.top-visibleOffset;
+    searchState.selection={target:restoreSelection.target,offset:button.getBoundingClientRect().top-target.getBoundingClientRect().top};
+   }
+  }
+  remember();
+ });else input.focus();
 }
 
 function returnToSearch(){if(!searchState)return false;$('#mobile-return').hidden=true;showSearch();return true;}
