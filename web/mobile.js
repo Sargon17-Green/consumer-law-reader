@@ -9,6 +9,9 @@ const safeGet=k=>{try{return localStorage.getItem(k);}catch{return null;}};
 const safeSet=(k,v)=>{try{localStorage.setItem(k,String(v));return true;}catch{toast('שמירת ההעדפות נכשלה');return false;}};
 const safeRemove=k=>{try{localStorage.removeItem(k);}catch{toast('שמירת ההעדפות נכשלה');}};
 const native=()=>window.NativeLaw;
+let offlineState='saving';
+const offlineMessage=()=>offlineState==='ready'?'העותק המקומי מוכן לקריאה, לניווט ולחיפוש ללא רשת.':offlineState==='saving'?'העותק המקומי נשמר כעת. יש להמתין לאישור המוכנות לפני שימוש ללא רשת.':'לא ניתן לאמת עותק מקומי מלא. אפשר להמשיך לקרוא כעת; לפני שימוש ללא רשת יש לפתוח שוב עם חיבור ולבדוק מוכנות.';
+function setOfflineState(state){offlineState=state;document.documentElement.dataset.lawOfflineReady=state==='ready'?'true':state==='saving'?'pending':'false';const status=$('#mobile-offline-status');if(status)status.textContent=offlineMessage();}
 const editorial=(()=>{try{return JSON.parse($('#law-editorial-status')?.textContent||'{}');}catch{return {};}})();
 const editorialDate=()=>{const t=editorial.law_text_last_verified_on||'';const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(t);return m?m[3]+'.'+m[2]+'.'+m[1]:'לא צוין';};
 const cleanText=s=>String(s||'').replace(/\s+/g,' ').trim();
@@ -55,6 +58,13 @@ function goTo(target,push=true,highlight=true){
  el.scrollIntoView({block:'start',behavior:'instant'});
  if(push&&el.id&&location.hash!=='#'+encodeURIComponent(el.id))history.pushState({lawTarget:el.id},'','#'+encodeURIComponent(el.id));
  if(!el.hasAttribute('tabindex'))el.setAttribute('tabindex','-1');el.focus({preventScroll:true});
+ // Focus may adjust a nested scroller even with preventScroll. Align only
+ // afterwards, below the actual fixed return control at the current font size.
+ if(openedRegulation&&el!==openedRegulation&&openedRegulation.contains(el)){
+  const back=$('#mobile-regulation-back'),top=openedRegulation.getBoundingClientRect().top;
+  const visibleTop=Math.max(top,back&&!back.hidden?back.getBoundingClientRect().bottom:top)+12;
+  openedRegulation.scrollBy({top:el.getBoundingClientRect().top-visibleTop,behavior:'instant'});
+ }
  saveSession(el.id);return true;
 }
 function saveSession(target){try{const previous=JSON.parse(safeGet(SESSION)||'{}');safeSet(SESSION,JSON.stringify({schema:1,target:target||currentArticle()?.id||previous.target||'',point:navigationPoint(),search:searchState}));}catch{}}
@@ -140,6 +150,7 @@ function showAccessibility(){const target=openSheet('נגישות');const apply=
 
 function installInstructions(){
   const target=openSheet('התקנת האפליקציה');
+  const status=document.createElement('p');status.id='mobile-offline-status';status.className='m-hint';status.setAttribute('role','status');status.textContent=offlineMessage();target.append(status);
   const installed=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
   const p=document.createElement('p');
   if(installed){p.textContent='האפליקציה כבר נפתחה מהתקנה במסך הבית. אפשר לחזור אליה מהסמל הקבוע, בלי לחפש שוב את הקישור.';target.append(p);return;}
@@ -219,7 +230,20 @@ document.addEventListener('click',e=>{
     lastActivatedLink=null;
   }
 const b=e.target.closest('[data-mobile]');if(b){({search:showSearch,toc:showToc,navigate:showNavigate,actions:showGlobalActions,sources:()=>window.LawSources.showHub(),more:showMore})[b.dataset.mobile]();return;}const tapped=e.target.closest('#frame table.article[id],#frame table.article_deleted[id],#frame table.appendix[id]');if(tapped)activeArticle=tapped;const defined=e.target.closest('.defined');if(defined){e.preventDefault();e.stopPropagation();pressLink(defined);definition(defined);return;}const a=e.target.closest('a[href]');if(!a)return;const href=a.getAttribute('href');if(href.startsWith('#')){e.preventDefault();lastActivatedLink=a;try{goTo(decodeURIComponent(href.slice(1)));pressLink(a);}catch{toast('כתובת הקישור אינה תקינה');}}else if(href.startsWith('./')&&native()){e.preventDefault();try{native().openAttachment(decodeURIComponent(href.slice(2)));}catch{toast('כתובת הקובץ אינה תקינה');}}else if(/^https?:/.test(href)){a.target='_blank';a.rel='noopener noreferrer';}if(!href.startsWith('#'))pressLink(a);},true);history.scrollRestoration='manual';window.addEventListener('popstate',event=>{clearTargetHighlight(true);if(sheet.open)closeSheet();if(location.hash){try{goTo(decodeURIComponent(location.hash.slice(1)),false,false);}catch{}}else scrollTo(0,0);if(event.state?.lawPoint)restorePoint(event.state.lawPoint);if(lastActivatedLink?.isConnected)lastActivatedLink.classList.add('m-link-return');});window.lawMobileBack=()=>{clearTargetHighlight(true);return closeSheet()||(!$('#mobile-return').hidden&&returnToSearch())||closeRegulation();};window.LawTopics.init({openSheet,action,goTo,toast,articleLabel});window.LawSources.init({openSheet,action,articleLabel,stripIds,goTo,copy,fold});window.reveal=(id)=>{const el=document.getElementById(id);if(!el)return;if(openedRegulation===el){closeRegulation();return;}if(el.classList.contains('delegated_legislation')){openRegulation(el);el.scrollTop=0;return;}el.style.display=el.style.display==='block'?'none':'block';};window.lawMobile={version:window.LawCore.VERSION,goTo,showActions,showGlobalActions,currentArticle,showToc,showNavigate,showSearch,showMore,buildSearch,definition,openRegulation,closeRegulation,shareLink,saveSession,setSystemFontScale,copyResult};window.addEventListener('pagehide',()=>saveSession());document.addEventListener('visibilitychange',()=>{if(document.hidden)saveSession();});let restored=false,session;try{session=JSON.parse(safeGet(SESSION)||'null');}catch{}if(session?.schema===1){searchState=session.search&&typeof session.search.query==='string'&&session.search.query.length<=512?session.search:null;if(searchState)$('#mobile-return').hidden=false;if(typeof session.target==='string'&&document.getElementById(session.target)&&(!location.hash||location.hash==='#'+encodeURIComponent(session.target))){goTo(session.target,false,false);restorePoint(session.point);restored=true;}}document.documentElement.dataset.lawReady='true';window.dispatchEvent(new Event('law-ready'));let scrollSave;window.addEventListener('scroll',()=>{clearTimeout(scrollSave);scrollSave=setTimeout(()=>{if(!sheet.open)saveSession();},350);},{passive:true});if(!native())initOffline();if(location.hash&&!restored)setTimeout(()=>{try{goTo(decodeURIComponent(location.hash.slice(1)),false);}catch{}},100);window.addEventListener('load',()=>{document.onclick=null;document.oncontextmenu=null;});}
-async function initOffline(){if(!('serviceWorker' in navigator))return;try{await navigator.serviceWorker.register('./sw.js');}catch{}}
+async function initOffline(){
+ setOfflineState('saving');
+ if(!('serviceWorker' in navigator)){setOfflineState('unavailable');return;}
+ const worker=navigator.serviceWorker;
+ const deadline=setTimeout(()=>setOfflineState('unavailable'),60000);
+ const requestStatus=()=>{if(worker.controller)worker.controller.postMessage({type:'OFFLINE_STATUS'});};
+ worker.addEventListener('message',event=>{
+  if(event.source!==worker.controller||!['OFFLINE_READY','OFFLINE_ERROR'].includes(event.data?.type))return;
+  clearTimeout(deadline);setOfflineState(event.data.type==='OFFLINE_READY'?'ready':'unavailable');
+ });
+ worker.addEventListener('controllerchange',requestStatus);
+ try{const registration=await worker.register('./sw.js');registration.addEventListener('updatefound',()=>{const installing=registration.installing;installing?.addEventListener('statechange',()=>{if(installing.state==='redundant'&&!worker.controller){clearTimeout(deadline);setOfflineState('unavailable');}});});await worker.ready;requestStatus();}
+ catch{clearTimeout(deadline);setOfflineState('unavailable');}
+}
 
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
 window.addEventListener('appinstalled',()=>{deferredInstall=null;toast('האפליקציה הותקנה; אפשר לפתוח אותה מהסמל הקבוע');});

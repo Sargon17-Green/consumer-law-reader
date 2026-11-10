@@ -34,6 +34,10 @@ try:
           });
         }''')
         assert status=='OFFLINE_READY',status
+        page.wait_for_function("()=>document.documentElement.dataset.lawOfflineReady==='true'")
+        page.evaluate('lawMobile.showMore()');page.get_by_role('button',name='התקנת האפליקציה',exact=True).click()
+        assert 'העותק המקומי מוכן' in page.locator('#mobile-offline-status').inner_text()
+        page.locator('#mobile-sheet-close').click()
         manifest_data=context.new_cdp_session(page).send('Page.getAppManifest')
         assert not manifest_data['errors'],manifest_data['errors']
         manifest=json.loads(manifest_data['data'])
@@ -45,13 +49,21 @@ try:
         context.set_offline(True)
         page.reload(wait_until='load');page.wait_for_function("()=>document.documentElement.dataset.lawReady==='true'")
         assert page.evaluate('lawMobile.buildSearch().length')>500
+        page.wait_for_function("()=>document.documentElement.dataset.lawOfflineReady==='true'")
         page.locator('[data-mobile=search]').click();page.locator('#mobile-search').fill('14');page.wait_for_function("()=>document.querySelectorAll('.m-result').length>0")
         page.get_by_role('button',name=re.compile(r'^סעיף 14(?:\s|$)')).first.click();assert page.evaluate('location.hash')=='#article_14'
         page.close();page=context.new_page();page.goto(url+'?entry=home#article_14',wait_until='load');page.wait_for_function("()=>document.documentElement.dataset.lawReady==='true'")
         assert page.evaluate("localStorage.getItem('law-reader-font')")=='24'
         assert page.evaluate('location.hash')=='#article_14'
         assert page.evaluate('lawMobile.buildSearch().length')>500
-        report={'schema':1,'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'result':'PASS','environment':'Actual Chromium ServiceWorker at trusted loopback origin, canonical /consumer-law-reader/reader/ subpath, Playwright network fully offline after cache activation','coverage':['real complete cache activation and OFFLINE_STATUS reply','stable manifest identity/start_url/scope/standalone','offline reload, Hebrew search and exact section navigation','new page at home-screen start URL with query/hash and preserved preferences'],'cache':cache,'limitations':'Not a physical Android/iOS installation or OS home-screen icon test; native launcher tests are separate'}
+        # An unrelated extra entry must not disguise a missing required asset.
+        missing=page.evaluate('''async()=>{const name=(await caches.keys()).find(n=>n.startsWith('law-reader-'));const cache=await caches.open(name);const before=(await cache.keys()).length;if(!await cache.delete('./mobile.css'))throw Error('Required stylesheet was not cached');await cache.put('./unrelated-qa-entry',new Response('unrelated'));return {before,after:(await cache.keys()).length}}''')
+        assert missing['before']==missing['after'],missing
+        page.evaluate("navigator.serviceWorker.controller.postMessage({type:'OFFLINE_STATUS'})")
+        page.wait_for_function("()=>document.documentElement.dataset.lawOfflineReady==='false'")
+        page.evaluate('lawMobile.showMore()');page.get_by_role('button',name='התקנת האפליקציה',exact=True).click()
+        assert 'לא ניתן לאמת עותק מקומי מלא' in page.locator('#mobile-offline-status').inner_text()
+        report={'schema':1,'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'sourceDirty':bool(subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True)),'result':'PASS','environment':'Actual Chromium ServiceWorker at trusted loopback origin, canonical /consumer-law-reader/reader/ subpath, Playwright network fully offline after cache activation','coverage':['real complete cache activation and OFFLINE_STATUS reply','visible installed-app offline readiness and missing-cache failure','stable manifest identity/start_url/scope/standalone','offline reload, Hebrew search and exact section navigation','new page at home-screen start URL with query/hash and preserved preferences','required CSS deleted and unrelated entry added: unchanged count must still report OFFLINE_ERROR'],'cache':cache,'negativeCacheCase':missing,'limitations':'Not a physical Android/iOS installation or OS home-screen icon test; native launcher tests are separate'}
         (ROOT/'evidence').mkdir(exist_ok=True);(ROOT/'evidence/pwa-offline.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');print(json.dumps(report,ensure_ascii=False))
         context.close();browser.close()
 finally:

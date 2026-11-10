@@ -86,6 +86,7 @@ jobs:
             evidence/pages-configuration.json
           retention-days: 90
   deploy:
+    if: needs.build.outputs.mode == 'workflow'
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 14
@@ -103,32 +104,36 @@ jobs:
         with:
           name: public-site-preservation
           path: evidence/
-      - name: Request a build using the existing branch-based Pages source
-        if: needs.build.outputs.mode == 'legacy'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          SITE_COMMIT: ${{ needs.build.outputs.site_commit }}
-        run: |
-          gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds" > evidence/pages-build-request.json
-          for attempt in $(seq 1 60); do
-            gh api "repos/$GITHUB_REPOSITORY/pages/builds/latest" > evidence/pages-build.json
-            if jq -e --arg commit "$SITE_COMMIT" '.status == "built" and .commit == $commit' evidence/pages-build.json; then
-              exit 0
-            fi
-            if jq -e --arg commit "$SITE_COMMIT" '.status == "errored" and .commit == $commit' evidence/pages-build.json; then
-              cat evidence/pages-build.json
-              exit 1
-            fi
-            sleep 5
-          done
-          cat evidence/pages-build.json
-          exit 1
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
         if: needs.build.outputs.mode == 'workflow'
       - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
         if: needs.build.outputs.mode == 'workflow'
         id: deployment
       - name: Verify actual public reader bytes, preserved alpha and original APK
+        run: python3 scripts/verify_public_reader.py verify
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: public-reader-http-verification
+          path: evidence/
+          retention-days: 90
+  verify-legacy:
+    if: needs.build.outputs.mode == 'legacy'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      # Branch-based Pages publishes through its existing approved gh-pages workflow.
+      # This job only verifies public bytes; it requests no deployment or environment access.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: public-site-preservation
+          path: evidence/
+      - name: Verify the actual branch-based public deployment
         run: python3 scripts/verify_public_reader.py verify
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         if: always()
