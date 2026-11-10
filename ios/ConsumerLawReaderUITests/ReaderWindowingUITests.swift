@@ -6,9 +6,9 @@ final class ReaderWindowingUITests: XCTestCase {
         continueAfterFailure=false
         executionTimeAllowance=360
     }
-    private func record(_ app: XCUIApplication,_ label: String) {
+    private func record(_ app: XCUIApplication,_ label: String,native:Bool=true) {
         let details:String
-        if app.bundleIdentifier == "io.github.sargon17green.consumerlawreader" {
+        if native {
             let menu=app.buttons.matching(identifier:"native-menu").firstMatch
             let share=app.buttons.matching(identifier:"native-share").firstMatch
             let web=app.webViews.firstMatch
@@ -34,12 +34,12 @@ final class ReaderWindowingUITests: XCTestCase {
             if multitasking != nil {break}
             settings.swipeUp()
         }
-        record(settings,"Settings before multitasking selection")
+        record(settings,"Settings before multitasking selection",native:false)
         let entry=try XCTUnwrap(multitasking,"Official Multitasking & Gestures setting was not exposed; inspect hierarchy rather than inventing a private preference")
         entry.tap()
         let windowed=settings.descendants(matching:.any).matching(NSPredicate(format:"label == %@","Windowed Apps")).firstMatch
         XCTAssertTrue(windowed.waitForExistence(timeout:20),settings.debugDescription)
-        record(settings,"Windowed Apps choice")
+        record(settings,"Windowed Apps choice",native:false)
         let choice=settings.buttons.matching(identifier:"com.apple.settings.multitaskingAndGestures.windowedApps").firstMatch
         XCTAssertTrue(choice.exists)
         if !choice.isSelected {choice.tap()}
@@ -77,7 +77,7 @@ final class ReaderWindowingUITests: XCTestCase {
         // the handle in the bottom-right 28pt square. Test a public pointer drag
         // over that observed handle, with system hierarchy and dimensions recorded.
         let springboard=XCUIApplication(bundleIdentifier:"com.apple.springboard")
-        record(springboard,"System resize controls before pointer drag")
+        record(springboard,"System resize controls before pointer drag",native:false)
         let handles=springboard.otherElements.matching(identifier:"resize-grabber").allElementsBoundByIndex
         let handle=try XCTUnwrap(handles.first(where:{$0.label.contains("חוק הגנת הצרכן") && ($0.value as? String)=="Bottom Right"}),"Use the actual observed system resize handle")
         let start=handle.coordinate(withNormalizedOffset:CGVector(dx:0,dy:0)).withOffset(CGVector(dx:6,dy:6))
@@ -98,7 +98,7 @@ final class ReaderWindowingUITests: XCTestCase {
         (innerMenu.exists ? innerMenu:menu).tap()
         let printAction=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
         record(app,"After actual resized native menu tap")
-        record(springboard,"System controls after native menu tap")
+        record(springboard,"System controls after native menu tap",native:false)
         XCTAssertTrue(printAction.waitForExistence(timeout:10),"Native menu must open after the real pointer/touch tap, despite system window controls")
         web.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.22)).tap()
         let share=app.buttons.matching(identifier:"native-share").firstMatch
