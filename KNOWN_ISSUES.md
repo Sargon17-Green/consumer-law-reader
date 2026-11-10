@@ -12,7 +12,7 @@
 | NATIVE-003 / Issue13 | iPad26/94 עבר במלואו | scaling וחפיפת SystemClose תוקנו;375pt/44pt/תפריט/שיתוף/סגירה/תוצאה גלויה לפני tap עברו. [ראיה](qa/mobile-2026-11-08/ipad-window-94cdf7d.json) |
 | IO-003 / Issue12 | Android התקבל ו־Issue נסגר | PDF146עמודים וקובצי QA אומתו עצמאית. סיבת MediaProvider/FUSE ההיסטורית לא הוכחה ואין טענת שינוי במערכת. [ראיה](qa/mobile-2026-11-08/android-private-exports-94cdf7d.json) |
 | IO-003 iOS | formatter מלא התקבל ברכיב; Files-save UI נפרד | UIKit126עמודים אומת גם ב־Poppler. לא נבדקה שמירה בממשק Files או מדפסת פיזית. [ראיה](qa/mobile-2026-11-08/ios-complete-pdf-component.json) |
-| NATIVE-002 / A11Y | בדיקות IME/XXXL חדשות ממתינות לקבלה | Android IME עבר; נוספו assertions של מקלדת תוכנה iOS ושדה מעליה, ופרופיל מערכת XXXL. אין PASS לפני completed; אין כיסוי לכל cutout/מקלדת |
+| NATIVE-002 / A11Y | XXXL ו־IME iOS עברו ברכיב; קבלה כוללת כשלה | Android IME עבר; נוספו assertions של מקלדת תוכנה iOS ושדה מעליה, ופרופיל מערכת XXXL. אין PASS לפני completed; אין כיסוי לכל cutout/מקלדת |
 | COVERAGE-LOW-MEMORY | חלקי ומדוד | Android26 עבר1.5GB/ליבה אחת; renderer recovery31/36 עבר. אין טענת1GB/OOM/לחץ ממושך/סך תהליכיWeb |
 | COVERAGE-PHYSICAL | לא נבדק | מכשירים פיזיים, VoiceOver/TalkBack אנושיים, מדפסת וקוראWord חיצוני |
 | SIGN-ANDROID / SIGN-IOS | גישה חיצונית חסרה | לא אומת מפתח Android המקורי נגיש; אין Team/profiles/ASC. אין Debug כשדרוג, IPA חתום או TestFlight |

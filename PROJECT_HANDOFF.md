@@ -32,3 +32,12 @@ SHA256 המשפטי נשאר `de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b99
 Parcel cache זמני ומותנה באותה התקנת OS/app/provider; אינו גיבוי נייד. כשל חוזר למיקום לוגי והגדרות נשמרות בנפרד. collector פרטי פועל רק באמולטור userdebug/UID0/SELinux Enforcing ומאמת בתים; אין החלשת debuggable.
 
 תיקונים, בדיקות, PR, מיזוג ופרסום שעברו שעריהם מותרים אוטונומית. אין force-push, שינוי חתימה או הצגת Debug/סימולטור כהפצה. חתימה פרטית, Apple Team/ASC, זכויות/תשלום ומכשיר פיזי אינם מומצאים; הפעולות המדויקות ב־EXTERNAL_ACTIONS. אם סביבת Work זמנית נעלמת, הקוד בענפים, GitHub API ו־Actions מאפשרים המשך בלי התקנת כלים אצל המשתמש.
+
+## עדכון checkpoint — קודם לקרוא לפני הפעלת ריצות נוספות
+
+
+עדכון completed:027iOS הסתיים4/6PASS. פרופיל מערכת accessibility XXXL עבר בפועל (input18,422,366,54; keyboard0,583,402,233), כולל8מבחני WK/policy ו־UI מלא274.357שניות. iPad26 Print Close ו־iPhone18.5 lifecycle נשארו כשלי קבלה. Android bfcb7e1 עבר26/36 אך31 לא הקליד אחרי ACTION_SET_TEXT;94dabd5/run42871943171 בודק מחיקה במקש Native. אבחון lifecycle תוקן ל־475d9fa/run42871844738 לאחר שגיאת קומפילציה ב־trace בלבד.
+
+בדיקת checkpoint a06c91f/run42871114992/job130022342617 הסתיימהPASS:12מסמכים/63דרישות,52יחידות,35SHA/DOM,500UTF16 ותאריך fallback. [תמונות מקוריות קבועות](qa/mobile-2026-11-08/screens/README.md) נשמרו ב־Git. אין להסיק מכך קבלה של Native.
+
+ראשי הניסויים והתרחישים המלאים: [candidate-027-followup.json](qa/mobile-2026-11-08/candidate-027-followup.json). מקור המועמד עדיין PR11/027; ענף docs מכיל את הראיות העדכניות. לאחר תוצאה חדשה יש לעדכן את הקטלוג, לא להסתמך על מצבי pending ההיסטוריים למעלה.

@@ -32,3 +32,7 @@
 - [Issue12](https://github.com/Sargon17-Green/consumer-law-reader/issues/12) נסגר לפי קבלת PDF ב־Android. Issues13/14/15 נשארים עד קבלה משולבת ומיזוג; Issue7 עד חתימה/שדרוג/פרסום תואמים.
 
 הקבלה המלאה ההיסטורית706a3bc נשמרת בהיקפה; היא אינה מכסה תיקונים חדשים. מגבלות ופעולות המשך ב־[BACKLOG](BACKLOG.md), [KNOWN_ISSUES](KNOWN_ISSUES.md), [EXTERNAL_ACTIONS](EXTERNAL_ACTIONS.md).
+
+עדכון completed:027iOS הסתיים4/6PASS. פרופיל מערכת accessibility XXXL עבר בפועל (input18,422,366,54; keyboard0,583,402,233), כולל8מבחני WK/policy ו־UI מלא274.357שניות. iPad26 Print Close ו־iPhone18.5 lifecycle נשארו כשלי קבלה. Android bfcb7e1 עבר26/36 אך31 לא הקליד אחרי ACTION_SET_TEXT;94dabd5/run42871943171 בודק מחיקה במקש Native. אבחון lifecycle תוקן ל־475d9fa/run42871844738 לאחר שגיאת קומפילציה ב־trace בלבד.
+
+בדיקת checkpoint a06c91f/run42871114992/job130022342617 הסתיימהPASS:12מסמכים/63דרישות,52יחידות,35SHA/DOM,500UTF16 ותאריך fallback. [תמונות מקוריות קבועות](qa/mobile-2026-11-08/screens/README.md) נשמרו ב־Git. אין להסיק מכך קבלה של Native.

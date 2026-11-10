@@ -1670,6 +1670,14 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42861539523",
           "result": "FAIL final combined acceptance; completed PASS iPhone26.2/16 and iPad18.5, Print Close failure iPad26.2, integration lifecycle failure iPhone18.5",
           "scope": "Exact failures/diagnostic branches in qa/mobile-2026-11-08/candidate-027-followup.json. UI18.5 and iPad window resize passed separately; no full candidate acceptance."
+        },
+        {
+          "commit": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+          "run": 42861539523,
+          "job": 129988671238,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42861539523/job/129988671238",
+          "result": "PASS actual iPhone26.2 system accessibility XXXL, software keyboard bounds and complete functional UI",
+          "scope": "Field above keyboard and all8 policy/WK tests; no physical device or full product acceptance. See permanent candidate-027-followup.json"
         }
       ],
       "dependencies": [],
@@ -2910,7 +2918,16 @@
       "tests": [
         "scripts/validate_project_docs.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "commit": "a06c91f8ff7b5d48b6470e88e891cb9bd9ead405",
+          "run": 42871114992,
+          "job": 130022342617,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42871114992/job/130022342617",
+          "result": "PASS12documents/63requirements, exact rendered catalog,52unit and35legal SHA/DOM",
+          "scope": "Checkpoint f1bbf53 plus validation workflow only; source validation, no native/publication acceptance"
+        }
+      ],
       "dependencies": [],
       "published": {
         "Android": null,
@@ -3387,16 +3404,18 @@
       "evidence": "qa/mobile-2026-11-08/ios-complete-pdf-component.json"
     },
     "iOSAccessibilityIME": {
-      "commit": "0c9507a5b486a5e28dd4aeec2743a5f7db255a03",
-      "run": 42858470735,
-      "result": "Initial trial completed without allocated runner; no app test. Final027 actual keyboard passed all completed five profiles; system XXXL pending at checkpoint."
+      "commit": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+      "run": 42861539523,
+      "job": 129988671238,
+      "result": "completed PASS actual system XXXL/full WK/UI and software keyboard bounds; final combined candidate still FAIL",
+      "evidence": "qa/mobile-2026-11-08/candidate-027-followup.json"
     }
   },
   "lastCombinedCandidate": {
     "head": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
     "tree": "c530ca59ea89d78b28bf5bb244e57ebc4bcc7276",
     "testedPRMergeCommit": "0bf9297bba93aabb1ffa93f1d5d4e50fc3b9b863",
-    "result": "FAIL: Linux8/9PASS, native Print Close/lifecycle failures; XXXL pending at checkpoint",
+    "result": "completed FAIL: Linux8/9PASS; iOS4/6PASS including actual system XXXL; Print Close26.2 and lifecycle18.5 fail",
     "evidence": "qa/mobile-2026-11-08/candidate-027-followup.json"
   },
   "candidateBranch": "fix/pastafari-date-android-20261028",
