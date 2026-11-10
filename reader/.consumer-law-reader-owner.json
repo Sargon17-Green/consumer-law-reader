@@ -1,13 +1,13 @@
 {
   "owner": "Sargon17-Green/consumer-law-reader",
   "schema": 1,
-  "sourceCommit": "83fe5ec4a0d17c209088354c4ff748f63d7188a0",
+  "sourceCommit": "c3e9d9e5a62454b2d6e857476aae284c093cefef",
   "assets": {
     "PEGI_Discrimination.jpg": "60c1e187177e0ef8be4b8d95bf99ca30a1595bd6a6ec233f32b711d4964b928a",
     "PEGI_Drugs.jpg": "f529b7fe62bcc8304a790f57a5ef7e9a64f5e043d81a6cad5a814ed541c08e5d",
-    "sw.js": "a4de112d6f88d2afc8ebf83074f613c63ceed0fb6b168a08d2b98bf2137156dd",
+    "sw.js": "8de577a42cdf9b206871158d2ee819f86c71dbafc983f5d598c8dbb4c79c26db",
     "PEGI_Sex.png": "4106677658046d7d4377649d852137afb371e613301a3ac0014b068175e74f18",
-    "mobile.js": "6cb9ce52d9923343c232589613ffc2d89764d256e636cf84464441bffa767766",
+    "mobile.js": "13a682973d1ec70ad273d9d88bda449689163b817c64947881e7c9b6f802938a",
     "PEGI_Gambling.png": "dc19d7eb0df5b23ae06f110cd05301591db5f46cae636761f45c407715ad7bfe",
     "Emblem_of_Israel_dark_blue_border.png": "f5b0fd8c571d8c53a22c7e654fbc51667935c77ce6e322f1d963429a3afd8579",
     "PEGI_18+.png": "abb295ecea717a1f6a31efb6445128027f3aea22f64de30da283a7fa4c85253d",
