@@ -44,7 +44,7 @@ public final class ReaderInstrumentation extends Instrumentation {
     }
     private void ready() throws Exception {
         for(int i=0;i<240;i++) {
-            if("true".equals(js((seed||verifySeed)?"!!window.lawMobile":"document.documentElement.dataset.lawReady === 'true' && document.visibilityState === 'visible' && !matchMedia('print').matches"))){
+            if("true".equals(js((seed||verifySeed)?"!!window.lawMobile":"document.documentElement && document.documentElement.dataset.lawReady === 'true' && document.visibilityState === 'visible' && !matchMedia('print').matches"))){
                 if(seed||verifySeed)return;
                 final boolean[] nativeReady={false};
                 runOnMainSync(()->{
@@ -57,7 +57,10 @@ public final class ReaderInstrumentation extends Instrumentation {
             }
             Thread.sleep(250);
         }
-        throw new Exception("No application readiness; WebView="+WebView.getCurrentWebViewPackage());
+        final boolean[] nativeState={false,false,false,false};
+        runOnMainSync(()->{try{java.lang.reflect.Field field=activity.getClass().getDeclaredField("ready");field.setAccessible(true);nativeState[0]=field.getBoolean(activity);}catch(Exception ignored){}nativeState[1]=activity.hasWindowFocus();nativeState[2]=activity.isFinishing();nativeState[3]=activity.isDestroyed();});
+        String document=js("({ready:document.documentElement?.dataset.lawReady,reader:!!window.lawMobile,visibility:document.visibilityState,url:location.href})");
+        throw new Exception("No application readiness; native="+java.util.Arrays.toString(nativeState)+" document="+document+" WebView="+WebView.getCurrentWebViewPackage());
     }
     private String shell(String command) throws Exception {
         try(ParcelFileDescriptor descriptor=getUiAutomation().executeShellCommand(command);
@@ -441,7 +444,7 @@ public final class ReaderInstrumentation extends Instrumentation {
     }
     private void testRealRendererRecovery(Bundle report) throws Exception {
         check(android.os.Build.VERSION.SDK_INT>=29,"Public renderer termination requires API29+");
-        ready();
+        report.putString("rendererRecoveryPhase","initial actual readiness");ready();
         js("localStorage.setItem('law-reader-font','24');document.documentElement.style.setProperty('--reading-size','24px');lawMobile.showSearch();const input=document.getElementById('mobile-search');input.value='14';input.dispatchEvent(new Event('input'))");
         awaitJS("Array.from(document.querySelectorAll('.m-result strong')).some(e=>e.textContent.startsWith('סעיף 14 ·'))","Actual search result before renderer termination");
         js("(()=>{const b=Array.from(document.querySelectorAll('.m-result')).find(e=>e.querySelector('strong').textContent.startsWith('סעיף 14 ·'));b.scrollIntoView({block:'center'});b.click()})()");
@@ -464,11 +467,12 @@ public final class ReaderInstrumentation extends Instrumentation {
             final boolean[] terminated={false};
             runOnMainSync(()->{android.webkit.WebViewRenderProcess process=web.getWebViewRenderProcess();terminated[0]=process!=null&&process.terminate();});
             check(terminated[0],"Actual isolated WebView renderer accepted public terminate()");
+            report.putString("rendererRecoveryPhase","native recovery alert after actual termination");
             clickSystemText("פתיחה מחדש");
             check(resumed.await(60,TimeUnit.SECONDS),"Native recovery must recreate and resume an actual Activity");
             activity=replacement[0];runOnMainSync(()->web=find(activity.findViewById(android.R.id.content)));
             check(web!=null&&web!=previousWeb,"Recovery replaces the unusable WebView");
-            ready();
+            report.putString("rendererRecoveryPhase","replacement Activity/WebView readiness");ready();
             check("\"24\"".equals(js("localStorage.getItem('law-reader-font')")),"Renderer termination preserves preferences");
             // Session restoration reconstructs the logical section without
             // inserting native WebView history entries. Verify the displayed
