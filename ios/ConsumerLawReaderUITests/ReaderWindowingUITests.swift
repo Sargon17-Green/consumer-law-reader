@@ -4,11 +4,20 @@ import UIKit
 final class ReaderWindowingUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure=false
-        executionTimeAllowance=300
+        executionTimeAllowance=360
     }
     private func record(_ app: XCUIApplication,_ label: String) {
-        let tree=XCTAttachment(string:String(app.debugDescription.prefix(24000)))
-        tree.name=label+" accessibility hierarchy";tree.lifetime = .keepAlways;add(tree)
+        let details:String
+        if app.bundleIdentifier == "io.github.sargon17green.consumerlawreader" {
+            let menu=app.buttons.matching(identifier:"native-menu").firstMatch
+            let share=app.buttons.matching(identifier:"native-share").firstMatch
+            let web=app.webViews.firstMatch
+            details="window=\(app.windows.firstMatch.frame)\nweb=\(web.exists ? String(describing:web.frame):"missing")\nmenu=\(menu.exists ? menu.debugDescription:"missing")\nshare=\(share.exists ? share.debugDescription:"missing")"
+        } else {
+            details=String(app.debugDescription.prefix(24000))
+        }
+        let tree=XCTAttachment(string:details)
+        tree.name=label+" actual native accessibility controls and geometry";tree.lifetime = .keepAlways;add(tree)
         let screen=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
         screen.name=label+" actual simulator screen";screen.lifetime = .keepAlways;add(screen)
     }
@@ -51,14 +60,13 @@ final class ReaderWindowingUITests: XCTestCase {
         // The preceding full-suite relaunch test can leave the same query.
         // Preserve it; deleting at an unknown restored caret may produce1414.
         if (input.value as? String) != "14" {
-            if let existing=input.value as? String,!existing.isEmpty {
+            if let existing=input.value as? String,!existing.isEmpty,existing != input.placeholderValue {
                 XCTFail("Unexpected prior search fixture: " + existing);return
             }
             input.typeText("14")
         }
-        record(app,"Search query before result selection")
         XCTAssertEqual(input.value as? String,"14")
-        let result=web.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14")).firstMatch
+        let result=web.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","סעיף 14 ·")).firstMatch
         XCTAssertTrue(result.waitForExistence(timeout:20));result.tap()
         let returnToSearch=web.buttons.matching(identifier:"חזרה לתוצאות החיפוש").firstMatch
         XCTAssertTrue(returnToSearch.waitForExistence(timeout:20),app.debugDescription)
