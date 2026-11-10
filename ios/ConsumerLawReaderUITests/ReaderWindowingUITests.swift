@@ -76,6 +76,21 @@ final class ReaderWindowingUITests: XCTestCase {
         record(app,"After actual iPad window resize")
         XCTAssertGreaterThanOrEqual(menu.frame.width,44)
         XCTAssertGreaterThanOrEqual(menu.frame.height,44)
+        // A44pt AX frame does not prove reachability: system window controls
+        // may overlap a custom header. Perform real native actions after resize.
+        let innerMenu=menu.buttons.firstMatch
+        (innerMenu.exists ? innerMenu:menu).tap()
+        let printAction=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
+        record(app,"After actual resized native menu tap")
+        record(springboard,"System controls after native menu tap")
+        XCTAssertTrue(printAction.waitForExistence(timeout:10),"Native menu must open after the real pointer/touch tap, despite system window controls")
+        web.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.22)).tap()
+        let share=app.buttons.matching(identifier:"native-share").firstMatch
+        XCTAssertTrue(share.isHittable)
+        share.tap()
+        XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout:10) || app.buttons.matching(identifier:"Copy").firstMatch.exists,"Native share must open from the resized header")
+        record(app,"Actual resized native share presentation")
+        app.swipeDown()
         XCTAssertTrue(returnToSearch.isHittable,"Return control remains reachable in the resized native window")
         returnToSearch.tap()
         XCTAssertTrue(input.waitForExistence(timeout:20))

@@ -1,48 +1,11 @@
-name: Build native iOS app (unsigned simulator)
+name: Actual iPad resized-header hit testing
 
 on:
   push:
-    branches: [main]
-    # Keep this dependency list equal to pull_request. Android-only tools do not build iOS.
-    paths:
-      - '.github/workflows/ios-ci.yml'
-      - 'ios/**'
-      - 'original/**'
-      - 'web/**'
-      - 'scripts/build_web.py'
-      - 'scripts/bundled_assets.py'
-      - 'scripts/prepare_typed_sources.py'
-      - 'scripts/canonical_vendor/**'
-      - 'scripts/verify_release.py'
-      - 'typed-sources/**'
-      - 'metadata/**'
-      - 'VERSION'
-      - 'requirements-qa.txt'
-      - 'tests/fixtures/**'
-      - 'tests/test_ios_source.py'
-      - 'tests/test_web_pages.py'
-  pull_request:
-    paths:
-      - '.github/workflows/ios-ci.yml'
-      - 'ios/**'
-      - 'original/**'
-      - 'web/**'
-      - 'scripts/build_web.py'
-      - 'scripts/bundled_assets.py'
-      - 'scripts/prepare_typed_sources.py'
-      - 'scripts/canonical_vendor/**'
-      - 'scripts/verify_release.py'
-      - 'typed-sources/**'
-      - 'metadata/**'
-      - 'VERSION'
-      - 'requirements-qa.txt'
-      - 'tests/fixtures/**'
-      - 'tests/test_ios_source.py'
-      - 'tests/test_web_pages.py'
-  workflow_dispatch:
+    branches: [work/ipad-header-hit-20261110]
 
 concurrency:
-  group: ios-ci-${{ github.ref }}
+  group: ipad-window-diagnosis-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -57,17 +20,8 @@ jobs:
       max-parallel: 2
       matrix:
         include:
-          - family: iPhone
-            os: '26.2'
-            archive: true
           - family: iPad
             os: '26.2'
-            archive: false
-          - family: iPhone
-            os: '18.5'
-            archive: false
-          - family: iPhone
-            os: '16.0'
             archive: false
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -152,7 +106,7 @@ jobs:
             xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
             xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
           fi
-          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -only-testing:ConsumerLawReaderUITests/ReaderWindowingUITests/testIPadWindowResizePreservesSearchAndControls -only-testing:ConsumerLawReaderTests/ReaderPolicyTests/testBuiltAppDeclaresAdaptiveIPadOrientations -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |
@@ -181,9 +135,7 @@ jobs:
             build/*-simulator.png
             build/*-tests.log
             build/*-runtime.json
-            build/*-tests.xcresult
             build/*-attachments
-            build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app
             evidence/content-manifest.json
             evidence/release-verification.json
             build/ios16-runtime-availability.json
