@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 mkdir -p evidence
+QA_API="$1"
 collect() {
+  status=$?
+  trap - EXIT
   adb logcat -d -v threadtime > evidence/android-logcat.txt 2>&1 || true
   adb shell dumpsys meminfo il.org.lawreader.consumer > evidence/android-memory.txt 2>&1 || true
   adb shell dumpsys cpuinfo > evidence/android-cpu.txt 2>&1 || true
@@ -10,12 +13,17 @@ collect() {
   for diagnostic in evidence/api26-provider-selection.txt evidence/api26-system-overlay.txt; do
     if [[ -f "$diagnostic" ]]; then cat "$diagnostic"; fi
   done
-  adb exec-out run-as il.org.lawreader.consumer cat files/qa-print-ready.json > evidence/android-print-ready.json 2>/dev/null || true
-  adb exec-out run-as il.org.lawreader.consumer cat files/qa-print-ready.png > evidence/android-print-ready.png 2>/dev/null || true
-  adb exec-out run-as il.org.lawreader.consumer cat files/qa-system-ui.json > evidence/android-system-ui.json 2>/dev/null || true
-  adb exec-out run-as il.org.lawreader.consumer cat files/qa-failure.png > evidence/android-failure-at-assertion.png 2>/dev/null || true
-  adb exec-out run-as il.org.lawreader.consumer cat files/qa-native-document.pdf > evidence/android-native-document.pdf 2>/dev/null || true
+  if [[ "$status" == 0 && "$QA_API" == 36 ]]; then
+    python scripts/collect_android_private_evidence.py --require-pdf --pdf-log evidence/android-instrumentation.txt --require-renderer-state || status=1
+  elif [[ "$status" == 0 && "$QA_API" -ge 29 ]]; then
+    python scripts/collect_android_private_evidence.py --require-renderer-state || status=1
+  elif [[ "$status" == 0 ]]; then
+    python scripts/collect_android_private_evidence.py || status=1
+  else
+    python scripts/collect_android_private_evidence.py || true
+  fi
   adb exec-out screencap -p > evidence/android-emulator.png 2>/dev/null || true
+  exit "$status"
 }
 trap collect EXIT
 if [[ "$1" == 26 ]]; then bash scripts/configure_api26_webview.sh; fi

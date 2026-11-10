@@ -58,6 +58,7 @@
   "limitations": [
     "No claim that MediaProvider itself was fixed or that cp was proven its sole trigger",
     "Single isolated success per orientation; full long flow passed earlier706 with old evidence route and must pass again after integrating this test change",
-    "Emulator API36 WebView133, no physical printer or native public signing"
+    "Emulator API36 WebView133, no physical printer or native public signing",
+    "Later collection audit: run-as is unavailable because QA-signed app is not debuggable. Native PdfRenderer/hash assertions passed, but private exported PDF/PNG bytes were not successfully collected by this run. Do not treat 58-byte ADB error text as a native file. Corrected emulator-root collector requires valid bytes and matching SHA in combined CI."
   ]
 }

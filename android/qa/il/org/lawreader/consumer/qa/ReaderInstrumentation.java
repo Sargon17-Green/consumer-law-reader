@@ -401,6 +401,54 @@ public final class ReaderInstrumentation extends Instrumentation {
         final boolean[] overflow={false};runOnMainSync(()->overflow[0]=web.canScrollHorizontally(-1)||web.canScrollHorizontally(1));
         check(!overflow[0],"Actual native WebView cannot pan the whole reading page horizontally");
     }
+    private void testRealRendererRecovery(Bundle report) throws Exception {
+        check(android.os.Build.VERSION.SDK_INT>=29,"Public renderer termination requires API29+");
+        ready();
+        js("localStorage.setItem('law-reader-font','24');document.documentElement.style.setProperty('--reading-size','24px');lawMobile.showSearch();const input=document.getElementById('mobile-search');input.value='14';input.dispatchEvent(new Event('input'))");
+        awaitJS("Array.from(document.querySelectorAll('.m-result strong')).some(e=>e.textContent.startsWith('סעיף 14 ·'))","Actual search result before renderer termination");
+        js("Array.from(document.querySelectorAll('.m-result')).find(e=>e.querySelector('strong').textContent.startsWith('סעיף 14 ·')).click()");
+        awaitJS("lawMobile.currentArticle()?.id==='article_14'","Actual selected section before renderer termination");
+        js("lawMobile.saveSession('article_14')");
+        Activity previous=activity;WebView previousWeb=web;
+        CountDownLatch resumed=new CountDownLatch(1);final Activity[] replacement={null};
+        android.app.Application application=(android.app.Application)getTargetContext().getApplicationContext();
+        android.app.Application.ActivityLifecycleCallbacks observer=new android.app.Application.ActivityLifecycleCallbacks(){
+            public void onActivityCreated(Activity a,Bundle b){}
+            public void onActivityStarted(Activity a){}
+            public void onActivityResumed(Activity a){if(a!=previous&&a.getClass().getName().equals("il.org.lawreader.consumer.MainActivity")){replacement[0]=a;resumed.countDown();}}
+            public void onActivityPaused(Activity a){}
+            public void onActivityStopped(Activity a){}
+            public void onActivitySaveInstanceState(Activity a,Bundle b){}
+            public void onActivityDestroyed(Activity a){}
+        };
+        runOnMainSync(()->application.registerActivityLifecycleCallbacks(observer));
+        try{
+            final boolean[] terminated={false};
+            runOnMainSync(()->{android.webkit.WebViewRenderProcess process=web.getWebViewRenderProcess();terminated[0]=process!=null&&process.terminate();});
+            check(terminated[0],"Actual isolated WebView renderer accepted public terminate()");
+            clickSystemText("פתיחה מחדש");
+            check(resumed.await(60,TimeUnit.SECONDS),"Native recovery must recreate and resume an actual Activity");
+            activity=replacement[0];runOnMainSync(()->web=find(activity.findViewById(android.R.id.content)));
+            check(web!=null&&web!=previousWeb,"Recovery replaces the unusable WebView");
+            ready();
+            check("\"24\"".equals(js("localStorage.getItem('law-reader-font')")),"Renderer termination preserves preferences");
+            // Session restoration reconstructs the logical section without
+            // inserting native WebView history entries. Verify the displayed
+            // section and stored anchor, rather than requiring a URL hash.
+            awaitJS("lawMobile.currentArticle()?.id==='article_14'","Renderer recovery displays the saved exact section");
+            String state=js("({hash:location.hash,current:lawMobile.currentArticle()?.id,font:localStorage.getItem('law-reader-font'),session:JSON.parse(localStorage.getItem('law-reader-session-v1')||'null')})");
+            report.putString("rendererState",state);
+            try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-renderer-state.json"))){output.write(state.getBytes("UTF-8"));}
+            android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
+            if(shot!=null){try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getFilesDir(),"qa-renderer-state.png"))){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,output);}shot.recycle();}
+            check("article_14".equals(new JSONObject(state).getJSONObject("session").getString("target")),"Renderer recovery keeps the logical stored section");
+            check("14".equals(new JSONObject(state).getJSONObject("session").getJSONObject("search").getString("query")),"Renderer recovery preserves the actual search query");
+            js("document.getElementById('mobile-return').click()");
+            awaitJS("document.getElementById('mobile-search')?.value==='14' && document.querySelectorAll('.m-result').length>0","Recovered search is usable in the actual offline DOM");
+            check("true".equals(js("lawMobile.buildSearch().length>500")),"Recovered real renderer searches the offline law");
+            report.putString("rendererRecovery","PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved");
+        }finally{runOnMainSync(()->application.unregisterActivityLifecycleCallbacks(observer));}
+    }
     @Override public void onStart() {
         Bundle report=new Bundle();
         final long launchStart=android.os.SystemClock.elapsedRealtime();
@@ -507,7 +555,9 @@ public final class ReaderInstrumentation extends Instrumentation {
             android.os.Debug.getMemoryInfo(finalMemory);
             report.putInt("mainProcessPssKBAfterStress",finalMemory.getTotalPss());
             report.putLong("mainProcessCpuMilliseconds",android.os.Process.getElapsedCpuTime()-cpuStart);
-            report.putString("QA_STATUS","PASS");report.putString("coverage","real WebView, offline content, Hebrew offsets, search->result, restore, rotation, reload, URL/frame isolation, stress");
+            if(android.os.Build.VERSION.SDK_INT>=29){report.putString("stage","actual renderer termination and recovery");testRealRendererRecovery(report);}
+            else report.putString("rendererRecovery","NOT TESTED: public renderer termination requires API29+; API26 ordinary lifecycle tests run above");
+            report.putString("QA_STATUS","PASS");report.putString("coverage","real WebView, offline content, Hebrew offsets, search->result, restore, rotation, reload, URL/frame isolation, stress; actual renderer recovery on API29+");
             finish(Activity.RESULT_OK,report);
         }catch(Throwable error){
             report.putString("QA_STATUS","FAIL");report.putString("error",error.toString());
