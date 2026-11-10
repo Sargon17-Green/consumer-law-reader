@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "result": "PASS",
+  "environment": "Actual Chromium ServiceWorker at trusted loopback origin, canonical /consumer-law-reader/reader/ subpath, Playwright network fully offline after cache activation",
+  "coverage": [
+    "real complete cache activation and OFFLINE_STATUS reply",
+    "stable manifest identity/start_url/scope/standalone",
+    "offline reload, Hebrew search and exact section navigation",
+    "new page at home-screen start URL with query/hash and preserved preferences"
+  ],
+  "cache": {
+    "names": [
+      "law-reader-17ad3975224d5d38"
+    ],
+    "files": 38,
+    "script": "http://127.0.0.1:41521/consumer-law-reader/reader/sw.js"
+  },
+  "limitations": "Not a physical Android/iOS installation or OS home-screen icon test; native launcher tests are separate",
+  "sourceCommit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d"
+}

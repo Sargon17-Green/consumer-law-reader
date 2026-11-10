@@ -35,6 +35,7 @@ jobs:
           python scripts/build_web.py
           python -m unittest discover -s tests -p 'test_*.py' -v
           python scripts/verify_release.py
+          python scripts/validate_project_docs.py
       - name: Inspect public Pages source without changing it
         env:
           GH_TOKEN: ${{ github.token }}
@@ -57,7 +58,9 @@ jobs:
           node --check tests/pastafari_widget_qa.js
           node tests/pastafari_widget_qa.js
       - name: Test search and editorial UI at mobile widths
-        run: python tests/technical_smoke_134.py
+        run: |
+          python tests/technical_smoke_134.py
+          python tests/pwa_offline_qa.py
       - name: Save source verification evidence
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6

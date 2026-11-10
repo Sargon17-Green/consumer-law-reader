@@ -99,15 +99,42 @@ public final class ReaderInstrumentation extends Instrumentation {
                 int flags=picker?originalFlags|android.accessibilityservice.AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS:originalFlags;
                 if(info!=null&&info.flags!=flags){info.flags=flags;getUiAutomation().setServiceInfo(info);root=getUiAutomation().getRootInActiveWindow();}
                 if(completed!=null&&root!=null&&"il.org.lawreader.consumer".contentEquals(String.valueOf(root.getPackageName()))){Thread.sleep(100);continue;}
-                AccessibilityNodeInfo node=findText(root,text);
+                AccessibilityNodeInfo named=findText(root,text),node=named;
                 for(int depth=0;node!=null&&depth<6;depth++,node=node.getParent())
                     if(node.isClickable()&&node.isEnabled()&&node.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;
+                // Oreo DocumentsUI handles row touches in RecyclerView's item listener;
+                // neither the named filename nor its parents expose ACTION_CLICK.
+                // Target the exact visible label's measured bounds, never guessed coordinates.
+                if(picker&&named!=null&&named.isVisibleToUser()&&named.isEnabled()){
+                    android.graphics.Rect target=new android.graphics.Rect(),window=new android.graphics.Rect();
+                    named.getBoundsInScreen(target);root.getBoundsInScreen(window);
+                    if(!target.isEmpty()&&window.contains(target.centerX(),target.centerY())){
+                        long downTime=android.os.SystemClock.uptimeMillis();
+                        android.view.MotionEvent down=android.view.MotionEvent.obtain(downTime,downTime,android.view.MotionEvent.ACTION_DOWN,target.centerX(),target.centerY(),0);
+                        down.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);
+                        boolean delivered=getUiAutomation().injectInputEvent(down,true);down.recycle();
+                        Thread.sleep(60);
+                        android.view.MotionEvent up=android.view.MotionEvent.obtain(downTime,android.os.SystemClock.uptimeMillis(),android.view.MotionEvent.ACTION_UP,target.centerX(),target.centerY(),0);
+                        up.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);
+                        boolean released=getUiAutomation().injectInputEvent(up,true);up.recycle();
+                        if(delivered&&released)return;
+                    }
+                }
                 Thread.sleep(100);
             }
             throw new Exception("Native control not found: "+text+"; "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
         }finally{
             if(info!=null&&info.flags!=originalFlags){info.flags=originalFlags;getUiAutomation().setServiceInfo(info);}
         }
+    }
+    private void recordSystemTree(AccessibilityNodeInfo node,org.json.JSONArray nodes,int depth) throws Exception {
+        if(node==null||depth>24||nodes.length()>=512)return;
+        JSONObject item=new JSONObject();android.graphics.Rect bounds=new android.graphics.Rect();node.getBoundsInScreen(bounds);
+        item.put("class",String.valueOf(node.getClassName()));item.put("id",node.getViewIdResourceName());item.put("bounds",bounds.toShortString());
+        item.put("text",String.valueOf(node.getText()).substring(0,Math.min(180,String.valueOf(node.getText()).length())));
+        item.put("description",String.valueOf(node.getContentDescription()).substring(0,Math.min(180,String.valueOf(node.getContentDescription()).length())));
+        item.put("clickable",node.isClickable());item.put("enabled",node.isEnabled());item.put("depth",depth);nodes.put(item);
+        for(int i=0;i<node.getChildCount()&&nodes.length()<512;i++)recordSystemTree(node.getChild(i),nodes,depth+1);
     }
     private void testNativeSettingsFiles(Bundle report) throws Exception {
         ready();
@@ -252,6 +279,33 @@ public final class ReaderInstrumentation extends Instrumentation {
         for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo found=editable(node.getChild(i));if(found!=null)return found;}
         return null;
     }
+    private boolean hasPreparedPrintPage(AccessibilityNodeInfo node){
+        if(node==null)return false;
+        String label=String.valueOf(node.getText())+" "+String.valueOf(node.getContentDescription());
+        if(node.isVisibleToUser()&&java.util.regex.Pattern.compile("\\bPage\\s+[0-9]+\\s+of\\s+[0-9]+\\b").matcher(label).find())return true;
+        for(int i=0;i<node.getChildCount();i++)if(hasPreparedPrintPage(node.getChild(i)))return true;
+        return false;
+    }
+    private boolean tapVisibleControl(AccessibilityNodeInfo node) throws Exception {
+        if(node==null||!node.refresh()||!node.isVisibleToUser()||!node.isEnabled())return false;
+        android.graphics.Rect bounds=new android.graphics.Rect();node.getBoundsInScreen(bounds);
+        if(bounds.isEmpty())return false;
+        long start=android.os.SystemClock.uptimeMillis();
+        android.view.MotionEvent down=android.view.MotionEvent.obtain(start,start,android.view.MotionEvent.ACTION_DOWN,bounds.centerX(),bounds.centerY(),0);
+        down.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);boolean pressed=getUiAutomation().injectInputEvent(down,true);down.recycle();
+        Thread.sleep(60);
+        android.view.MotionEvent up=android.view.MotionEvent.obtain(start,android.os.SystemClock.uptimeMillis(),android.view.MotionEvent.ACTION_UP,bounds.centerX(),bounds.centerY(),0);
+        up.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);boolean released=getUiAutomation().injectInputEvent(up,true);up.recycle();
+        return pressed&&released;
+    }
+    private void capturePrintReady(Bundle report) throws Exception {
+        AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+        report.putString("printReadyControls",systemLabels(root,0));
+        org.json.JSONArray nodes=new org.json.JSONArray();recordSystemTree(root,nodes,0);
+        try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-print-ready.json"))){out.write(nodes.toString(2).getBytes("UTF-8"));}
+        android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
+        if(shot!=null){try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-print-ready.png"))){shot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,out);}shot.recycle();}
+    }
     private void saveAndVerifySystemPDF(Bundle report) throws Exception {
         shell("rm -f /sdcard/Download/consumer-law-qa.pdf");
         boolean clicked=false;
@@ -263,12 +317,14 @@ public final class ReaderInstrumentation extends Instrumentation {
                 }
                 if(findText(root,"Save as PDF")==null){Thread.sleep(250);continue;}
                 for(AccessibilityNodeInfo button:root.findAccessibilityNodeInfosByViewId("com.android.printspooler:id/print_button"))
-                    if(button.isEnabled()&&button.performAction(AccessibilityNodeInfo.ACTION_CLICK)){clicked=true;break;}
+                    // The framework keeps this view enabled while setting it GONE
+                    // until the document update is complete. ID lookup alone also finds hidden views.
+                    if(hasPreparedPrintPage(root)&&button.refresh()&&button.isVisibleToUser()&&button.isClickable()&&button.isEnabled()){capturePrintReady(report);if(tapVisibleControl(button)){clicked=true;break;}}
             }
             if(clicked)break;
             Thread.sleep(250);
         }
-        check(clicked,"Enabled system Save as PDF control: "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
+        check(clicked,"A prepared print-preview page and visible Save as PDF control: "+systemLabels(getUiAutomation().getRootInActiveWindow(),0));
         boolean named=false;
         for(int attempt=0;attempt<160;attempt++){
             AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
@@ -448,6 +504,12 @@ public final class ReaderInstrumentation extends Instrumentation {
         }catch(Throwable error){
             report.putString("QA_STATUS","FAIL");report.putString("error",error.toString());
             try{
+                AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+                String pkg=root==null?"":String.valueOf(root.getPackageName());
+                if(pkg.endsWith(".documentsui")||pkg.equals("com.android.printspooler")){
+                    org.json.JSONArray nodes=new org.json.JSONArray();recordSystemTree(root,nodes,0);
+                    try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-system-ui.json"))){output.write(nodes.toString(2).getBytes("UTF-8"));}
+                }
                 android.graphics.Bitmap shot=getUiAutomation().takeScreenshot();
                 if(shot!=null){
                     java.io.File file=new java.io.File(getTargetContext().getExternalFilesDir(null),"qa-failure.png");

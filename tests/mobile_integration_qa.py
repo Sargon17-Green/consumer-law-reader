@@ -62,6 +62,8 @@ with sync_playwright() as pw:
             page.get_by_role('button',name='התקנה במסך הבית',exact=True).click()
             page.wait_for_function("document.getElementById('mobile-toast').textContent.includes('לא ניתן לפתוח התקנה')")
             assert 'הוספה למסך הבית' in page.locator('#mobile-sheet-body').inner_text()
+            page.wait_for_function("()=>document.documentElement.dataset.lawOfflineReady==='false'")
+            assert 'לא ניתן לאמת עותק מקומי מלא' in page.locator('#mobile-offline-status').inner_text()
             page.locator('#mobile-sheet-close').click()
         metrics=page.evaluate("""()=>{
           const start=performance.now(),records=lawMobile.buildSearch(),index=performance.now()-start;

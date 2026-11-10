@@ -1,0 +1,383 @@
+{
+  "schema": 1,
+  "sourceCommit": "83fe5ec4a0d17c209088354c4ff748f63d7188a0",
+  "passed": true,
+  "verified": [
+    {
+      "url": "https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/main/downloads/latest.apk",
+      "sha256": "2772e3d8195de2d9a66edc8cdbc9e0940ac71f8cb55f1597dcc7c122120101af",
+      "bytes": 2632706
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/README.md",
+      "sha256": "9781f0b99670ef772254df4c0d5b95992c51c29e8fd12aefeb5ac8f95ad598d5",
+      "bytes": 1510
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-00.txt",
+      "sha256": "4ce1f4840caacb38a50fd1cc90203431f43ab811adc83a125db91d414c5ce829",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-01.txt",
+      "sha256": "0cb619ce0b6a36ae70354693fe5b059ca7ed7b34da7bec5e4755c1a69d80d11a",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-02.txt",
+      "sha256": "027d5b08a6fde2afbb5d978b30ce52361f651efebbe6251d9470b85cf34ed8a3",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-03.txt",
+      "sha256": "92a23ed7b54c110a41145651774da3a98cc2639d1b3a899d2c0f03b5120465e7",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-04.txt",
+      "sha256": "a5939b2f6060cff93f1fba2ddd395d5a2e723618a9eab9e429b329244134caf2",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-05.txt",
+      "sha256": "735bf425f76d5c1175c7ada69c77a6b698ea0f23c3b7f7be6d8254d65094c626",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-06.txt",
+      "sha256": "207fe504d34255cf262182ea5574d2f96d6922f95911c23cbec9f574e41c1ae8",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-07.txt",
+      "sha256": "f555066e6e6b5178d1c913e8d07008287f2e5d9a9407c989566cb4fba18ece4f",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-08.txt",
+      "sha256": "1c5795977d49c1592f3744823d287a7bd3a1c98fbf1ff6b1784ba9493cd52c23",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-09.txt",
+      "sha256": "0e7cfb5d44775608fe6d15ff2580eade7a3ae42da0b9b972edc2e554c6d859df",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-10.txt",
+      "sha256": "866c1c205441e8fd23f2c1a24f2546480ad47c104ea72669328f6f6138792fc0",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-11.txt",
+      "sha256": "76f681c91ba6f33af9a59b17ed6d82053f6c004b3a46fea5e4684bef33ce7a36",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-12.txt",
+      "sha256": "f51fe277e8ecab83f2595751646de1e270c268c4b02f839e682c4c226392d920",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-13.txt",
+      "sha256": "1ee87cda2772b9575ed7c14a379d7349f336bada30765a183597713d11285d83",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-14.txt",
+      "sha256": "ac6df9c6754ce7d74b6a0db3847a1cb29f5fe032fa35ee3c1e3fc00689723138",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.16/part-15.txt",
+      "sha256": "fb749776ee12f7ba2cf18c1d8a7391b7ba37498457546d5ee500c11f5619d707",
+      "bytes": 251840
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-00.txt",
+      "sha256": "4ce1f4840caacb38a50fd1cc90203431f43ab811adc83a125db91d414c5ce829",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-01.txt",
+      "sha256": "0cb619ce0b6a36ae70354693fe5b059ca7ed7b34da7bec5e4755c1a69d80d11a",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-02.txt",
+      "sha256": "027d5b08a6fde2afbb5d978b30ce52361f651efebbe6251d9470b85cf34ed8a3",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-03.txt",
+      "sha256": "92a23ed7b54c110a41145651774da3a98cc2639d1b3a899d2c0f03b5120465e7",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-04.txt",
+      "sha256": "a5939b2f6060cff93f1fba2ddd395d5a2e723618a9eab9e429b329244134caf2",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-05.txt",
+      "sha256": "735bf425f76d5c1175c7ada69c77a6b698ea0f23c3b7f7be6d8254d65094c626",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-06.txt",
+      "sha256": "207fe504d34255cf262182ea5574d2f96d6922f95911c23cbec9f574e41c1ae8",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-07.txt",
+      "sha256": "f555066e6e6b5178d1c913e8d07008287f2e5d9a9407c989566cb4fba18ece4f",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-08.txt",
+      "sha256": "1c5795977d49c1592f3744823d287a7bd3a1c98fbf1ff6b1784ba9493cd52c23",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-09.txt",
+      "sha256": "0e7cfb5d44775608fe6d15ff2580eade7a3ae42da0b9b972edc2e554c6d859df",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-10.txt",
+      "sha256": "866c1c205441e8fd23f2c1a24f2546480ad47c104ea72669328f6f6138792fc0",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-11.txt",
+      "sha256": "76f681c91ba6f33af9a59b17ed6d82053f6c004b3a46fea5e4684bef33ce7a36",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-12.txt",
+      "sha256": "f51fe277e8ecab83f2595751646de1e270c268c4b02f839e682c4c226392d920",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-13.txt",
+      "sha256": "1ee87cda2772b9575ed7c14a379d7349f336bada30765a183597713d11285d83",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-14.txt",
+      "sha256": "ac6df9c6754ce7d74b6a0db3847a1cb29f5fe032fa35ee3c1e3fc00689723138",
+      "bytes": 262144
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/assets/v0.17/part-15.txt",
+      "sha256": "f3a96cf55adf4098e87ad5a6e76f72e13fb67566929b44c58294d51a62c503ad",
+      "bytes": 252040
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/index.html",
+      "sha256": "2dc1408d5a847d28fabf7fce038c902136ccddb4e4ddd3a2fff7cd7c6fc202b1",
+      "bytes": 4107
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/%D7%A0%D7%95%D7%A1%D7%97%20%D7%9E%D7%AA%D7%95%D7%A7%D7%9F%20%D7%A2%D7%9C%D7%95%D7%9F%20%D7%A7%D7%A8%D7%99%D7%A0%D7%94%20%D7%A9%D7%A0%D7%99%20%D7%AA%D7%A7%D7%A0%D7%99%D7%9D%201-7-17.doc",
+      "sha256": "b8674a7a4061de29c01cdbc496540acf14ab55e371d8e7d200d94d2137e01da9",
+      "bytes": 223232
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/Emblem_of_Israel_dark_blue_border.png",
+      "sha256": "f5b0fd8c571d8c53a22c7e654fbc51667935c77ce6e322f1d963429a3afd8579",
+      "bytes": 189888
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_12%2B.png",
+      "sha256": "bde68e1d3b41e7b15f1c7eb6d4b95e838ec8b21b689c8b7bc215b499a0b198b9",
+      "bytes": 87794
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_12_plus.png",
+      "sha256": "bde68e1d3b41e7b15f1c7eb6d4b95e838ec8b21b689c8b7bc215b499a0b198b9",
+      "bytes": 87794
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_16%2B.png",
+      "sha256": "ede6e800b9646ed6a1059b515857b79002561592b669f327506365b82acecef0",
+      "bytes": 84276
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_16_plus.png",
+      "sha256": "ede6e800b9646ed6a1059b515857b79002561592b669f327506365b82acecef0",
+      "bytes": 84276
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_18%2B.png",
+      "sha256": "abb295ecea717a1f6a31efb6445128027f3aea22f64de30da283a7fa4c85253d",
+      "bytes": 86800
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_18_plus.png",
+      "sha256": "abb295ecea717a1f6a31efb6445128027f3aea22f64de30da283a7fa4c85253d",
+      "bytes": 86800
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_3%2B.png",
+      "sha256": "c7f4b50307f45e6959317e7b086cc621e6f5fcede6d08286e5005cbf6cf3680c",
+      "bytes": 98733
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_3_plus.png",
+      "sha256": "c7f4b50307f45e6959317e7b086cc621e6f5fcede6d08286e5005cbf6cf3680c",
+      "bytes": 98733
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_7%2B.png",
+      "sha256": "735859407fd25f845e7d2587d6103ff37e75096949bab2c9bb84952a89669213",
+      "bytes": 103508
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_7_plus.png",
+      "sha256": "735859407fd25f845e7d2587d6103ff37e75096949bab2c9bb84952a89669213",
+      "bytes": 103508
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_Bad_language.png",
+      "sha256": "3eb62a9d527dab5663832c8a0b5325fb84f28ef27bd545187a8575a0cf0c81c4",
+      "bytes": 55505
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_Discrimination.jpg",
+      "sha256": "60c1e187177e0ef8be4b8d95bf99ca30a1595bd6a6ec233f32b711d4964b928a",
+      "bytes": 71295
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_Drugs.jpg",
+      "sha256": "f529b7fe62bcc8304a790f57a5ef7e9a64f5e043d81a6cad5a814ed541c08e5d",
+      "bytes": 114141
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_Fear.jpg",
+      "sha256": "a036bc63ce4f36459988e38939f42ae393d3b4cdcfa91f0c7ca4dca1bed8ad08",
+      "bytes": 118927
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_Gambling.png",
+      "sha256": "dc19d7eb0df5b23ae06f110cd05301591db5f46cae636761f45c407715ad7bfe",
+      "bytes": 7153
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_Sex.png",
+      "sha256": "4106677658046d7d4377649d852137afb371e613301a3ac0014b068175e74f18",
+      "bytes": 59376
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/PEGI_Violence.jpg",
+      "sha256": "0c879857956d160e1041072f0ebede0ea3cc32cec1646d9e3cbcc423d8f7ed02",
+      "bytes": 98219
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/consumer_protection_and_fair_trade_authority.png",
+      "sha256": "47e48632c5d2b492a24ecb1815f343d0305fadd4f97ef18e0317195deb14ee21",
+      "bytes": 14941
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/formula1.svg",
+      "sha256": "424eccaadf6f93ac4be384cbee4e63d36844bfc57276df050547ff688f34900d",
+      "bytes": 7084
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/formula2.svg",
+      "sha256": "72cb4497033244a4875b7eac9bbb1dfe44e84150db9b1f3918100ea03acc5a6c",
+      "bytes": 8733
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/formula3.svg",
+      "sha256": "c6ea1a0ddcd93f726a26da3f5c67bc3b7ece5e50102ccb177479fbf806b8d4f8",
+      "bytes": 8511
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/formula4.svg",
+      "sha256": "e6f313ce42b611f3e4e11ff0fc7a50d93356faa41691bd848102cfeb2ea0500e",
+      "bytes": 4466
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/icon-192.png",
+      "sha256": "80382797995039a39341bc10baed314ff0e46ed916c217e971f2fcd2fa13fb79",
+      "bytes": 1888
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/icon-512.png",
+      "sha256": "ce697f360a8e0092fc3e2ecce243653590ad8cbd4db03372fdf24ab94686f4eb",
+      "bytes": 8909
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/index.html",
+      "sha256": "80929eb67d4777c0bf8454b4287200958e459d2ac197a33b32591af585d98cbd",
+      "bytes": 9793770
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/legal-document_2710127.png",
+      "sha256": "96b2c19566a44ca65914c62afcf19c132ea0fa901d7b001c7f7738216ff9a5d6",
+      "bytes": 13701
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/manifest.webmanifest",
+      "sha256": "572af89aac43f6323a402dd8f1f9d8a7a899e1b7e27302d7e912c6ecf3a7acf8",
+      "bytes": 706
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/mobile-core.js",
+      "sha256": "e68237ab9655eced6455c78f728347dfc10556705bd2c685d6909b065a83f538",
+      "bytes": 9952
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/mobile-settings.js",
+      "sha256": "45815963f4d51c964687bce55e91bf2c151c2304c205b65aa497c72812ffb542",
+      "bytes": 2817
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/mobile-sources.js",
+      "sha256": "19702859e106cc83c9bc719523ea3a1255a83d027e0811a9855b44f5c7735b06",
+      "bytes": 12636
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/mobile-topics.js",
+      "sha256": "6fe1f868e9fa28e18a1600f90c4a0e2c1c8dd682878b3b22c5dd113ef7fbad6d",
+      "bytes": 11029
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/mobile.css",
+      "sha256": "27dd9953c291116b914107e998ec863cfd4d22ca06aa8d2caaa3f5828689367d",
+      "bytes": 36898
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/mobile.js",
+      "sha256": "6cb9ce52d9923343c232589613ffc2d89764d256e636cf84464441bffa767766",
+      "bytes": 38983
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/privacy.html",
+      "sha256": "5bdf44715165def2a752c7320207e0178b01c8cc3a5b8eea67807d4435fa7f38",
+      "bytes": 4123
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/sw.js",
+      "sha256": "a4de112d6f88d2afc8ebf83074f613c63ceed0fb6b168a08d2b98bf2137156dd",
+      "bytes": 2252
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/reader/typed-index.js",
+      "sha256": "0701a4bcca5fee7070c903894b37167b789dd846dff4e9d649b9599f24cd9dd0",
+      "bytes": 298
+    },
+    {
+      "url": "https://sargon17-green.github.io/consumer-law-reader/release.json",
+      "sha256": "3ac872f860bb971c1db516f503880d60580601ba1141c5dde034b2de08ff6446",
+      "bytes": 957
+    }
+  ],
+  "errors": {},
+  "completed": 74,
+  "expected": 74,
+  "checkedAtUTC": "2026-11-09T23:23:58.793748+00:00",
+  "elapsedSeconds": 68.69,
+  "method": "Exact verify_check from scripts/verify_public_reader.py, bounded 8 parallel independent public GETs; identity encoding, no redirects and SHA256 of entire bytes. Deployment workflow build succeeded; its deploy job was rejected by branch policy. This checks actual normal gh-pages publication independently."
+}

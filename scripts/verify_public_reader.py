@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
@@ -21,7 +22,8 @@ def prepare(site, commit, apk):
     checks = []
     for path in sorted(site.rglob("*")):
         relative = path.relative_to(site)
-        if path.is_file() and not any(part.startswith(".") for part in relative.parts):
+        owned_marker = relative.as_posix() == "reader/.consumer-law-reader-owner.json"
+        if path.is_file() and (owned_marker or not any(part.startswith(".") for part in relative.parts)):
             checks.append({"url": BASE + quote(relative.as_posix(), safe="/"),
                            "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
     if not checks or not any(c["url"] == BASE + "reader/index.html" for c in checks):
@@ -32,22 +34,32 @@ def prepare(site, commit, apk):
     return {"schema": 1, "sourceCommit": commit, "checks": checks}
 
 
-def verify_check(check):
+def verify_check(check, deadline=None):
     request = Request(check["url"], headers={"Accept-Encoding": "identity",
                                             "Cache-Control": "no-cache",
                                             "User-Agent": "consumer-law-reader-deployment-verification"})
-    with urlopen(request, timeout=15) as response:
+    remaining = 15 if deadline is None else max(0.1, min(15, deadline - time.monotonic()))
+    with urlopen(request, timeout=remaining) as response:
         if response.status != 200 or response.geturl() != check["url"]:
             raise ValueError("Unexpected status or redirected public asset: " + check["url"])
         if response.headers.get("Content-Encoding", "identity") != "identity":
             raise ValueError("Expected exact uncompressed public bytes")
-        body = response.read(MAX_BYTES + 1)
-    if len(body) > MAX_BYTES:
-        raise ValueError("Public file exceeds verification bound")
-    digest = hashlib.sha256(body).hexdigest()
+        size = 0
+        checksum = hashlib.sha256()
+        while True:
+            if deadline is not None and time.monotonic() > deadline:
+                raise TimeoutError("Public verification deadline exceeded")
+            chunk = response.read(65536)
+            if not chunk:
+                break
+            size += len(chunk)
+            if size > MAX_BYTES:
+                raise ValueError("Public file exceeds verification bound")
+            checksum.update(chunk)
+    digest = checksum.hexdigest()
     if digest != check["sha256"]:
         raise ValueError("Public digest mismatch: " + check["url"])
-    return {"url": check["url"], "sha256": digest, "bytes": len(body)}
+    return {"url": check["url"], "sha256": digest, "bytes": size}
 
 
 def verify(expected, output, timeout=300):
@@ -56,25 +68,31 @@ def verify(expected, output, timeout=300):
     pending = list(expected["checks"])
     results = []
     errors = {}
-    deadline = time.monotonic() + timeout
+    deadline = time.monotonic() + max(15, timeout)
     while pending:
         remaining = []
-        for check in pending:
-            try:
-                results.append(verify_check(check))
-                errors.pop(check["url"], None)
-            except Exception as error:
-                remaining.append(check)
-                errors[check["url"]] = str(error)
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = {executor.submit(verify_check, check, deadline): check for check in pending}
+            for future in as_completed(futures):
+                check = futures[future]
+                try:
+                    results.append(future.result())
+                    errors.pop(check["url"], None)
+                except Exception as error:
+                    remaining.append(check)
+                    errors[check["url"]] = str(error)
+                partial = {"schema": 1, "sourceCommit": expected["sourceCommit"],
+                           "passed": False, "verified": sorted(results, key=lambda item: item["url"]), "errors": errors}
+                Path(output).write_text(json.dumps(partial, ensure_ascii=False, indent=2), encoding="utf-8")
         pending = remaining
         report = {"schema": 1, "sourceCommit": expected["sourceCommit"],
-                  "passed": not pending, "verified": results, "errors": errors}
+                  "passed": not pending, "verified": sorted(results, key=lambda item: item["url"]), "errors": errors}
         Path(output).write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         if not pending:
             return report
-        if time.monotonic() >= deadline:
+        if timeout <= 0 or time.monotonic() >= deadline:
             raise RuntimeError("Public deployment verification failed: " + json.dumps(errors))
-        time.sleep(5)
+        time.sleep(min(5, max(0, deadline - time.monotonic())))
 
 
 if __name__ == "__main__":

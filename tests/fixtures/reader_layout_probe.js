@@ -5,7 +5,7 @@
   const sizes=options.sizes||[18,24,28,48];
   const regulations=[...document.querySelectorAll('#frame .delegated_legislation')]
     .filter(reg=>!options.regulationIds||options.regulationIds.includes(reg.id));
-  const issues=[],tables=[];let checked=0;
+  const issues=[],tables=[];let checked=0,navigationTargets=0;
   const inspect=(element,label)=>{
     checked++;
     if(element.scrollWidth>element.clientWidth+1){
@@ -36,6 +36,12 @@
       inspect(root,'law font '+size);
       for(const reg of regulations){
         lawMobile.openRegulation(reg);inspect(reg,reg.id+' font '+size);
+        const targets=[reg.querySelector('.article[id]'),reg.querySelector('.appendix_part[id]')].filter((node,index,list)=>node&&list.indexOf(node)===index);
+        for(const target of targets){
+          lawMobile.goTo(target,false,false);navigationTargets++;
+          const actual=target.getBoundingClientRect().top,back=document.getElementById('mobile-regulation-back').getBoundingClientRect().bottom;
+          if(actual<back+10)issues.push({label:reg.id+' font '+size,target:target.id,top:actual,backBottom:back,reason:'Linked target is obscured by the return control'});
+        }
       }
       lawMobile.closeRegulation();
     }
@@ -43,5 +49,5 @@
     lawMobile.closeRegulation();
     if(previous)style.setProperty('--reading-size',previous,priority);else style.removeProperty('--reading-size');
   }
-  return {viewport:innerWidth,sizes,regulations:regulations.length,checked,scrollableTables:tables.length,tables,issues};
+  return {viewport:innerWidth,sizes,regulations:regulations.length,checked,navigationTargets,scrollableTables:tables.length,tables,issues};
 }

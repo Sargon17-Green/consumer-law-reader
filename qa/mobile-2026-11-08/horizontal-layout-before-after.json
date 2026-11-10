@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "baselineCommit": "b7d8168252d869b24f9fc21cafa38e59afe675fc",
+  "candidateCommit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
+  "method": "Identical generated legal HTML and assets; before serves the two baseline web/mobile.js and mobile.css files. Remote resources aborted. Shared deterministic probe used in browser/Android/WKWebView. Table-local scrolling tested separately from whole-page overflow.",
+  "environment": {
+    "system": "Linux-6.18.57-x86_64-with-glibc2.39",
+    "browser": "Chrome for Testing 157.0.8103.38 headless, Playwright 1.57.0; simulated CSS viewport, not physical device"
+  },
+  "legalSourceSHA256": "de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9",
+  "candidateFilesSHA256": {
+    "mobile.js": "6cb9ce52d9923343c232589613ffc2d89764d256e636cf84464441bffa767766",
+    "mobile.css": "27dd9953c291116b914107e998ec863cfd4d22ca06aa8d2caaa3f5828689367d"
+  },
+  "results": [
+    {
+      "stage": "before",
+      "width": 320,
+      "checks": 268,
+      "issues": 64,
+      "scrollableTableChecks": 49
+    },
+    {
+      "stage": "before",
+      "width": 375,
+      "checks": 268,
+      "issues": 35,
+      "scrollableTableChecks": 48
+    },
+    {
+      "stage": "before",
+      "width": 430,
+      "checks": 268,
+      "issues": 32,
+      "scrollableTableChecks": 48
+    },
+    {
+      "stage": "before",
+      "width": 768,
+      "checks": 268,
+      "issues": 17,
+      "scrollableTableChecks": 40
+    },
+    {
+      "stage": "before",
+      "width": 1032,
+      "checks": 268,
+      "issues": 3,
+      "scrollableTableChecks": 0
+    },
+    {
+      "stage": "before",
+      "width": 1180,
+      "checks": 268,
+      "issues": 6,
+      "scrollableTableChecks": 32
+    },
+    {
+      "stage": "after",
+      "width": 320,
+      "checks": 268,
+      "issues": 0,
+      "scrollableTableChecks": 319
+    },
+    {
+      "stage": "after",
+      "width": 375,
+      "checks": 268,
+      "issues": 0,
+      "scrollableTableChecks": 284
+    },
+    {
+      "stage": "after",
+      "width": 430,
+      "checks": 268,
+      "issues": 0,
+      "scrollableTableChecks": 245
+    },
+    {
+      "stage": "after",
+      "width": 768,
+      "checks": 268,
+      "issues": 0,
+      "scrollableTableChecks": 103
+    },
+    {
+      "stage": "after",
+      "width": 1032,
+      "checks": 268,
+      "issues": 0,
+      "scrollableTableChecks": 50
+    },
+    {
+      "stage": "after",
+      "width": 1180,
+      "checks": 268,
+      "issues": 0,
+      "scrollableTableChecks": 102
+    }
+  ]
+}
