@@ -257,6 +257,23 @@ final class ReaderIntegrationTests: XCTestCase {
         XCTAssertFalse(reader.confirmImport)
         XCTAssertNotNil(reader.notice)
     }
+    func testShareCompletionPreservesNewerPresentationAndReportsFailure() async throws {
+        let reader=try await openReader()
+        defer { closeTestWindow() }
+        let first=SharePayload(items:[try XCTUnwrap(URL(string:"https://sargon17-green.github.io/consumer-law-reader/reader/#article_14"))])
+        reader.sharing=first
+        reader.finishSharing(first.id,failure:nil)
+        XCTAssertNil(reader.sharing,"Cancelling/completing the current share clears its SwiftUI presentation")
+        let second=SharePayload(items:[try XCTUnwrap(URL(string:"https://sargon17-green.github.io/consumer-law-reader/reader/#article_2"))])
+        reader.sharing=second
+        reader.finishSharing(first.id,failure:"Delayed older activity error")
+        XCTAssertEqual(reader.sharing?.id,second.id,"A stale completion cannot close a newer activity")
+        XCTAssertNil(reader.notice,"An older activity must not present a misleading new error")
+        reader.finishSharing(second.id,failure:"QA activity failure")
+        XCTAssertNil(reader.sharing)
+        XCTAssertTrue(reader.notice?.message.contains("QA activity failure") == true)
+    }
+
     func testRemoteScriptsAndSubframeBridgeAreBlocked() async throws {
         let reader=try await openReader()
         defer { closeTestWindow() }

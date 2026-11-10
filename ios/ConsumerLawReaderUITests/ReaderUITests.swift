@@ -98,17 +98,22 @@ final class ReaderUITests: XCTestCase {
         XCTAssertTrue(menu.waitForExistence(timeout:10))
         let share=app.buttons.matching(identifier:"native-share").firstMatch
         XCTAssertTrue(share.isEnabled);share.tap()
-        XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout:8) || app.buttons.matching(identifier:"Copy").firstMatch.exists || app.buttons.matching(identifier:"העתק").firstMatch.exists)
         let activities=app.otherElements["ActivityListView"].firstMatch
-        let shareTree=XCTAttachment(string:String(activities.debugDescription.prefix(18000)))
-        shareTree.name="Actual system share controls before dismissal";shareTree.lifetime = .keepAlways;add(shareTree)
+        XCTAssertTrue(activities.waitForExistence(timeout:8),"Actual system share must be presented")
         let shareScreen=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
         shareScreen.name="Actual system share before dismissal";shareScreen.lifetime = .keepAlways;add(shareScreen)
-        // Legacy UIKit exposes its Close label without the iOS26 identifier.
-        // Scope the actual visible control to the presented system share view;
-        // an application-wide swipe did not dismiss it on16/18.5.
-        let closeCandidates=activities.buttons.matching(NSPredicate(format:"identifier == %@ OR label IN %@","header.closeButton",["Close","Cancel","סגירה","סגור","ביטול"])).allElementsBoundByIndex
-        guard let closeShare=closeCandidates.first(where:{$0.isHittable}) else {XCTFail("No accessible Close control in the actual system share; inspect recorded hierarchy");return}
+        // The ActivityListView can exist before its Close becomes hittable.
+        // Wait for that actual control, rather than relying on diagnostic
+        // snapshot time or a swipe of the underlying application.
+        let closeQuery=activities.buttons.matching(NSPredicate(format:"identifier == %@ OR label IN %@","header.closeButton",["Close","Cancel","סגירה","סגור","ביטול"]))
+        let closeReady=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            closeQuery.allElementsBoundByIndex.contains(where:{$0.isHittable})
+        },object:nil)],timeout:15)
+        guard closeReady == .completed,let closeShare=closeQuery.allElementsBoundByIndex.first(where:{$0.isHittable}) else {
+            let tree=XCTAttachment(string:String(activities.debugDescription.prefix(18000)))
+            tree.name="Actual system share controls when Close unavailable";tree.lifetime = .keepAlways;add(tree)
+            XCTFail("No hittable Close control in the actual system share within15 seconds; inspect recorded hierarchy");return
+        }
         Swift.print("NATIVE_SHARE_CLOSE: label=\(closeShare.label) identifier=\(closeShare.identifier) frame=\(closeShare.frame)")
         closeShare.tap()
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !activities.exists },object:nil)],timeout:20),.completed,"Native sharing must be dismissed before rotation and relaunch")

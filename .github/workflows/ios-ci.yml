@@ -119,7 +119,7 @@ jobs:
             xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
             xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
           fi
-          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderUITests/ReaderUITests/testSearchNavigationSharingRotationAndRelaunch CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderTests/ReaderIntegrationTests/testShareCompletionPreservesNewerPresentationAndReportsFailure -only-testing:ConsumerLawReaderUITests/ReaderUITests/testSearchNavigationSharingRotationAndRelaunch CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |
