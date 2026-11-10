@@ -152,10 +152,22 @@ public final class ReaderInstrumentation extends Instrumentation {
                 if(input!=null)break;Thread.sleep(100);
             }
             check(input!=null,"The focused editable field remains in the reader application window");
-            Bundle empty=new Bundle();empty.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,"");
-            check(input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,empty),"Native editable field can be cleared without JavaScript text assignment");
-            awaitJS("document.getElementById('mobile-search').value==='' && document.getElementById('mobile-sheet').open","Native clear completes in the focused field before typing");
+            // Editing text through ACTION_SET_TEXT after opening old WebView IME
+            // can replace its input connection. Select the actual native field's
+            // text and use real key events for both deletion and replacement.
+            int length=input.getText()==null?0:input.getText().length();
+            check(length<=512,"Existing query is bounded before actual native deletion");
+            if(length>0){
+                Bundle selection=new Bundle();
+                selection.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT,0);
+                selection.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT,length);
+                check(input.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION,selection),"Native query text is selected without replacing the input connection");
+                sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_DEL);
+            }
+            awaitJS("document.getElementById('mobile-search').value==='' && document.getElementById('mobile-sheet').open && document.activeElement===document.getElementById('mobile-search')","Actual native Delete clears the focused field before typing");
+            report.putString("nativeKeyboardBeforeKeys",js("JSON.stringify({value:document.getElementById('mobile-search').value,focused:document.activeElement===document.getElementById('mobile-search'),open:document.getElementById('mobile-sheet').open})"));
             sendStringSync("14");
+            report.putString("nativeKeyboardAfterKeys",js("JSON.stringify({value:document.getElementById('mobile-search').value,focused:document.activeElement===document.getElementById('mobile-search'),open:document.getElementById('mobile-sheet').open})"));
             awaitJS("document.getElementById('mobile-search').value==='14' && document.querySelectorAll('.m-result').length>0","Native key input produces actual search results");
             final int[] geometry=new int[3];
             for(int i=0;i<100;i++){

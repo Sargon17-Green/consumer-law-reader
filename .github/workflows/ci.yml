@@ -1,7 +1,7 @@
-name: Actual Android software keyboard focus before clearing
+name: Actual API31 native key deletion and replacement
 on:
   push:
-    branches: [work/android-ime-focus-20261110]
+    branches: [work/android-ime-native-edit-20261110]
   workflow_dispatch:
 permissions:
   contents: read
@@ -68,14 +68,7 @@ jobs:
       max-parallel: 2
       matrix:
         include:
-          - api: 26
-            arch: x86
-            target: default
-            system-options: -writable-system
           - api: 31
-            arch: x86_64
-            target: google_apis
-          - api: 36
             arch: x86_64
             target: google_apis
     steps:
