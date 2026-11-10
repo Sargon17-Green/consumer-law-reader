@@ -327,33 +327,46 @@ final class ReaderIntegrationTests: XCTestCase {
         let renderer=ReaderPDFRenderer()
         renderer.addPrintFormatter(reader.webView.viewPrintFormatter(),startingAtPageAt:0)
         renderer.prepare(forDrawingPages:NSRange(location:0,length:1))
-        XCTAssertGreaterThan(renderer.numberOfPages,0)
+        let pageCount=renderer.numberOfPages
+        XCTAssertGreaterThan(pageCount,10,"The complete bundled law must span many printed pages")
+        XCTAssertLessThan(pageCount,2000,"Bound the full-document QA renderer")
+        guard pageCount>10 && pageCount<2000 else { return }
+        renderer.prepare(forDrawingPages:NSRange(location:0,length:pageCount))
         let data=UIGraphicsPDFRenderer(bounds:renderer.paperRect).pdfData { context in
-            context.beginPage()
-            renderer.drawPage(at:0,in:renderer.paperRect)
+            for index in 0..<pageCount {
+                context.beginPage()
+                renderer.drawPage(at:index,in:renderer.paperRect)
+            }
         }
+        XCTAssertLessThan(data.count,64*1024*1024,"Bound generated PDF evidence")
         XCTAssertTrue(data.starts(with:[0x25,0x50,0x44,0x46,0x2D]))
         let provider=try XCTUnwrap(CGDataProvider(data:data as CFData))
         let document=try XCTUnwrap(CGPDFDocument(provider))
-        XCTAssertEqual(document.numberOfPages,1,"Bounded first-page print-output test")
-        let page=try XCTUnwrap(document.page(at:1))
-        let width=120,height=170
-        var pixels=[UInt8](repeating:255,count:width*height*4)
-        let ink=pixels.withUnsafeMutableBytes { raw -> Int in
-            guard let context=CGContext(data:raw.baseAddress,width:width,height:height,bitsPerComponent:8,bytesPerRow:width*4,space:CGColorSpaceCreateDeviceRGB(),bitmapInfo:CGImageAlphaInfo.premultipliedLast.rawValue|CGBitmapInfo.byteOrder32Big.rawValue) else { return 0 }
-            context.setFillColor(UIColor.white.cgColor)
-            context.fill(CGRect(x:0,y:0,width:CGFloat(width),height:CGFloat(height)))
-            context.scaleBy(x:CGFloat(width)/renderer.paperRect.width,y:CGFloat(height)/renderer.paperRect.height)
-            context.drawPDFPage(page)
-            let bytes=raw.bindMemory(to:UInt8.self)
-            return stride(from:0,to:bytes.count,by:4).filter { bytes[$0+3]>200 && (bytes[$0]<220 || bytes[$0+1]<220 || bytes[$0+2]<220) }.count
+        XCTAssertEqual(document.numberOfPages,pageCount,"Export every page, not only the first one")
+        func inkCount(_ page: CGPDFPage) -> Int {
+            let width=120,height=170
+            var pixels=[UInt8](repeating:255,count:width*height*4)
+            return pixels.withUnsafeMutableBytes { raw -> Int in
+                guard let context=CGContext(data:raw.baseAddress,width:width,height:height,bitsPerComponent:8,bytesPerRow:width*4,space:CGColorSpaceCreateDeviceRGB(),bitmapInfo:CGImageAlphaInfo.premultipliedLast.rawValue|CGBitmapInfo.byteOrder32Big.rawValue) else { return 0 }
+                context.setFillColor(UIColor.white.cgColor)
+                context.fill(CGRect(x:0,y:0,width:CGFloat(width),height:CGFloat(height)))
+                context.scaleBy(x:CGFloat(width)/renderer.paperRect.width,y:CGFloat(height)/renderer.paperRect.height)
+                context.drawPDFPage(page)
+                let bytes=raw.bindMemory(to:UInt8.self)
+                return stride(from:0,to:bytes.count,by:4).filter { bytes[$0+3]>200 && (bytes[$0]<220 || bytes[$0+1]<220 || bytes[$0+2]<220) }.count
+            }
         }
-        XCTAssertGreaterThan(ink,20,"Native print output must contain opaque ink, not transparent or blank pixels")
+        var samples=[String:Int]()
+        for index in Set([1,pageCount/2+1,pageCount]).sorted() {
+            let ink=inkCount(try XCTUnwrap(document.page(at:index)))
+            samples[String(index)]=ink
+            XCTAssertGreaterThan(ink,index==1 ? 20:2,"The first, middle and final PDF pages must contain actual ink; page\(index)")
+        }
         let attachment=XCTAttachment(data:data,uniformTypeIdentifier:"com.adobe.pdf")
-        attachment.name="Actual UIKit print formatter — first page"
+        attachment.name="Actual UIKit print formatter — complete document"
         attachment.lifetime = .keepAlways
         add(attachment)
-        print("NATIVE_PDF_OUTPUT: pages=1 bytes=\(data.count) nonblank=true")
+        print("NATIVE_PDF_OUTPUT: pages=\(pageCount) bytes=\(data.count) inkSamples=\(samples) fullDocument=true; system Files save and physical printing are separate")
     }
 
     func testBundledReadingWithEveryRemoteRequestBlocked() async throws {

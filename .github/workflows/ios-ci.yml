@@ -1,8 +1,8 @@
-name: Actual legacy iOS share dismissal
+name: Actual complete UIKit PDF output
 
 on:
   push:
-    branches: [work/ios-legacy-share-20261110]
+    branches: [work/ios-complete-pdf-20261110]
   workflow_dispatch:
 
 concurrency:
@@ -21,11 +21,8 @@ jobs:
       max-parallel: 2
       matrix:
         include:
-          - family: iPad
-            os: '18.5'
-            archive: false
           - family: iPhone
-            os: '16.0'
+            os: '26.2'
             archive: false
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -119,7 +116,7 @@ jobs:
             xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
             xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
           fi
-          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderTests/ReaderIntegrationTests/testShareCompletionPreservesNewerPresentationAndReportsFailure -only-testing:ConsumerLawReaderUITests/ReaderUITests/testSearchNavigationSharingRotationAndRelaunch CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderTests/ReaderIntegrationTests/testNativePrintFormatterProducesRenderablePDF CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |
