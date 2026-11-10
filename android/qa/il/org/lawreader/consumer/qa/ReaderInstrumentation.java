@@ -19,9 +19,9 @@ import org.json.JSONObject;
 public final class ReaderInstrumentation extends Instrumentation {
     private Activity activity;
     private WebView web;
-    private boolean expectDate,seed,verifySeed,verifyUpgrade;
+    private boolean expectDate,seed,verifySeed,verifyUpgrade,rendererOnly;
     private String expectedFont;
-    @Override public void onCreate(Bundle arguments) { super.onCreate(arguments);expectedFont=arguments==null?null:arguments.getString("expectedFont");expectDate=arguments!=null&&"true".equals(arguments.getString("expectDate"));seed=arguments!=null&&"true".equals(arguments.getString("seed"));verifySeed=arguments!=null&&"true".equals(arguments.getString("verifySeed"));verifyUpgrade=arguments!=null&&"true".equals(arguments.getString("verifyUpgrade"));start(); }
+    @Override public void onCreate(Bundle arguments) { super.onCreate(arguments);rendererOnly=arguments!=null&&"true".equals(arguments.getString("rendererOnly"));expectedFont=arguments==null?null:arguments.getString("expectedFont");expectDate=arguments!=null&&"true".equals(arguments.getString("expectDate"));seed=arguments!=null&&"true".equals(arguments.getString("seed"));verifySeed=arguments!=null&&"true".equals(arguments.getString("verifySeed"));verifyUpgrade=arguments!=null&&"true".equals(arguments.getString("verifyUpgrade"));start(); }
     private WebView find(View view) {
         if(view instanceof WebView)return (WebView)view;
         if(view instanceof ViewGroup){ViewGroup g=(ViewGroup)view;for(int i=0;i<g.getChildCount();i++){WebView found=find(g.getChildAt(i));if(found!=null)return found;}}
@@ -401,6 +401,38 @@ public final class ReaderInstrumentation extends Instrumentation {
         final boolean[] overflow={false};runOnMainSync(()->overflow[0]=web.canScrollHorizontally(-1)||web.canScrollHorizontally(1));
         check(!overflow[0],"Actual native WebView cannot pan the whole reading page horizontally");
     }
+    private void testRealRendererRecovery(Bundle report) throws Exception {
+        check(android.os.Build.VERSION.SDK_INT>=29,"Public renderer termination requires API29+");
+        ready();
+        js("localStorage.setItem('law-reader-font','24');lawMobile.goTo('article_14',false,false);lawMobile.saveSession('article_14')");
+        Activity previous=activity;WebView previousWeb=web;
+        CountDownLatch resumed=new CountDownLatch(1);final Activity[] replacement={null};
+        android.app.Application application=(android.app.Application)getTargetContext().getApplicationContext();
+        android.app.Application.ActivityLifecycleCallbacks observer=new android.app.Application.ActivityLifecycleCallbacks(){
+            public void onActivityCreated(Activity a,Bundle b){}
+            public void onActivityStarted(Activity a){}
+            public void onActivityResumed(Activity a){if(a!=previous&&a.getClass().getName().equals("il.org.lawreader.consumer.MainActivity")){replacement[0]=a;resumed.countDown();}}
+            public void onActivityPaused(Activity a){}
+            public void onActivityStopped(Activity a){}
+            public void onActivitySaveInstanceState(Activity a,Bundle b){}
+            public void onActivityDestroyed(Activity a){}
+        };
+        runOnMainSync(()->application.registerActivityLifecycleCallbacks(observer));
+        try{
+            final boolean[] terminated={false};
+            runOnMainSync(()->{android.webkit.WebViewRenderProcess process=web.getWebViewRenderProcess();terminated[0]=process!=null&&process.terminate();});
+            check(terminated[0],"Actual isolated WebView renderer accepted public terminate()");
+            clickSystemText("פתיחה מחדש");
+            check(resumed.await(60,TimeUnit.SECONDS),"Native recovery must recreate and resume an actual Activity");
+            activity=replacement[0];runOnMainSync(()->web=find(activity.findViewById(android.R.id.content)));
+            check(web!=null&&web!=previousWeb,"Recovery replaces the unusable WebView");
+            ready();
+            check("\"24\"".equals(js("localStorage.getItem('law-reader-font')")),"Renderer termination preserves preferences");
+            check("\"#article_14\"".equals(js("location.hash")),"Renderer termination preserves the saved exact section");
+            check("true".equals(js("lawMobile.buildSearch().length>500")),"Recovered real renderer searches the offline law");
+            report.putString("rendererRecovery","PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved");
+        }finally{runOnMainSync(()->application.unregisterActivityLifecycleCallbacks(observer));}
+    }
     @Override public void onStart() {
         Bundle report=new Bundle();
         final long launchStart=android.os.SystemClock.elapsedRealtime();
@@ -440,6 +472,7 @@ public final class ReaderInstrumentation extends Instrumentation {
                 report.putString("reopenedFont",js("localStorage.getItem('law-reader-font')"));
                 check(expectedFont.equals(new org.json.JSONTokener(js("localStorage.getItem('law-reader-font')")).nextValue()),"Preferences persist after actual process restart");
             }
+            if(rendererOnly){report.putString("stage","actual renderer termination and recovery");testRealRendererRecovery(report);report.putString("QA_STATUS","PASS");finish(Activity.RESULT_OK,report);return;}
             testNativeDateURLPolicy(report);
             report.putString("stage","responsive native reading layout");testReadingLayout(report);
             if(verifyUpgrade){
