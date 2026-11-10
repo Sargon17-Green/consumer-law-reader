@@ -3,7 +3,7 @@
 | מזהה | היקף / מצב | ממצא ודרך המשך |
 |---|---|---|
 | QA-ANDROID26-ROW | תיקון בדיקה אומת גם ב־PR11/4ee | צילום הוכיח שקובץ JSON קיים; עץ A11y הוכיח שה־filename ב־depth17 ולשורת RecyclerView אין ACTION_CLICK. הקשת pointer לפי bounds של שם מדויק מאפשרת SAF אמיתי. אין צורך לשנות פורמט גיבוי או להחליש הרשאות |
-| QA-ANDROID36-PRINT | פתוח בקבלה המלאה | lookup לפי ID מצא print_button מוסתר אך enabled; AOSP16 קובע GONE עד עדכון המסמך. גם כפתור גלוי עשוי להופיע בזמן Preparing preview. המתנה לעמוד Page n of total אפשרה PDF אמיתי במצב לרוחב בניסוי42726433709; מצב לאורך נכשל עם קריסת MediaProvider/FuseDaemon ואז יציאת תהליך reader, ללא חריגת Java באפליקציה שנמצאה. הסיבה המלאה אינה מוכחת; full API36 עדיין פתוח |
+| QA-ANDROID36-PRINT | שער הקבלה המלא עבר706; fresh portrait פתוח בנפרד | lookup לפי ID מצא print_button מוסתר אך enabled; AOSP16 קובע GONE עד עדכון המסמך. גם כפתור גלוי עשוי להופיע בזמן Preparing preview. המתנה לעמוד Page n of total אפשרה PDF אמיתי במצב לרוחב בניסוי42726433709; מצב לאורך נכשל עם קריסת MediaProvider/FuseDaemon ואז יציאת תהליך reader, ללא חריגת Java באפליקציה שנמצאה. הלוג הוכיח ש־vold איפס אחסון ושלח SIGINT לתהליך הקורא לאחר קריסת MediaProvider. טריגר pf_setattr עדיין אינו מוכח. full API36 online/offline עבר706 עם שניPDF146עמודים; הניסוי38ebb34 מבודד פעולות ראיות QA מ־FUSE |
 | QA-ANDROID36-SHARE | תיקון בדיקה אומת4ee | הוחזרה פעולת ACTION_CLICK של יעד sharesheet; אישור Intent ב־UID אחר עבר API36 לפני כשל PDF. אין להסיר את אישור הקבלה |
 | DEPLOY-ENVIRONMENT | מגבלת workflow, לא הוכחת כשל אתר חי | env github-pages מתיר רק main/gh-pages; deploy מה־release branch נדחה. אין לשנות הגנה; פרסום gh-pages42718136476 וה־HTTP עברו. CI-003 מפריד verifier לקריאה בלבד מ־deployment workflow המוגן, ללא שינוי policy |
 | SIGN-ANDROID | חסם חיצוני | המפתח הפרטי ההיסטורי אינו זמין; אין Debug כשדרוג.1.3.5 הציבורי נשמר |
@@ -17,4 +17,4 @@
 
 ארטיפקטי Actions זמניים (Native iOS7ימים, האחרים בדרך כלל30, פריסה90); סיכומים ודיגסטים נשמרים ב־Git. היעלמות artifact אינה PASS או כשל חדש; אפשר לבנות מחדש מהמקור. אין ידיעה שהחוק מדויק משפטית מכוח מחזור זה, והמקור/מועד אימותו נשמרים.
 
-NAV-006/PWA-001: שוחזרו יעד תקנות שהוסתר מתחת לחזרה ומטמון חסר שנספר כמלא כאשר נוסף נכס זר. התיקון הנוכחי ממתין לפרסום ולשערי CI; אין שינוי בקובץ המקור.
+NAV-006/PWA-001: שוחזרו יעד תקנות מוסתר ומטמון חסר שנספר כמלא. תוקנו ופורסמו ב־c3e9d9e עם75HTTP; Android עבר706. אין שינוי במקור. ניסוי iPad window ראשוןf35/run42765418790 נכשל במחוות resize בלבד; מצב Windowed Apps אומת בתמונה. ניסוי pointer חדשf61 בענף מבודד, לא כשל מוצר מוכח.

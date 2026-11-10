@@ -16,7 +16,7 @@
 - [הכנה לחנויות ומגבלות החתימה](docs/STORE_PREPARATION_HE.md)
 - [בנייה וחתימת iOS](IOS_TESTFLIGHT_HE.md)
 
-**פורסמה בטא Web/PWA1.3.9-dev ב־10.11.2026** ב[קישור הקבוע](https://sargon17-green.github.io/consumer-law-reader/reader/). ב־Chrome/Safari אפשר לבחור ״התקנה״ או ״הוספה למסך הבית״ ולקבל סמל קבוע. זו גרסת Web, והיא נפרדת מהפצות Native. אימות74 קובצי HTTP/SHA256 עבר; אתר alpha וקישור ה־APK נשמרו. [ראיית הפרסום](qa/mobile-2026-11-08/public-web-http-verification.json).
+**פורסמה בטא Web/PWA1.3.9-dev ב־10.11.2026** ב[קישור הקבוע](https://sargon17-green.github.io/consumer-law-reader/reader/). ב־Chrome/Safari אפשר לבחור ״התקנה״ או ״הוספה למסך הבית״ ולקבל סמל קבוע. זו גרסת Web, והיא נפרדת מהפצות Native. תיקון2 פורסם מתוךc3e9d9e: מוכנות offline מוצגת ויעדי תקנות נשארים גלויים מתחת לחזרה. כל75HTTP/SHA256 עברו; אתר alpha וקישור ה־APK נשמרו. [ראיית הפרסום](qa/mobile-2026-11-08/public-web-patch-http-verification.json).
 
 ## מה הפרויקט מכיל
 
