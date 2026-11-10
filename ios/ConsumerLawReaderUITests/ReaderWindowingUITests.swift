@@ -119,9 +119,16 @@ final class ReaderWindowingUITests: XCTestCase {
         let share=app.buttons.matching(identifier:"native-share").firstMatch
         XCTAssertTrue(share.isHittable)
         share.tap()
-        XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout:10) || app.buttons.matching(identifier:"Copy").firstMatch.exists,"Native share must open from the resized header")
+        let activities=app.otherElements["ActivityListView"].firstMatch
+        XCTAssertTrue(activities.waitForExistence(timeout:10),"Native share must open from the resized header")
         record(app,"Actual resized native share presentation")
-        app.swipeDown()
+        // In the actual compact iPad window this is a full-height system
+        // presentation. An application swipe did not dismiss it in0d3ef3f;
+        // use its observed accessible Close control and verify disappearance.
+        let closeShare=app.buttons.matching(identifier:"header.closeButton").firstMatch
+        XCTAssertTrue(closeShare.waitForExistence(timeout:10))
+        closeShare.tap()
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !activities.exists },object:nil)],timeout:20),.completed,"The actual native share presentation must close before returning to the reader")
         XCTAssertTrue(returnToSearch.isHittable,"Return control remains reachable in the resized native window")
         returnToSearch.tap()
         XCTAssertTrue(input.waitForExistence(timeout:20))
