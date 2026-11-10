@@ -7,7 +7,7 @@ final class ReaderWindowingUITests: XCTestCase {
         executionTimeAllowance=300
     }
     private func record(_ app: XCUIApplication,_ label: String) {
-        let tree=XCTAttachment(string:app.debugDescription)
+        let tree=XCTAttachment(string:String(app.debugDescription.prefix(24000)))
         tree.name=label+" accessibility hierarchy";tree.lifetime = .keepAlways;add(tree)
         let screen=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
         screen.name=label+" actual simulator screen";screen.lifetime = .keepAlways;add(screen)
@@ -81,7 +81,9 @@ final class ReaderWindowingUITests: XCTestCase {
         XCTAssertTrue(input.waitForExistence(timeout:20))
         XCTAssertEqual(input.value as? String,"14")
         XCTAssertTrue(result.waitForExistence(timeout:20))
-        XCTAssertTrue(result.isHittable,"Search result remains reachable in the resized native window")
+        record(app,"Restored search in the resized native window")
+        // A result can be outside a scrollable restored list after the viewport
+        // changes. The actual tap scrolls it into view and must navigate successfully.
         result.tap()
         XCTAssertTrue(returnToSearch.waitForExistence(timeout:20),app.debugDescription)
         let summary="IPAD_WINDOW_RESIZE: original=\(original) resized=\(web.frame) search preserved; real OS window gesture; simulator only"

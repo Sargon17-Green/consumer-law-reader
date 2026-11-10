@@ -29,7 +29,10 @@ private final class ReaderPDFRenderer: UIPrintPageRenderer {
 
 final class ReaderPolicyTests: XCTestCase {
     func testBuiltAppDeclaresAdaptiveIPadOrientations() throws {
-        let values=try XCTUnwrap(Bundle.main.infoDictionary)
+        // Bundle.infoDictionary can resolve device-specific overrides into the
+        // generic key. Read the actual packaged plist to verify both wire keys.
+        let url=try XCTUnwrap(Bundle.main.url(forResource:"Info",withExtension:"plist"))
+        let values=try XCTUnwrap(PropertyListSerialization.propertyList(from:Data(contentsOf:url),options:[],format:nil) as? [String:Any])
         let orientations=try XCTUnwrap(values["UISupportedInterfaceOrientations"] as? [String])
         XCTAssertEqual(Set(orientations),Set(["UIInterfaceOrientationPortrait","UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"]))
         let iPad=try XCTUnwrap((values["UISupportedInterfaceOrientations~ipad"] ?? values["UISupportedInterfaceOrientations~iPad"]) as? [String])
