@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "sourceCommit": "38ebb344a39326079b967a15895d83b25c9f1a91",
+  "run": 42767425997,
+  "result": "PASS: both fresh portrait and landscape real Print/SAF/PDF/PdfRenderer and reader return",
+  "artifacts": [
+    {
+      "id": 13740277744,
+      "name": "android-private-print-landscape",
+      "sha256": "a0f1a63e28568ff55996e4404a662a200b9f4a169065af57f29d37de117533a6",
+      "bytes": 1150554
+    },
+    {
+      "id": 13740108103,
+      "name": "android-private-print-portrait",
+      "sha256": "cd19933a0da8c94e622dd5f5783175a63508ebedc91d5db06b09afa2a9c343cf",
+      "bytes": 1055783
+    }
+  ],
+  "reports": [
+    {
+      "job": 129667082986,
+      "fields": [
+        {
+          "key": "PDF",
+          "value": "PASS: actual system Print -> Save as PDF -> SAF file; pages=146 bytes=1515173 sha256=4a02c88616a7302b84e4b06c0b0add1a4e634fb56ee05825095810f0bc2b7164"
+        },
+        {
+          "key": "QA_STATUS",
+          "value": "PASS"
+        },
+        {
+          "key": "printOrientation",
+          "value": "portrait"
+        }
+      ]
+    },
+    {
+      "job": 129667082669,
+      "fields": [
+        {
+          "key": "PDF",
+          "value": "PASS: actual system Print -> Save as PDF -> SAF file; pages=146 bytes=1515150 sha256=34ff119260a86e9d5ea412c7b8e770e5046d29250c1970987369473173caf562"
+        },
+        {
+          "key": "QA_STATUS",
+          "value": "PASS"
+        },
+        {
+          "key": "printOrientation",
+          "value": "landscape"
+        }
+      ]
+    }
+  ],
+  "observedPriorCause": "MediaProvider FUSE pf_setattr abort -> StorageManager reset -> vold SIGINT of processes referencing emulated storage; prior reader exit had no reader Java exception",
+  "change": "Test evidence uses private app files and a bounded byte stream from actual saved SAF document, with Java SHA256; removes external cp/metadata operations. No production print/lifecycle change.",
+  "limitations": [
+    "No claim that MediaProvider itself was fixed or that cp was proven its sole trigger",
+    "Single isolated success per orientation; full long flow passed earlier706 with old evidence route and must pass again after integrating this test change",
+    "Emulator API36 WebView133, no physical printer or native public signing"
+  ]
+}
