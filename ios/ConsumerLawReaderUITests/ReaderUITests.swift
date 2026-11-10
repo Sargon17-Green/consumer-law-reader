@@ -109,7 +109,7 @@ final class ReaderUITests: XCTestCase {
         // an application-wide swipe did not dismiss it on16/18.5.
         let closeCandidates=activities.buttons.matching(NSPredicate(format:"identifier == %@ OR label IN %@","header.closeButton",["Close","Cancel","סגירה","סגור","ביטול"])).allElementsBoundByIndex
         guard let closeShare=closeCandidates.first(where:{$0.isHittable}) else {XCTFail("No accessible Close control in the actual system share; inspect recorded hierarchy");return}
-        print("NATIVE_SHARE_CLOSE: label=\(closeShare.label) identifier=\(closeShare.identifier) frame=\(closeShare.frame)")
+        Swift.print("NATIVE_SHARE_CLOSE: label=\(closeShare.label) identifier=\(closeShare.identifier) frame=\(closeShare.frame)")
         closeShare.tap()
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !activities.exists },object:nil)],timeout:20),.completed,"Native sharing must be dismissed before rotation and relaunch")
         XCUIDevice.shared.orientation = .landscapeLeft
