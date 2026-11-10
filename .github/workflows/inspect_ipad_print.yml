@@ -1,0 +1,58 @@
+name: Inspect actual iPad print cancellation failure
+on:
+  push:
+    branches: [work/ipad-print-evidence-20261110]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Decode identified actual failure screenshot and pointer records
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/Sargon17-Green/consumer-law-reader/actions/artifacts/13787730646/zip > artifact.zip
+          python3 - <<'PY'
+          import base64,hashlib,json,pathlib,plistlib,re,zipfile
+          raw=open('artifact.zip','rb').read()
+          assert len(raw)==309820516
+          assert hashlib.sha256(raw).hexdigest()=='601d76546ccab03ccf7eb593cbf6b61935aeeea17eea1ce6bce85d9d2f0f5dc5'
+          with zipfile.ZipFile('artifact.zip') as z:
+              path=next(n for n in z.namelist() if n.endswith('iPad-ios-26.2-attachments/manifest.json'))
+              directory=path.rsplit('/',1)[0]+'/'
+              manifest=json.loads(z.read(path))
+              rows=[r for r in manifest if 'ReaderUITests/testSearchNavigationSharingRotationAndRelaunch' in r.get('testIdentifier','')]
+              assert len(rows)==1
+              screenshots=[]
+              for a in rows[0]['attachments']:
+                  name=a.get('suggestedHumanReadableName','')
+                  file=a['exportedFileName']
+                  if file.lower().endswith(('.png','.jpeg','.jpg')) and 'Screenshot ' in name:
+                      clock=re.search(r'at (\d+)[.:](\d+)[.:](\d+) (AM|PM)',name)
+                      if clock:
+                          h,m,s,ampm=clock.groups()
+                          t=(int(h)%12+(12 if ampm=='PM' else 0))*3600+int(m)*60+int(s)
+                          screenshots.append((t,a))
+                  if 'Synthesized Event' in name:
+                      data=z.read(directory+file)
+                      if len(data)<16000 and data.startswith(b'bplist00'):
+                          p=plistlib.loads(data);objects=p['$objects']
+                          def val(v):return objects[v.data] if isinstance(v,plistlib.UID) else v
+                          events=[o for o in objects if isinstance(o,dict) and 'coordinate.x' in o]
+                          coords=[{'x':val(o['coordinate.x']),'y':val(o['coordinate.y']),'type':val(o.get('eventType'))} for o in events]
+                          print('ACTUAL_IPAD_EVENT: '+json.dumps({'name':name,'coordinates':coords}))
+              assert screenshots,'No failure-time screenshot'
+              _,chosen=max(screenshots,key=lambda v:v[0])
+              image=z.read(directory+chosen['exportedFileName'])
+              assert len(image)<8000000
+              mime='image/png' if image.startswith(b'\x89PNG') else 'image/jpeg'
+              print('ACTUAL_IPAD_IMAGE_META: '+json.dumps({'mime':mime,'name':chosen,'bytes':len(image),'sha256':hashlib.sha256(image).hexdigest()}))
+              encoded=base64.b64encode(image).decode()
+              for part in range(0,len(encoded),4000):
+                  print('ACTUAL_IPAD_IMAGE_CHUNK:'+str(part//4000)+':'+encoded[part:part+4000])
+          PY
