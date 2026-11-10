@@ -100,8 +100,17 @@ final class ReaderUITests: XCTestCase {
         XCTAssertTrue(share.isEnabled);share.tap()
         XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout:8) || app.buttons.matching(identifier:"Copy").firstMatch.exists || app.buttons.matching(identifier:"העתק").firstMatch.exists)
         let activities=app.otherElements["ActivityListView"].firstMatch
-        let closeShare=app.buttons.matching(identifier:"header.closeButton").firstMatch
-        if closeShare.exists && closeShare.isHittable {closeShare.tap()} else {app.swipeDown()}
+        let shareTree=XCTAttachment(string:String(activities.debugDescription.prefix(18000)))
+        shareTree.name="Actual system share controls before dismissal";shareTree.lifetime = .keepAlways;add(shareTree)
+        let shareScreen=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+        shareScreen.name="Actual system share before dismissal";shareScreen.lifetime = .keepAlways;add(shareScreen)
+        // Legacy UIKit exposes its Close label without the iOS26 identifier.
+        // Scope the actual visible control to the presented system share view;
+        // an application-wide swipe did not dismiss it on16/18.5.
+        let closeCandidates=activities.buttons.matching(NSPredicate(format:"identifier == %@ OR label IN %@","header.closeButton",["Close","Cancel","סגירה","סגור","ביטול"])).allElementsBoundByIndex
+        guard let closeShare=closeCandidates.first(where:{$0.isHittable}) else {XCTFail("No accessible Close control in the actual system share; inspect recorded hierarchy");return}
+        print("NATIVE_SHARE_CLOSE: label=\(closeShare.label) identifier=\(closeShare.identifier) frame=\(closeShare.frame)")
+        closeShare.tap()
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !activities.exists },object:nil)],timeout:20),.completed,"Native sharing must be dismissed before rotation and relaunch")
         XCUIDevice.shared.orientation = .landscapeLeft
         XCTAssertTrue(search.waitForExistence(timeout:10))

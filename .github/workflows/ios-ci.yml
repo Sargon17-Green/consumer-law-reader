@@ -1,44 +1,8 @@
-name: Build native iOS app (unsigned simulator)
+name: Actual legacy iOS share dismissal
 
 on:
   push:
-    branches: [main]
-    # Keep this dependency list equal to pull_request. Android-only tools do not build iOS.
-    paths:
-      - '.github/workflows/ios-ci.yml'
-      - 'ios/**'
-      - 'original/**'
-      - 'web/**'
-      - 'scripts/build_web.py'
-      - 'scripts/bundled_assets.py'
-      - 'scripts/prepare_typed_sources.py'
-      - 'scripts/canonical_vendor/**'
-      - 'scripts/verify_release.py'
-      - 'typed-sources/**'
-      - 'metadata/**'
-      - 'VERSION'
-      - 'requirements-qa.txt'
-      - 'tests/fixtures/**'
-      - 'tests/test_ios_source.py'
-      - 'tests/test_web_pages.py'
-  pull_request:
-    paths:
-      - '.github/workflows/ios-ci.yml'
-      - 'ios/**'
-      - 'original/**'
-      - 'web/**'
-      - 'scripts/build_web.py'
-      - 'scripts/bundled_assets.py'
-      - 'scripts/prepare_typed_sources.py'
-      - 'scripts/canonical_vendor/**'
-      - 'scripts/verify_release.py'
-      - 'typed-sources/**'
-      - 'metadata/**'
-      - 'VERSION'
-      - 'requirements-qa.txt'
-      - 'tests/fixtures/**'
-      - 'tests/test_ios_source.py'
-      - 'tests/test_web_pages.py'
+    branches: [work/ios-legacy-share-20261110]
   workflow_dispatch:
 
 concurrency:
@@ -57,15 +21,6 @@ jobs:
       max-parallel: 2
       matrix:
         include:
-          - family: iPhone
-            os: '26.2'
-            archive: true
-          - family: iPad
-            os: '26.2'
-            archive: false
-          - family: iPhone
-            os: '18.5'
-            archive: false
           - family: iPad
             os: '18.5'
             archive: false
@@ -164,7 +119,7 @@ jobs:
             xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
             xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
           fi
-          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderUITests/ReaderUITests/testSearchNavigationSharingRotationAndRelaunch CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |
