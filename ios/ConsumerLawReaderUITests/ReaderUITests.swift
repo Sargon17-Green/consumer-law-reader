@@ -37,6 +37,46 @@ final class ReaderUITests: XCTestCase {
         XCTAssertTrue(nativeFailures.isEmpty,nativeFailures.joined(separator:"; "))
         print("NATIVE_ACCESSIBILITY_AUDIT: nativeFailures=\(nativeFailures.count) totalRecorded=\(findings.count)")
     }
+    // An independent control: distinguish a broken cold-launch share from
+    // a state-transition failure after Print + Files + keyboard interaction.
+    // This test complements, never replaces, the full sequential UI test.
+    func testNativeShareDirectlyAfterColdLaunch() {
+        let app=XCUIApplication()
+        app.launch()
+        defer { app.terminate() }
+        let menu=app.buttons.matching(identifier:"native-menu").firstMatch
+        let share=app.buttons.matching(identifier:"native-share").firstMatch
+        XCTAssertTrue(share.waitForExistence(timeout:60))
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            share.exists && share.isEnabled && menu.exists && menu.isEnabled
+        },object:nil)],timeout:60),.completed,"Native share must be enabled on the fully loaded cold-launch reader")
+        share.tap()
+        let activities=app.otherElements["ActivityListView"].firstMatch
+        XCTAssertTrue(activities.waitForExistence(timeout:30),"An actual system share container must appear on cold launch")
+        let shareShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+        shareShot.name="Native share fresh launch before Close";shareShot.lifetime = .keepAlways;add(shareShot)
+        let closeByID=app.buttons.matching(identifier:"header.closeButton").firstMatch
+        let closeByLabel=app.buttons.matching(
+            NSPredicate(format:"label IN %@",["Close","Cancel","סגירה","סגור","ביטול"])
+        ).firstMatch
+        let ready=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            activities.exists && ((closeByID.exists && closeByID.isHittable) ||
+            (closeByLabel.exists && closeByLabel.isHittable))
+        },object:nil)],timeout:45)
+        if ready != .completed {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(18000)))
+            tree.name="Fresh native share full AX before failed Close";tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Fresh native share screen when Close inaccessible";shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertEqual(ready,.completed,"Cold-launch share must render a hittable native system Close")
+        let close=(closeByID.exists && closeByID.isHittable) ? closeByID : closeByLabel
+        print("FRESH_SHARE_CONTROL: label=\(close.label) identifier=\(close.identifier) frame=\(close.frame)")
+        close.tap()
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            !activities.exists && menu.exists && menu.isEnabled
+        },object:nil)],timeout:30),.completed,"Actual cold-launch share must close and restore the reader")
+    }
     func testSearchNavigationSharingRotationAndRelaunch() {
         let app=XCUIApplication()
         app.launch()

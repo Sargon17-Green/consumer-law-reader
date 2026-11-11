@@ -2,6 +2,12 @@
 
 עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
+## checkpoint חדש — אבחון השיתוף בשני רצפים, 11.11.2026
+
+ריצות המועמד `4ffbed4a1e177d6a444e157ee00ec14e05484b25` הסתיימו: [9/9 source/Android PASS](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43072821712), [3/6 iOS PASS](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43072821715). כל שלושת הכשלים ב־iOS16, iPhone26.2 ו־iPad18.5 נובעים בשלב ה־UI מ־Close של ActivityListView שאינו `isHittable` בשאילתת XCTest. iPad26.2, iPhone26.2-XXXL ו־iPhone18.5 עברו. חלק מצילומי הכשל מציגים כפתור X וחלק מראים remote container לא מאוכלס. [דוח רצף הבדיקה החדש](qa/mobile-2026-11-11/share-presentation-sequence-isolation.md).
+
+**שער הפעולה הבא:** ריצת CI על commit הבא, הכולל `testNativeShareDirectlyAfterColdLaunch` קבוע, לפני המבחן המלא. אין הסרת assertions מהמבחן המלא או שינוי UIKit לפני הכרעה. אם הבדיקה הקרה עוברת והבדיקה המשולבת נכשלת — לחקור מעבר אחרי print/Files. אם הקרה נכשלת — לחקור הצגת UIActivityViewController עצמה והתאמת מצבי popover/iPad על פי Apple. אחרי completed לאסוף xcresult, צילומי מסך ולוגים של כל פרופיל; אין לפרסם Native עד קבלה מלאה, ואין דחיפת קומיטים בזמן CI.
+
 ## checkpoint מחייב — לאחר completed על bfc2
 
 [דו"ח המחזור האחרון ותור ההמשך](qa/mobile-2026-11-11/candidate-bfc2-failure-triage.md) מחליף כל טענת סטטוס ישנה: על `bfc2c828f0baba7c871de682f5fb3ee92a19466d`, [Linux/Web/Android 43060328220](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43060328220) עבר **9/9** ו־[iOS 43060328507](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43060328507) עבר **2/6 בלבד**. הוכנו תיקוני QA מדודים ל־preview/Close/share עם שמירת assertions וצילומי כשל. לאחר דחיפת הקומיט הכולל אותם: **לא משנים את ראש PR11 עד שתסתיימנה ריצותיו**. כשלי UIKit של סגירת print ב־iPhone26 והצגת share ב־iPad18.5 טרם נפתרו ואין לאשר את המועמד בלעדיהם.
