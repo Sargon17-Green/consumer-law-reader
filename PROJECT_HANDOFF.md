@@ -2,6 +2,10 @@
 
 עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
+## עדכון בדוק מ־11.11.2026 — קודם לקריאת שלבי ההמשך
+
+[דו"ח קבלה מאוחדת שהושלמה](qa/mobile-2026-11-11/completed-acceptance-triage-20261111.md): על מועמד `5792b66`, תשעה מתוך תשעה jobs ב־Linux/Web/Android עברו ([run 42967750924](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42967750924)), אך שלושה מתוך ששת פרופילי iOS נכשלו ב־UI ([run 42967750794](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42967750794)). לפיכך **PR11 אינו כשיר עדיין למיזוג**. נדרש אבחון תצוגת PDF ב־XXXL, ביטול שחזור קובץ ב־iPhone18.5 וסגירת שיתוף ב־iPad18.5, ואז חזרה על מטריצה מאוחדת מלאה. הישג נפרד: [run 42968670868](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42968670868) אימת בפועל Save-to-Files מקומי ב־iPhone26.2: קובץ חדש 1,302,508 בתים, 136 עמודים ו־SHA-256 מתועד בדו"ח. זה לא PASS לכל הפלטפורמות ואינו חתימת הפצה.
+
 ## כניסה ומקורות האמת
 
 [מצב המימוש](IMPLEMENTATION_STATUS.md), [63 הדרישות](PRODUCT_REQUIREMENTS.md), [קטלוג מובנה](docs/requirements.json), [BACKLOG](BACKLOG.md), [תקלות](KNOWN_ISSUES.md), [ארכיטקטורה](ARCHITECTURE.md), [בדיקות](TESTING.md), [הפצה](RELEASE_PROCESS.md), [היסטוריה](RELEASE_HISTORY.md), [החלטות](DECISIONS.md), [פעולות חיצוניות](EXTERNAL_ACTIONS.md), [דוח ומטריצת פלטפורמות](docs/MOBILE_ENGINEERING_2026-11-08_HE.md).
