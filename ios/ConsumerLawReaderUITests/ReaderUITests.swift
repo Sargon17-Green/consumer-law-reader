@@ -127,15 +127,24 @@ final class ReaderUITests: XCTestCase {
         // The ActivityListView can exist before its Close becomes hittable.
         // Wait for that actual control, rather than relying on diagnostic
         // snapshot time or a swipe of the underlying application.
-        let closeQuery=activities.buttons.matching(NSPredicate(format:"identifier == %@ OR label IN %@","header.closeButton",["Close","Cancel","סגירה","סגור","ביטול"]))
+        // Enumerating every AX button repeatedly can invalidate remote elements
+        // during UIActivityViewController transitions on older iPadOS. Query
+        // stable targeted first matches instead; still require an actually
+        // hittable system Close button and the real sheet's dismissal.
+        let closeByID=activities.buttons.matching(identifier:"header.closeButton").firstMatch
+        let closeByLabel=activities.buttons.matching(
+            NSPredicate(format:"label IN %@",["Close","Cancel","סגירה","סגור","ביטול"])
+        ).firstMatch
         let closeReady=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
-            closeQuery.allElementsBoundByIndex.contains(where:{$0.isHittable})
+            (closeByID.exists && closeByID.isHittable) ||
+            (closeByLabel.exists && closeByLabel.isHittable)
         },object:nil)],timeout:15)
-        guard closeReady == .completed,let closeShare=closeQuery.allElementsBoundByIndex.first(where:{$0.isHittable}) else {
+        guard closeReady == .completed else {
             let tree=XCTAttachment(string:String(activities.debugDescription.prefix(18000)))
             tree.name="Actual system share controls when Close unavailable";tree.lifetime = .keepAlways;add(tree)
             XCTFail("No hittable Close control in the actual system share within15 seconds; inspect recorded hierarchy");return
         }
+        let closeShare=closeByID.isHittable ? closeByID : closeByLabel
         Swift.print("NATIVE_SHARE_CLOSE: label=\(closeShare.label) identifier=\(closeShare.identifier) frame=\(closeShare.frame)")
         closeShare.tap()
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !activities.exists },object:nil)],timeout:20),.completed,"Native sharing must be dismissed before rotation and relaunch")
