@@ -2,6 +2,8 @@
 
 עודכן ב־11.11.2026. [מצב](IMPLEMENTATION_STATUS.md), [BACKLOG](BACKLOG.md).
 
+**הבהרת מצב לאחר קבלת 11.11:** [דו"ח חדש](qa/mobile-2026-11-11/completed-acceptance-triage-20261111.md) מוכיח source/Android 9/9 success מול iOS 3/6 success. נותרו שלושה כשלי UI מדויקים: XL/XXXL print-preview, iPhone18.5 שחזור מ־Files, iPad18.5 Close בשיתוף. אין PASS מאוחד. בניגוד לנתון ההיסטורי בטבלה מטה, Save-to-Files *נבדק בהצלחה בנפרד* ב־iPhone26.2 ב־[run42968670868](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42968670868), כולל PDF מקומי 136 עמודים וקובץ חדש. עדיין לא נבדקו מדפסת פיזית, כל מערכות iOS או נגישות Tagged PDF.
+
 | מזהה | מצב | ראיה והמשך |
 |---|---|---|
 | QA-IME-027 | עבר ברכיב31; קבלה מאוחדת פתוחה |6d העבירonline/offline עם פוקוס/גאומטריה לפני מקשים ומחיקה Native;26/36 נבדקים במועמד המאוחד. [ראיות](qa/mobile-2026-11-11/components-accepted.json) |
