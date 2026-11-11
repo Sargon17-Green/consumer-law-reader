@@ -84,13 +84,19 @@ final class ReaderPrintSaveUITests: XCTestCase {
         actualSave!.tap()
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !actualSave!.exists },object:nil)],timeout:30),.completed,"System Files Save must complete and dismiss")
         let options=app.navigationBars["Options"].firstMatch
-        let close=options.buttons.matching(NSPredicate(format:"label IN %@",["Close","Cancel","ביטול"])).firstMatch
-        XCTAssertTrue(close.waitForExistence(timeout:30))
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in close.isEnabled && close.isHittable },object:nil)],timeout:20),.completed)
-        close.tap()
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !options.exists },object:nil)],timeout:30),.completed)
+        if options.waitForExistence(timeout:3) {
+            let close=options.buttons.matching(NSPredicate(format:"label IN %@",["Close","Cancel","ביטול"])).firstMatch
+            XCTAssertTrue(close.waitForExistence(timeout:20))
+            XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in close.isEnabled && close.isHittable },object:nil)],timeout:20),.completed)
+            close.tap()
+            XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !options.exists },object:nil)],timeout:30),.completed)
+        }
+        // A system share may finish its print interaction as part of Save.
+        // Require a reachable reader, plus the new local PDF in host checks.
         let menu=app.buttons.matching(identifier:"native-menu").firstMatch
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:20),.completed)
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled && menu.isHittable },object:nil)],timeout:30),.completed)
+        XCTAssertFalse(activities.exists,"System activity UI must no longer cover the reader")
+        record("READER_AFTER_SAVE",menu)
         Swift.print("SYSTEM_PDF_SAVE_UI: actual system Save tap, document-service dismissal and enabled reader; host verifies new local PDF bytes separately")
     }
 }

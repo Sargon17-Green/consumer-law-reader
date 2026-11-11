@@ -74,6 +74,8 @@ jobs:
           set -o pipefail
           mkdir -p build
           xcrun swiftc -frontend -parse ios/ConsumerLawReader/ConsumerLawReaderApp.swift
+          xcrun swiftc -typecheck ios/scripts/verify_system_pdf.swift
+          python3 -m py_compile ios/scripts/collect_system_pdf.py
           xcodebuild \
             -project ios/ConsumerLawReader.xcodeproj \
             -scheme ConsumerLawReader \
@@ -125,6 +127,9 @@ jobs:
         if: always()
         run: |
           if [[ -n "${QA_DEVICE:-}" ]]; then
+            if [[ -f "build/$QA_LABEL-system-files-before.json" && ! -f "build/$QA_LABEL-system-files-after.json" ]]; then
+              python3 ios/scripts/collect_system_pdf.py after "$QA_DEVICE" "build/$QA_LABEL-system-files" || true
+            fi
             xcrun simctl io "$QA_DEVICE" screenshot "build/$QA_LABEL-simulator.png" || true
             if [[ -d "build/$QA_LABEL-tests.xcresult" ]]; then
               xcrun xcresulttool export attachments --path "build/$QA_LABEL-tests.xcresult" --output-path "build/$QA_LABEL-attachments" || true
