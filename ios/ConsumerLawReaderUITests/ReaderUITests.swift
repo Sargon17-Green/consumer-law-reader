@@ -95,12 +95,23 @@ final class ReaderUITests: XCTestCase {
         let printCancel=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
         XCTAssertTrue(printCancel.waitForExistence(timeout:45),app.debugDescription)
         if #available(iOS 26.0,*) {
-            // Require an actual document preview in the redesigned print UI;
-            // the presence of a Close control alone does not verify rendering.
-            let firstPage=app.cells.matching(NSPredicate(format:"label BEGINSWITH %@","Page 1 of ")).firstMatch
-            XCTAssertTrue(firstPage.waitForExistence(timeout:45),"The actual system print preview must contain the first document page")
-            XCTAssertGreaterThan(firstPage.frame.width,0)
-            XCTAssertGreaterThan(firstPage.frame.height,0)
+            // Two actual system AX representations were observed: "Page 1 of N"
+            // or (XXXL) a "1" cell accompanied by a "Pages 1-N" range.
+            // Both require a real first-page cell with a nonempty frame.
+            let fullPage=app.cells.matching(NSPredicate(format:"label BEGINSWITH %@","Page 1 of ")).firstMatch
+            let compactPage=app.cells.matching(NSPredicate(format:"label == %@","1")).firstMatch
+            let pageRange=app.staticTexts.matching(NSPredicate(format:"label BEGINSWITH %@","Pages 1-")).firstMatch
+            let previewReady=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+                (fullPage.exists && fullPage.frame.width>0 && fullPage.frame.height>0) ||
+                (compactPage.exists && compactPage.frame.width>0 && compactPage.frame.height>0 && pageRange.exists)
+            },object:nil)],timeout:45)
+            if previewReady != .completed {
+                let tree=XCTAttachment(string:String(app.debugDescription.prefix(18000)))
+                tree.name="Actual system print preview AX when page unavailable";tree.lifetime = .keepAlways;add(tree)
+                let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+                shot.name="Actual system print preview when page unavailable";shot.lifetime = .keepAlways;add(shot)
+            }
+            XCTAssertEqual(previewReady,.completed,"The actual system print preview must contain a real first document page")
         }
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
             printCancel.exists && printCancel.isEnabled && printCancel.isHittable
@@ -108,9 +119,14 @@ final class ReaderUITests: XCTestCase {
         let printShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
         printShot.name="Actual system print preview before native Close";printShot.lifetime = .keepAlways;add(printShot)
         printCancel.tap()
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
-            !printCancel.exists
-        },object:nil)],timeout:30),.completed,app.debugDescription)
+        let printDismissed=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            !printCancel.exists && menu.exists && menu.isEnabled
+        },object:nil)],timeout:30)
+        if printDismissed != .completed {
+            let afterShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            afterShot.name="Actual system print UI after failed Close";afterShot.lifetime = .keepAlways;add(afterShot)
+        }
+        XCTAssertEqual(printDismissed,.completed,"Print Close must dismiss the system UI and restore enabled native controls")
         waitForMenu()
         openNativeMenu()
         let restore=app.buttons.matching(identifier:"שחזור הגדרות מקובץ").firstMatch
@@ -127,24 +143,26 @@ final class ReaderUITests: XCTestCase {
         // The ActivityListView can exist before its Close becomes hittable.
         // Wait for that actual control, rather than relying on diagnostic
         // snapshot time or a swipe of the underlying application.
-        // Enumerating every AX button repeatedly can invalidate remote elements
-        // during UIActivityViewController transitions on older iPadOS. Query
-        // stable targeted first matches instead; still require an actually
-        // hittable system Close button and the real sheet's dismissal.
-        let closeByID=activities.buttons.matching(identifier:"header.closeButton").firstMatch
-        let closeByLabel=activities.buttons.matching(
+        // The system Close may live in a sibling UIKit presentation rather
+        // than within the remote ActivityListView accessibility subtree.
+        // Query the foreground application without relaxing the actual
+        // isHittable and final sheet-dismissal requirements.
+        let closeByID=app.buttons.matching(identifier:"header.closeButton").firstMatch
+        let closeByLabel=app.buttons.matching(
             NSPredicate(format:"label IN %@",["Close","Cancel","סגירה","סגור","ביטול"])
         ).firstMatch
         let closeReady=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
-            (closeByID.exists && closeByID.isHittable) ||
-            (closeByLabel.exists && closeByLabel.isHittable)
+            activities.exists && ((closeByID.exists && closeByID.isHittable) ||
+            (closeByLabel.exists && closeByLabel.isHittable))
         },object:nil)],timeout:15)
         guard closeReady == .completed else {
-            let tree=XCTAttachment(string:String(activities.debugDescription.prefix(18000)))
-            tree.name="Actual system share controls when Close unavailable";tree.lifetime = .keepAlways;add(tree)
-            XCTFail("No hittable Close control in the actual system share within15 seconds; inspect recorded hierarchy");return
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(18000)))
+            tree.name="Actual foreground system share controls when Close unavailable";tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Actual system share UI when Close unavailable";shot.lifetime = .keepAlways;add(shot)
+            XCTFail("No hittable Close control while actual system share is present within15 seconds; inspect recorded hierarchy");return
         }
-        let closeShare=closeByID.isHittable ? closeByID : closeByLabel
+        let closeShare=(closeByID.exists && closeByID.isHittable) ? closeByID : closeByLabel
         Swift.print("NATIVE_SHARE_CLOSE: label=\(closeShare.label) identifier=\(closeShare.identifier) frame=\(closeShare.frame)")
         closeShare.tap()
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !activities.exists },object:nil)],timeout:20),.completed,"Native sharing must be dismissed before rotation and relaunch")

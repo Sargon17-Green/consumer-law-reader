@@ -2,6 +2,10 @@
 
 עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
+## checkpoint מחייב — לאחר completed על bfc2
+
+[דו"ח המחזור האחרון ותור ההמשך](qa/mobile-2026-11-11/candidate-bfc2-failure-triage.md) מחליף כל טענת סטטוס ישנה: על `bfc2c828f0baba7c871de682f5fb3ee92a19466d`, [Linux/Web/Android 43060328220](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43060328220) עבר **9/9** ו־[iOS 43060328507](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43060328507) עבר **2/6 בלבד**. הוכנו תיקוני QA מדודים ל־preview/Close/share עם שמירת assertions וצילומי כשל. לאחר דחיפת הקומיט הכולל אותם: **לא משנים את ראש PR11 עד שתסתיימנה ריצותיו**. כשלי UIKit של סגירת print ב־iPhone26 והצגת share ב־iPad18.5 טרם נפתרו ואין לאשר את המועמד בלעדיהם.
+
 ## עדכון בדוק מ־11.11.2026 — קודם לקריאת שלבי ההמשך
 
 [דו"ח קבלה מאוחדת שהושלמה](qa/mobile-2026-11-11/completed-acceptance-triage-20261111.md): על מועמד `5792b66`, תשעה מתוך תשעה jobs ב־Linux/Web/Android עברו ([run 42967750924](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42967750924)), אך שלושה מתוך ששת פרופילי iOS נכשלו ב־UI ([run 42967750794](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42967750794)). לפיכך **PR11 אינו כשיר עדיין למיזוג**. נדרש אבחון תצוגת PDF ב־XXXL, ביטול שחזור קובץ ב־iPhone18.5 וסגירת שיתוף ב־iPad18.5, ואז חזרה על מטריצה מאוחדת מלאה. הישג נפרד: [run 42968670868](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42968670868) אימת בפועל Save-to-Files מקומי ב־iPhone26.2: קובץ חדש 1,302,508 בתים, 136 עמודים ו־SHA-256 מתועד בדו"ח. זה לא PASS לכל הפלטפורמות ואינו חתימת הפצה.
