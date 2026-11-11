@@ -61,3 +61,9 @@ ReaderUITests דורש חלון מקלדת מערכת גבוה מ־100נקודו
 ReaderIntegrationTests.testNativePrintFormatterProducesRenderablePDF מפיק את כל עמודי UIKit, בודק CGPDFDocument ומדגמת ink בעמוד ראשון/אמצעי/אחרון. רכיבb916 הפיק126עמודים ב־4.716שניות; Poppler24.02.0 ב־Ubuntu אימת את ה־ZIP, ה־PDF וטקסט בשלושה עמודים. [ראיה](qa/mobile-2026-11-08/ios-complete-pdf-component.json). אין לייחס זאת לממשק Save to Files או למדפסת פיזית.
 
 מטריצת iOS כוללת כעת6פרופילים: חמשת מכשירי הבסיס ועודiPhone26.2 עם simctl ui content_size accessibility-extra-extra-extra-large. ערכי before/actual נשמרים; label וארטיפקט ייחודיים. כל פרופיל מריץ את מלוא המבחנים, בלי only-testing של ניסוי האבחון. לצד9Linux/Android נדרשים15 שערים completed PASS על tree אחד. ניסויי work/ios-accessibility-ime-20261110 ו־work/verify-completed-evidence-20261110 הם אבחון/אימות בלתי תלוי; אין להעתיק את workflow המקוצר שלהם למועמד.
+
+## קבלת11.11.2026
+
+[שלושה רכיבי המשך](qa/mobile-2026-11-11/components-accepted.json) עברו בפועל; נדרשת קבלה מאוחדת9+6. ReaderIntegrationTests כולל כעת8טעינות Native נוספות: marker ישן נעלם, ready מתאפס מיד ו־Ready הבא דורש ממשקי JS חיים ו־!isLoading. תרחיש lifecycle אינו ממשיך למסמך שעדיין נטען. Android מאמת פוקוס וחלון IME יציב לפני מחיקה/מקשים, ומוסיף invariant של IME ושדה גלוי גם אחרי ההקלדה. קובצי כשל נשמרים לפני reset.
+
+Xcodebuild build-for-testing מקמפל גם unit/UI targets לפני boot, כדי ששגיאת בדיקה תתגלה לפני שלב ההרצה. ב־iOS26 נדרש עמוד print-preview אמיתי לפני Close. התקציב המקסימלי של תרחיש UI המורחב הוא480s: c853 נמדד348.896s, ולכן360 משאיר11s בלבד. תנאי המוכנות/מגע/סגירה והמדדים העצמאיים נשמרים; התקציב אינו טענת ביצועי משתמש ואינו מאפשר PASS לתרחיש תקוע.

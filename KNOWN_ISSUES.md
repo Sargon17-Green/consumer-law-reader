@@ -1,12 +1,12 @@
 # תקלות ידועות ומגבלות כיסוי
 
-עודכן ב־10.11.2026. [מצב](IMPLEMENTATION_STATUS.md), [BACKLOG](BACKLOG.md).
+עודכן ב־11.11.2026. [מצב](IMPLEMENTATION_STATUS.md), [BACKLOG](BACKLOG.md).
 
 | מזהה | מצב | ראיה והמשך |
 |---|---|---|
-| QA-IME-027 | כשל fixture מאומת, תיקון בבדיקה | API36 offline הציג search סגור אחרי clear-before-touch;850 העביר26 אך31 מצא את חלון המקלדת במקום חלון היישום. bfcb7e1 ממתין לרגרסיה בכל3API. [ראיות](qa/mobile-2026-11-08/candidate-027-followup.json) |
-| IOS-PRINT-027 | פתוח; גורם טרם הוכח | iPad26.2 נשאר ב־Print Options אחרי tap361.5,74 בתוך Close. הקלטה מקורית אומתה; אין להציג זאת כטעות קואורדינטות. אבחון callbacks/hittability בענף PDF; אין החלשת assertion |
-| IOS-LIFECYCLE-027 / Issue16 | guard מומש וממתין; גורם הכשל המקורי טרם הוכח | iPhone18.5: ReferenceError lawMobile בבדיקת lifecycle; UI/מקלדת/שיתוף עברו. f522c22 מתעד את פקודת JS המדויקת. אין להסיק שגיאת נוסח חוק |
+| QA-IME-027 | עבר ברכיב31; קבלה מאוחדת פתוחה |6d העבירonline/offline עם פוקוס/גאומטריה לפני מקשים ומחיקה Native;26/36 נבדקים במועמד המאוחד. [ראיות](qa/mobile-2026-11-11/components-accepted.json) |
+| IOS-PRINT-027 | c853 עבר UI מלא; קבלה מאוחדת פתוחה | המתנה לעמוד preview ממשי ו־Close מוכן עברה348.896s בלי DEBUG delegate. לא הוכח גורם UIKit בלעדי; אין החלשת assertion. [ראיות](qa/mobile-2026-11-11/components-accepted.json) |
+| IOS-LIFECYCLE-027 / Issue16 | guard מומש וממתין; גורם הכשל המקורי טרם הוכח | iPhone18.5/027 נכשל;200 העביר lifecycle ועוד8טעינות Native. generation guard מונע Ready ישן; סיבת הכשל המקורי לא יוחסה בלעדית. ממתין לקבלת6פרופילים ומיזוג |
 | IO-002 / Issue15 | תיקון שיתוף עבר ברכיב; קבלה כוללת פתוחה | ב־545 iOS16 נשאר sharesheet אחרי Close ממשי, בעוד iPad18.5 עבר. חיבור completion ל־SwiftUI לפי UUID, עם המתנת Close מפורשת, עבר בשני המכשירים ב־4bc. אין להציג selector כגורם היחיד. [לפני](qa/mobile-2026-11-08/ios-legacy-share-diagnosis.json), [אחרי](qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json) |
 | DATA-003 / Issue14 | Android94 עבר; סגירה אחרי מיזוג מאומת | Binder קרס ב־06 במצב1.2MB. AtomicFile והפניה קטנה עברו בכל3API עם cache עוין. [קבלה94](qa/mobile-2026-11-08/acceptance-94cdf7d.json) |
 | NATIVE-003 / Issue13 | iPad26/94 עבר במלואו | scaling וחפיפת SystemClose תוקנו;375pt/44pt/תפריט/שיתוף/סגירה/תוצאה גלויה לפני tap עברו. [ראיה](qa/mobile-2026-11-08/ipad-window-94cdf7d.json) |
@@ -24,3 +24,5 @@
 SEARCH-005 פורסם ב־Web תיקון3 ועבר5רצפי DOM; Android94 ו־iPad26 חזרה עברו בהיקפם. [75HTTP חיים עברו שוב](qa/mobile-2026-11-08/public-web-readonly-recheck.json). אין צורך בפרסום Web זהה בגלל שינוי Native.
 
 אין להסיר רגרסיות SAF26/depth17 או cross-UID share36 כדי לקצר ריצה. ארטיפקטי Actions זמניים; מזהי מקור/run, גיבובים, מגבלות וסיכומים קבועים נשמרים ב־Git. היעלמות artifact אינה PASS או כשל חדש. PDF שנבדק אינו בהכרח tagged; אין אישור נגישות כולל או בדיקה משפטית.
+
+בדיקת Files נפרדת:060fbac/run42873707617 עבר תנאי חלש של navigationBar, ואינו PASS לשמירה. eab09e8/run42876796144 נכשל בקומפילציית בדיקה בלבד עקב API bundleIdentifier לא נתמך.79f6e45 מתקן ל־label, מקמפל tests לפני boot ודורש Save וקובץ חדש מקומי. אין לייחס כשל בדיקה זה ליכולת המוצר או להכריז Files-save PASS.

@@ -151,26 +151,32 @@
       "branch": "work/android-ime-native-edit-20261110",
       "head": "6d246d3397b04ae68333a4469ebaca74c921d483",
       "run": 42873698707,
-      "result": "pending API31 online/offline. Require settled actual WebView/IME geometry + native window/input focus; delete by native End/Delete using bounded live query length; capture exact DOM/focus on failure. Post-key invariants prepared for integrated candidate."
+      "result": "completed PASS online and offline full native flow"
     },
     {
       "branch": "work/ios-files-cell-save-20261110",
       "head": "060fbaca723a645bb115e896d15063813430ead1",
       "run": 42873707617,
-      "result": "pending actual system Save-to-Files Cell selection and observation of Files browser; original production Swift027 unchanged. Observation alone does not claim actual file saved."
+      "result": "Completed observation test PASS, but arbitrary navigation-bar assertion was weak. This does NOT establish Files browser opening or actual file saved."
     },
     {
       "branch": "work/ipad-print-ready-20261110",
       "head": "c853d3ba3338eda89bcc09d68c0b2458b9806278",
       "run": 42874102662,
-      "result": "pending full iPad functional UI. Require actual first-page print preview, ready hittable Close and actual screenshot before single tap. Original production Swift unchanged; timings/diagnostic delegate are not transplanted."
+      "result": "completed PASS full functional UI348.896s"
     },
     {
       "branch": "work/ios-readiness-generation-20261110",
       "head": "200d5b7c615e23986904823847e8ebf41683ef6d",
       "run": 42874533215,
       "issue": 16,
-      "result": "pending lifecycle +8 repeated real native retry loads on18.5. Permanent product guard invalidates generation synchronously and rejects stale JS callbacks or loading documents; not asserted as unique cause of027 failure."
+      "result": "completed PASS lifecycle7.847s and8 repeated native retries6.290s"
+    },
+    {
+      "branch": "work/ios-files-cell-save-20261110",
+      "head": "eab09e8321a03e81e8e09cfe8e7aee21e0762f5a",
+      "run": 42876796144,
+      "result": "Diagnostic compile FAIL only: XCUIApplication has no public bundleIdentifier property. Corrected with supported label; no product runtime failure or Files-save PASS."
     }
   ],
   "gates": "Keep PR11 draft. Do not merge any candidate until essential completed checks pass on exact integrated tree. Diagnostic artifact decoding success is not app acceptance.",
@@ -184,7 +190,7 @@
     "android": "v1.3.5-beta original signed APK unchanged",
     "newNativeRelease": false
   },
-  "recovery": "Local Work environment unavailable. GitHub API + isolated Actions used; no Windows script or installation, no secrets added.",
+  "recovery": "Local Work filesystem is available again11Nov; all material code/evidence also remains in GitHub. No Windows package or installation used.",
   "preservedScreens": {
     "android": "screens/android-api36-027-search-closed.png",
     "ipad": "screens/ipad26-027-print-close-recording-frame.jpg",
@@ -218,5 +224,7 @@
       "https://developer.apple.com/app-store/review/guidelines/"
     ],
     "result": "Current target/SDK settings already satisfy retrieved submission minima; no store approval or account access is inferred."
-  }
+  },
+  "refreshedAsOf": "2026-11-11",
+  "followupEvidence": "qa/mobile-2026-11-11/components-accepted.json"
 }

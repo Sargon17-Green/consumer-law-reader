@@ -1,45 +1,31 @@
-# כניסה לפרויקט והמשך עבודה
+# המשך עבודה עצמאי — חוק הגנת הצרכן
 
-**Sargon17-Green/consumer-law-reader** הוא קורא חוק הגנת הצרכן, התשמ״א–1981: Android WebView, SwiftUI/WKWebView ו־Web/PWA משותף. אין לערבב עם פרויקט לוח השנה. מפרסמים ערוץ בשל מוקדם וממשיכים; אין צורך בשיחה או בזיכרון חיצוני.
+עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
-## לקרוא תחילה
+## כניסה ומקורות האמת
 
-[מצב](IMPLEMENTATION_STATUS.md), [63 דרישות](PRODUCT_REQUIREMENTS.md), [קטלוג](docs/requirements.json), [BACKLOG](BACKLOG.md), [תקלות](KNOWN_ISSUES.md), [ארכיטקטורה](ARCHITECTURE.md), [בדיקות](TESTING.md), [הפצה](RELEASE_PROCESS.md), [היסטוריה](RELEASE_HISTORY.md), [החלטות](DECISIONS.md), [פעולות חיצוניות](EXTERNAL_ACTIONS.md).
+[מצב המימוש](IMPLEMENTATION_STATUS.md), [63 הדרישות](PRODUCT_REQUIREMENTS.md), [קטלוג מובנה](docs/requirements.json), [BACKLOG](BACKLOG.md), [תקלות](KNOWN_ISSUES.md), [ארכיטקטורה](ARCHITECTURE.md), [בדיקות](TESTING.md), [הפצה](RELEASE_PROCESS.md), [היסטוריה](RELEASE_HISTORY.md), [החלטות](DECISIONS.md), [פעולות חיצוניות](EXTERNAL_ACTIONS.md), [דוח ומטריצת פלטפורמות](docs/MOBILE_ENGINEERING_2026-11-08_HE.md).
 
-## פרסום וראיות
+## מה זמין להתקנה
 
-- **Web/PWA תיקון3 פורסם:** [reader](https://sargon17-green.github.io/consumer-law-reader/reader/), הוספה למסך הבית. מקורcca785ed8b1f3d4c96bf25c0eb50e77b04899566 ומטמון453decfde812ec9b. [75HTTP/SHA עברו שוב](qa/mobile-2026-11-08/public-web-readonly-recheck.json), כולל alpha וה־APK, בריצה42859574863.
-- **Android הציבורי1.3.5-beta:** [latest.apk](https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/main/downloads/latest.apk). אין מפתח פרטי מקורי נגיש שאומת; [תחום החיפוש](qa/mobile-2026-11-08/signing-availability-scope.json). מועמד1.3.9-dev/code17 הוא Debug/unsigned בלבד.
-- **iOS1.3.9/build17:** סימולטורים ו־device archive לא חתום; אין IPA חתום או TestFlight.
-- [94cdf7d](qa/mobile-2026-11-08/acceptance-94cdf7d.json) העביר9Linux/Android ושלושה מחמישה iOS; נכשל בסגירת שיתוף ב־16/iPad18.5. Android94 כולל IME/cache עוין/PDF146עמודים; iPad26 עבר את כל רצף שינוי החלון. אין למזג94 על סמך הצלחות חלקיות.
-- [4bc27af](qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json) העביר את שני תרחישי השיתוף הישנים ומבחן callback ישן. [b916235](qa/mobile-2026-11-08/ios-complete-pdf-component.json) העביר PDF UIKit מלא126עמודים; Poppler נפרד אימת bytes/page count וטקסט. אין טענת Files-save UI או מדפסת פיזית.
-- [Android26 בתצורת1.5GB/ליבה אחת](qa/mobile-2026-11-08/android-constrained-hardware.json) עבר בנפרד; אין טענת1GB/OOM/כל תהליכי Web.
+- [Web/PWA תיקון3](https://sargon17-green.github.io/consumer-law-reader/reader/) פורסם. אפשר להוסיף למסך הבית ב־Safari/Chrome; זהו יישום Web. מקורcca785ed8b1f3d4c96bf25c0eb50e77b04899566 ומטמון453decfde812ec9b. [75HTTP/SHA עברו מחדש](qa/mobile-2026-11-08/public-web-readonly-recheck.json), כולל alpha וה־APK הקודם.
+- [Android v1.3.5-beta חתום](https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/main/downloads/latest.apk) הוא הקישור הציבורי הקבוע. הוא אינו מכיל את תיקוני1.3.9. המועמד החדש1.3.9-dev/code17 הוא Debug/unsigned בלבד; אין מפתח מקורי נגיש שאומת. [תחום הבדיקה](qa/mobile-2026-11-08/signing-availability-scope.json).
+- iOS1.3.9/build17 נבנה בסימולטורים וב־device archive לא חתום. אין IPA חתום או TestFlight; אין להציג בניית סימולטור כהתקנה לאייפון רגיל.
 
-## מאיפה ממשיכים
+## ענף, מצב ופעולה הבאה
 
-1. לרענן קודם את [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11), ראשי הענפים והריצות. PR body מציג קבלה עדכנית ו־SHA/tree של הריצה הסופית; זו הפניה קבועה, לא תלות בשיחה. הענף `fix/pastafari-date-android-20261028` מרכז את המועמד; `docs/mobile-release-evidence-20261110` הוא checkpoint. בסיס main המקורי016b3de352dabe97f51b34b78ff803965b6cd40d.
-2. **הצעד הבא:** לתקן את ממצאי [027](qa/mobile-2026-11-08/candidate-027-followup.json) לפני רגרסיה מאוחדת חדשה: Linux8/9PASS, API36 offline IME נכשל; iPad26.2 Print Close נכשל למרות מיקום מגע נכון; iPhone18.5 ReferenceError lawMobile ב־lifecycle בעוד UI עבר. iPhone26.2/16 ו־iPad18.5 עברו; XXXL עדיין רץ בזמן checkpoint. ניסוי Android bfcb7e1/run42870233731 מאתר את חלון היישום אחרי IME (850 חשף שחלון פעיל הוא המקלדת); iOS f522c22/run42870553619 מוסיף trace לפקודת JS, ו־278d13e/run42870543669 בודק Print Close/Share-to-Files. קודם לרענן את תוצאותיהם; אין להריץ עותק זהה ללא השערה חדשה.
-3. לאחר תיקונים מוכחים, לקבל את המועמד המאוחד בכל15 השערים —9Linux/Android ו־6iOS. נוספו בדיקות מקלדת תוכנה אמיתית וגודל מערכת accessibility XXXL. אין PASS מריצה queued/in_progress ואין צורך להפעיל ריצה זהה נוספת.
-4. רכיבי המקור:4bc27af9cee6018008baf0cf37c82a06eec65473 לשיתוף, b91623549a235597f3005eb3100a72c274c0565b ל־PDF מלא,0c9507a5b486a5e28dd4aeec2743a5f7db255a03 לבדיקת IME/גודל. ענפי work הם ניסויי אבחון; המועמד מכיל רק קוד/בדיקות קבועות ו־workflow הקבלה המורחב, בלי filters מקצרים. ניסוי הגודל42858470735 נבדק בנפרד, בלי להסיק קבלה מהמתנה.
-5. לאחר completed PASS והתאמת tree, לבדוק הגנות, להסיר draft ולמזג. Issues13/14/15 נסגרים רק לאחר הקריטריונים. Issue12 כבר נסגר לפי קבלת PDF Android; Issue7 נשאר לחתימה. אם main השתנה, לרענן בסיס ולבדוק מחדש בלי לדרוס עבודה מקבילה.
-6. מיזוג עשוי להפעיל Pages. יש לאמת את75HTTP מול source marker החדש ולשמר alpha/APK. Runtime Web זהה אינו מהדורת תכונות חדשה.
-7. להמשיך את BACKLOG; לחתום ולהפיץ Native רק אם מקור המפתח/Team נגיש ומורשה. אין צורך בהרצות או התקנות במחשב המשתמש.
+1. לרענן את [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11) ואת ראש הענף `fix/pastafari-date-android-20261028`. גוף ה־PR מציג SHA/tree ומזהי הריצות העדכניים. ענף `docs/mobile-release-evidence-20261110` שומר checkpoint של הידע; בסיס main המקורי016b3de352dabe97f51b34b78ff803965b6cd40d. אין hash עצמי של מסמך כמקור אמת.
+2. **הצעד הבא: קבלה מאוחדת של9Linux/Android ו־6iOS על אותו tree.** מקור027 נכשל: Linux8/9 ו־iOS4/6. [הכשלים והניסויים](qa/mobile-2026-11-08/candidate-027-followup.json) נשמרו, כולל [תמונות מקוריות](qa/mobile-2026-11-08/screens/README.md). אין למזג027 על סמך הצלחות חלקיות.
+3. [שלושת תיקוני ההמשך עברו ברכיבים](qa/mobile-2026-11-11/components-accepted.json): Android6d246d3/run42873698707 העביר31online/offline עם מקלדת, פוקוס ומחיקה/הקלדה Native; iOS200d5b7/run42874533215 העביר lifecycle ועוד8טעינות Native ב־18.5; iPadc853d3b/run42874102662 העביר את רצף ה־UI המלא עם עמוד print-preview ממשי ו־Close מוכן. הקוד והבדיקות הקבועים מאוחדים כעת; אין העתקת workflow מקוצר או DEBUG delegate מניסוי.
+4. במטריצה הקבועה נבדקים iPhone26.2/18.5/16, iPad26.2/18.5 ו־iPhone26.2 בגודל מערכת accessibility XXXL. כל פרופיל מריץ9מבחני WK/policy ועוד UI; גם מקלדת תוכנה אמיתית, חלון iPad והפעלה מהסמל. XXXL כבר עבר ברכיב027; נדרשת קבלה למקור המאוחד. queued/in_progress אינםPASS או חסם; אין לפתוח ריצה זהה נוספת בגלל המתנה.
+5. לאחר completed PASS: להתאים את tree של checkout ה־PR לראש שנבדק, לרענן main/הגנות, להסיר draft ולמזג בלי force או עקיפת מדיניות. Issues13/14/15/16 נסגרים רק לאחר קריטריוניהם. Issue12 כבר נסגר לפי PDF ב־Android;7 נשאר לחתימה.
+6. מיזוג עשוי להפעיל Pages: לאמת מחדש75HTTP/SHA מול source marker החדש, לשמר alpha ו־latest.apk.38נכסי runtime לא השתנו בתיקוני Native; פרסום זהה אינו מהדורת תכונות חדשה.
+7. להמשיך את BACKLOG. שמירת PDF דרך מערכת iOS נבדקת בנפרד בענף `work/ios-files-cell-save-20261110`. מבחן קודם מצא את Save-to-Files כ־Cell אך קיבל סרגל Options כראיית Files; זו בדיקה חלשה ואין ממנה PASS לשמירה. ניסויeab09e8/run42876796144 נכשל בקומפילציית אבחון (`XCUIApplication.bundleIdentifier` אינו API ציבורי), לא בהרצת המוצר. תיקון79f6e45 משתמש ב־label, מקמפל בדיקות לפני boot, דורש Save ממשי ואוסף PDF חדש מספק localStorage של הסימולטור. יש לרענן את הריצה לפי head זה ולבדוק בתים/עמודים לפני קבלה.
 
-## חוזים וסמכויות
+## חוזים, ראיות וסמכויות
 
-SHA256 המשפטי נשאר `de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9`; מועד האימות **2026-10-28**. verify_release מעביר35 בדיקות SHA/DOM/IDs/קישורים. אין שינוי חקיקה/פרשנות/הערות/תאריכים, ענן, Analytics או פרסומות.
+SHA256 המשפטי הוא `de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9`; מועד האימות **2026-10-28**. אין שינוי חקיקה, הערות, אסמכתאות או תאריך. verify_release מאמת35בדיקות SHA/DOM/IDs/קישורים; זו אינה בדיקה משפטית.
 
-Parcel cache זמני ומותנה באותה התקנת OS/app/provider; אינו גיבוי נייד. כשל חוזר למיקום לוגי והגדרות נשמרות בנפרד. collector פרטי פועל רק באמולטור userdebug/UID0/SELinux Enforcing ומאמת בתים; אין החלשת debuggable.
+[Android94](qa/mobile-2026-11-08/acceptance-94cdf7d.json) העביר9Linux/Android, מצב1.6MB→Activity1036–1200bytes, cache עוין, renderer recovery31/36 ו־PDF146עמודים שאומת עצמאית. [iPad94](qa/mobile-2026-11-08/ipad-window-94cdf7d.json) העביר חלון1032→375pt ופקדים44pt. [שיתוף4bc](qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json) עבר16/iPad18.5; [PDFb916](qa/mobile-2026-11-08/ios-complete-pdf-component.json) עבר126עמודים וגם Poppler. אין לייחס formatter לשמירה ב־Files או למדפסת פיזית. [Android מצומצם](qa/mobile-2026-11-08/android-constrained-hardware.json) עברactual1.5GB/ליבה אחת; אין טענת1GB/OOM/כלל תהליכיWeb.
 
-תיקונים, בדיקות, PR, מיזוג ופרסום שעברו שעריהם מותרים אוטונומית. אין force-push, שינוי חתימה או הצגת Debug/סימולטור כהפצה. חתימה פרטית, Apple Team/ASC, זכויות/תשלום ומכשיר פיזי אינם מומצאים; הפעולות המדויקות ב־EXTERNAL_ACTIONS. אם סביבת Work זמנית נעלמת, הקוד בענפים, GitHub API ו־Actions מאפשרים המשך בלי התקנת כלים אצל המשתמש.
-
-## עדכון checkpoint — קודם לקרוא לפני הפעלת ריצות נוספות
-
-
-עדכון completed:027iOS הסתיים4/6PASS. פרופיל מערכת accessibility XXXL עבר בפועל (input18,422,366,54; keyboard0,583,402,233), כולל8מבחני WK/policy ו־UI מלא274.357שניות. iPad26 Print Close ו־iPhone18.5 lifecycle נשארו כשלי קבלה. Android bfcb7e1 עבר26/36 אך31 לא הקליד אחרי ACTION_SET_TEXT;94dabd5/run42871943171 בודק מחיקה במקש Native. אבחון lifecycle תוקן ל־475d9fa/run42871844738 לאחר שגיאת קומפילציה ב־trace בלבד.
-
-בדיקת checkpoint a06c91f/run42871114992/job130022342617 הסתיימהPASS:12מסמכים/63דרישות,52יחידות,35SHA/DOM,500UTF16 ותאריך fallback. [תמונות מקוריות קבועות](qa/mobile-2026-11-08/screens/README.md) נשמרו ב־Git. אין להסיק מכך קבלה של Native.
-
-ראשי הניסויים והתרחישים המלאים: [candidate-027-followup.json](qa/mobile-2026-11-08/candidate-027-followup.json). מקור המועמד עדיין PR11/027; ענף docs מכיל את הראיות העדכניות. לאחר תוצאה חדשה יש לעדכן את הקטלוג, לא להסתמך על מצבי pending ההיסטוריים למעלה.
-
-מצב הניסויים ב־18:24UTC: lifecycle475/run42871844738 עבר בלי לשחזר את הכשל;94dab/run42871943171 עבר הקלדה ב־online ונכשל במחיקה ב־offline. המשכו6d246d3/run42873698707 בודק פוקוס וגאומטריה לפני הקלדה. Print Close עבר בניסוי ממוקד בשני26.2, אבל Save-to-Files חיפש Button במקום Cell;060fbac/run42873707617 ממשיך לפי ה־AX שנצפה. c853d3b/run42874102662 בודק רצף iPad מלא עם preview ממשי;200d5b7/run42874533215 מוסיף generation guard ו־8טעינות Native ב־18.5 ([Issue16](https://github.com/Sargon17-Green/consumer-law-reader/issues/16)). אף ניסוי pending אינו PASS; אין לערבב DEBUG trace delegate עם קוד מועמד.
+תיקונים, בדיקות, commits/PR, מיזוג ופרסום שעברו שערים מותרים אוטונומית. אין force-push, החלפת זהות חתימה, תג חתום או קישור APK קיים, ענן/Analytics/פרסומות או תשלום. חתימה פרטית, Apple Team/ASC, הצהרות בעלים ומכשיר פיזי הם פעולות חיצוניות אמיתיות בלבד, מפורטות ב־EXTERNAL_ACTIONS. אין צורך בהרצת Windows או התקנת כלים אצל המשתמש. סביבת Work זמינה שוב; גם כשהיא נעלמת GitHub API/Actions וענפי checkpoint מאפשרים המשך.

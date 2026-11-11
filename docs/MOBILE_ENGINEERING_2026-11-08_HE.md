@@ -1,6 +1,6 @@
 # מחזור ההנדסה למובייל — תוצרים וראיות
 
-עודכן ב־10.11.2026. Web/PWA תיקון3 פורסם ו־75HTTP/SHA נבדקו שוב. Android94, חלוןiPad26/94, שיתוףiOS4bc ו־PDFמלאb916 עברו בהיקפם. המועמד המאוחד דורש15שערים; אין Native חתום חדש. [מצב עדכני](../IMPLEMENTATION_STATUS.md).
+עודכן ב־11.11.2026. Web/PWA תיקון3 פורסם ו־75HTTP/SHA נבדקו שוב. Android94, חלוןiPad26/94, שיתוףiOS4bc ו־PDFמלאb916 עברו בהיקפם. המועמד המאוחד דורש15שערים; אין Native חתום חדש. [מצב עדכני](../IMPLEMENTATION_STATUS.md).
 
 העבודה ממשיכה את [PR11](https://github.com/Sargon17-Green/consumer-law-reader/pull/11), על בסיס main016b3de352dabe97f51b34b78ff803965b6cd40d. נבדקו12ענפים, PRs1–11, Issue7, היסטוריית commits/Releases ו־Actions; תיקונים תקינים שכבר מוזגו לא יושמו מחדש. PR1 הוא ביקורת ישנה ולא מקור ממצאים אוטומטי.
 
@@ -114,3 +114,13 @@ iOS1.3.9/build17: במועמד94 עברוiPhone26.2/18.5ו־iPad26.2 במלוא�
 [קבלה94](../qa/mobile-2026-11-08/acceptance-94cdf7d.json), [שיתוף לאחר תיקון](../qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json), [PDF126עמודים ואימות עצמאי](../qa/mobile-2026-11-08/ios-complete-pdf-component.json), [חומרה מצומצמת](../qa/mobile-2026-11-08/android-constrained-hardware.json), [מדידות Native ותחומן](../qa/mobile-2026-11-08/android-performance-94cdf7d.json), [75HTTP חיים](../qa/mobile-2026-11-08/public-web-readonly-recheck.json).
 
 הנתונים אינם אישור מכשיר פיזי, חתימה, TestFlight או נגישות כוללת. XCTest clock כולל תקורת אוטומציה; indexMilliseconds ב־Android לאחר חיפוש הוא cached access. PDF UIKit ו־Android עשויים להכיל מספר עמודים שונה בגלל גופן ופריסה. מקור החוק ומועד אימותו נשמרו.
+
+## רכיבי ההמשך שנבדקו ב־10–11.11
+
+| מזהה | פלטפורמה | הבעיה | שינוי וקבצים | בדיקה ותוצאה | commit |
+|---|---|---|---|---|---|
+| NATIVE-002-FOLLOWUP | Android | AX פעיל יכול להיות IME; עריכת שדה לפני התייצבות יצרה כשלי fixture | ReaderInstrumentation.java: חלון יישום, גאומטריה/פוקוס, End/Delete/14 וקלט כשל |31online/offline PASS בריצה42873698707;26/36 בקבלה המאוחדת |6d246d3 |
+| NATIVE-001-FOLLOWUP | iOS | completion ישן יכול לעדכן Ready לאחר טעינה חדשה | ConsumerLawReaderApp.swift: generation+!isLoading+globals; ReaderTests.swift:8טעינות ושגיאת JS מפורטת |18.5lifecycle7.847s ו־8טעינות6.290s PASS בריצה42874533215; הגורם הבלעדי לכשל027 לא נקבע |200d5b7 |
+| IO-003-FOLLOWUP | iOS/iPad | Close קיים אינו מוכיח ש־print-preview הוכן | ReaderUITests.swift: עמוד ראשון אמיתי, Close hittable ומגע Native יחיד |UI מלא348.896s PASS ב־26.2/run42874102662 בלי DEBUG delegate |c853d3b |
+
+[מקורות מלאים, סביבות, hashes ומגבלות](../qa/mobile-2026-11-11/components-accepted.json). שילוב הרכיבים אינו PASS למועמד. תקציב UI480s וקומפילציית tests לפני boot מתועדים ב־TESTING; אין שינוי תלויות, נכסי runtime או מקור משפטי. עבודת Save-to-Files נפרדת ודורשת קובץ ממשי, לא navigation bar כלשהו.

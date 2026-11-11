@@ -30,3 +30,7 @@ DATA-003 מוסיף את WebViewStateCache לצד MainActivity. מצב WebView �
 ## סיום פעולות שיתוף
 
 ActivitySheet מחבר את completionWithItemsHandler של UIKit ל־OfflineLawReader.finishSharing. ניקוי ה־SwiftUI item מוגבל ל־UUID של ההצגה שהסתיימה; callback ישן אינו סוגר הצגה חדשה. הביטול והסיום עוברים באותו מסלול; שגיאה מדווחת מקומית. קובצי export זמניים מנוקים ב־onDismiss, ולא לפני סיום השימוש של שירות השיתוף.
+
+## Ready של iOS לפי דור מסמך
+
+OfflineLawReader מאפס Ready סינכרונית בתחילת retry/טעינת מקור וב־navigation callbacks. דור מונוטוני ו־isLoading נבדקים לפני עדכון מצב מתוך completion של JavaScript; מסמך ישן אינו יכול להפעיל Native actions בזמן מסמך חדש. Ready דורש lawReady וגם LawCore/lawSettings/lawMobile חיים. שינוי זה אינו משנה את הטקסט, מדיניות המקורות או גבולות הגשר.

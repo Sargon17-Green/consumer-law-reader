@@ -53,3 +53,7 @@ The06/API36fatal proves the fullWebViewBundle cannot travel through Binder. Pres
 ## 10.11.2026 — Ready לפי דור מסמך, ואבחון לפי AX ממשי
 
 ניסוי trace475 עבר ואינו מוכיח את מקור ReferenceError027. guard200 מאפס ready מיד בטעינה, מזהה generation ומוודא !isLoading וממשקי JS חיים לפני enabling. הוא מלווה ב־8טעינות Native אמיתיות ו־Issue16, ונבדק לפני מיזוג. System Save-to-Files הוא Cell בעץ26.2; אין להכריז על תכונה חסרה כי בדיקה חיפשה Button. wait ל־Print preview ו־Close מוכן הוא תנאי בדיקה, ואינו הוכחה לתיקון UIKit או שורש הכשל.
+
+## 11.11.2026 — איחוד רכיבים שעברו וקבלה מחייבת מחדש
+
+6d/200/c853 עברו בהיקפם ונכנסים למועמד אחד עם9Linux/Android ו־6iOS. אין שימוש ב־DEBUG delegate או workflow only-testing בניסוי כמועמד. 480s הוא תקציב harness לרצף שהתרחב ל־348.896s; שלבי UI ממשיכים להיבדק במועדים חסומים. קומפילציית build-for-testing מקדימה בדיקות תקינות app/test targets להפעלת הסימולטור. שגיאת XCUIApplication.bundleIdentifier הייתה בקוד אבחון ותוקנה דרך label; אין ממנה ממצא runtime נגד המוצר.

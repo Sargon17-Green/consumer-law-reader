@@ -130,28 +130,74 @@ public final class ReaderInstrumentation extends Instrumentation {
                 input=editable(getUiAutomation().getRootInActiveWindow(),0);if(input!=null)break;Thread.sleep(100);
             }
             check(input!=null,"Real search field is exposed as a visible native editable node");
-            Bundle empty=new Bundle();empty.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,"");
-            check(input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,empty),"Native editable field can be cleared without JavaScript text assignment");
+            // Focus by an actual touch before changing the query. Clearing
+            // first can shrink the bottom-anchored sheet while AX still holds
+            // its old input bounds, turning the tap into a backdrop dismissal.
             android.graphics.Rect target=new android.graphics.Rect();input.getBoundsInScreen(target);tapBounds(target);
             android.graphics.Rect keyboard=null;
             for(int i=0;i<100;i++){keyboard=keyboardBounds();if(keyboard!=null)break;Thread.sleep(100);}
             check(keyboard!=null,"A real TYPE_INPUT_METHOD system window must be visible; CSS resizing does not qualify");
-            sendStringSync("14");
-            awaitJS("document.getElementById('mobile-search').value==='14' && document.querySelectorAll('.m-result').length>0","Native key input produces actual search results");
+            awaitJS("document.activeElement===document.getElementById('mobile-search') && document.getElementById('mobile-sheet').open","The actual touch focuses the live search field");
+            // The IME may become the active accessibility window. Locate the
+            // field in the reader's application window, not in the keyboard.
+            input=null;
+            for(int attempt=0;attempt<100;attempt++){
+                for(android.view.accessibility.AccessibilityWindowInfo window:getUiAutomation().getWindows()){
+                    if(window.getType()!=android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION)continue;
+                    AccessibilityNodeInfo root=window.getRoot();
+                    if(root!=null&&"il.org.lawreader.consumer".contentEquals(String.valueOf(root.getPackageName()))){
+                        input=editable(root,0);if(input!=null)break;
+                    }
+                }
+                if(input!=null)break;Thread.sleep(100);
+            }
+            check(input!=null,"The focused editable field remains in the reader application window");
             final int[] geometry=new int[3];
             for(int i=0;i<100;i++){
+                keyboard=keyboardBounds();
                 runOnMainSync(()->{int[] location=new int[2];web.getLocationOnScreen(location);geometry[0]=location[1];geometry[1]=web.getHeight();geometry[2]=location[1]+web.getHeight();});
-                if(geometry[2]<=keyboard.top+4&&geometry[1]<originalHeight[0]-100)break;Thread.sleep(100);
+                if(keyboard!=null&&keyboard.height()>100&&geometry[2]<=keyboard.top+4&&geometry[1]<originalHeight[0]-100)break;Thread.sleep(100);
             }
-            JSONObject measurements=new JSONObject();measurements.put("ime",keyboard.toShortString());measurements.put("originalWebHeight",originalHeight[0]);measurements.put("webTop",geometry[0]);measurements.put("webHeight",geometry[1]);measurements.put("webBottom",geometry[2]);
+            JSONObject measurements=new JSONObject();measurements.put("ime",keyboard==null?"missing":keyboard.toShortString());measurements.put("originalWebHeight",originalHeight[0]);measurements.put("webTop",geometry[0]);measurements.put("webHeight",geometry[1]);measurements.put("webBottom",geometry[2]);
             report.putString("keyboardGeometry",measurements.toString());
-            check(geometry[2]<=keyboard.top+4&&geometry[1]<originalHeight[0]-100,"Actual WebView fits above the software keyboard: "+measurements);
+            check(keyboard!=null&&keyboard.height()>100&&geometry[2]<=keyboard.top+4&&geometry[1]<originalHeight[0]-100,"Actual WebView fits above the software keyboard: "+measurements);
             awaitJS("(()=>{const r=document.getElementById('mobile-search').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()","Search field remains visible above actual IME");
+            // Require the real IME resize and native input focus to settle
+            // before editing; the visible IME window can arrive first.
+            final boolean[] nativeFocus={false};
+            for(int attempt=0;attempt<100;attempt++){
+                runOnMainSync(()->nativeFocus[0]=web.hasFocus()&&web.hasWindowFocus());
+                if(nativeFocus[0])break;Thread.sleep(100);
+            }
+            check(nativeFocus[0],"Actual WebView owns native input/window focus");
+            input.refresh();
+            report.putString("nativeEditableBeforeDelete","text="+String.valueOf(input.getText())+" focused="+input.isFocused()+" editable="+input.isEditable());
+            int length=Integer.parseInt(js("document.getElementById('mobile-search').value.length"));
+            check(length>=0&&length<=512,"Existing live query is bounded before native key deletion");
+            if(length>0){
+                sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_MOVE_END);
+                for(int index=0;index<length;index++)sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_DEL);
+            }
+            report.putString("nativeKeyboardAfterDelete",js("JSON.stringify({value:document.getElementById('mobile-search').value,focused:document.activeElement===document.getElementById('mobile-search'),open:document.getElementById('mobile-sheet').open})"));
+            awaitJS("document.getElementById('mobile-search').value==='' && document.getElementById('mobile-sheet').open && document.activeElement===document.getElementById('mobile-search')","Actual native Delete clears the focused field before typing");
+            report.putString("nativeKeyboardBeforeKeys",js("JSON.stringify({value:document.getElementById('mobile-search').value,focused:document.activeElement===document.getElementById('mobile-search'),open:document.getElementById('mobile-sheet').open})"));
+            sendStringSync("14");
+            report.putString("nativeKeyboardAfterKeys",js("JSON.stringify({value:document.getElementById('mobile-search').value,focused:document.activeElement===document.getElementById('mobile-search'),open:document.getElementById('mobile-sheet').open})"));
+            awaitJS("document.getElementById('mobile-search').value==='14' && document.querySelectorAll('.m-result').length>0","Native key input produces actual search results");
+            keyboard=keyboardBounds();
+            runOnMainSync(()->{int[] location=new int[2];web.getLocationOnScreen(location);geometry[0]=location[1];geometry[1]=web.getHeight();geometry[2]=location[1]+web.getHeight();});
+            JSONObject afterInput=new JSONObject();afterInput.put("ime",keyboard==null?"missing":keyboard.toShortString());afterInput.put("webTop",geometry[0]);afterInput.put("webHeight",geometry[1]);afterInput.put("webBottom",geometry[2]);
+            report.putString("keyboardGeometryAfterInput",afterInput.toString());
+            check(keyboard!=null&&keyboard.height()>100&&geometry[2]<=keyboard.top+4&&geometry[1]<originalHeight[0]-100,"Actual WebView remains above the software keyboard after input: "+afterInput);
+            awaitJS("(()=>{const r=document.getElementById('mobile-search').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()","Search field stays above the actual IME after native text input");
             sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
             boolean hidden=false;for(int i=0;i<100;i++){if(keyboardBounds()==null){hidden=true;break;}Thread.sleep(100);}
             check(hidden,"System Back dismisses the actual software keyboard");
             awaitJS("document.getElementById('mobile-sheet').open && document.getElementById('mobile-search').value==='14' && document.querySelectorAll('.m-result').length>0","Back hides IME while keeping search/query/results");
             report.putString("nativeKeyboard","PASS: actual editable-node touch, visible system IME, native14 input, WebView/input above keyboard, Back hides IME and preserves search");
+        }catch(Exception failure){
+            try{report.putString("nativeKeyboardFailureState",js("JSON.stringify({value:document.getElementById('mobile-search')?.value,focused:document.activeElement?.id,open:document.getElementById('mobile-sheet')?.open,width:innerWidth,height:innerHeight,selectionStart:document.getElementById('mobile-search')?.selectionStart,selectionEnd:document.getElementById('mobile-search')?.selectionEnd})"));}catch(Exception unavailable){report.putString("nativeKeyboardFailureState","unavailable: "+unavailable);}
+            throw failure;
         }finally{
             if(keyboardBounds()!=null)sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
             shell(previous.equals("null")?"settings delete secure show_ime_with_hard_keyboard":"settings put secure show_ime_with_hard_keyboard "+previous);

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "project": "Sargon17-Green/consumer-law-reader",
-  "asOf": "2026-11-10 Asia/Jerusalem",
+  "asOf": "2026-11-11",
   "sourceBaseline": "016b3de352dabe97f51b34b78ff803965b6cd40d",
   "statusMeanings": {
     "טרם התחיל": "לא קיים מימוש",
@@ -1614,6 +1614,14 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
           "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
           "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
+        },
+        {
+          "commit": "200d5b7c615e23986904823847e8ebf41683ef6d",
+          "run": 42874533215,
+          "job": 130034218067,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42874533215/job/130034218067",
+          "result": "completed PASS lifecycle7.847s and8 repeated native retries6.290s",
+          "scope": "Generation invalidation, no stale document marker, actual live reader globals and not-loading gate. Unique cause of027 ReferenceError is not claimed"
         }
       ],
       "dependencies": [],
@@ -1678,6 +1686,14 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42861539523/job/129988671238",
           "result": "PASS actual iPhone26.2 system accessibility XXXL, software keyboard bounds and complete functional UI",
           "scope": "Field above keyboard and all8 policy/WK tests; no physical device or full product acceptance. See permanent candidate-027-followup.json"
+        },
+        {
+          "commit": "6d246d3397b04ae68333a4469ebaca74c921d483",
+          "run": 42873698707,
+          "job": 130032075341,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42873698707/job/130032075341",
+          "result": "completed PASS online and offline full native flow",
+          "scope": "Actual TYPE_INPUT_METHOD, native End/Delete and14 key events, settled native focus, WebView/input bounds and Back preserving query; API26/36 not inferred"
         }
       ],
       "dependencies": [],
@@ -1923,10 +1939,18 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42861539523",
           "result": "FAIL final combined acceptance; completed PASS iPhone26.2/16 and iPad18.5, Print Close failure iPad26.2, integration lifecycle failure iPhone18.5",
           "scope": "Exact failures/diagnostic branches in qa/mobile-2026-11-08/candidate-027-followup.json. UI18.5 and iPad window resize passed separately; no full candidate acceptance."
+        },
+        {
+          "commit": "c853d3ba3338eda89bcc09d68c0b2458b9806278",
+          "run": 42874102662,
+          "job": 130032722460,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42874102662/job/130032722460",
+          "result": "completed PASS full functional UI348.896s",
+          "scope": "Actual first system print-preview page, hittable single Close, enabled reader, file-picker cancellation, share dismissal, rotation and installed icon relaunch with query14. No DEBUG delegate; no actual system PDF-save claim"
         }
       ],
       "dependencies": [
-        "Android actual system PDF-save and exported bytes passed94; iOS complete formatter output passedb916. System Files-save UI remains separate; no physical printer/tagged-PDF claim."
+        "Android system PDF-save and full146-page output accepted94. iOS full UIKit formatter and Print Close accepted separately; actual system Files Save/byte verification remains independent work/ios-files-cell-save-20261110."
       ],
       "published": {
         "Android": null,
@@ -2398,10 +2422,18 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
           "result": "PASS all9 Linux/Android jobs completed",
           "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "6d246d3397b04ae68333a4469ebaca74c921d483",
+          "run": 42873698707,
+          "job": 130032075341,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42873698707/job/130032075341",
+          "result": "completed PASS online and offline full native flow",
+          "scope": "Actual TYPE_INPUT_METHOD, native End/Delete and14 key events, settled native focus, WebView/input bounds and Back preserving query; API26/36 not inferred"
         }
       ],
       "dependencies": [
-        "Full Android94 PDF/system-save acceptance passed; final027 API36 offline IME fixture failure must be resolved in app-window-aware native input regression. See qa/mobile-2026-11-08/candidate-027-followup.json"
+        "All3 API final integrated acceptance required; Android31 settled IME component passed6d246d3 online/offline. Original signed release identity remains external."
       ],
       "published": {
         "Android": null
@@ -2449,10 +2481,26 @@
           "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42861539523",
           "result": "FAIL final combined acceptance; completed PASS iPhone26.2/16 and iPad18.5, Print Close failure iPad26.2, integration lifecycle failure iPhone18.5",
           "scope": "Exact failures/diagnostic branches in qa/mobile-2026-11-08/candidate-027-followup.json. UI18.5 and iPad window resize passed separately; no full candidate acceptance."
+        },
+        {
+          "commit": "200d5b7c615e23986904823847e8ebf41683ef6d",
+          "run": 42874533215,
+          "job": 130034218067,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42874533215/job/130034218067",
+          "result": "completed PASS lifecycle7.847s and8 repeated native retries6.290s",
+          "scope": "Generation invalidation, no stale document marker, actual live reader globals and not-loading gate. Unique cause of027 ReferenceError is not claimed"
+        },
+        {
+          "commit": "c853d3ba3338eda89bcc09d68c0b2458b9806278",
+          "run": 42874102662,
+          "job": 130032722460,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42874102662/job/130032722460",
+          "result": "completed PASS full functional UI348.896s",
+          "scope": "Actual first system print-preview page, hittable single Close, enabled reader, file-picker cancellation, share dismissal, rotation and installed icon relaunch with query14. No DEBUG delegate; no actual system PDF-save claim"
         }
       ],
       "dependencies": [
-        "Final6-profile CI includes actual system XXXL and keyboard bounds, in addition to iPhone16/18.5/26.2 and iPad18.5/26.2."
+        "Final6-profile acceptance with new9WK/policy tests, actual UI/windowing and XXXL; focused200/c853 do not replace it. Issue16 closes after combined PASS and merge."
       ],
       "published": {
         "iOS": null
@@ -3369,7 +3417,7 @@
     }
   ],
   "integrationCandidateBranch": "fix/pastafari-date-android-20261028",
-  "candidateMeaning": "Integrated candidate: Android94 and iPad26 passed; iOS4bc legacy sharing and b916 complete PDF passed as components. Require all9 Linux/Android +6 iOS profiles on the current PR head/tree. No self-referential candidate hash or pending PASS.",
+  "candidateMeaning": "PR11 next combined candidate: accepted focused fixes integrated,9Linux/Android+6iOS completed PASS required; no new signed native publication",
   "lastFullyAcceptedCandidate": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
   "componentAcceptance": {
     "Android": {
@@ -3409,6 +3457,27 @@
       "job": 129988671238,
       "result": "completed PASS actual system XXXL/full WK/UI and software keyboard bounds; final combined candidate still FAIL",
       "evidence": "qa/mobile-2026-11-08/candidate-027-followup.json"
+    },
+    "androidIME": {
+      "commit": "6d246d3397b04ae68333a4469ebaca74c921d483",
+      "run": 42873698707,
+      "job": 130032075341,
+      "result": "completed PASS online and offline full native flow",
+      "evidence": "qa/mobile-2026-11-11/components-accepted.json"
+    },
+    "iosReadiness": {
+      "commit": "200d5b7c615e23986904823847e8ebf41683ef6d",
+      "run": 42874533215,
+      "job": 130034218067,
+      "result": "completed PASS lifecycle7.847s and8 repeated native retries6.290s",
+      "evidence": "qa/mobile-2026-11-11/components-accepted.json"
+    },
+    "ipadPrint": {
+      "commit": "c853d3ba3338eda89bcc09d68c0b2458b9806278",
+      "run": 42874102662,
+      "job": 130032722460,
+      "result": "completed PASS full functional UI348.896s",
+      "evidence": "qa/mobile-2026-11-11/components-accepted.json"
     }
   },
   "lastCombinedCandidate": {
@@ -3419,5 +3488,5 @@
     "evidence": "qa/mobile-2026-11-08/candidate-027-followup.json"
   },
   "candidateBranch": "fix/pastafari-date-android-20261028",
-  "candidateResolution": "Resolve current PR11 head and body for latest completed15-gate result and exact tree. After merge resolve main. These files do not embed their own future commit hash; historical component evidence is scoped."
+  "candidateResolution": "Resolve current PR11 head and exact tested checkout tree from GitHub; see qa/mobile-2026-11-11/components-accepted.json and PR body for immutable component evidence. Do not infer final acceptance from components."
 }

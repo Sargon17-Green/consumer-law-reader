@@ -21,3 +21,5 @@ Sourcecca785ed8b1f3d4c96bf25c0eb50e77b04899566; runtime453decfde812ec9b. שימ�
 ## קבלת Native נוספת — 10.11.2026, ללא פרסום חתום
 
 Android94 העביר9Linux/Android, לרבות IME/cache/PDF, ו־Issue12 נסגר. iOS4bc העביר שיתוף ו־relaunch ב־16/iPad18.5; b916 העביר פלט PDF UIKit מלא126עמודים עם אימות Poppler בלתי תלוי. אלה קבלות רכיב ולא Release חדש. הציבוריAndroid1.3.5 וה־Web תיקון3 נשמרו; כל75HTTP נבדקו שוב בהצלחה בריצה42859574863.
+
+ב־11.11.2026 אוחדו תיקוני Native/QA מתוך6d/200/c853 לאחר [קבלת רכיבים](qa/mobile-2026-11-11/components-accepted.json). זוהי הכנת מועמד1.3.9-dev/build17, לא הפצה Native חתומה חדשה. תוצאות המועמד המאוחד נפרדות מפרסום Web תיקון3 ו־Android1.3.5 הציבוריים.

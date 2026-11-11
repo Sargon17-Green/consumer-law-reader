@@ -3,7 +3,7 @@ import XCTest
 final class ReaderUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure=false
-        executionTimeAllowance=360
+        executionTimeAllowance=480
     }
     func testNativeHeaderAccessibilityAudit() throws {
         guard #available(iOS 17.0,*) else { throw XCTSkip("Apple's automated accessibility audit requires iOS 17; the iOS 16 functional UI test still runs.") }
@@ -87,14 +87,27 @@ final class ReaderUITests: XCTestCase {
         }
         func openNativeMenu() {
             waitForMenu()
-            let inner=menu.buttons.firstMatch
-            (inner.exists ? inner:menu).tap()
+            menu.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
         }
         openNativeMenu()
         let print=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
         XCTAssertTrue(print.waitForExistence(timeout:10));print.tap()
         let printCancel=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
-        XCTAssertTrue(printCancel.waitForExistence(timeout:45),app.debugDescription);printCancel.tap()
+        XCTAssertTrue(printCancel.waitForExistence(timeout:45),app.debugDescription)
+        if #available(iOS 26.0,*) {
+            // Require an actual document preview in the redesigned print UI;
+            // the presence of a Close control alone does not verify rendering.
+            let firstPage=app.cells.matching(NSPredicate(format:"label BEGINSWITH %@","Page 1 of ")).firstMatch
+            XCTAssertTrue(firstPage.waitForExistence(timeout:45),"The actual system print preview must contain the first document page")
+            XCTAssertGreaterThan(firstPage.frame.width,0)
+            XCTAssertGreaterThan(firstPage.frame.height,0)
+        }
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            printCancel.exists && printCancel.isEnabled && printCancel.isHittable
+        },object:nil)],timeout:20),.completed,"The actual system Close must be ready")
+        let printShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+        printShot.name="Actual system print preview before native Close";printShot.lifetime = .keepAlways;add(printShot)
+        printCancel.tap()
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
             !printCancel.exists
         },object:nil)],timeout:30),.completed,app.debugDescription)
