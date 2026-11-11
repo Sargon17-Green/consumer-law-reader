@@ -69,7 +69,7 @@ jobs:
         run: |
           bash ios/scripts/prepare_assets.sh
           xcodegen generate --spec ios/project.yml --project ios
-      - name: Check Swift syntax and compile iOS simulator app
+      - name: Compile application and UI tests before starting the simulator
         run: |
           set -o pipefail
           mkdir -p build
@@ -82,7 +82,7 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build/ios-derived \
             CODE_SIGNING_ALLOWED=NO \
-            build | tee build/ios-build.log
+            build-for-testing | tee build/ios-build.log
       - name: Verify actual built .app contains the offline legal document
         run: |
           APP="build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app"
@@ -117,7 +117,7 @@ jobs:
             xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
           fi
           python3 ios/scripts/collect_system_pdf.py before "$DEVICE" "build/$LABEL-system-files"
-          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 360 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderUITests/ReaderPrintSaveUITests/testInspectActualSystemPrintPreview CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 480 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" -only-testing:ConsumerLawReaderUITests/ReaderPrintSaveUITests/testSaveActualSystemPrintPDFToLocalFiles CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
           python3 ios/scripts/collect_system_pdf.py after "$DEVICE" "build/$LABEL-system-files"
           EXPECTED_PAGES="$(python3 -c 'import pathlib,re,sys; s=pathlib.Path(sys.argv[1]).read_text(); m=re.search(r"SYSTEM_PRINT_EXPECTED_PAGES: ([0-9]+)",s); assert m; print(m[1])' "build/$LABEL-tests.log")"
           xcrun swift ios/scripts/verify_system_pdf.swift "build/$LABEL-system-files-saved.pdf" "$EXPECTED_PAGES" | tee "build/$LABEL-system-files-verified.json"

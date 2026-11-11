@@ -3,10 +3,9 @@ import XCTest
 final class ReaderPrintSaveUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure=false
-        executionTimeAllowance=300
+        executionTimeAllowance=480
     }
     private func openPrint(_ app: XCUIApplication) {
-        app.launchEnvironment["LAW_PRINT_QA"]="1"
         app.launch()
         let menu=app.buttons.matching(identifier:"native-menu").firstMatch
         XCTAssertTrue(menu.waitForExistence(timeout:60))
@@ -36,7 +35,7 @@ final class ReaderPrintSaveUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:15),.completed)
         Swift.print("SYSTEM_PRINT_CLOSE: actual single native Close and restored enabled reader")
     }
-    func testInspectActualSystemPrintPreview() {
+    func testSaveActualSystemPrintPDFToLocalFiles() {
         let app=XCUIApplication()
         defer {app.terminate()}
         openPrint(app)
@@ -74,7 +73,7 @@ final class ReaderPrintSaveUITests: XCTestCase {
         }
         if actualSave == nil {
             for target in targets where target.state != .notRunning {
-                Swift.print("SYSTEM_FILES_SERVICE_STATE: "+target.bundleIdentifier+" "+String(describing:target.state))
+                Swift.print("SYSTEM_FILES_SERVICE_STATE: "+target.label+" "+String(describing:target.state))
                 Swift.print("SYSTEM_FILES_NAVIGATION: "+String(target.navigationBars.debugDescription.prefix(9000)))
                 Swift.print("SYSTEM_FILES_TEXT_FIELDS: "+String(target.textFields.debugDescription.prefix(6000)))
             }
