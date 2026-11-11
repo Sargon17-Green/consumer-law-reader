@@ -8,6 +8,10 @@
 | Android1.3.9-dev/code17 |94 עבר9Linux/Android ו־26/31/36online/offline כולל PDF146עמודים ו־cache עוין;6d העביר תיקון IME ב־31;1.5GB/ליבה אחת עבר בנפרד |הציבורי נשאר1.3.5-beta במפתח המקורי. החדש Debug/unsignedAPK/AAB בלבד |
 | iOS1.3.9/build17 |חלוןiPad94, שיתוף4bc ו־PDFמלאb916 עברו בהיקפם;200 העביר Ready/8טעינות ב־18.5 ו־c853 העביר UI/print-preview/Close מלא ב־iPad26.2 |סימולטורים וארכיון מכשיר לא חתום; אין IPA חתום או TestFlight |
 
+## תוצאות הקבלה המאוחדת — הושלמו ב־11.11.2026
+
+[דו"ח הלוגים המלא](qa/mobile-2026-11-11/completed-acceptance-triage-20261111.md) מבדיל בין ביצוע קודם לבין האישור החסר: source/browser/Android **9/9 jobs PASS** ב־[42967750924](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42967750924), iOS **3/6 jobs PASS ו־3 FAIL** ב־[42967750794](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42967750794), שניהם על `5792b66`. ה־iOS FAIL הוא במבחני UI של print-preview ב־XXXL, ביטול שחזור ב־iPhone18.5 וסגירת שיתוף ב־iPad18.5. אין לאשר PR11. בנוסף, ניסוי Files נפרד [42968670868](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42968670868) עבר **Save אמיתי** ל־PDF חדש ב־LocalStorage על iPhone26.2; קובץ בן 136 עמודים, 1,302,508 בתים. אין להכליל זאת ל־iOS כולו.
+
 ## המועמד המאוחד
 
 [027](qa/mobile-2026-11-08/candidate-027-followup.json) הסתייםLinux8/9PASS ו־iOS4/6PASS, כולל XXXL בפועל. כשלים: Android36offlineIME, iPad26PrintClose ו־iPhone18.5lifecycle. הוא אינו מועמד מאושר למיזוג. [תמונות כשל מקוריות](qa/mobile-2026-11-08/screens/README.md) נשמרו ב־Git.
