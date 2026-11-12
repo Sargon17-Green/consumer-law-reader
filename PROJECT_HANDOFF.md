@@ -2,6 +2,10 @@
 
 עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
+## checkpoint 12.11.2026 — בידוד בלתי־תלוי של פעולות המערכת
+
+[דוח הניסוי והמשך העבודה](qa/mobile-2026-11-12/isolated-ios-system-transitions-after-1b2c539.md) קודם למצב הישן: על `1b2c539`, [Linux/Web/Android 43226919725](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43226919725) הושלם **9/9 PASS**, אך [iOS 43226919738](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43226919738) **0/6 PASS** (חמישה FAIL ואחד cancelled). הכשלים נעים בין print, Files, שיתוף ו־iPad window. במחזור הבא **אין רפקטור מוצר ספקולטיבי**: נוספו מבחני `Print → Share` ו־`Files → Share` *בנפרד* (בנוסף ל־cold ולרצף המלא) כדי לבודד presentation conflict. על כל SHA נדרש 9/9+6/6 completed/success. אין להזיז את ראש PR בזמן CI פעיל, אין לפתוח ענפים ואין לפרסם native ללא חתימה מקורית.
+
 ## checkpoint נוכחי — 12.11.2026, כשלי runner ומבחן Files
 
 [דוח קבלה/ראיות ופעולה הבאה](qa/mobile-2026-11-12/runner-ubuntu26-and-filepicker-ax-triage.md) מתעד את המחזור `78eeab9`: [Linux/Web/Android run 43166949957](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43166949957) נכשל **תשתיתית** — 4/9 PASS, וחמש עבודות Playwright לא החלו עקב `ubuntu26.04-x64` ב־`ubuntu-latest`; [iOS run 43166950060](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43166950060) הושלמה עם **4/6 PASS**, ושני מבחני iOS18.5 נכשלו ב־Files picker lifecycle. צילומי הכשל של שניהם מראים שהבורר **אינו מוצג**, למרות שמבחן `exists` לא הושלם. מחזור התיקון מקבע runner `ubuntu-24.04` ומחייב `hittability` של פקדי reader, העדר hittability לבורר וכפתור ביטול, וממשיך לתרחיש שיתוף מלא בלי דילוג. **אין להזיז ראש PR11 במהלך CI; אין למזג עד 15/15 completed/success על אותו SHA.**

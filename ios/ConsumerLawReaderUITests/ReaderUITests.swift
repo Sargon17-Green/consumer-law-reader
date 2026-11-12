@@ -40,6 +40,126 @@ final class ReaderUITests: XCTestCase {
     // An independent control: distinguish a broken cold-launch share from
     // a state-transition failure after Print + Files + keyboard interaction.
     // This test complements, never replaces, the full sequential UI test.
+    // Independent probes keep system presentation transitions observable.
+    // They DO NOT replace the full keyboard/search/print/Files/share test.
+    private func verifyIsolatedNativeShare(_ app: XCUIApplication, phase: String) {
+        let share=app.buttons.matching(identifier:"native-share").firstMatch
+        XCTAssertTrue(share.waitForExistence(timeout:30),"Share must exist: " + phase)
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            share.exists && share.isEnabled && share.isHittable
+        },object:nil)],timeout:30),.completed,"Native Share must be actionable: " + phase)
+        share.tap()
+        let activities=app.otherElements["ActivityListView"].firstMatch
+        let appeared=activities.waitForExistence(timeout:30)
+        if !appeared {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(25000)))
+            tree.name="Isolated share missing AX " + phase;tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Isolated share missing UI " + phase;shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertTrue(appeared,"Actual ActivityListView must appear: " + phase)
+        let closeID=app.buttons.matching(identifier:"header.closeButton").firstMatch
+        let closeLabel=app.buttons.matching(NSPredicate(format:"label IN %@",["Close","Cancel","סגירה","סגור","ביטול"])).firstMatch
+        let closeReady=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            activities.exists && ((closeID.exists && closeID.isHittable) ||
+                                  (closeLabel.exists && closeLabel.isHittable))
+        },object:nil)],timeout:45)
+        if closeReady != .completed {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(25000)))
+            tree.name="Isolated share Close unavailable AX " + phase;tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Isolated share Close unavailable UI " + phase;shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertEqual(closeReady,.completed,"Actual Share Close must be hittable: " + phase)
+        let close=(closeID.exists && closeID.isHittable) ? closeID : closeLabel
+        print("SHARE_ISOLATION_CLOSE_" + phase + ": " + close.label + ", id=" + close.identifier)
+        close.tap()
+        let menu=app.buttons.matching(identifier:"native-menu").firstMatch
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            !activities.exists && menu.exists && menu.isEnabled
+        },object:nil)],timeout:30),.completed,"Native share must really dismiss: " + phase)
+    }
+
+    func testNativeShareAfterPrintWithoutFileImporter() {
+        let app=XCUIApplication()
+        app.launch()
+        defer { app.terminate() }
+        let menu=app.buttons.matching(identifier:"native-menu").firstMatch
+        XCTAssertTrue(menu.waitForExistence(timeout:60))
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            menu.exists && menu.isEnabled && menu.isHittable
+        },object:nil)],timeout:60),.completed,"Header menu must load")
+        menu.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
+        let printAction=app.buttons.matching(identifier:"הדפסה או שמירה כ־PDF").firstMatch
+        XCTAssertTrue(printAction.waitForExistence(timeout:15))
+        printAction.tap()
+        let close=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
+        XCTAssertTrue(close.waitForExistence(timeout:45),"Real system print UI must appear")
+        let before=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+        before.name="Isolated actual print UI before closing";before.lifetime = .keepAlways;add(before)
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            close.exists && close.isEnabled && close.isHittable
+        },object:nil)],timeout:30),.completed,"System print Close must be hittable")
+        close.tap()
+        print("SHARE_ISOLATION_PRINT_CLOSE_TAPPED")
+        let dismissed=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            !close.exists && menu.exists && menu.isEnabled && menu.isHittable
+        },object:nil)],timeout:30)
+        if dismissed != .completed {
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Isolated print failed to dismiss before share";shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertEqual(dismissed,.completed,"Print must dismiss before subsequent native share")
+        verifyIsolatedNativeShare(app,phase:"after-print-only")
+    }
+
+    func testNativeShareAfterFileImporterWithoutPrint() {
+        let app=XCUIApplication()
+        app.launch()
+        defer { app.terminate() }
+        let menu=app.buttons.matching(identifier:"native-menu").firstMatch
+        XCTAssertTrue(menu.waitForExistence(timeout:60))
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            menu.exists && menu.isEnabled && menu.isHittable
+        },object:nil)],timeout:60),.completed,"Header menu must load")
+        menu.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
+        let restore=app.buttons.matching(identifier:"שחזור הגדרות מקובץ").firstMatch
+        XCTAssertTrue(restore.waitForExistence(timeout:15))
+        restore.tap()
+        let sidebar=app.navigationBars["DOCSidebarView"].buttons["Cancel"].firstMatch
+        let general=app.buttons.matching(NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])).firstMatch
+        let ready=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            (sidebar.exists && sidebar.isHittable) || (general.exists && general.isHittable)
+        },object:nil)],timeout:60)
+        if ready != .completed {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(25000)))
+            tree.name="Isolated importer lacks actionable Cancel AX";tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Isolated importer lacks actionable Cancel UI";shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertEqual(ready,.completed,"Real system Files picker must expose a hittable Cancel")
+        let cancel=(sidebar.exists && sidebar.isHittable) ? sidebar : general
+        let pickerShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+        pickerShot.name="Isolated actual Files picker before Cancel";pickerShot.lifetime = .keepAlways;add(pickerShot)
+        cancel.tap()
+        print("SHARE_ISOLATION_FILE_CANCEL_TAPPED")
+        let share=app.buttons.matching(identifier:"native-share").firstMatch
+        let picker=app.otherElements["Browse View (Picker)"].firstMatch
+        let dismissed=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            !cancel.isHittable && !picker.isHittable &&
+            menu.exists && menu.isEnabled && menu.isHittable &&
+            share.exists && share.isEnabled && share.isHittable
+        },object:nil)],timeout:40)
+        if dismissed != .completed {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(25000)))
+            tree.name="Isolated Files dismissal AX";tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Isolated Files dismissal UI";shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertEqual(dismissed,.completed,"Files must actually dismiss before subsequent native share")
+        verifyIsolatedNativeShare(app,phase:"after-Files-only")
+    }
+
     func testNativeShareDirectlyAfterColdLaunch() {
         let app=XCUIApplication()
         app.launch()
