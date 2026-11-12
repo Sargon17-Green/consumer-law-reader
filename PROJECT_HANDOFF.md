@@ -2,6 +2,10 @@
 
 עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
+## checkpoint נוכחי — 12.11.2026, כשלי runner ומבחן Files
+
+[דוח קבלה/ראיות ופעולה הבאה](qa/mobile-2026-11-12/runner-ubuntu26-and-filepicker-ax-triage.md) מתעד את המחזור `78eeab9`: [Linux/Web/Android run 43166949957](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43166949957) נכשל **תשתיתית** — 4/9 PASS, וחמש עבודות Playwright לא החלו עקב `ubuntu26.04-x64` ב־`ubuntu-latest`; [iOS run 43166950060](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43166950060) הושלמה עם **4/6 PASS**, ושני מבחני iOS18.5 נכשלו ב־Files picker lifecycle. צילומי הכשל של שניהם מראים שהבורר **אינו מוצג**, למרות שמבחן `exists` לא הושלם. מחזור התיקון מקבע runner `ubuntu-24.04` ומחייב `hittability` של פקדי reader, העדר hittability לבורר וכפתור ביטול, וממשיך לתרחיש שיתוף מלא בלי דילוג. **אין להזיז ראש PR11 במהלך CI; אין למזג עד 15/15 completed/success על אותו SHA.**
+
 ## checkpoint 12.11.2026 — תנאי מעבר בין חלונות מערכת
 
 תוצאות [43084085468](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43084085468) (**9/9 PASS**) ו־[43084085576](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43084085576) (**2/6 iOS PASS**) נבחנו בפועל על `2cd630a`. [דוח אבחון חדש לפי ארטיפקטים מקוריים](qa/mobile-2026-11-12/share-lifecycle-isolation-results.md) מפרט: iPad18.5 נכשל בשיתוף גם בפתיחה נקייה; iPhone16/iPhone26 עברו cold ונכשלו בשיתוף אחרי Print+Files; iPad26 הציג בפועל Files picker אך Cancel לא אותר על ידי השאילתה הגלובלית. המבחן הבא מקבע אותן דרישות close/hittability ודורש גם **סגירה אמיתית של בורר הקבצים** לפני פתיחת שיתוף, עם איתור ממוקד של `DOCSidebarView/Cancel`. לאחר יצירת commit חדש: **לא להזיז ראש PR #11 בזמן ריצות pending**, לא להסתמך על לוגים מ־SHA אחר ולא למזג עד 15/15 jobs completed/success.

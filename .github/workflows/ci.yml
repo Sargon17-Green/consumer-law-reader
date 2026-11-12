@@ -13,7 +13,7 @@ jobs:
     permissions:
       contents: read
       pages: read
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 22
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -73,7 +73,7 @@ jobs:
         run: python tests/topic_navigation_qa.py
   browser-integration:
     name: Bundled browser and accessibility (${{ matrix.width }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     strategy:
       fail-fast: false
@@ -108,7 +108,7 @@ jobs:
           path: evidence/
           retention-days: 30
   android-debug:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -162,7 +162,7 @@ jobs:
           PY
   android-emulator:
     needs: android-debug
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     strategy:
       fail-fast: false

@@ -191,20 +191,27 @@ final class ReaderUITests: XCTestCase {
         XCTAssertEqual(cancelReady,.completed,"Actual Files picker must contain a hittable system Cancel")
         let cancel=(sidebarCancel.exists && sidebarCancel.isHittable) ? sidebarCancel : generalCancel
         cancel.tap()
-        // Seeing the app's menu in the AX tree does not prove the system
-        // picker has finished dismissing. Do not present a new share sheet
-        // while the previous UIKit/SwiftUI presentation is still active.
+        // A dismissed Apple Files picker can leave remote AX nodes reporting
+        // exists=true. Two independent 18.5 failure screenshots show the
+        // reader fully visible after the actual Cancel tap. Judge the active
+        // presentation by hit-testing: neither the picker nor its Cancel may
+        // be actionable, while the real reader Menu and Share must be.
+        // This still rejects a picker that covers/intercepts native controls.
         let filePicker=app.otherElements["Browse View (Picker)"].firstMatch
+        let share=app.buttons.matching(identifier:"native-share").firstMatch
         let importerDismissed=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
-            !cancel.exists && !filePicker.exists && menu.exists && menu.isEnabled && menu.isHittable
+            !cancel.isHittable && !filePicker.isHittable &&
+            menu.exists && menu.isEnabled && menu.isHittable &&
+            share.exists && share.isEnabled && share.isHittable
         },object:nil)],timeout:40)
         if importerDismissed != .completed {
+            let afterTree=XCTAttachment(string:String(app.debugDescription.prefix(30000)))
+            afterTree.name="Files picker AX after Cancel when share remains blocked";afterTree.lifetime = .keepAlways;add(afterTree)
             let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
             shot.name="Files picker lifecycle after Cancel before share";shot.lifetime = .keepAlways;add(shot)
         }
-        XCTAssertEqual(importerDismissed,.completed,"Files picker must dismiss before the next system presentation")
-        let share=app.buttons.matching(identifier:"native-share").firstMatch
-        XCTAssertTrue(share.isEnabled);share.tap()
+        XCTAssertEqual(importerDismissed,.completed,"Files picker must stop intercepting taps and real native Share must be hittable")
+        share.tap()
         let activities=app.otherElements["ActivityListView"].firstMatch
         XCTAssertTrue(activities.waitForExistence(timeout:8),"Actual system share must be presented")
         let shareScreen=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
