@@ -2,6 +2,10 @@
 
 עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
+## checkpoint 12.11.2026 — תנאי מעבר בין חלונות מערכת
+
+תוצאות [43084085468](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43084085468) (**9/9 PASS**) ו־[43084085576](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43084085576) (**2/6 iOS PASS**) נבחנו בפועל על `2cd630a`. [דוח אבחון חדש לפי ארטיפקטים מקוריים](qa/mobile-2026-11-12/share-lifecycle-isolation-results.md) מפרט: iPad18.5 נכשל בשיתוף גם בפתיחה נקייה; iPhone16/iPhone26 עברו cold ונכשלו בשיתוף אחרי Print+Files; iPad26 הציג בפועל Files picker אך Cancel לא אותר על ידי השאילתה הגלובלית. המבחן הבא מקבע אותן דרישות close/hittability ודורש גם **סגירה אמיתית של בורר הקבצים** לפני פתיחת שיתוף, עם איתור ממוקד של `DOCSidebarView/Cancel`. לאחר יצירת commit חדש: **לא להזיז ראש PR #11 בזמן ריצות pending**, לא להסתמך על לוגים מ־SHA אחר ולא למזג עד 15/15 jobs completed/success.
+
 ## checkpoint חדש — אבחון השיתוף בשני רצפים, 11.11.2026
 
 ריצות המועמד `4ffbed4a1e177d6a444e157ee00ec14e05484b25` הסתיימו: [9/9 source/Android PASS](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43072821712), [3/6 iOS PASS](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43072821715). כל שלושת הכשלים ב־iOS16, iPhone26.2 ו־iPad18.5 נובעים בשלב ה־UI מ־Close של ActivityListView שאינו `isHittable` בשאילתת XCTest. iPad26.2, iPhone26.2-XXXL ו־iPhone18.5 עברו. חלק מצילומי הכשל מציגים כפתור X וחלק מראים remote container לא מאוכלס. [דוח רצף הבדיקה החדש](qa/mobile-2026-11-11/share-presentation-sequence-isolation.md).

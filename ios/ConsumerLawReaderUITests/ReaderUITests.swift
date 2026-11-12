@@ -171,9 +171,38 @@ final class ReaderUITests: XCTestCase {
         openNativeMenu()
         let restore=app.buttons.matching(identifier:"שחזור הגדרות מקובץ").firstMatch
         XCTAssertTrue(restore.waitForExistence(timeout:5));restore.tap()
-        let cancel=app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Close", "ביטול"])).firstMatch
-        XCTAssertTrue(cancel.waitForExistence(timeout:60),app.debugDescription);cancel.tap()
-        XCTAssertTrue(menu.waitForExistence(timeout:10))
+        // iPad's actual Files picker is hosted by DocumentManager under
+        // DOCSidebarView, whereas a compact iPhone picker uses the global
+        // system Cancel. The generic "firstMatch" can miss the remote button.
+        let sidebarCancel=app.navigationBars["DOCSidebarView"].buttons["Cancel"].firstMatch
+        let generalCancel=app.buttons.matching(
+            NSPredicate(format:"label IN %@",["Cancel","Close","ביטול"])
+        ).firstMatch
+        let cancelReady=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            (sidebarCancel.exists && sidebarCancel.isHittable) ||
+            (generalCancel.exists && generalCancel.isHittable)
+        },object:nil)],timeout:60)
+        if cancelReady != .completed {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(30000)))
+            tree.name="Actual document picker AX when native Cancel unavailable";tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Actual document picker before failed cancellation";shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertEqual(cancelReady,.completed,"Actual Files picker must contain a hittable system Cancel")
+        let cancel=(sidebarCancel.exists && sidebarCancel.isHittable) ? sidebarCancel : generalCancel
+        cancel.tap()
+        // Seeing the app's menu in the AX tree does not prove the system
+        // picker has finished dismissing. Do not present a new share sheet
+        // while the previous UIKit/SwiftUI presentation is still active.
+        let filePicker=app.otherElements["Browse View (Picker)"].firstMatch
+        let importerDismissed=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            !cancel.exists && !filePicker.exists && menu.exists && menu.isEnabled && menu.isHittable
+        },object:nil)],timeout:40)
+        if importerDismissed != .completed {
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Files picker lifecycle after Cancel before share";shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertEqual(importerDismissed,.completed,"Files picker must dismiss before the next system presentation")
         let share=app.buttons.matching(identifier:"native-share").firstMatch
         XCTAssertTrue(share.isEnabled);share.tap()
         let activities=app.otherElements["ActivityListView"].firstMatch
@@ -191,16 +220,20 @@ final class ReaderUITests: XCTestCase {
         let closeByLabel=app.buttons.matching(
             NSPredicate(format:"label IN %@",["Close","Cancel","סגירה","סגור","ביטול"])
         ).firstMatch
+        // The remote ShareSheet AX process takes multiple seconds per query
+        // in the measured 18.5/26.2 simulator logs. The cold-launch test
+        // already allows 45 seconds while requiring identical real Close
+        // hit-testing and completed dismissal. Keep both paths consistent.
         let closeReady=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
             activities.exists && ((closeByID.exists && closeByID.isHittable) ||
             (closeByLabel.exists && closeByLabel.isHittable))
-        },object:nil)],timeout:15)
+        },object:nil)],timeout:45)
         guard closeReady == .completed else {
             let tree=XCTAttachment(string:String(app.debugDescription.prefix(18000)))
             tree.name="Actual foreground system share controls when Close unavailable";tree.lifetime = .keepAlways;add(tree)
             let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
             shot.name="Actual system share UI when Close unavailable";shot.lifetime = .keepAlways;add(shot)
-            XCTFail("No hittable Close control while actual system share is present within15 seconds; inspect recorded hierarchy");return
+            XCTFail("No hittable Close control while actual system share is present within45 seconds; inspect recorded hierarchy");return
         }
         let closeShare=(closeByID.exists && closeByID.isHittable) ? closeByID : closeByLabel
         Swift.print("NATIVE_SHARE_CLOSE: label=\(closeShare.label) identifier=\(closeShare.identifier) frame=\(closeShare.frame)")
