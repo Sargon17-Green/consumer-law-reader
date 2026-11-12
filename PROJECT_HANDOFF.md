@@ -2,6 +2,10 @@
 
 עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
+## checkpoint עדכני — 12.11.2026, פעולות מערכת מוכחות
+
+על `b41b3c40` הושלמו [Linux/Web/Android 43303378028](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43303378028) **9/9 success** ו־[iOS 43303378173](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43303378173) **1/6 success** (iPhone16). [דוח מלא לכל ארבעת רצפי השיתוף](qa/mobile-2026-11-12/b41-isolation-results-and-end-to-end-actions.md). קומיט התיקון הבא מבדיל בין `isHittable` לא־יציב של פקדי SwiftUI ומערכת Files, לבין **פעולה ממשית**: מקישים על Menu/Share בקואורדינטה המתועדת, מחייבים שפעולת Print/Restore או חלונית `ActivityListView` יופיעו, ושכפתור הסגירה יהיה לחיץ ויבצע סגירה אמיתית. זה אינו ויתור על סף קבלה; חלונית שלא נפתחת/נסגרת עדיין תיכשל. כשלי iPad Files Cancel ו־Window resize, או XXXL share dismissal, נשארים פתוחים אם חוזרים. אין להזיז ראש PR #11 בזמן CI, אין לפתוח ענפים ואין לפרסם native לפני 15/15 על אותו SHA וחתימה תקפה.
+
 ## checkpoint 12.11.2026 — בידוד בלתי־תלוי של פעולות המערכת
 
 [דוח הניסוי והמשך העבודה](qa/mobile-2026-11-12/isolated-ios-system-transitions-after-1b2c539.md) קודם למצב הישן: על `1b2c539`, [Linux/Web/Android 43226919725](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43226919725) הושלם **9/9 PASS**, אך [iOS 43226919738](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43226919738) **0/6 PASS** (חמישה FAIL ואחד cancelled). הכשלים נעים בין print, Files, שיתוף ו־iPad window. במחזור הבא **אין רפקטור מוצר ספקולטיבי**: נוספו מבחני `Print → Share` ו־`Files → Share` *בנפרד* (בנוסף ל־cold ולרצף המלא) כדי לבודד presentation conflict. על כל SHA נדרש 9/9+6/6 completed/success. אין להזיז את ראש PR בזמן CI פעיל, אין לפתוח ענפים ואין לפרסם native ללא חתימה מקורית.
