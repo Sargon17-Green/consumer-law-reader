@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "asOf": "2026-11-10",
+  "purpose": "Locate existing original Android signing identity without creating replacement keys or exposing private data",
+  "requiredCertificateSha256": "2625ebe860cb0bfac105196b24aeedf3a948ce18c6f836478fd8ea38d0b937dc",
+  "result": "No accessible matching original private key verified; public APK preserved. Scoped checks are not proof of global absence.",
+  "checks": [
+    {
+      "scope": "Connected Windows device, filesystem metadata only",
+      "projectFilenameSearch": "Downloads/Documents/Desktop/OneDrive: completed0 matching project/key names",
+      "keyExtensionSearch": "Downloads/Documents/Desktop: completed0 .p12/.pfx/.jks/.keystore filenames; OneDrive timed out, incomplete0",
+      "excluded": "No Windows script/process/installation run; no unrelated secret contents read; personal machine/profile paths omitted"
+    },
+    {
+      "scope": "Private Library filename metadata",
+      "result": "Dedicated signing/keystore/p12 searches0; not global absence proof"
+    },
+    {
+      "scope": "Two existing private source ZIPs, filenames inspected only",
+      "files": [
+        {
+          "name": "Consumer_Law_Reader_1.3.3_Beta_GitHub_Source.zip",
+          "bytes": 2067612,
+          "sha256": "1346449b154c949d011e76f06a801167b1cb13e789af7ba3b179064212017e43",
+          "entries": 81
+        },
+        {
+          "name": "Consumer_Law_Reader_1.3.0_Beta_GitHub_Source.zip",
+          "bytes": 2042735,
+          "sha256": "610d32e7e3d4ba28a97bf37574bfc6320f0516dddd23dcb552c13f46604ac470",
+          "entries": 77
+        }
+      ],
+      "result": "No archive path containing signing/keystore/password/.p12/.pfx/.jks; private contents not published"
+    }
+  ],
+  "next": "Provide authorized private signing environment or original key as an approved secret; verify certificate before signing the accepted candidate. Never send a key or password in a public issue."
+}

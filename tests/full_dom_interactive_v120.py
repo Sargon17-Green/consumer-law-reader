@@ -16,7 +16,7 @@ with sync_playwright() as p:
   pg.set_content(html,wait_until='domcontentloaded',timeout=22000)
   pg.evaluate('''() => {const map={};Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>Object.hasOwn(map,k)?map[k]:null,setItem:(k,v)=>map[k]=String(v),removeItem:k=>delete map[k]}})}''')
   pg.add_style_tag(content=(ROOT/'web/mobile.css').read_text())
-  for name in ('mobile-sources.js','mobile-topics.js','mobile.js'):pg.add_script_tag(content=(ROOT/'web'/name).read_text())
+  for name in ('mobile-core.js','mobile-settings.js','mobile-sources.js','mobile-topics.js','mobile.js'):pg.add_script_tag(content=(ROOT/'web'/name).read_text())
   p1=pg.evaluate('''() => ({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,version:window.lawMobile?.version,topics:window.LawTopics.inspect(),articles:document.querySelectorAll('.article').length})''')
   try:
    pg.locator('[data-mobile=navigate]').click(timeout=3500)

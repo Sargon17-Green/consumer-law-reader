@@ -8,6 +8,7 @@ from collections import Counter
 from zipfile import ZipFile
 import argparse, hashlib, json
 from bs4 import BeautifulSoup
+from bundled_assets import is_bundled_asset,zip_members
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'original/Consumer_Protection_Law.html'
@@ -35,7 +36,7 @@ def verify(apk=None):
     check('Original ID occurrences',all(b[k]==v for k,v in a.items()))
     check('Original link targets',Counter(x.get('href') for x in original.select('a[href]'))==Counter(x.get('href') for x in generated.select('a[href]')))
     for src in (ROOT/'original').iterdir():
-        if src.suffix.lower() in ('.html','.ico','.lnk'):continue
+        if not is_bundled_asset(src):continue
         check('Bundled unchanged: '+src.name,src.read_bytes()==(DIST/src.name).read_bytes())
     for age in (3,7,12,16,18):
         check('PEGI alias '+str(age),(DIST/f'PEGI_{age}_plus.png').read_bytes()==(ROOT/'original'/f'PEGI_{age}+.png').read_bytes())
@@ -45,9 +46,10 @@ def verify(apk=None):
         apk=Path(apk).resolve()
         with ZipFile(apk) as z:
             check('APK archive integrity',z.testzip() is None)
+            members=zip_members(z)
             for p in sorted(DIST.iterdir()):
                 if p.is_file():
-                    check('APK web asset exact bytes: '+p.name,z.read('assets/www/'+p.name)==p.read_bytes())
+                    check('APK web asset exact bytes: '+p.name,z.read(members['assets/www/'+p.name])==p.read_bytes())
             check('Native classes present',bool(z.read('classes.dex')))
         report['apk_sha256']=hashlib.sha256(apk.read_bytes()).hexdigest()
     report.update({'status':'PASS','checks_passed':len(checks)})

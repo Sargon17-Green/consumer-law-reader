@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "asOf": "2026-11-11",
+  "result": "PASS components only; combined candidate must pass separately",
+  "components": {
+    "androidIME": {
+      "commit": "6d246d3397b04ae68333a4469ebaca74c921d483",
+      "run": 42873698707,
+      "job": 130032075341,
+      "environment": "Android API31 emulator, WebView91.0.4472.114",
+      "result": "completed PASS online and offline full native flow",
+      "scope": "Actual TYPE_INPUT_METHOD, native End/Delete and14 key events, settled native focus, WebView/input bounds and Back preserving query; API26/36 not inferred",
+      "geometry": {
+        "ime": "[0,1053][1080,1794]",
+        "originalWebHeight": 1731,
+        "webTop": 63,
+        "webHeight": 990,
+        "webBottom": 1053
+      },
+      "artifact": {
+        "id": 13791446371,
+        "bytes": 1638509,
+        "sha256": "1135f745fa3e9a4f425441afe9f4716e86c21a3884c4566f79d25126b3d72bd4"
+      },
+      "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42873698707/job/130032075341"
+    },
+    "iosReadiness": {
+      "commit": "200d5b7c615e23986904823847e8ebf41683ef6d",
+      "run": 42874533215,
+      "job": 130034218067,
+      "environment": "iPhone Simulator iOS18.5, Xcode26.3",
+      "result": "completed PASS lifecycle7.847s and8 repeated native retries6.290s",
+      "scope": "Generation invalidation, no stale document marker, actual live reader globals and not-loading gate. Unique cause of027 ReferenceError is not claimed",
+      "issue": 16,
+      "artifact": {
+        "id": 13792810546,
+        "bytes": 11543022,
+        "sha256": "f3a224fcabc918957b91d0e76c463ba2edc4208d41de6c2a6981a52f864eb311"
+      },
+      "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42874533215/job/130034218067"
+    },
+    "ipadPrint": {
+      "commit": "c853d3ba3338eda89bcc09d68c0b2458b9806278",
+      "run": 42874102662,
+      "job": 130032722460,
+      "environment": "iPad Simulator iOS26.2, Xcode26.3",
+      "result": "completed PASS full functional UI348.896s",
+      "scope": "Actual first system print-preview page, hittable single Close, enabled reader, file-picker cancellation, share dismissal, rotation and installed icon relaunch with query14. No DEBUG delegate; no actual system PDF-save claim",
+      "artifact": {
+        "id": 13792321132,
+        "bytes": 114153905,
+        "sha256": "5d1bc89dad8b23d65a0076a64cc7c873bfc40c61a23709f6312105075f9e6050"
+      },
+      "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42874102662/job/130032722460"
+    }
+  },
+  "integrationChanges": [
+    "Retain actual IME presence/input visibility assertions after typing, in addition to settled pre-edit geometry",
+    "Functional XCUITest budget480s because observed expanded scenario348.896s leaves only11s under360; each step keeps its bounded readiness/dismissal assertions",
+    "Compile application and test targets with build-for-testing before simulator boot; no only-testing in canonical6-profile acceptance"
+  ],
+  "legal": {
+    "sourceSHA256": "de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9",
+    "verificationDate": "2026-10-28",
+    "changed": false
+  },
+  "limitations": [
+    "Component artifact digests from GitHub metadata; these ZIPs were not independently re-downloaded in this11Nov checkpoint",
+    "Simulator/emulator only; no physical printer, device, original signing key, IPA or TestFlight",
+    "Files-save investigation continues separately; failed diagnostic compile eab09e8/run42876796144 is not an app-runtime failure"
+  ]
+}

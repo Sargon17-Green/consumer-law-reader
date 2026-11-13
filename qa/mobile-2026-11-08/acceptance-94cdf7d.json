@@ -1,0 +1,309 @@
+{
+  "schema": 1,
+  "headCommit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+  "tree": "7cf04c1127e22318f70a36a816c40418b44b3bf7",
+  "testedCheckout": "60a5c79bfc281384f4256f6ee592d0b2d67beb14",
+  "result": "FAIL overall: Linux9 PASS; iOS3 PASS,2 fail observed share dismissal in functional UI. No merge acceptance.",
+  "linux": {
+    "run": 42817834059,
+    "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+    "jobs": [
+      {
+        "id": 129835430140,
+        "name": "Bundled browser and accessibility (1180)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129835430140",
+        "startedAt": "2026-11-10T12:45:09Z",
+        "completedAt": "2026-11-10T12:48:39Z"
+      },
+      {
+        "id": 129835430581,
+        "name": "Bundled browser and accessibility (430)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129835430581",
+        "startedAt": "2026-11-10T12:41:11Z",
+        "completedAt": "2026-11-10T12:44:23Z"
+      },
+      {
+        "id": 129835430585,
+        "name": "android-debug",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129835430585",
+        "startedAt": "2026-11-10T12:41:11Z",
+        "completedAt": "2026-11-10T12:42:26Z"
+      },
+      {
+        "id": 129835430612,
+        "name": "Bundled browser and accessibility (768)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129835430612",
+        "startedAt": "2026-11-10T12:44:25Z",
+        "completedAt": "2026-11-10T12:47:58Z"
+      },
+      {
+        "id": 129835430899,
+        "name": "Bundled browser and accessibility (320)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129835430899",
+        "startedAt": "2026-11-10T12:41:11Z",
+        "completedAt": "2026-11-10T12:45:06Z"
+      },
+      {
+        "id": 129835431256,
+        "name": "source-and-browser",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129835431256",
+        "startedAt": "2026-11-10T12:41:11Z",
+        "completedAt": "2026-11-10T12:43:12Z"
+      },
+      {
+        "id": 129836058696,
+        "name": "android-emulator (26, x86, default, -writable-system)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129836058696",
+        "startedAt": "2026-11-10T12:42:29Z",
+        "completedAt": "2026-11-10T12:47:21Z"
+      },
+      {
+        "id": 129836058781,
+        "name": "android-emulator (36, x86_64, google_apis)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129836058781",
+        "startedAt": "2026-11-10T12:47:24Z",
+        "completedAt": "2026-11-10T12:52:41Z"
+      },
+      {
+        "id": 129836058843,
+        "name": "android-emulator (31, x86_64, google_apis)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059/job/129836058843",
+        "startedAt": "2026-11-10T12:42:30Z",
+        "completedAt": "2026-11-10T12:51:21Z"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": 13765998868,
+        "name": "android-emulator-api-31",
+        "bytes": 1644068,
+        "sha256": "c213c30df3f64c62e508d22d976906b26d81d39bbab1c4c4019f68bb84e7d1da"
+      },
+      {
+        "id": 13765882766,
+        "name": "android-emulator-api-26",
+        "bytes": 691368,
+        "sha256": "106e9bc3e07cac17b0e691d66f828a48648307921a57856a5607e6cd52c5bf24"
+      },
+      {
+        "id": 13765543067,
+        "name": "shared-reader-browser-320",
+        "bytes": 17595,
+        "sha256": "81babf5058fe3a1678994367959992ff3826b071870491f902855bd12c10554a"
+      },
+      {
+        "id": 13765519468,
+        "name": "android-emulator-api-36",
+        "bytes": 4673634,
+        "sha256": "f72322add33572d1b4465c3836b5aadb8b6dcefee5ff7e36147c71539c97b2cb"
+      },
+      {
+        "id": 13765307677,
+        "name": "android-debug-not-for-upgrade",
+        "bytes": 10095443,
+        "sha256": "29ff930470c25f7eafe7e75716990e73bbb3d7bb70c18205051d67272d6a6d2a"
+      },
+      {
+        "id": 13765228295,
+        "name": "shared-reader-browser-768",
+        "bytes": 12579,
+        "sha256": "fa510daab7820786f2e5026bda5d11f17342d351ed1e6558911266663eb14891"
+      },
+      {
+        "id": 13764868178,
+        "name": "shared-reader-source-evidence",
+        "bytes": 6457,
+        "sha256": "90e334c8cf40bc37bc9908237156b85514a2f6038114439333ce384c6b80e0e5"
+      },
+      {
+        "id": 13764773074,
+        "name": "shared-reader-browser-430",
+        "bytes": 73081,
+        "sha256": "729a0031a85f24e7c0330e1b1958ed73e57e967965b8e28078de203fb22cdcee"
+      },
+      {
+        "id": 13764744422,
+        "name": "shared-reader-browser-1180",
+        "bytes": 13159,
+        "sha256": "6243c183a508f87dcf42fe4be33273c72e77cbcc29edade7c216884e0bf34078"
+      }
+    ],
+    "androidMetrics": {
+      "26": {
+        "QA_STATUS": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "largeNativeState": [
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing/stale/tampered/wrong-installation/oversized cache rejected without replacing the valid snapshot",
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing/stale/tampered/wrong-installation/oversized cache rejected without replacing the valid snapshot"
+        ],
+        "boundedActivityStateBytes": [
+          "1036",
+          "1036"
+        ],
+        "rendererRecovery": [
+          "NOT TESTED: public renderer termination requires API29+; API26 ordinary lifecycle tests run above",
+          "NOT TESTED: public renderer termination requires API29+; API26 ordinary lifecycle tests run above"
+        ],
+        "activitySavedStateBytes": [
+          "764",
+          "764"
+        ],
+        "rawWebStateBytes": [
+          "1617960",
+          "1617960"
+        ],
+        "nativeKeyboard": [
+          "PASS: actual editable-node touch, visible system IME, native14 input, WebView/input above keyboard, Back hides IME and preserves search",
+          "PASS: actual editable-node touch, visible system IME, native14 input, WebView/input above keyboard, Back hides IME and preserves search"
+        ]
+      },
+      "31": {
+        "QA_STATUS": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "activitySavedStateBytes": [
+          "904",
+          "904"
+        ],
+        "boundedActivityStateBytes": [
+          "1176",
+          "1176"
+        ],
+        "largeNativeState": [
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing/stale/tampered/wrong-installation/oversized cache rejected without replacing the valid snapshot",
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing/stale/tampered/wrong-installation/oversized cache rejected without replacing the valid snapshot"
+        ],
+        "nativeKeyboard": [
+          "PASS: actual editable-node touch, visible system IME, native14 input, WebView/input above keyboard, Back hides IME and preserves search",
+          "PASS: actual editable-node touch, visible system IME, native14 input, WebView/input above keyboard, Back hides IME and preserves search"
+        ],
+        "rawWebStateBytes": [
+          "1615960",
+          "1615960"
+        ],
+        "rendererRecovery": [
+          "PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved",
+          "PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved"
+        ]
+      },
+      "36": {
+        "QA_STATUS": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "PDF": [
+          "PASS: actual system Print -> Save as PDF -> SAF file; pages=146 bytes=1526437 sha256=706679df98438dddb5001f1a2f8a0e7b94ae0e79a76d58d1733e6a65427d1daa",
+          "PASS: actual system Print -> Save as PDF -> SAF file; pages=146 bytes=1526437 sha256=05ef604d501f3e0c2200c72ac2d8c364f9b9178aaa2d49aacca6fcf4f2779b15"
+        ],
+        "activitySavedStateBytes": [
+          "928",
+          "888"
+        ],
+        "boundedActivityStateBytes": [
+          "1200",
+          "1160"
+        ],
+        "largeNativeState": [
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing/stale/tampered/wrong-installation/oversized cache rejected without replacing the valid snapshot",
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing/stale/tampered/wrong-installation/oversized cache rejected without replacing the valid snapshot"
+        ],
+        "nativeKeyboard": [
+          "PASS: actual editable-node touch, visible system IME, native14 input, WebView/input above keyboard, Back hides IME and preserves search",
+          "PASS: actual editable-node touch, visible system IME, native14 input, WebView/input above keyboard, Back hides IME and preserves search"
+        ],
+        "rawWebStateBytes": [
+          "1617964",
+          "1617964"
+        ],
+        "rendererRecovery": [
+          "PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved",
+          "PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved"
+        ]
+      }
+    }
+  },
+  "ios": {
+    "run": 42817834181,
+    "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834181",
+    "jobs": [
+      {
+        "id": 129836408370,
+        "name": "iPhone iOS 26.2",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834181/job/129836408370",
+        "startedAt": "2026-11-10T12:43:15Z",
+        "completedAt": "2026-11-10T12:59:36Z"
+      },
+      {
+        "id": 129836408687,
+        "name": "iPhone iOS 18.5",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834181/job/129836408687",
+        "startedAt": "2026-11-10T13:02:28Z",
+        "completedAt": "2026-11-10T13:16:44Z"
+      },
+      {
+        "id": 129836408708,
+        "name": "iPad iOS 26.2",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834181/job/129836408708",
+        "startedAt": "2026-11-10T12:43:14Z",
+        "completedAt": "2026-11-10T13:02:21Z"
+      },
+      {
+        "id": 129836408759,
+        "name": "iPad iOS 18.5",
+        "status": "completed",
+        "conclusion": "failure",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834181/job/129836408759",
+        "startedAt": "2026-11-10T13:02:24Z",
+        "completedAt": "2026-11-10T13:10:59Z"
+      },
+      {
+        "id": 129836408935,
+        "name": "iPhone iOS 16.0 (runtime availability)",
+        "status": "completed",
+        "conclusion": "failure",
+        "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834181/job/129836408935",
+        "startedAt": "2026-11-10T13:11:05Z",
+        "completedAt": "2026-11-10T13:27:49Z"
+      }
+    ],
+    "failure": "ReaderUITests.swift105: ActivityListView still exists after attempted swipe/identifier-only close on iOS16/iPad18.5. iPad26.2 full real windowing UI passed."
+  },
+  "limits": [
+    "Emulators/simulators only; not physical devices",
+    "Unsigned device archive/Debug APK only; no new signed native release",
+    "Historical proof scoped to94; current PR head must be checked and retested"
+  ]
+}

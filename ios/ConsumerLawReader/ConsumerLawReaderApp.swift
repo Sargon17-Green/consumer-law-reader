@@ -27,13 +27,15 @@ struct ReaderNotice: Identifiable {
 struct ReaderScreen: View {
     @StateObject private var reader = OfflineLawReader()
     @State private var chooseBackup = false
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 14) {
                 Text("חוק הגנת הצרכן, התשמ״א–1981")
                     .font(.subheadline.weight(.semibold))
-                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                     .minimumScaleFactor(0.8)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -41,9 +43,12 @@ struct ReaderScreen: View {
                     reader.shareCurrentSection()
                 } label: {
                     Image(systemName: "square.and.arrow.up")
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
+                .accessibilityIdentifier("native-share")
                 .accessibilityLabel("שיתוף קישור לסעיף")
-                .disabled(!reader.ready)
+                .disabled(!reader.ready || reader.working)
 
                 Menu {
                     Button("הדפסה או שמירה כ־PDF", systemImage: "printer") {
@@ -60,20 +65,44 @@ struct ReaderScreen: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
+                .accessibilityIdentifier("native-menu")
                 .accessibilityLabel("פעולות iOS")
-                .disabled(!reader.ready)
+                .disabled(!reader.ready || reader.working)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
+            .avoidingWindowControls()
             .background(Color(uiColor: .secondarySystemBackground))
 
+            if !reader.ready {
+                HStack {
+                    if !reader.loadFailed { ProgressView("טעינת נוסח החוק המקומי") }
+                    Button { reader.retryLoading() } label: {
+                        Text("טעינה מחדש").frame(minWidth: 44, minHeight: 44).contentShape(Rectangle())
+                    }
+                        .accessibilityIdentifier("native-retry")
+                        .disabled(!reader.loadFailed)
+                }
+                .accessibilityIdentifier("native-loading")
+            }
             LawWebView(webView: reader.webView)
                 .accessibilityLabel("נוסח חוק הגנת הצרכן")
         }
         .environment(\.layoutDirection, .rightToLeft)
-        .sheet(item: $reader.sharing) { share in
-            ActivitySheet(items: share.items)
+        .onChange(of: dynamicTypeSize) { _ in reader.applyDynamicType() }
+        .onChange(of: reader.requestFileImport) { requested in
+            if requested { chooseBackup = true; reader.requestFileImport = false }
+        }
+        .onChange(of: scenePhase) { phase in
+            if phase != .active { reader.persistReadingState() }
+        }
+        .sheet(item: $reader.sharing, onDismiss: { reader.cleanTemporaryExport() }) { share in
+            ActivitySheet(items: share.items) { failure in
+                reader.finishSharing(share.id, failure: failure)
+            }
         }
         .fileImporter(
             isPresented: $chooseBackup,
@@ -94,11 +123,22 @@ struct ReaderScreen: View {
                 reader.cancelPendingImport()
             }
         } message: {
-            Text("השחזור מחליף רק את ההגדרות המופיעות בגיבוי. הוא אינו משנה את נוסח החוק. מומלץ לגבות את ההגדרות הנוכחיות קודם.")
+            Text(reader.importPreview)
         }
         .alert(item: $reader.notice) { item in
             Alert(title: Text("חוק הגנת הצרכן"), message: Text(item.message),
                   dismissButton: .default(Text("אישור")))
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func avoidingWindowControls() -> some View {
+        if #available(iOS 26.0, *) {
+            self.containerCornerOffset(.horizontal, sizeToFit: true)
+        } else {
+            self
         }
     }
 }
@@ -112,9 +152,15 @@ private struct LawWebView: UIViewRepresentable {
 
 private struct ActivitySheet: UIViewControllerRepresentable {
     let items: [Any]
+    let onComplete: @MainActor (String?) -> Void
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
+        let controller=UIActivityViewController(activityItems: items, applicationActivities: nil)
+        controller.completionWithItemsHandler = { _, _, _, error in
+            let failure=error?.localizedDescription
+            Task { @MainActor in onComplete(failure) }
+        }
+        return controller
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
@@ -125,9 +171,9 @@ private final class WeakLawBridge: NSObject, WKScriptMessageHandler {
 
     func userContentController(_ userContentController: WKUserContentController,
                                didReceive message: WKScriptMessage) {
-        let payload = message.body
         Task { @MainActor [weak reader] in
-            reader?.receiveJSMessage(payload)
+            guard let reader, reader.isTrustedMessage(message) else { return }
+            reader.receiveJSMessage(message.body)
         }
     }
 }
@@ -135,26 +181,43 @@ private final class WeakLawBridge: NSObject, WKScriptMessageHandler {
 @MainActor
 final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate {
     @Published var ready = false
+    @Published var loadFailed = false
     @Published var sharing: SharePayload?
     @Published var notice: ReaderNotice?
     @Published var confirmImport = false
+    @Published var importPreview = ""
+    @Published var working = false
+    @Published var requestFileImport = false
 
     let webView: WKWebView
     private let scriptHandler = WeakLawBridge()
-    private var pendingSettings: [String: String]?
+    private var pendingSettings: String?
+    private var temporaryExport: URL?
+    private var resourcePolicyReady = false
+    private var readinessGeneration: UInt64 = 0
     private let website: URL?
-    private static let publicURL = "https://sargon17-green.github.io/consumer-law-reader/"
+    private static let publicURL = "https://sargon17-green.github.io/consumer-law-reader/reader/"
 
     override init() {
         let controller = WKUserContentController()
         let source = """
         (function() {
           window.NativeLaw = Object.freeze({
+            copyLimit: function() { return 1000000; },
             copy: function(value) {
               window.webkit.messageHandlers.lawReader.postMessage({type:'copy', text:String(value)});
             },
             printDocument: function() {
               window.webkit.messageHandlers.lawReader.postMessage({type:'print'});
+            },
+            share: function(value) {
+              window.webkit.messageHandlers.lawReader.postMessage({type:'share', url:String(value)});
+            },
+            exportSettings: function() {
+              window.webkit.messageHandlers.lawReader.postMessage({type:'export'});
+            },
+            importSettings: function() {
+              window.webkit.messageHandlers.lawReader.postMessage({type:'import'});
             },
             openAttachment: function(value) {
               window.webkit.messageHandlers.lawReader.postMessage({type:'attachment', file:String(value)});
@@ -189,20 +252,24 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         // The legal HTML is self-contained. Block every remote subresource,
         // including third-party scripts; user-activated external links open
         // in Safari, outside this web view.
-        let rules = """
-        [{"trigger":{"url-filter":"^https?://"},"action":{"type":"block"}}]
-        """
+        configureResourcePolicy()
+    }
+
+    private func configureResourcePolicy() {
+        let rules = ReaderPolicy.contentRules
         WKContentRuleListStore.default().compileContentRuleList(
-            forIdentifier: "NoRemoteLawResourcesV1",
+            forIdentifier: "NoRemoteLawResourcesV2",
             encodedContentRuleList: rules
         ) { [weak self] list, error in
             Task { @MainActor in
                 guard let self else { return }
                 guard let list else {
+                    self.loadFailed = true
                     self.showError("לא ניתן להפעיל חסימת משאבים חיצוניים: \(error?.localizedDescription ?? "שגיאה לא ידועה").")
                     return
                 }
                 self.webView.configuration.userContentController.add(list)
+                self.resourcePolicyReady = true
                 self.openBundledLaw()
             }
         }
@@ -212,25 +279,78 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         notice = ReaderNotice(message: value)
     }
 
+    private func invalidateReadiness() {
+        readinessGeneration &+= 1
+        ready = false
+    }
+
+    func retryLoading() {
+        invalidateReadiness(); loadFailed = false
+        if resourcePolicyReady { openBundledLaw() } else { configureResourcePolicy() }
+    }
+
     private func openBundledLaw() {
+        invalidateReadiness()
         guard let website, FileManager.default.fileExists(atPath: website.path) else {
+            loadFailed = true
             showError("קובץ החוק חסר בחבילת ההתקנה. יש לבנות מחדש את יישום iOS.")
             return
         }
         webView.loadFileURL(website, allowingReadAccessTo: website.deletingLastPathComponent())
     }
 
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        invalidateReadiness()
+        loadFailed = false
+    }
+
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        ready = true
+        let generation = readinessGeneration
+        webView.evaluateJavaScript("document.documentElement.dataset.lawReady === 'true' && !!window.lawMobile && !!window.LawCore && !!window.lawSettings") { [weak self] value, error in
+            Task { @MainActor in
+                // A completion from an older document must never enable native
+                // actions while another local navigation is still loading.
+                guard let self, self.readinessGeneration == generation,
+                      !self.webView.isLoading else { return }
+                self.ready = error == nil && value as? Bool == true
+                if self.ready { self.applyDynamicType() }
+                if !self.ready { self.loadFailed = true; self.showError("ממשק הקריאה לא אותחל. אפשר לסגור ולפתוח שוב את האפליקציה.") }
+            }
+        }
+    }
+
+    func applyDynamicType() {
+        guard ready else { return }
+        let scale = UIFont.preferredFont(forTextStyle: .body).pointSize / 17.0
+        webView.evaluateJavaScript("window.lawMobile?.setSystemFontScale(" + String(Double(scale)) + ")") { _, _ in }
+    }
+
+    func persistReadingState() {
+        guard ready else { return }
+        webView.evaluateJavaScript("window.lawMobile?.saveSession()") { _, _ in }
+    }
+
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        invalidateReadiness()
+        openBundledLaw()
+    }
+
+    func isTrustedMessage(_ message: WKScriptMessage) -> Bool {
+        guard message.name == "lawReader", message.webView === webView,
+              message.frameInfo.isMainFrame, let url = message.frameInfo.request.url,
+              let website else { return false }
+        return ReaderPolicy.isBundledDocument(url, website: website)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!,
                  withError error: Error) {
+        invalidateReadiness(); loadFailed = true
         showError("טעינת נוסח החוק נכשלה: \(error.localizedDescription)")
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!,
                  withError error: Error) {
+        invalidateReadiness(); loadFailed = true
         showError("פתיחת קובץ החוק נכשלה: \(error.localizedDescription)")
     }
 
@@ -241,13 +361,18 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
             return
         }
         if url.isFileURL {
-            let root = website?.deletingLastPathComponent().standardizedFileURL.path ?? ""
-            let path = url.standardizedFileURL.path
-            decisionHandler(!root.isEmpty && (path == root || path.hasPrefix(root + "/")) ? .allow : .cancel)
+            if let website, ReaderPolicy.isBundledDocument(url, website: website), action.targetFrame?.isMainFrame == true {
+                decisionHandler(.allow)
+            } else {
+                if action.navigationType == .linkActivated, url.pathExtension.lowercased() == "doc" {
+                    showLocalAttachment(url.lastPathComponent)
+                }
+                decisionHandler(.cancel)
+            }
             return
         }
-        if ["https", "http"].contains(url.scheme?.lowercased() ?? ""),
-           action.navigationType == .linkActivated {
+        if ReaderPolicy.isExternalLink(url), action.navigationType == .linkActivated,
+           action.sourceFrame.isMainFrame {
             UIApplication.shared.open(url)
         }
         decisionHandler(.cancel)
@@ -258,7 +383,7 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
                  for action: WKNavigationAction,
                  windowFeatures: WKWindowFeatures) -> WKWebView? {
         if let url = action.request.url,
-           ["http", "https"].contains(url.scheme?.lowercased() ?? ""),
+           ReaderPolicy.isExternalLink(url), action.sourceFrame.isMainFrame,
            action.navigationType == .linkActivated {
             UIApplication.shared.open(url)
         }
@@ -269,10 +394,26 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     func receiveJSMessage(_ raw: Any) {
         guard let message = raw as? [String: Any],
               let type = message["type"] as? String else { return }
+        guard ready, !working else {
+            if type == "copy" { webView.evaluateJavaScript("window.lawMobile?.copyResult?.(false)") { _,_ in } }
+            return
+        }
         switch type {
+        case "share":
+            guard let value = message["url"] as? String, value.utf8.count < 2048,
+                  value.hasPrefix(Self.publicURL + "#"), let url = URL(string: value) else { return }
+            sharing = SharePayload(items: [url])
+        case "export":
+            exportSettings()
+        case "import":
+            requestFileImport = true
         case "copy":
-            guard let value = message["text"] as? String, value.count <= 1_000_000 else { return }
+            guard let value = message["text"] as? String, value.utf16.count <= 1_000_000 else {
+                webView.evaluateJavaScript("window.lawMobile?.copyResult?.(false)") { _,_ in }
+                return
+            }
             UIPasteboard.general.string = value
+            webView.evaluateJavaScript("window.lawMobile?.copyResult?.(true)") { _,_ in }
         case "print":
             printDocument()
         case "attachment":
@@ -285,10 +426,11 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
 
     private func showLocalAttachment(_ relative: String) {
         guard let root = website?.deletingLastPathComponent(),
-              !relative.isEmpty, !relative.hasPrefix("/"),
+              !relative.isEmpty, relative.utf8.count <= 500, relative.hasSuffix(".doc"),
+              !relative.contains("/"), !relative.hasPrefix("/"),
               !relative.contains("\\"), !relative.contains("?"),
               !relative.contains("#") else { return }
-        let url = root.appendingPathComponent(relative).standardizedFileURL
+        let url = root.appendingPathComponent(relative).standardizedFileURL.resolvingSymlinksInPath()
         guard url.path.hasPrefix(root.standardizedFileURL.path + "/"),
               FileManager.default.fileExists(atPath: url.path) else {
             showError("הקובץ המצורף אינו נמצא בחבילת האפליקציה.")
@@ -297,14 +439,34 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         sharing = SharePayload(items: [url])
     }
 
+    func finishSharing(_ id: UUID, failure: String?) {
+        // UIKit completion includes cancellation. Clear the matching SwiftUI
+        // presentation too; a delayed callback must not close a newer share.
+        guard sharing?.id == id else { return }
+        sharing = nil
+        if let failure { showError("השיתוף לא הושלם: " + failure) }
+    }
+
     func shareCurrentSection() {
-        webView.evaluateJavaScript("window.location.hash") { [weak self] result, _ in
+        guard ready, !working else { return }
+        let script = """
+        (() => {
+            const visible = window.lawMobile?.currentArticle()?.id;
+            if (visible) return visible;
+            try {
+                const target = decodeURIComponent(location.hash.slice(1));
+                if (target && document.getElementById(target)) return target;
+            } catch (_) {}
+            return 'law_name';
+        })()
+        """
+        webView.evaluateJavaScript(script) { [weak self] result, error in
             Task { @MainActor in
-                guard let self else { return }
-                let hash = (result as? String) ?? ""
-                // Never share arbitrary or excessively long injected paths.
-                let safeHash = hash.hasPrefix("#") && hash.utf8.count < 2048 ? hash : ""
-                guard let url = URL(string: Self.publicURL + safeHash) else { return }
+                guard let self, error == nil, let target = result as? String,
+                      !target.isEmpty, target.utf8.count <= 2048,
+                      var parts = URLComponents(string: Self.publicURL) else { return }
+                parts.fragment = target
+                guard let url = parts.url else { return }
                 self.sharing = SharePayload(items: [url])
             }
         }
@@ -315,108 +477,140 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
             showError("אפשרות ההדפסה אינה זמינה במכשיר הזה.")
             return
         }
+        guard ready, !working else { return }
         let controller = UIPrintInteractionController.shared
         let info = UIPrintInfo(dictionary: nil)
         info.outputType = .general
         info.jobName = "חוק הגנת הצרכן"
         controller.printInfo = info
         controller.printFormatter = webView.viewPrintFormatter()
-        controller.present(animated: true)
+        working = true
+        let completion: UIPrintInteractionController.CompletionHandler = { [weak self] controller, _, error in
+            Task { @MainActor in
+                controller.printFormatter = nil
+                self?.working = false
+                if error != nil { self?.showError("לא ניתן להשלים את פעולת ההדפסה.") }
+            }
+        }
+        let presented: Bool
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            presented = controller.present(from: CGRect(x: webView.bounds.midX, y: webView.bounds.minY, width: 1, height: 1), in: webView, animated: true, completionHandler: completion)
+        } else {
+            presented = controller.present(animated: true, completionHandler: completion)
+        }
+        if !presented {
+            controller.printFormatter = nil
+            working = false
+            showError("לא ניתן לפתוח את אפשרויות ההדפסה.")
+        }
     }
 
     func goHome() {
         webView.evaluateJavaScript("window.lawMobile?.goTo('law_name')") { _, _ in }
     }
 
-    // Export and import *only* user settings; never export or replace legal text.
-    private static let backupFormat = "consumer-law-reader-settings-v1"
+    // All formats and all preference values are validated by the same code on both platforms.
+    private func jsonArgument(_ value: String) -> String? {
+        guard let data = try? JSONSerialization.data(withJSONObject: [value]),
+              let array = String(data: data, encoding: .utf8) else { return nil }
+        return String(array.dropFirst().dropLast())
+    }
+
+    func cleanTemporaryExport() {
+        if let temporaryExport { try? FileManager.default.removeItem(at: temporaryExport) }
+        temporaryExport = nil
+    }
 
     func exportSettings() {
-        let js = """
-        (function() {
-            const values = {};
-            for (let i = 0; i < localStorage.length; i++) {
-              const key = localStorage.key(i);
-              if (key && key.startsWith('law-')) values[key] = localStorage.getItem(key);
-            }
-            return JSON.stringify({format:'consumer-law-reader-settings-v1', settings:values});
-        })()
-        """
-        webView.evaluateJavaScript(js) { [weak self] result, error in
+        guard ready, !working else { return }
+        working = true
+        webView.evaluateJavaScript("window.lawSettings.exportJSON()") { [weak self] result, error in
             Task { @MainActor in
                 guard let self else { return }
+                defer { self.working = false }
                 guard error == nil, let contents = result as? String,
                       let data = contents.data(using: .utf8), data.count <= 1_000_000 else {
                     self.showError("לא ניתן לקרוא את הגדרות המשתמש.")
                     return
                 }
+                self.cleanTemporaryExport()
                 let target = FileManager.default.temporaryDirectory
-                    .appendingPathComponent("consumer-law-settings-backup.json")
+                    .appendingPathComponent("consumer-law-settings-" + UUID().uuidString + ".json")
                 do {
-                    try data.write(to: target, options: .atomic)
+                    try data.write(to: target, options: [.atomic, .completeFileProtection])
+                    self.temporaryExport = target
                     self.sharing = SharePayload(items: [target])
-                } catch {
-                    self.showError("שמירת הגיבוי נכשלה: \(error.localizedDescription)")
-                }
+                } catch { self.showError("שמירת הגיבוי נכשלה: \(error.localizedDescription)") }
             }
         }
     }
 
     func importBackup(result: Result<[URL], Error>) {
-        do {
-            guard let url = try result.get().first else { return }
-            let access = url.startAccessingSecurityScopedResource()
-            defer { if access { url.stopAccessingSecurityScopedResource() } }
-            let values = try Data(contentsOf: url)
-            guard values.count <= 1_000_000,
-                  let raw = try JSONSerialization.jsonObject(with: values) as? [String: Any],
-                  raw["format"] as? String == Self.backupFormat,
-                  let settings = raw["settings"] as? [String: String],
-                  settings.count <= 150,
-                  settings.allSatisfy({ $0.key.hasPrefix("law-") &&
-                      $0.key.count <= 120 && $0.value.utf8.count <= 500_000 }) else {
-                showError("קובץ הגיבוי אינו תואם לפורמט הצפוי, או שהוא גדול מדי.")
-                return
-            }
-            pendingSettings = settings
-            confirmImport = true
-        } catch {
-            showError("קריאת הגיבוי נכשלה: \(error.localizedDescription)")
-        }
-    }
-
-    func cancelPendingImport() {
+        guard ready, !working else { return }
         pendingSettings = nil
-    }
-
-    func applyPendingImport() {
-        guard let pendingSettings,
-              let data = try? JSONSerialization.data(withJSONObject: pendingSettings,
-                                                     options: [.fragmentsAllowed]),
-              let json = String(data: data, encoding: .utf8) else {
-            showError("לא ניתן לשחזר את ההגדרות.")
+        confirmImport = false
+        let url: URL
+        do {
+            guard let selected = try result.get().first else { return }
+            url = selected
+        } catch {
+            if (error as NSError).code != NSUserCancelledError { showError("בחירת קובץ הגיבוי נכשלה.") }
             return
         }
+        working = true
+        Task {
+            do {
+                let raw = try await Task.detached(priority: .userInitiated) {
+                    let access = url.startAccessingSecurityScopedResource()
+                    defer { if access { url.stopAccessingSecurityScopedResource() } }
+                    let handle = try FileHandle(forReadingFrom: url)
+                    defer { try? handle.close() }
+                    var data=Data()
+                    while let chunk=try handle.read(upToCount:min(65_536,1_000_001-data.count)),!chunk.isEmpty {
+                        data.append(chunk)
+                        if data.count>1_000_000 {break}
+                    }
+                    guard data.count <= 1_000_000, let text = String(data: data, encoding: .utf8) else {
+                        throw NSError(domain: "ReaderBackup", code: 1, userInfo: [NSLocalizedDescriptionKey: "קובץ הגיבוי גדול מדי או אינו UTF-8 תקין."])
+                    }
+                    return text
+                }.value
+                guard ready, let argument = jsonArgument(raw) else { working = false; return }
+                webView.evaluateJavaScript("window.lawSettings.prepareImport(" + argument + ")") { [weak self] result, error in
+                    Task { @MainActor in
+                        guard let self else { return }
+                        defer { self.working = false }
+                        guard error == nil, let preview = result as? [String: Any], preview["ok"] as? Bool == true else {
+                            self.showError((result as? [String: Any])?["error"] as? String ?? "קובץ הגיבוי אינו תקין.")
+                            return
+                        }
+                        self.pendingSettings = raw
+                        self.importPreview = preview["preview"] as? String ?? "ההגדרות הנוכחיות יוחלפו."
+                        self.confirmImport = true
+                    }
+                }
+            } catch { working = false; showError("קריאת הגיבוי נכשלה: \(error.localizedDescription)") }
+        }
+    }
+
+    func cancelPendingImport() { pendingSettings = nil; confirmImport = false; importPreview = "" }
+
+    func applyPendingImport() {
+        guard ready, !working, let pendingSettings, let argument = jsonArgument(pendingSettings) else { return }
         self.pendingSettings = nil
-        let js = """
-        (function() {
-          const settings = \(json);
-          for (const [key, value] of Object.entries(settings)) {
-            if (key.startsWith('law-') && typeof value === 'string') {
-              localStorage.setItem(key, value);
-            }
-          }
-          return true;
-        })()
-        """
-        webView.evaluateJavaScript(js) { [weak self] result, error in
+        confirmImport = false
+        importPreview = ""
+        working = true
+        webView.evaluateJavaScript("window.lawSettings.applyImport(" + argument + ")") { [weak self] result, error in
             Task { @MainActor in
                 guard let self else { return }
-                if error != nil || result as? Bool != true {
-                    self.showError("לא ניתן לשחזר את ההגדרות באחסון המקומי.")
-                } else {
-                    self.webView.reload()
+                defer { self.working = false }
+                guard error == nil, let status = result as? [String: Any], status["ok"] as? Bool == true else {
+                    self.showError((result as? [String: Any])?["error"] as? String ?? "השחזור נכשל; ההגדרות הקודמות נשמרו.")
+                    return
                 }
+                self.ready = false
+                self.webView.reload()
             }
         }
     }

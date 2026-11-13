@@ -1,14 +1,14 @@
 /* Local-only personal topic overlay. Never edits the legal document or source index. */
 (()=>{'use strict';
 const KEY='law-reader-topics-v1', SCHEMA=1;
-let app=null, baseTopics=[], baseLinks=[], state=null;
+let app=null, baseTopics=[], baseLinks=[], state=null,loadFailed=false;
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const clean=s=>String(s??'').replace(/\s+/g,' ').trim();
 const id=()=>('u:'+((globalThis.crypto&&typeof crypto.randomUUID==='function')?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2)));
 const empty=()=>({schema:SCHEMA,userTopics:[],links:[],titles:{},hidden:{},ranks:{}});
 const validTitle=s=>clean(s).length>=1&&clean(s).length<=90;
-function load(){try{const raw=localStorage.getItem(KEY);if(!raw)return empty();const data=JSON.parse(raw);if(data?.schema!==SCHEMA||!Array.isArray(data.userTopics)||!Array.isArray(data.links)||!data.titles||!data.hidden||!data.ranks)throw Error('schema');return data;}catch{app.toast('לא ניתן לטעון את הנושאים האישיים');return empty();}}
-function commit(change){const next=JSON.parse(JSON.stringify(state));try{change(next);const serial=JSON.stringify(next);if(serial.length>450000)throw Error('size');localStorage.setItem(KEY,serial);state=next;app.toast('נשמר');return true;}catch{app.toast('השמירה נכשלה. השינוי לא בוצע');return false;}}
+function load(){try{const raw=localStorage.getItem(KEY);if(!raw)return empty();const data=JSON.parse(raw);if(data?.schema!==SCHEMA||!Array.isArray(data.userTopics)||!Array.isArray(data.links)||!data.titles||!data.hidden||!data.ranks)throw Error('schema');return data;}catch{loadFailed=true;app.toast('לא ניתן לטעון את הנושאים האישיים. הקובץ המקורי נשמר; יש לשחזר גיבוי תקין.');return empty();}}
+function commit(change){if(loadFailed){app.toast('השמירה לא בוצעה כדי לשמור את נתוני הנושאים הקודמים');return false;}const next=JSON.parse(JSON.stringify(state));try{change(next);const serial=JSON.stringify(next);if(new TextEncoder().encode(serial).length>450000)throw Error('size');if(window.LawCore)window.LawCore.validateTopics(next,()=>true);localStorage.setItem(KEY,serial);state=next;app.toast('נשמר');return true;}catch{app.toast('השמירה נכשלה. השינוי לא בוצע');return false;}}
 function discover(){
  baseTopics=[];baseLinks=[];
  const nav=$('#navigator'),root=nav?.querySelector(':scope > ul');
@@ -51,7 +51,7 @@ function controls(row,topic,edit){if(!edit)return;const group=document.createEle
  const add=(name,fn)=>group.append(app.action(name,fn));
  add('שנה שם',()=>nameForm(topic));add('העבר למעלה',()=>move(topic,-1));add('העבר למטה',()=>move(topic,1));
  if(topic.origin==='base')add(topic.hidden?'הצג מחדש':'הסתר ברשימה שלי',()=>{if(commit(s=>{s.hidden[topic.id]=!topic.hidden;}))show(true);});
- else add('מחק נושא אישי',()=>{const hasChildren=topics().some(t=>t.parent===topic.id);if(hasChildren){app.toast('יש להעביר או למחוק תחילה את תתי־הנושאים');return;}if(!confirm('למחוק את הנושא האישי וקישוריו? נוסח החוק לא יימחק.'))return;if(commit(s=>{s.userTopics=s.userTopics.filter(t=>t.id!==topic.id);s.links=s.links.filter(l=>l.topic!==topic.id);}))show(true);});
+ else add('מחק נושא אישי',()=>{const hasChildren=topics().some(t=>t.parent===topic.id);if(hasChildren){app.toast('יש להעביר או למחוק תחילה את תתי־הנושאים');return;}if(!confirm('למחוק את הנושא האישי וקישוריו? נוסח החוק לא יימחק.'))return;if(commit(s=>{s.userTopics=s.userTopics.filter(t=>t.id!==topic.id);s.links=s.links.filter(l=>l.topic!==topic.id);delete s.titles[topic.id];delete s.hidden[topic.id];delete s.ranks[topic.id];}))show(true);});
  row.append(group);
 }
 function move(topic,delta){

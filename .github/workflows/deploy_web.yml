@@ -1,5 +1,4 @@
-name: Publish browser app (iPhone / Android / desktop)
-
+name: Publish mobile reader without replacing public alpha
 on:
   push:
     branches: [main]
@@ -7,80 +6,163 @@ on:
       - '.github/workflows/deploy_web.yml'
       - 'original/**'
       - 'web/**'
-      - 'publications/consumer-protection-alpha/**'
-      - 'scripts/build_web.py'
-      - 'scripts/prepare_typed_sources.py'
-      - 'scripts/canonical_vendor/**'
+      - 'scripts/**'
       - 'typed-sources/**'
-      - 'metadata/editorial_status.json'
+      - 'metadata/**'
       - 'VERSION'
-      - 'tests/test_web_pages.py'
   workflow_dispatch:
-
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
 concurrency:
   group: github-pages
-  cancel-in-progress: true
-
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 18
+    permissions:
+      contents: write
+      pages: read
+    outputs:
+      mode: ${{ steps.pages.outputs.mode }}
+      site_commit: ${{ steps.persist.outputs.site_commit }}
     steps:
-      - name: Checkout authoritative source and app
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
-      - name: Install verifier dependencies
-        run: python -m pip install -r requirements-qa.txt
-      - name: Build browser/PWA distribution (no modification to source HTML)
-        run: python scripts/build_web.py
-      - name: Verify original legal document and generated files
+      - run: |
+          python -m pip install -r requirements-qa.txt playwright==1.57.0
+          python -m playwright install chromium
+      - name: Verify mobile content and public site preservation
         run: |
+          python scripts/build_web.py
           python scripts/verify_release.py
-          python -m unittest discover -s tests -p 'test_web_pages.py' -v
-      - name: Reconstruct verified Consumer Protection Law alpha for public sharing
+          python -m unittest discover -s tests -p 'test_*.py' -v
+          python scripts/validate_project_docs.py
+          python tests/pwa_offline_qa.py
+      - name: Read existing Pages configuration without changing it
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          python - <<'PY'
-          import hashlib
-          from pathlib import Path
-          folder = Path('publications/consumer-protection-alpha')
-          parts = [folder / f'part-{i:02d}.txt' for i in range(12)]
-          assert all(p.is_file() for p in parts), 'Missing published law segment'
-          data = b'\n'.join(p.read_bytes() for p in parts)
-          assert hashlib.sha256(data).hexdigest() == '219ea5ce357a5bbcc41bb3e48d5be0255e31cc34e2ea3a994a7731b722e7f713', 'Law asset hash mismatch'
-          output = Path('dist/law/index.html')
-          output.parent.mkdir(parents=True, exist_ok=True)
-          output.write_bytes(data)
-          print('Published law alpha 0.14; bytes:', len(data))
-          PY
-      - name: Prepare static site
-        run: |
-          test -s dist/index.html
-          test -s dist/sw.js
-          test -s dist/manifest.webmanifest
-          touch dist/.nojekyll
-      - name: Upload site
-        uses: actions/upload-pages-artifact@v4
+          gh api "repos/$GITHUB_REPOSITORY/pages" > evidence/pages-configuration.json
+          MODE=$(jq -r '.build_type' evidence/pages-configuration.json)
+          case "$MODE" in
+            legacy)
+              jq -e '.source.branch == "gh-pages" and .source.path == "/"' evidence/pages-configuration.json
+              ;;
+            workflow) ;;
+            *) echo "Unsupported Pages source; no configuration was changed."; exit 1 ;;
+          esac
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+      - name: Read current published site
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          path: dist
-
+          ref: gh-pages
+          path: build/public-site
+      - name: Add reader and preserve every existing public file
+        run: |
+          python scripts/prepare_reader_site.py --bundle dist --site build/public-site --commit "$GITHUB_SHA" | tee evidence/public-site-preservation.json
+          python scripts/verify_public_reader.py prepare --commit "$GITHUB_SHA"
+      - name: Persist only the owned reader directory without rewriting public history
+        id: persist
+        run: |
+          git -C build/public-site config user.name 'github-actions[bot]'
+          git -C build/public-site config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C build/public-site add -- reader
+          if ! git -C build/public-site diff --cached --quiet; then
+            git -C build/public-site commit -m "Publish mobile reader from $GITHUB_SHA at /reader/"
+            git -C build/public-site push origin HEAD:gh-pages
+          fi
+          echo "site_commit=$(git -C build/public-site rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        if: steps.pages.outputs.mode == 'workflow'
+        with:
+          path: build/public-site
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: public-site-preservation
+          path: |
+            evidence/public-site-*.json
+            evidence/pages-configuration.json
+          retention-days: 90
   deploy:
+    if: needs.build.outputs.mode == 'workflow' || (needs.build.outputs.mode == 'legacy' && github.ref_name == 'main')
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 14
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: https://sargon17-green.github.io/consumer-law-reader/reader/
     steps:
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-      - name: Deploy to Pages
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: public-site-preservation
+          path: evidence/
+      - name: Request a build using the existing branch-based Pages source
+        if: needs.build.outputs.mode == 'legacy'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SITE_COMMIT: ${{ needs.build.outputs.site_commit }}
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds" > evidence/pages-build-request.json
+          for attempt in $(seq 1 60); do
+            gh api "repos/$GITHUB_REPOSITORY/pages/builds/latest" > evidence/pages-build.json
+            if jq -e --arg commit "$SITE_COMMIT" '.status == "built" and .commit == $commit' evidence/pages-build.json; then
+              exit 0
+            fi
+            if jq -e --arg commit "$SITE_COMMIT" '.status == "errored" and .commit == $commit' evidence/pages-build.json; then
+              cat evidence/pages-build.json
+              exit 1
+            fi
+            sleep 5
+          done
+          cat evidence/pages-build.json
+          exit 1
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+        if: needs.build.outputs.mode == 'workflow'
+      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+        if: needs.build.outputs.mode == 'workflow'
         id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Verify actual public reader bytes, preserved alpha and original APK
+        run: python3 scripts/verify_public_reader.py verify
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: public-reader-http-verification
+          path: evidence/
+          retention-days: 90
+  verify-legacy:
+    if: needs.build.outputs.mode == 'legacy' && github.ref_name != 'main'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      # Approved gh-pages publication is separate; GITHUB_TOKEN pushes alone may not trigger it.
+      # This job only verifies public bytes; it requests no deployment or environment access.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: public-site-preservation
+          path: evidence/
+      - name: Verify the actual branch-based public deployment
+        run: python3 scripts/verify_public_reader.py verify
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: public-reader-http-verification
+          path: evidence/
+          retention-days: 90

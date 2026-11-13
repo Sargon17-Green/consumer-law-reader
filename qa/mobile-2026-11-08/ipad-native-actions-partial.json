@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "sourceCommit": "0d3ef3f10830710456a4a29c09e07e6166e05c7b",
+  "tree": "ecd475c12c69d4c085360ba970f951d7afffe535",
+  "run": 42813510160,
+  "job": 129820626413,
+  "overallResult": "FAIL: return-to-search attempted while native share remained open",
+  "artifact": 13763809005,
+  "artifactSha256": "7a77c837d728758582bcebb2a836fd4fd4f26fc567169c59b9db47389ff5bb47",
+  "independentlyDownloadedAndHashVerified": true,
+  "environment": {
+    "device": "iPad Pro13-inch M5 simulator",
+    "os": "iPadOS26.2",
+    "xcode": "26.3",
+    "xcodegen": "2.46.0"
+  },
+  "passedScope": [
+    "Raw built app orientation metadata",
+    "Actual OS pointer window resize1032->375pt",
+    "Native menu and share44x44pt, menu center411+22,271+22",
+    "Actual native-menu touch opened Print action",
+    "Actual native-share touch opened ActivityListView"
+  ],
+  "failedScope": [
+    "Share dismissal by app.swipeDown was never asserted; final app hierarchy still ActivityListView with header.closeButton",
+    "Return-to-search tap did not reach the underlying reader; SearchField absent. No search-return acceptance inferred"
+  ],
+  "resizedWebFrame": [
+    329,
+    325,
+    375,
+    675.5
+  ],
+  "nativeMenuFrame": [
+    411,
+    271,
+    44,
+    44
+  ],
+  "nativeShareFrame": [
+    469,
+    271,
+    44,
+    44
+  ],
+  "nextTrial": "31b870aa06e6b53fd0cec5601023400e5c5bc7dc/run42815502889: observed header.closeButton and explicit ActivityListView disappearance before reader actions",
+  "files": {
+    "ABE9AA7F-9C8B-4D4D-8B77-5E910FD85D98.txt": {
+      "bytes": 16497,
+      "sha256": "164a8b02d1981662c03b078a815b6b9400252e2c387d6c3fd168856b01d85f67"
+    },
+    "9B9DD4FB-BA86-43CD-AF2D-63D003E7991F.png": {
+      "bytes": 4514833,
+      "sha256": "79603eccc414eeacd28ea1751e87e6ae746d3232e994f7b883506d03b91d094d"
+    },
+    "1E455EC1-A5D8-4146-8EA3-7A62CBD32C0B.png": {
+      "bytes": 4444766,
+      "sha256": "72267fcc55921b51b7969ef7b590a6a7cb3402c0e9b94974ecdb459ee93c3bc8"
+    },
+    "A7394328-ECCE-465E-86A6-2525F2E2F766.txt": {
+      "bytes": 133,
+      "sha256": "3cf9d552118cee083dfe22984bbb6a0478feb89bff8f9bea26cd902f13de4052"
+    }
+  },
+  "limitations": [
+    "Simulator only; no physical touch/device or TestFlight",
+    "This is partial scope evidence, not overall PASS or final candidate acceptance",
+    "No production code change between0d and31b; only actual system-share dismissal fixture strengthened"
+  ]
+}

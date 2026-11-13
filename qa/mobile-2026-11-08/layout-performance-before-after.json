@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "baselineCommit": "b7d8168252d869b24f9fc21cafa38e59afe675fc",
+  "candidateCommit": "2f91d12787f37a8b75d33e3f60d8813c6ecd081d",
+  "environment": "Work Linux x86_64; Chrome for Testing 157.0.8103.38 headless; Playwright1.57.0; CSS375x812; 3 fresh contexts per condition; remote requests aborted",
+  "method": "Same legal HTML, override only baseline mobile.js/mobile.css; CDP CPU throttling is synthetic, not a slower physical device. Opening includes automation and load; table reflow correction is correctness work. Small sample; no statistical significance claim.",
+  "samples": [
+    {
+      "stage": "before",
+      "cpuThrottle": 1,
+      "sample": 1,
+      "openingMs": 1406.027211000037,
+      "indexMs": 84.29999999981374,
+      "queries100Ms": 11.200000000186265,
+      "records": 581,
+      "tableRegions": 17
+    },
+    {
+      "stage": "before",
+      "cpuThrottle": 1,
+      "sample": 2,
+      "openingMs": 1216.5440130002025,
+      "indexMs": 101.29999999981374,
+      "queries100Ms": 9,
+      "records": 581,
+      "tableRegions": 17
+    },
+    {
+      "stage": "before",
+      "cpuThrottle": 1,
+      "sample": 3,
+      "openingMs": 1179.9207610001758,
+      "indexMs": 101.5,
+      "queries100Ms": 9.600000000558794,
+      "records": 581,
+      "tableRegions": 17
+    },
+    {
+      "stage": "after",
+      "cpuThrottle": 1,
+      "sample": 1,
+      "openingMs": 1243.650364000132,
+      "indexMs": 104.29999999981374,
+      "queries100Ms": 8.899999999441206,
+      "records": 581,
+      "tableRegions": 144
+    },
+    {
+      "stage": "after",
+      "cpuThrottle": 1,
+      "sample": 2,
+      "openingMs": 1208.1820949997564,
+      "indexMs": 91.59999999962747,
+      "queries100Ms": 9.200000000186265,
+      "records": 581,
+      "tableRegions": 144
+    },
+    {
+      "stage": "after",
+      "cpuThrottle": 1,
+      "sample": 3,
+      "openingMs": 1208.6199139994278,
+      "indexMs": 99.20000000018626,
+      "queries100Ms": 7.7999999998137355,
+      "records": 581,
+      "tableRegions": 144
+    },
+    {
+      "stage": "before",
+      "cpuThrottle": 4,
+      "sample": 1,
+      "openingMs": 4074.764578000213,
+      "indexMs": 465.70000000018626,
+      "queries100Ms": 46.799999999813735,
+      "records": 581,
+      "tableRegions": 17
+    },
+    {
+      "stage": "before",
+      "cpuThrottle": 4,
+      "sample": 2,
+      "openingMs": 3843.369308000547,
+      "indexMs": 597.7999999998137,
+      "queries100Ms": 58.200000000186265,
+      "records": 581,
+      "tableRegions": 17
+    },
+    {
+      "stage": "before",
+      "cpuThrottle": 4,
+      "sample": 3,
+      "openingMs": 3664.606618000107,
+      "indexMs": 455.40000000037253,
+      "queries100Ms": 52.799999999813735,
+      "records": 581,
+      "tableRegions": 17
+    },
+    {
+      "stage": "after",
+      "cpuThrottle": 4,
+      "sample": 1,
+      "openingMs": 3835.7826610008487,
+      "indexMs": 479.70000000018626,
+      "queries100Ms": 45.799999999813735,
+      "records": 581,
+      "tableRegions": 144
+    },
+    {
+      "stage": "after",
+      "cpuThrottle": 4,
+      "sample": 2,
+      "openingMs": 3759.612381999432,
+      "indexMs": 452.1000000005588,
+      "queries100Ms": 50.69999999925494,
+      "records": 581,
+      "tableRegions": 144
+    },
+    {
+      "stage": "after",
+      "cpuThrottle": 4,
+      "sample": 3,
+      "openingMs": 3743.9165200003117,
+      "indexMs": 544.2999999998137,
+      "queries100Ms": 43.59999999962747,
+      "records": 581,
+      "tableRegions": 144
+    }
+  ],
+  "medians": [
+    {
+      "stage": "before",
+      "cpuThrottle": 1,
+      "openingMs": 1216.54,
+      "indexMs": 101.3,
+      "queries100Ms": 9.6
+    },
+    {
+      "stage": "after",
+      "cpuThrottle": 1,
+      "openingMs": 1208.62,
+      "indexMs": 99.2,
+      "queries100Ms": 8.9
+    },
+    {
+      "stage": "before",
+      "cpuThrottle": 4,
+      "openingMs": 3843.37,
+      "indexMs": 465.7,
+      "queries100Ms": 52.8
+    },
+    {
+      "stage": "after",
+      "cpuThrottle": 4,
+      "openingMs": 3759.61,
+      "indexMs": 479.7,
+      "queries100Ms": 45.8
+    }
+  ]
+}

@@ -28,9 +28,43 @@ targets:
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIUserInterfaceStyle: Light
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
         SUPPORTS_MACCATALYST: NO
-        MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "1.3.9"
+        CURRENT_PROJECT_VERSION: "17"
+  ConsumerLawReaderTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: ConsumerLawReaderTests
+      - path: ../tests/fixtures/reader_layout_probe.js
+        buildPhase: resources
+    dependencies:
+      - target: ConsumerLawReader
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.sargon17green.consumerlawreader.tests
+  ConsumerLawReaderUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [ConsumerLawReaderUITests]
+    dependencies:
+      - target: ConsumerLawReader
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.sargon17green.consumerlawreader.uitests
+schemes:
+  ConsumerLawReader:
+    build:
+      targets:
+        ConsumerLawReader: all
+    test:
+      targets:
+        - ConsumerLawReaderTests
+        - ConsumerLawReaderUITests

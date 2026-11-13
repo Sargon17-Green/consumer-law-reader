@@ -21,23 +21,32 @@ public final class AttachmentProvider extends ContentProvider {
         if(name==null||!name.endsWith(".doc")||name.contains("/")||name.contains("\\")||name.contains(".."))throw new FileNotFoundException();
         return name;
     }
-    @Override public ParcelFileDescriptor openFile(Uri uri,String mode) throws FileNotFoundException {
+    @Override public synchronized ParcelFileDescriptor openFile(Uri uri,String mode) throws FileNotFoundException {
         if(!"r".equals(mode))throw new FileNotFoundException("Read only");
         String name=name(uri);
         File dir=new File(getContext().getCacheDir(),"attachments");
         dir.mkdirs();
         File file=new File(dir,name);
-        try(InputStream input=getContext().getAssets().open("www/"+name);FileOutputStream output=new FileOutputStream(file)){
-            byte[] buffer=new byte[16384];int n;
-            while((n=input.read(buffer))!=-1)output.write(buffer,0,n);
-        }catch(Exception ex){throw new FileNotFoundException(name);}
+        if(!file.exists()){
+            File temporary=null;
+            try{
+                temporary=File.createTempFile("law-attachment-",".partial",dir);
+                try(InputStream input=getContext().getAssets().open("www/"+name);FileOutputStream output=new FileOutputStream(temporary)){
+                    byte[] buffer=new byte[16384];int n;
+                    while((n=input.read(buffer))!=-1)output.write(buffer,0,n);
+                }
+                if(!temporary.renameTo(file))throw new java.io.IOException("Atomic attachment write failed");
+            }catch(Exception ex){throw new FileNotFoundException(name);}
+            finally{if(temporary!=null)temporary.delete();}
+        }
         return ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY);
     }
     @Override public String getType(Uri uri){return "application/msword";}
     @Override public Cursor query(Uri uri,String[] projection,String selection,String[] args,String sort){
         try{
             String name=name(uri);
-            long length=getContext().getAssets().openFd("www/"+name).getLength();
+            long length;
+            try(android.content.res.AssetFileDescriptor descriptor=getContext().getAssets().openFd("www/"+name)){length=descriptor.getLength();}
             String[] columns=projection==null?new String[]{OpenableColumns.DISPLAY_NAME,OpenableColumns.SIZE}:projection;
             MatrixCursor cursor=new MatrixCursor(columns);
             MatrixCursor.RowBuilder row=cursor.newRow();

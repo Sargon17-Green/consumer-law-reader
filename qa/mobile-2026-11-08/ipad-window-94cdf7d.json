@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "headCommit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+  "tree": "7cf04c1127e22318f70a36a816c40418b44b3bf7",
+  "testedCheckout": "60a5c79bfc281384f4256f6ee592d0b2d67beb14",
+  "run": 42817834181,
+  "job": 129836408708,
+  "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834181/job/129836408708",
+  "status": "completed",
+  "conclusion": "success",
+  "environment": {
+    "device": "iPad Pro13-inch(M5)",
+    "runtime": "26.2",
+    "xcode": "26.3",
+    "xcodeGen": "2.46.0 checksum-pinned"
+  },
+  "artifact": {
+    "id": 13768035137,
+    "bytes": 180208706,
+    "sha256": "b579949bf62c7f52757527d05938ce2b2594a2ca23d6b53949f787088ba7c47a",
+    "independentFullZipHashVerified": true
+  },
+  "actualWindowTest": {
+    "name": "ReaderWindowingUITests.testIPadWindowResizePreservesSearchAndControls",
+    "initialWebFrame": [
+      0,
+      96,
+      1032,
+      1260
+    ],
+    "resizedWebFrame": [
+      329,
+      320,
+      375,
+      686.5
+    ],
+    "menuFrame": [
+      411,
+      266,
+      44,
+      44
+    ],
+    "shareFrame": [
+      469,
+      266,
+      44,
+      44
+    ],
+    "assertions": [
+      "Observed system resize control and real pointer drag",
+      "Actual menu center tap opens Print action; measured outside-menu tap dismisses it",
+      "Actual share center tap opens ActivityListView; observed Close tap and view disappearance required",
+      "Restored selected result is hittable before any automatic scroll-to-result tap",
+      "Scroll to input only after selected-row visibility check; query14 and result navigation retained"
+    ],
+    "durationSeconds": 213.049
+  },
+  "functionalReaderUIDurationSeconds": 288.419,
+  "acceptedOtherTests": "7policy/WK integration tests and scoped native-header audit PASS",
+  "attachments": {
+    "Apple native header accessibility audit_0_421B1459-4C6A-4FAB-B6D4-91B33E68EC5A.json": {
+      "exportedFileName": "8C445779-7BC2-474A-8162-CCA854E64241.json",
+      "bytes": 342,
+      "sha256": "2dc7fcb65a3f169dcdac23eaf2c1044872dd2ff3fab60b297d954e0dd953b944",
+      "content": {
+        "findings": [
+          {
+            "description": "Hit area is too small",
+            "frame": "(899.0, 135.0, 115.0, 14.0)",
+            "identifier": "",
+            "scope": "web content"
+          }
+        ],
+        "scope": "Visible native header only; Web has separate axe scans",
+        "types": [
+          "contrast",
+          "hitRegion",
+          "sufficientElementDescription"
+        ]
+      }
+    },
+    "iPad window resize result_0_69A66D32-080C-411C-8994-10381905B32A.txt": {
+      "exportedFileName": "43DFD104-744D-4585-9631-105E4391B8BC.txt",
+      "bytes": 150,
+      "sha256": "9d9ef5b28cb8972bba7a6ed1deaa7dff7612daee87fc00b3c7d2cfe165be0f85",
+      "text": "IPAD_WINDOW_RESIZE: original=(0.0, 96.0, 1032.0, 1260.0) resized=(329.0, 320.0, 375.0, 686.5) search preserved; real OS window gesture; simulator only"
+    },
+    "Restored search in the resized native window actual simulator screen_0_AEA360F2-D681-4B82-99A8-1D42180DBE80.png": {
+      "exportedFileName": "690B8E63-765A-410D-B4B8-F81EED84A543.png",
+      "bytes": 4444752,
+      "sha256": "8684ceb15af757f8bd3dd0cefc08d01dbbd4355da50279147f93a1d936ecb406"
+    },
+    "Restored search in the resized native window actual native accessibility controls and geometry_0_306DD344-2A29-4A61-BD81-085E4975FEBC.txt": {
+      "exportedFileName": "E6D0E806-51B5-4438-B69B-DD4E513F8147.txt",
+      "bytes": 133,
+      "sha256": "15c88eee23cf466cc49a768ba3d97e683267362e916094f3927fd4f014de47cd",
+      "text": "window=(329.0, 246.0, 375.0, 770.5)\nweb=(329.0, 320.0, 375.0, 686.5)\nmenu=(411.0, 266.0, 44.0, 44.0)\nshare=(469.0, 266.0, 44.0, 44.0)"
+    },
+    "Actual resized native share presentation actual simulator screen_0_1FC02475-00AB-4953-82B7-B009088E8ED2.png": {
+      "exportedFileName": "EEF3E3B3-3F77-4F53-A780-8617650A9C30.png",
+      "bytes": 4437527,
+      "sha256": "f07e106a8065d5a170b27dbb72263a69037d75d3415ad81604d7f523ff9b8ac3"
+    },
+    "Actual resized native share presentation actual native accessibility controls and geometry_0_58509659-C61F-494E-ADEB-6CD31FBC837A.txt": {
+      "exportedFileName": "5C392EC9-1CD4-4093-8B93-6D4B7F6218C2.txt",
+      "bytes": 133,
+      "sha256": "15c88eee23cf466cc49a768ba3d97e683267362e916094f3927fd4f014de47cd",
+      "text": "window=(329.0, 246.0, 375.0, 770.5)\nweb=(329.0, 320.0, 375.0, 686.5)\nmenu=(411.0, 266.0, 44.0, 44.0)\nshare=(469.0, 266.0, 44.0, 44.0)"
+    },
+    "After actual iPad window resize actual simulator screen_0_DA433291-DD9F-4950-91CE-4EB4355120F2.png": {
+      "exportedFileName": "2DF19A15-E30D-49D0-AF2F-8E6B407BE848.png",
+      "bytes": 4376130,
+      "sha256": "ec7de1ae2e793c5ae04d9fc096a806b5c6767153be20102844610df22eb9375a"
+    },
+    "After actual iPad window resize actual native accessibility controls and geometry_0_FE842F68-F308-4957-8845-84479CD479FF.txt": {
+      "exportedFileName": "79E8E2B4-AA11-4FD5-AE29-E033BB608E53.txt",
+      "bytes": 133,
+      "sha256": "15c88eee23cf466cc49a768ba3d97e683267362e916094f3927fd4f014de47cd",
+      "text": "window=(329.0, 246.0, 375.0, 770.5)\nweb=(329.0, 320.0, 375.0, 686.5)\nmenu=(411.0, 266.0, 44.0, 44.0)\nshare=(469.0, 266.0, 44.0, 44.0)"
+    }
+  },
+  "scope": "Full iPad26.2 job PASS only. Overall iOS94 run failed on legacy share-dismissal fixtures; not all-platform acceptance. Simulator, no physical iPad or signed native release."
+}

@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "sourceCommit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+  "tree": "e59e561e9995780608f47e286dba2c609b6f4fbe",
+  "run": 42854077139,
+  "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+  "result": "PASS both targeted legacy jobs,2 selected tests per platform. Full combined acceptance is separate.",
+  "platforms": [
+    {
+      "name": "iPhone16.0",
+      "job": 129962223776,
+      "status": "completed",
+      "conclusion": "success",
+      "functionalSeconds": 265.452,
+      "staleCompletionRegressionSeconds": 3.7,
+      "close": {
+        "label": "Close",
+        "identifier": "",
+        "frame": [
+          342,
+          75,
+          43,
+          44
+        ]
+      }
+    },
+    {
+      "name": "iPad18.5",
+      "job": 129962223948,
+      "status": "completed",
+      "conclusion": "success",
+      "functionalSeconds": 261.836,
+      "staleCompletionRegressionSeconds": 3.721,
+      "close": {
+        "label": "Close",
+        "identifier": "header.closeButton",
+        "frame": [
+          632,
+          215,
+          43,
+          44
+        ]
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 13783066505,
+      "name": "ios-iPad-18.5-evidence",
+      "bytes": 21320578,
+      "sha256": "8974cb9b3a986b36ef0e1df44f6a85b74b7e104fb2020686c60c40ebe10d19c1"
+    },
+    {
+      "id": 13782124798,
+      "name": "ios-iPhone-16.0-evidence",
+      "bytes": 20033499,
+      "sha256": "425294eec3fdc396cc413bc19e12aba296f38f511a2c2dec70dd571562d05ae5"
+    }
+  ],
+  "scope": "Actual Close tap -> ActivityListView disappears -> rotation -> relaunch from installed Home Screen icon -> query14 retained. Matching-ID completion and stale/failure model regression passed. Simulator only; no new signed native publication.",
+  "diagnosis": "qa/mobile-2026-11-08/ios-legacy-share-diagnosis.json"
+}

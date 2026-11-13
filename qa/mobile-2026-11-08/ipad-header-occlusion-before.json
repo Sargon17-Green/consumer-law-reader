@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "sourceCommit": "2e88de9aec2ec8d4afba78170a2dab748aed50de",
+  "run": 42778315390,
+  "job": 129701978501,
+  "result": "FAIL: actual native menu tap did not expose its Print action after actual OS resize",
+  "artifact": 13745895926,
+  "artifactSha256": "21e3291e18d9a9626a11dcc21208ee9a62570e6c81c4996c15754fbc401c1cf4",
+  "nativeMenuFrame": [
+    345,
+    271,
+    44,
+    44
+  ],
+  "systemWindowControlsFrame": [
+    339,
+    261,
+    116,
+    44
+  ],
+  "systemCloseFrame": [
+    348.5,
+    270,
+    26,
+    26
+  ],
+  "observed": "System close control covers the native menu center;44x44 AX bounds did not prove usability",
+  "accessibilityFiles": [
+    {
+      "member": "A19236C9-E82B-462A-8499-E5F83ADAE90E.txt",
+      "sha256": "3633d68ea1364c6f172fdf77547fe55eb1b02910827e9ae07d6c5ede5f91544d"
+    },
+    {
+      "member": "724187D9-5452-4C05-8331-663427821F55.txt",
+      "sha256": "dd791040cb94d17729eb890690c0e8c2f52bd8661ca279baee12dbea6c7f8e75"
+    }
+  ],
+  "nextFix": "SwiftUI containerCornerOffset(.horizontal,sizeToFit:true) on iOS26+, preserving16+ fallback; real NativeMenu and Share actions after resize remain mandatory",
+  "fixTrial": "316f399eb389fc5b4a6a4090bbd291ed4111e88c",
+  "trialRun": 42802580935,
+  "limitation": "Pending trial is neither PASS nor a human block; no physical iPad or signed IPA",
+  "fixTrialResult": "316f399/run42802580935 failed in test setup: XCTest returns the empty input placeholder as value; no product-fix verdict",
+  "followup": "2686655362862e91ab6fbf3f6c140ff4e309bd2f handles the placeholder and captures native geometry without repeatedly walking the entire legal accessibility tree"
+}

@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "sourceCommit": "b91623549a235597f3005eb3100a72c274c0565b",
+  "tree": "220dd31242a132a6653b804132efbb47bc8ec73f",
+  "run": 42856626665,
+  "job": 129971306884,
+  "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42856626665/job/129971306884",
+  "status": "completed",
+  "conclusion": "success",
+  "environment": "iPhone26.2 Simulator / Xcode26.3 / checksum-pinned XcodeGen2.46.0",
+  "testSeconds": 4.716,
+  "nativeInkSamples": {
+    "1": 1667,
+    "64": 1048,
+    "126": 988
+  },
+  "independent": {
+    "verifierCommit": "a587e167fb3bc3e9c7d58a8f4e25968849650065",
+    "run": 42859574863,
+    "job": 129981735823,
+    "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42859574863/job/129981735823",
+    "environment": "Ubuntu24.04 GitHub Actions; independent Poppler24.02.0 process",
+    "report": {
+      "schema": 1,
+      "sourceCommit": "b91623549a235597f3005eb3100a72c274c0565b",
+      "nativeRun": 42856626665,
+      "nativeJob": 129971306884,
+      "artifactId": 13784265542,
+      "archiveBytes": 14235893,
+      "archiveSha256": "176ef417043fe26891b4fdb88c8046be1418ee9e0729cc6b90bdad9f5b53aef2",
+      "pdfBytes": 1465513,
+      "pdfSha256": "7c4ffa5a63c4b7db46f025d7223711b09562d325758f788bda6e9291b13a86a5",
+      "pages": 126,
+      "samples": {
+        "1": {
+          "textCharacters": 700
+        },
+        "64": {
+          "textCharacters": 581
+        },
+        "126": {
+          "textCharacters": 759
+        }
+      },
+      "parserVersion": "pdfinfo version 24.02.0\nCopyright 2005-2024 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC",
+      "result": "PASS",
+      "scope": "Independent Ubuntu/Poppler verification of actual UIKit full-document attachment; not physical printing or system Files-save UI"
+    }
+  },
+  "limits": [
+    "Complete UIKit formatter output is verified, replacing first-page-only coverage",
+    "Actual system Files-save UI and physical printer are separate and not claimed",
+    "Page counts depend on font and layout, not a fixed legal-content expectation",
+    "Full combined simulator regression is still required for the candidate"
+  ]
+}

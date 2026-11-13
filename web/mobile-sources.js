@@ -6,7 +6,27 @@ const typeLabels={bill:'הצעת חוק',committee_protocol:'פרוטוקול ו
 let app,registry,typedPromise;
 const clean=s=>String(s||'').replace(/\s+/g,' ').trim();
 function element(tag,text,cls){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;}
-function records(){if(registry)return registry;registry=new Map();for(const [kind]of kinds){for(const box of document.querySelectorAll('.'+kind+'_box[id]')){const prefix=kind+'_box_';if(!box.id.startsWith(prefix))continue;const id=box.id.slice(prefix.length);if(!registry.has(id)){const unit=document.getElementById(id);const label=unit?app.articleLabel(unit):clean(box.firstElementChild?.textContent)||id;registry.set(id,{id,unit,label,boxes:{}});}const r=registry.get(id);(r.boxes[kind]??=[]).push(box);}}return registry;}
+function records(){
+ if(registry)return registry;registry=new Map();
+ for(const [kind]of kinds){
+  const seen=new Map();
+  for(const box of document.querySelectorAll('.'+kind+'_box[id]')){
+   const prefix=kind+'_box_';if(!box.id.startsWith(prefix))continue;
+   const sourceId=box.id.slice(prefix.length),occurrence=(seen.get(sourceId)||0)+1;seen.set(sourceId,occurrence);
+   // Repeated source IDs do not establish an additional section association.
+   // Keep each later box separately accessible under its supplied heading;
+   // never infer a legal relationship or alter the original document's IDs.
+   const id=occurrence===1?sourceId:sourceId+'::'+kind+'::'+occurrence;
+   if(!registry.has(id)){
+    const unit=occurrence===1?document.getElementById(sourceId):null;
+    const label=unit?app.articleLabel(unit):clean(box.firstElementChild?.textContent)||sourceId;
+    registry.set(id,{id,unit,label,boxes:{}});
+   }
+   const r=registry.get(id);(r.boxes[kind]??=[]).push(box);
+  }
+ }
+ return registry;
+}
 function available(record,kind){return !!record?.boxes[kind]?.some(b=>clean(b.textContent));}
 function toolbar(id){const r=records().get(id);if(!r)return null;const row=element('div',undefined,'m-source-tools');row.setAttribute('role','group');row.setAttribute('aria-label','מקורות והיסטוריה של '+r.label);for(const[kind,label]of kinds){const b=element('button',label);b.type='button';b.dataset.sourceKind=kind;b.disabled=!available(r,kind);b.setAttribute('aria-label',titles[kind]+' · '+r.label);b.onclick=e=>{e.stopPropagation();showPanel(kind,id);};row.append(b);}return row;}
 function showPanel(kind,id){const r=records().get(id);if(!r)return;const target=app.openSheet(titles[kind]+' · '+r.label);const tabs=element('div',undefined,'m-source-tabs');for(const[k,label]of kinds){const b=element('button',label);b.type='button';b.setAttribute('aria-pressed',String(k===kind));b.disabled=!available(r,k);b.onclick=()=>showPanel(k,id);tabs.append(b);}target.append(tabs);if(r.unit)target.append(app.action('חזרה לסעיף',()=>app.goTo(r.unit)));const info=element('p',kind==='history'?'הנוסחים ההיסטוריים הכלולים בקובץ המקורי.':'קישורים ושיוכים מתוך קובץ המקור.','m-hint');target.append(info);const boxes=r.boxes[kind]||[];if(!boxes.length){target.append(element('p','אין חומר מסוג זה ליחידה זו בקובץ המצורף.','m-empty'));return;}for(const source of boxes){const c=app.stripIds(source.cloneNode(true));c.className='m-source';c.removeAttribute('style');c.querySelectorAll('[tabindex="-1"]').forEach(e=>e.removeAttribute('tabindex'));target.append(c);}target.append(app.action('לכל המקורות וההיסטוריה',()=>showHub(kind)));}
@@ -16,29 +36,11 @@ function safeLink(value){try{if(typeof value!=='string'||/[\u0000-\u0020\\]/.tes
 function sourceIdentity(source){const m=source.metadata||{};return [typeLabels[source.kind],source.title,m.proposal_number&&'הצעה '+m.proposal_number,m.protocol_number&&'פרוטוקול '+m.protocol_number,m.sitting_number&&'ישיבה '+m.sitting_number,m.date||m.publication_date,source.source_id,source.source_filename].filter(Boolean).join(' · ');}
 function context(segment){return [segment.speaker&&'דובר: '+segment.speaker,segment.agenda_id&&'סדר יום: '+segment.agenda_id,segment.source_page!==null&&segment.source_page!==undefined?'עמוד מקור: '+segment.source_page:null,segment.printed_page!==null&&segment.printed_page!==undefined?'עמוד מודפס: '+segment.printed_page:null].filter(Boolean).join(' · ');}
 // Keep raw UTF-16 offsets so a normalized match highlights the original spelling.
-function normalized(raw,withOffsets=false){
-let text='',position=0;const starts=[],ends=[];
-for(const ch of String(raw)){
-const begin=position;position+=ch.length;
-let part=ch.normalize('NFD').replace(/[\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7]/g,'').replace(/[״“”]/g,'"').replace(/[׳‘’]/g,"'").replace(/[־–—]/g,'-').toLocaleLowerCase('he');
-if(!part){if(withOffsets&&ends.length)ends[ends.length-1]=position;continue;}
-if(/\s/.test(part)){if(!text||text.endsWith(' ')){if(withOffsets&&ends.length)ends[ends.length-1]=position;continue;}part=' ';}
-text+=part;if(withOffsets)for(let i=0;i<part.length;i++){starts.push(begin);ends.push(position);}
-}
-if(text.endsWith(' ')){text=text.slice(0,-1);if(withOffsets){starts.pop();ends.pop();}}
-return {text,starts,ends};
-}
-function appendHighlighted(el,text,query,mode){
-const raw=String(text),mapped=mode==='exact'?null:normalized(raw,true);
-const needle=mode==='exact'?query:normalized(query).text,view=mapped?mapped.text:raw;
-const found=view.indexOf(needle),at=found<0?-1:mapped?mapped.starts[found]:found;
-const end=found<0?0:mapped?mapped.ends[found+needle.length-1]:found+needle.length;
-const start=Math.max(0,at-65),finish=Math.max(start+260,end);
-if(at>=0&&needle){el.append(document.createTextNode((start?'…':'')+raw.slice(start,at)),element('mark',raw.slice(at,end)),document.createTextNode(raw.slice(end,finish)+(finish<raw.length?'…':'')));}
-else el.textContent=(start?'…':'')+raw.slice(start,finish)+(finish<raw.length?'…':'');
-}
+const normalized=(raw,offsets=false)=>window.LawCore.normalized(raw,offsets);
+function appendHighlighted(el,text,query,mode){const p=window.LawCore.snippet(text,query,mode==='exact');el.append(document.createTextNode(p.before));if(p.mark)el.append(element('mark',p.mark));el.append(document.createTextNode(p.after));}
+
 async function showTypedSearch(){const target=app.openSheet('חיפוש במקורות מוקלדים');const loading=element('p','טוען את אינדקס המקורות…','m-hint');target.append(loading);let index;try{index=await typedIndex();}catch{if(loading.isConnected)loading.textContent='אינדקס המקורות לא נטען. אפשר לסגור ולפתוח שוב.';typedPromise=null;return;}if(!loading.isConnected)return;target.replaceChildren();if(!index.sources.length){target.append(element('p','עדיין לא נטענו מקורות מוקלדים.','m-empty'),element('p','היסטוריית הנוסחים, הצעות החוק, הפרוטוקולים והמקורות שבקובץ המקורי זמינים במסך ״מקורות והיסטוריה״.','m-hint'),app.action('למקורות ולהיסטוריה',()=>showHub('sources')));return;}
-const input=element('input',undefined,'m-search-input');input.type='search';input.placeholder='חיפוש בטקסט המוקלד';input.setAttribute('aria-label','חיפוש במקורות מוקלדים');const type=element('select');type.setAttribute('aria-label','סוג מסמך מוקלד');for(const[value,label]of [['all','כל הסוגים'],...Object.entries(typeLabels)]){const o=element('option',label);o.value=value;type.append(o);}const mode=element('select');mode.setAttribute('aria-label','אופן התאמה');for(const[value,label]of [['normalized','התאמה מנורמלת'],['exact','התאמה מדויקת']]){const o=element('option',label);o.value=value;mode.append(o);}const count=element('p',undefined,'m-hint');count.setAttribute('aria-live','polite');const filters=element('div',undefined,'m-typed-filters');filters.append(type,mode);const list=element('div');list.id='mobile-typed-results';target.append(element('p','הטקסט המוקלד משמש לאיתור. מסמך המקור הוא נקודת הייחוס; פתיחתו דורשת אינטרנט.','m-hint'),input,filters,count,list);
+const input=element('input',undefined,'m-search-input');input.type='search';input.maxLength=512;input.placeholder='חיפוש בטקסט המוקלד';input.setAttribute('aria-label','חיפוש במקורות מוקלדים');const type=element('select');type.setAttribute('aria-label','סוג מסמך מוקלד');for(const[value,label]of [['all','כל הסוגים'],...Object.entries(typeLabels)]){const o=element('option',label);o.value=value;type.append(o);}const mode=element('select');mode.setAttribute('aria-label','אופן התאמה');for(const[value,label]of [['normalized','התאמה מנורמלת'],['exact','התאמה מדויקת']]){const o=element('option',label);o.value=value;mode.append(o);}const count=element('p',undefined,'m-hint');count.setAttribute('aria-live','polite');const filters=element('div',undefined,'m-typed-filters');filters.append(type,mode);const list=element('div');list.id='mobile-typed-results';target.append(element('p','הטקסט המוקלד משמש לאיתור. מסמך המקור הוא נקודת הייחוס; פתיחתו דורשת אינטרנט.','m-hint'),input,filters,count,list);
 const sources=new Map(index.sources.map(s=>[s.source_id,s]));const segments=index.segments.map(s=>({...s,folded:normalized(s.text).text}));let timer;
 const run=()=>{list.replaceChildren();const q=input.value.trim();if(!q){count.textContent=index.sources.length+' מקורות טעונים';return;}const needle=mode.value==='exact'?q:normalized(q).text;if(!needle){count.textContent='יש להזין טקסט לחיפוש.';return;}const grouped=new Map();for(const s of segments){const source=sources.get(s.source_id);if(!source||(type.value!=='all'&&source.kind!==type.value))continue;if(!(mode.value==='exact'?s.text:s.folded).includes(needle))continue;if(!grouped.has(s.source_id))grouped.set(s.source_id,[]);grouped.get(s.source_id).push(s);}count.textContent=grouped.size+' מקורות מתאימים';const results=[...grouped];const render=from=>{for(const[id,hits]of results.slice(from,from+25)){const source=sources.get(id);const card=element('article',undefined,'m-typed-card');card.dataset.sourceId=id;const matchLabel=mode.value==='exact'?'התאמה מדויקת':'התאמה מנורמלת';const snippet=element('p',undefined,'m-typed-snippet');appendHighlighted(snippet,hits[0].text,q,mode.value);card.append(element('small',matchLabel+' · '+hits.length+' התאמות'),snippet,element('h3',sourceIdentity(source)),element('p',context(hits[0]),'m-hint'));const link=safeLink(source.original_document_url);if(link){const a=element('a',link.knesset?'פתיחת הקובץ המקורי באתר הכנסת':'פתיחת כתובת המקור שנמסרה','m-original-link');a.setAttribute('href',source.original_document_url);a.target='_blank';a.rel='noopener noreferrer';card.append(a);if(!link.knesset)card.append(element('p','כתובת מקור חיצונית שלא אומתה.','m-hint'));}else card.append(element('p','כתובת המקור חסרה או אינה בטוחה לפתיחה.','m-hint'));
 card.append(app.action('העתקת ציטוט ואסמכתה',()=>app.copy(hits[0].text+'\n'+sourceIdentity(source)+'\n'+context(hits[0])+'\n'+source.original_document_url)));

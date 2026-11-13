@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "sourceHead": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+  "testedCheckout": "ed7494e0a1fd2c3c2ae80f6929456e30872beaef",
+  "tree": "539895887cecddd5c497f4aea8cf1dd1dc6ff1d5",
+  "run": 42764913617,
+  "result": "PASS: complete Linux source/browser/build and Android26/31/36 online/offline",
+  "jobs": [
+    {
+      "id": 129659013200,
+      "name": "Bundled browser and accessibility (430)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659013338,
+      "name": "Bundled browser and accessibility (768)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659013520,
+      "name": "android-debug",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659013562,
+      "name": "Bundled browser and accessibility (1180)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659013631,
+      "name": "Bundled browser and accessibility (320)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659013662,
+      "name": "source-and-browser",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659325669,
+      "name": "android-emulator (36, x86_64, google_apis)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659325691,
+      "name": "android-emulator (31, x86_64, google_apis)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 129659325886,
+      "name": "android-emulator (26, x86, default, -writable-system)",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "api36": {
+    "job": 129659325669,
+    "artifact": 13739054270,
+    "artifactSha256": "10b0f978797ab53d42347b78288e34edddac8938c46a237e710cbdca6a4ddbf4",
+    "instrumentation": [
+      {
+        "key": "QA_STATUS",
+        "value": "PASS"
+      },
+      {
+        "key": "activityToReadyMilliseconds",
+        "value": "9557"
+      },
+      {
+        "key": "mainProcessPssKBAtReady",
+        "value": "71897"
+      },
+      {
+        "key": "QA_STATUS",
+        "value": "PASS"
+      },
+      {
+        "key": "activityToReadyMilliseconds",
+        "value": "9219"
+      },
+      {
+        "key": "mainProcessPssKBAtReady",
+        "value": "65101"
+      },
+      {
+        "key": "PDF",
+        "value": "PASS: actual system Print -> Save as PDF -> SAF file; pages=146 bytes=1515150 sha256=9f6e6589edea54cbfac9fa93882b4be484fae7bc7d93fe0a780600728c7cefa4"
+      },
+      {
+        "key": "QA_STATUS",
+        "value": "PASS"
+      },
+      {
+        "key": "SAF",
+        "value": "PASS: native CreateDocument -> saved JSON -> OpenDocument -> explicit confirmation -> restored preference"
+      },
+      {
+        "key": "activityToReadyMilliseconds",
+        "value": "7449"
+      },
+      {
+        "key": "mainProcessCpuMilliseconds",
+        "value": "10538"
+      },
+      {
+        "key": "mainProcessPssKBAfterStress",
+        "value": "148391"
+      },
+      {
+        "key": "mainProcessPssKBAtReady",
+        "value": "72805"
+      },
+      {
+        "key": "navigationStressResult",
+        "value": "{\"ok\":true,\"records\":581}"
+      },
+      {
+        "key": "share",
+        "value": "PASS: native sharesheet delivery -> cross-UID receiver -> exact section URL"
+      },
+      {
+        "key": "PDF",
+        "value": "PASS: actual system Print -> Save as PDF -> SAF file; pages=146 bytes=1515150 sha256=1433f207d44aa29784916e1e22845f0be8757a922ea843052594d81b27f88e49"
+      },
+      {
+        "key": "QA_STATUS",
+        "value": "PASS"
+      },
+      {
+        "key": "SAF",
+        "value": "PASS: native CreateDocument -> saved JSON -> OpenDocument -> explicit confirmation -> restored preference"
+      },
+      {
+        "key": "activityToReadyMilliseconds",
+        "value": "3672"
+      },
+      {
+        "key": "mainProcessCpuMilliseconds",
+        "value": "12545"
+      },
+      {
+        "key": "mainProcessPssKBAfterStress",
+        "value": "149804"
+      },
+      {
+        "key": "mainProcessPssKBAtReady",
+        "value": "86980"
+      },
+      {
+        "key": "navigationStressResult",
+        "value": "{\"ok\":true,\"records\":581}"
+      },
+      {
+        "key": "reopenedFont",
+        "value": "\"24\""
+      },
+      {
+        "key": "share",
+        "value": "PASS: native sharesheet delivery -> cross-UID receiver -> exact section URL"
+      }
+    ]
+  },
+  "limitations": [
+    "Emulators, not physical devices; API26 uses documented official WebView133/RRO configuration",
+    "Upgrade uses a disposable QA identity on copies; no original private release key was available",
+    "API26/31 print UI presentation and cancellation; actual saved146-page PDF verified onAPI36",
+    "Fresh portrait PDF platform MediaProvider crash in earlier diagnostic remains a separate known residual; this pass is the full long usage scenario"
+  ]
+}

@@ -31,7 +31,7 @@ with sync_playwright() as p:
   pg.set_content(HTML,timeout=20000)
   pg.evaluate('''() => {const store={};Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>Object.hasOwn(store,k)?store[k]:null,setItem:(k,v)=>store[k]=String(v),removeItem:k=>delete store[k]}})}''')
   pg.add_style_tag(content=(ROOT/'web/mobile.css').read_text())
-  for name in ('mobile-sources.js','mobile-topics.js','mobile.js'):pg.add_script_tag(content=(ROOT/'web'/name).read_text())
+  for name in ('mobile-core.js','mobile-settings.js','mobile-sources.js','mobile-topics.js','mobile.js'):pg.add_script_tag(content=(ROOT/'web'/name).read_text())
   initial=pg.evaluate('''() => ({v:window.lawMobile?.version,buttons:document.querySelectorAll('.m-bottom [data-mobile]').length,local:document.querySelectorAll('.m-article-actions,.m-source-tools').length,justify:document.documentElement.classList.contains('m-justify'),width:document.documentElement.scrollWidth,screen:innerWidth,link:getComputedStyle(document.querySelector('#article_2 .defined')).display,whiteSpace:getComputedStyle(document.querySelector('#article_2 .defined')).whiteSpace})''')
   check(f'load_{w}',initial['v']=='1.2.2' and initial['buttons']==4,initial)
   check(f'no_local_actions_{w}',initial['local']==0)

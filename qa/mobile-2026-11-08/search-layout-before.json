@@ -1,0 +1,55 @@
+{
+  "before": {
+    "result": "סעיף 14 · עסקה ברוכלות",
+    "top": 657.65625,
+    "bottom": 820.34375,
+    "bodyTop": 223.609375,
+    "bodyBottom": 1255,
+    "scroll": 3633,
+    "visible": true,
+    "offset": 434.046875
+  },
+  "after": {
+    "result": "סעיף 14 · עסקה ברוכלות",
+    "top": 3042.375,
+    "bottom": 3279.3125,
+    "bodyTop": 156.640625,
+    "bodyBottom": 697,
+    "scroll": 3633,
+    "visible": false,
+    "offset": 2885.734375
+  },
+  "query": "14",
+  "sameResultVisibleAfterResize": false,
+  "schema": 1,
+  "baseline": "f591bcdeb0ac0a14cd4a41d9e32f264935429588",
+  "environment": "Actual Chromium157 full bundled DOM;1032x1255 to375x697; network blocked",
+  "result": "FAIL: selected result moved outside restored dialog viewport",
+  "heightOnlyReproduction": {
+    "source": "width-only fix, before height-aware restoration",
+    "original": [
+      1032,
+      1255
+    ],
+    "changed": [
+      1032,
+      650
+    ],
+    "before": {
+      "top": 657.65625,
+      "bottom": 820.34375,
+      "bodyTop": 223.609375,
+      "bodyBottom": 1255,
+      "scroll": 3633,
+      "fullyVisible": true
+    },
+    "after": {
+      "top": 585.046875,
+      "bottom": 747.734375,
+      "bodyTop": 151,
+      "bodyBottom": 650,
+      "scroll": 3633,
+      "fullyVisible": false
+    }
+  }
+}

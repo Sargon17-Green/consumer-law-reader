@@ -1,0 +1,3492 @@
+{
+  "schema": 1,
+  "project": "Sargon17-Green/consumer-law-reader",
+  "asOf": "2026-11-11",
+  "sourceBaseline": "016b3de352dabe97f51b34b78ff803965b6cd40d",
+  "statusMeanings": {
+    "טרם התחיל": "לא קיים מימוש",
+    "בפיתוח": "קבלה פתוחה או מימוש משתנה",
+    "מומש": "קוד קיים; לא הושלם אימות כל הקריטריונים",
+    "אומת": "ראיה בתחום המוצהר, לא הוכחה לכל מכשיר",
+    "פורסם": "גישה ציבורית מאומתת בערוץ ובגרסה המסומנים",
+    "חסום": "פעולה חיצונית אמיתית נדרשת; CI ממתין אינו חסם",
+    "נדחה": "החלטת scope מפורשת עם נימוק ותנאי חזרה"
+  },
+  "requirements": [
+    {
+      "id": "LAW-001",
+      "title": "שלמות מקור משפטי, הערות ונתוני אימות",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "SHA256 של original/Consumer_Protection_Law.html נשאר de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9",
+        "אין שינוי בחקיקה, פרשנות, הערות, אסמכתאות, תאריכים או מעמד משפטי; מועד האימות 2026-10-28 נשמר",
+        "DOM של frame, מקורות, footer, IDs וקישורים זהה לאחר הסרת תוספות תצוגה מוגדרות"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "scripts/verify_release.py",
+        "metadata/editorial_status.json",
+        "NOTICE_HE.md"
+      ],
+      "tests": [
+        "tests/test_web_pages.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "LAW-002",
+      "title": "תיקון עוגנים בשכבת תצוגה בלבד",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "קונפליקטים ומזהים כפולים אינם משנים את קובץ המקור; אין המצאת שיוך משפטי",
+        "בדיקת DOM משמרת כל תיבה בעלת מזהה כפול ונגישות לכותרתה המקורית"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "web/mobile-sources.js"
+      ],
+      "tests": [
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "READ-001",
+      "title": "שם מלא, עברית ו־RTL",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "השם חוק הגנת הצרכן, התשמ״א–1981 נשמר; lang=he, dir=rtl",
+        "כותרות, גוף, מספרים, תמונות ו־PEGI נשארים קריאים ואינם חותכים טקסט"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.css",
+        "web/mobile-shell.html",
+        "scripts/build_web.py"
+      ],
+      "tests": [
+        "tests/test_web_pages.py",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "READ-002",
+      "title": "רוחב מסך והגדלת טקסט",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "אין גלילה או חיתוך אופקי של העמוד או חלון תקנה",
+        "החוק וכל 66 התקנות מתאימים ל־320/375/430/768/1032/1180 CSS px ובגופנים 18/24/28/48",
+        "טבלה דו־ממדית רחבה נגללת רק בתוך אזור הטבלה, עם אפשרות להגיע לכל עמודותיה"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "web/mobile.css"
+      ],
+      "tests": [
+        "tests/fixtures/reader_layout_probe.js",
+        "tests/mobile_integration_qa.py",
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "READ-003",
+      "title": "נוסח ארוז ללא רשת",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "לאחר התקנת Native הקריאה/חיפוש/ניווט/העתקה פועלים בלי רשת",
+        "ב־Web מטמון מלא נבנה לפני הודעת מוכנות; אין הבטחת שימור מטמון שמערכת ההפעלה מחקה"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "scripts/build_web.py",
+        "web/mobile.js"
+      ],
+      "tests": [
+        "tests/technical_smoke_134.py",
+        "scripts/run_android_emulator_qa.sh",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "SEARCH-001",
+      "title": "נרמול עברי עקבי",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "אותו מנגנון לחוק ולמקורות: ניקוד, טעמים וסימנים משלבים, NFD, גרש/גרשיים/ציטוטים, מקפים ורווחים/שורות",
+        "מספרי סעיפים/תקנות ואותיות/צירופים אלפאנומריים ניתנים לחיפוש"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile-core.js",
+        "web/mobile.js",
+        "web/mobile-sources.js"
+      ],
+      "tests": [
+        "tests/mobile_core_qa.js"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "SEARCH-002",
+      "title": "מיפוי טקסט מנורמל למקור",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "מיקומים ו־spans מדויקים ב־UTF-16 כולל surrogate pairs וסימנים משלבים",
+        "אין הנחה של אורך שווה ואין הדגשת תו שאינו שייך להתאמה; 500 מקרים שנוצרו דטרמיניסטית עוברים"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile-core.js"
+      ],
+      "tests": [
+        "tests/mobile_core_qa.js",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "SEARCH-003",
+      "title": "שאילתות, תוצאות והקשר",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "שאילתה ריקה מציגה מצב ברור; קלט מוגבל ל־512; מחרוזת ארוכה וקלט HTML אינם גורמים להרצה או לתקיעה",
+        "תוצאות מרובות מוצגות במנות, הקשר בטוח ושמות סעיפים; קיימת הבחנה מדויקת/מנורמלת וסינון בלי קשרים משפטיים חדשים"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "web/mobile-core.js"
+      ],
+      "tests": [
+        "tests/mobile_core_qa.js",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "SEARCH-004",
+      "title": "מסלול חיפוש וחזרה",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "חיפוש → סעיף → הערה/הגדרה → חזרה משחזר שאילתה, תוצאות וגלילת הרשימה",
+        "שימור מצב אחרי reload, יציאה לאפליקציה אחרת ופתיחה מחדש"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js"
+      ],
+      "tests": [
+        "tests/mobile_integration_qa.py",
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift",
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "NAV-001",
+      "title": "ניווט לפי סעיפים ונושאים",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "תוכן עניינים, נושאים, קישורים פנימיים, חקיקת משנה, מעבר בין תקנות וחזרה לחוק נשארים פעילים",
+        "קישורים ליעד חסר או fragment פגום אינם קורסים ומוצגת הודעה"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "web/mobile-topics.js"
+      ],
+      "tests": [
+        "tests/topic_navigation_qa.py",
+        "tests/technical_smoke_134.py",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "NAV-002",
+      "title": "סימון מקור ויעד",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "סימון מקור/יעד נשמר במהלך גרירה, גלילה ובחירת טקסט; מוסר רק בלחיצה תקינה לפי ההתנהגות הקיימת",
+        "תוכן עניינים אינו צובע מקור; אין שינוי טקסט"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "web/mobile.css"
+      ],
+      "tests": [
+        "tests/technical_smoke_134.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "NAV-003",
+      "title": "היסטוריה וחזרה יציבה",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "Back אינו יוצר רשומות כפולות או לולאות",
+        "חזרה משחזרת מיקום שהתייצב לאחר לפחות 600ms; שינוי גופן חוזר לעוגן הגיוני ופעולת משתמש עוצרת תיקון גלילה",
+        "פתיחה/סגירה של חלונות ותקנות בסדר נכון ללא קפיצה מיותרת"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js"
+      ],
+      "tests": [
+        "tests/mobile_integration_qa.py",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "NAV-004",
+      "title": "Back ומחוות Native",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "Back של Android ישן ו־OnBackInvokedDispatcher מודרני פועלים; מחוות WK חוזרות בהיסטוריה",
+        "סיבוב, השהיה/חידוש ופתיחה מחדש אינם מאבדים סעיף/חיפוש/העדפות"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift",
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        },
+        {
+          "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+          "run": 42854077139,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+          "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
+          "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "NAV-005",
+      "title": "גישה למיקום הקריאה האחרון",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "session מקומי משחזר את הסעיף והמיקום האחרון; אין יומן ענן או איסוף פעולות",
+        "זיהוי הסעיף הנראה משמש שיתוף; אין תכונת סימניות נפרדת אם נושאים וקישורים אישיים מספקים את הצורך"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "web/mobile-topics.js"
+      ],
+      "tests": [
+        "tests/mobile_integration_qa.py",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "DATA-001",
+      "title": "נושאים וקישורים אישיים",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "יצירה, שינוי שם, סדר, הורה, הסתרה וקישור ליעד תקין נשמרים מקומית",
+        "עד 500 נושאים/2000 קישורים/90 יחידות UTF-16 לכותרת; אין שבירת פריסה בכותרות ארוכות"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile-topics.js",
+        "web/mobile-core.js"
+      ],
+      "tests": [
+        "tests/topic_navigation_qa.py",
+        "tests/mobile_core_qa.js",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "DATA-002",
+      "title": "העדפות ותצוגה",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "גופן, יישור, ניגודיות, נגישות והעדפות ניווט נשמרים",
+        "בחירת משתמש גוברת על ברירת מחדל מערכתית; אין החלפה של ערכים מחוץ לתחום גיבוי"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "web/mobile-settings.js"
+      ],
+      "tests": [
+        "tests/mobile_core_qa.js",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "BACKUP-001",
+      "title": "פורמט גיבוי נייד משותף",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "schema 2 מפורש, whitelist של 9 מפתחות, UTF-8 מחמיר וגבול 1MB",
+        "אימות סוגים, מזהים, יעדים, הורים ומעגלים; שדות לא מוכרים נדחים; legacy v1 נתמך",
+        "round-trip וטעינת אותו תוכן בשתי המעטפות"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile-core.js",
+        "web/mobile-settings.js",
+        "docs/SETTINGS_BACKUP_FORMAT_HE.md"
+      ],
+      "tests": [
+        "tests/mobile_core_qa.js",
+        "tests/mobile_integration_qa.py",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "BACKUP-002",
+      "title": "אישור ושחזור אטומי",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "תצוגה מקדימה ואישור מפורש לפני החלפה",
+        "ערכים ישנים בתחום הגיבוי מוסרים; נתונים אחרים נשמרים",
+        "quota/כשל באמצע/סגירה משוחזרים ביומן rollback בלי מצב חלקי או אובדן"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile-core.js",
+        "web/mobile-settings.js"
+      ],
+      "tests": [
+        "tests/mobile_core_qa.js",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "BACKUP-003",
+      "title": "ממשקי קבצים מקוריים",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "Android SAF ו־iOS Files מבצעים יצוא/יבוא אמיתיים",
+        "אין הרשאת אחסון רחבה או העלאה אוטומטית; בחירת ספק ענן היא פעולת משתמש",
+        "ערכים גדולים אינם ב־Activity Bundle; קובץ פרטי אטומי ותוצאות אסינכרוניות מטופלות"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "DATE-001",
+      "title": "רכיב תאריך ומקורות מדויקים",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "שלושה נתיבי HTTPS JSON בלבד; אין סקריפט חיצוני",
+        "raw/REST/Pages fallback תקין, CORS ומגבלות זמן/נפח; בלי redirects ב־Android",
+        "אין שינוי אלגוריתם התאריך ואין קידום מועד אימות החוק"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "ios/ConsumerLawReader/ReaderPolicy.swift",
+        "scripts/build_web.py"
+      ],
+      "tests": [
+        "tests/pastafari_widget_qa.js",
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "DATE-002",
+      "title": "כשלי רשת ונתונים",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "בקשות פגומות/JSON פגום/מידע ישן/DNS/offline/timeout/ניתוק גוף נדחים עם fallback",
+        "מצב אינו זמין מוצג ללא הפרעה לקריאה; אין בקשות על פעולות המשתמש"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "web/privacy.json"
+      ],
+      "tests": [
+        "tests/pastafari_widget_qa.js",
+        "tests/date_network_probe.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "SEC-001",
+      "title": "CSP והזרקת קוד",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "CSP בתחילת head עם hashes קבועים; אין unsafe-inline בסקריפטים",
+        "srcdoc/frames/objects/base/form חסומים; קלט משתמש יוצר textContent ולא HTML רץ"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "scripts/build_web.py",
+        "web/mobile.js",
+        "web/mobile-sources.js",
+        "web/mobile-topics.js"
+      ],
+      "tests": [
+        "tests/mobile_integration_qa.py",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift",
+        "scripts/mobile_security_audit.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "SEC-002",
+      "title": "גבולות גשר Native",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "Android בודק מסמך law.local אמין; WK מאמת WKWebView, main-frame ומסמך החבילה",
+        "מסגרת ילד ו־WK אחר אינם מפעילים copy/share/restore; הודעות/IPC וקבצים מוגבלים בנפח"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "SEC-003",
+      "title": "קבצים, כתובות ונתיבים",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "file/content ב־Android WebView כבויים; אין traversal או גישה מחוץ לחבילה",
+        "WK allowingReadAccess מוגבל ל־dist וקישורי file נבדקים",
+        "סכמות מסוכנות/credentials/פורט/fragment/query חריגים נדחים; קישור חיצוני רק ביוזמת המשתמש"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "android/src/il/org/lawreader/consumer/AttachmentProvider.java",
+        "ios/ConsumerLawReader/ReaderPolicy.swift"
+      ],
+      "tests": [
+        "scripts/mobile_security_audit.py",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift",
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "SEC-004",
+      "title": "הרשאות ותלות מינימליות",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "Android מצהיר INTERNET בלבד, cleartext=false ו־allowBackup=false",
+        "אין שירות ענן חדש, Analytics, חשבונות, פרסומות או התראות לא נחוצות",
+        "קישורי תאריך הם החריגים היחידים למשאבים אוטומטיים חיצוניים"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "android/AndroidManifest.xml",
+        "ios/ConsumerLawReader/ReaderPolicy.swift",
+        "web/privacy.json"
+      ],
+      "tests": [
+        "scripts/mobile_security_audit.py"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "SEC-005",
+      "title": "תלויות, סודות ותהליכי build",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "Gitleaks סורק את כל היסטוריית Git בלי חשיפת סודות; npm audit ל־QA",
+        "כלים חיצוניים ו־Actions מקובעים ומאומתים",
+        "אין מפתחות/חתימות פרטיות במאגר ואין שכתוב היסטוריה"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "scripts/run_secret_scan.py",
+        "scripts/fetch_tools.py",
+        ".github/workflows/ci.yml"
+      ],
+      "tests": [
+        "scripts/mobile_security_audit.py",
+        "tests/qa/package-lock.json"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "NATIVE-001",
+      "title": "Ready, כשל טעינה ומחזור חיים",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "Ready מבוסס השלמת ממשק הקריאה, לא didFinish בלבד",
+        "מסמך חסר/כשל Renderer מציגים שגיאה ו־retry; pause/resume/process reload שומרים העדפות ומיקום",
+        "טיפול בזיכרון מוגבל ללא טענה לבדיקת חומרה פיזית"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        },
+        {
+          "commit": "4819aa83728358312b79834313e18ff92f2e1c74",
+          "run": 42806470326,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326",
+          "result": "PASS: Android build and API26/31/36 completed success",
+          "scope": "Actual online/offline1.6MB state ->1036/1060-byte system Bundle, real Activity recreation and full history/Back/Forward; renderer termination/recovery on31/36. Component only; combined PR gate still required. See qa/mobile-2026-11-08/android-state-cache-accepted.json"
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+          "run": 42854077139,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+          "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
+          "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
+        },
+        {
+          "commit": "200d5b7c615e23986904823847e8ebf41683ef6d",
+          "run": 42874533215,
+          "job": 130034218067,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42874533215/job/130034218067",
+          "result": "completed PASS lifecycle7.847s and8 repeated native retries6.290s",
+          "scope": "Generation invalidation, no stale document marker, actual live reader globals and not-loading gate. Unique cause of027 ReferenceError is not claimed"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "NATIVE-002",
+      "title": "מקלדת, System Bars ו־Safe Areas",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "IME אינו מכסה חיפוש/פקדים; Insets/Cutouts ו־portrait/landscape אינם חותכים כפתורים",
+        "נבחנים מסך צר וטאבלט; אין שינוי package/minSdk בלי צורך ומבחני רגרסיה"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "מומש"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "android/AndroidManifest.xml",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift",
+        "web/mobile.css"
+      ],
+      "tests": [
+        "tests/mobile_integration_qa.py",
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift",
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java"
+      ],
+      "evidence": [
+        {
+          "commit": "5797c940b613b033f805ad853b66626bfe65a299",
+          "run": 42814952882,
+          "job": 129825958205,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42814952882/job/129825958205",
+          "result": "PASS: API26 online/offline real software keyboard and Back/query preservation",
+          "scope": "TYPE_INPUT_METHOD bounds[0,1019][1080,1894]; actual WebView bottom1019, height1731->956. No CSS-only simulation; API31 online also passed but offline fixture failed. Remaining platforms and combined acceptance not inferred."
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+          "run": 42861539523,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42861539523",
+          "result": "FAIL final combined acceptance; completed PASS iPhone26.2/16 and iPad18.5, Print Close failure iPad26.2, integration lifecycle failure iPhone18.5",
+          "scope": "Exact failures/diagnostic branches in qa/mobile-2026-11-08/candidate-027-followup.json. UI18.5 and iPad window resize passed separately; no full candidate acceptance."
+        },
+        {
+          "commit": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+          "run": 42861539523,
+          "job": 129988671238,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42861539523/job/129988671238",
+          "result": "PASS actual iPhone26.2 system accessibility XXXL, software keyboard bounds and complete functional UI",
+          "scope": "Field above keyboard and all8 policy/WK tests; no physical device or full product acceptance. See permanent candidate-027-followup.json"
+        },
+        {
+          "commit": "6d246d3397b04ae68333a4469ebaca74c921d483",
+          "run": 42873698707,
+          "job": 130032075341,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42873698707/job/130032075341",
+          "result": "completed PASS online and offline full native flow",
+          "scope": "Actual TYPE_INPUT_METHOD, native End/Delete and14 key events, settled native focus, WebView/input bounds and Back preserving query; API26/36 not inferred"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "NATIVE-003",
+      "title": "חלונות ו־Split View של iPad",
+      "platforms": [
+        "iOS"
+      ],
+      "acceptance": [
+        "שינוי גודל חלון וריבוי חלונות מתאימים למגבלות שטח זמין; יש לבדוק ממשק native בזמן שינוי גודל ולא לייחס לכך בדיקת CSS בלבד"
+      ],
+      "status": {
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "ios/project.yml",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift"
+      ],
+      "tests": [
+        "ios/ConsumerLawReaderTests/ReaderTests.swift",
+        "ios/ConsumerLawReaderUITests/ReaderWindowingUITests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "81b5f774510dff6538eff966fae1943f62a28aa3",
+          "run": 42772416090,
+          "job": 129683054613,
+          "result": "PASS: targeted iPad26.2 actual OS window resize and raw orientation plist",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42772416090",
+          "scope": "Actual1032->375pt viewport; menu remains44x44; query and result navigation retained. No pre-tap selected-row visibility proof or full combined candidate claim"
+        },
+        {
+          "commit": "4c3596a0d65f3eb01f56faf7d7507ff824894732",
+          "run": 42810117955,
+          "job": 129809129367,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42810117955",
+          "result": "FAIL:360-second XCTest execution allowance exceeded; no accepted post-resize menu/share claim",
+          "scope": "Actual width1032->375 and menu44pt observed with corner inset. Test diagnostics consumed allowance; no native-hit acceptance. See qa/mobile-2026-11-08/ipad-window-hit-test-progress.json"
+        },
+        {
+          "commit": "0d3ef3f10830710456a4a29c09e07e6166e05c7b",
+          "run": 42813510160,
+          "job": 129820626413,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42813510160",
+          "result": "PARTIAL: actual resized44pt menu and share open; overall FAIL at return with share still presented",
+          "scope": "Actual OS1032->375pt resize, real center touch opens Print action and ActivityListView. No accepted search return. Permanent proof qa/mobile-2026-11-08/ipad-native-actions-partial.json"
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834181,
+          "job": 129836408708,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834181/job/129836408708",
+          "result": "PASS full iPad26.2 job",
+          "scope": "RealOS1032->375pt resize,44ptmenu/share center taps,actual menu/share dismissal,selected row hittable before tap,query14 and navigation preserved.7WK/policy tests+header audit passed. Other legacy iOS jobs failed sharesheet fixture; no overall PASS. See qa/mobile-2026-11-08/ipad-window-94cdf7d.json"
+        }
+      ],
+      "dependencies": [
+        "Issue13 full iPad26 scope passed94. Close after final combined6-profile gate and merge; legacy share fix4bc is separately accepted."
+      ],
+      "published": {
+        "iOS": null
+      }
+    },
+    {
+      "id": "IO-001",
+      "title": "העתקה מדויקת ובטוחה",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "העתקת סעיף/יחידה/בחירה שומרת טקסט עברי ומספור",
+        "Native מאשר הצלחה בפועל; IPC מוגבל ל־450000 UTF-16 ב־Android ולמיליון ב־iOS",
+        "בחירה גדולה נשארת שלמה בשדה נגיש, בלי קריסה או החלפת לוח בכשל"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "IO-002",
+      "title": "שיתוף יעד מדויק",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "שיתוף משתמש ב־/consumer-law-reader/reader/#article_14 וכדומה ובסעיף הנראה בפועל",
+        "יעד ציבורי עובד גם מחוץ לאפליקציה; Intent/ActivityViewController ומקבל אחר בודקים URL מדויק"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "מומש",
+        "Web": "מומש"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift",
+        "android/src/il/org/lawreader/consumer/MainActivity.java"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift",
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+          "run": 42854077139,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+          "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
+          "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
+        }
+      ],
+      "dependencies": [
+        "Issue15: component4bc passed16/iPad18.5; close only after final combined6-simulator acceptance and merge. No signed native release."
+      ],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "IO-003",
+      "title": "הדפסה ושמירה ל־PDF",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "ממשק הדפסה מקורי נפתח וניתן לביטול וחזרה לקריאה",
+        "שמירה דרך ממשק המערכת יוצרת PDF ניתן לפתיחה עם עמוד ותוכן לא ריק",
+        "אין לייחס בדיקת עמוד ראשון או פתיחת UI להדפסה פיזית מלאה"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "מומש"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift",
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "38ebb344a39326079b967a15895d83b25c9f1a91",
+          "run": 42767425997,
+          "result": "PASS: fresh portrait and landscape, actual146-page PDFs with private QA evidence",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42767425997",
+          "scope": "API36 emulator, no native production print/lifecycle change; MediaProvider cause not claimed fixed; private exports from38ebb were not actually readable through run-as; in-process PdfRenderer only, see permanent private-evidence report"
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "b91623549a235597f3005eb3100a72c274c0565b",
+          "run": 42856626665,
+          "job": 129971306884,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42856626665/job/129971306884",
+          "result": "PASS complete UIKit126-page PDF; independently verified with Poppler in42859574863",
+          "scope": "1,465,513bytes; CGPDF first/mid/final ink and independent text/pages. Does not claim actual system Files-save UI or physical printing."
+        },
+        {
+          "commit": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+          "run": 42861539523,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42861539523",
+          "result": "FAIL final combined acceptance; completed PASS iPhone26.2/16 and iPad18.5, Print Close failure iPad26.2, integration lifecycle failure iPhone18.5",
+          "scope": "Exact failures/diagnostic branches in qa/mobile-2026-11-08/candidate-027-followup.json. UI18.5 and iPad window resize passed separately; no full candidate acceptance."
+        },
+        {
+          "commit": "c853d3ba3338eda89bcc09d68c0b2458b9806278",
+          "run": 42874102662,
+          "job": 130032722460,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42874102662/job/130032722460",
+          "result": "completed PASS full functional UI348.896s",
+          "scope": "Actual first system print-preview page, hittable single Close, enabled reader, file-picker cancellation, share dismissal, rotation and installed icon relaunch with query14. No DEBUG delegate; no actual system PDF-save claim"
+        }
+      ],
+      "dependencies": [
+        "Android system PDF-save and full146-page output accepted94. iOS full UIKit formatter and Print Close accepted separately; actual system Files Save/byte verification remains independent work/ios-files-cell-save-20261110."
+      ],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "IO-004",
+      "title": "קובצי Word ומצורפים",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "קובץ מקורי מועבר בביטיו; Android משתמש בספק לקריאה בלבד והרשאת URI ממוקדת",
+        "מקבל ב־UID אחר משווה SHA; iOS משווה Data",
+        "אין טענה לרינדור Word חיצוני כאשר נבדקה רק העברה"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/AttachmentProvider.java",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "LINK-001",
+      "title": "קישורים נכנסים לאפליקציה",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "בחינת App/Universal Links או scheme תקין בלי שירות חדש",
+        "אין המצאת Team ID או בעלות; כתובת HTTPS נשארת fallback שמוביל לסעיף נכון",
+        "Native routing אינו תנאי לשחרור Web"
+      ],
+      "status": {
+        "Android": "נדחה",
+        "iOS": "נדחה"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "ios/ConsumerLawReader/ReaderPolicy.swift"
+      ],
+      "tests": [
+        "tests/test_public_reader.py"
+      ],
+      "evidence": [],
+      "dependencies": [
+        "חתימת/רישום Apple ובעלות מאומתת טרם אומתו; custom scheme חדש לא נוסף רק לשם תכונה"
+      ],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "A11Y-001",
+      "title": "WCAG 2.2 AA בממשק Web",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "axe ב־8 מצבים × 4 רוחבים ללא הפרות מאומתות",
+        "contrast, שמות/roles, focus נראה, סדר מקלדת, Escape והחזרת focus בדיאלוגים",
+        "משמעות אינה תלויה בצבע בלבד"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.css",
+        "web/mobile.js",
+        "web/mobile-sources.js"
+      ],
+      "tests": [
+        "tests/mobile_integration_qa.py",
+        "tests/qa/package-lock.json"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "A11Y-002",
+      "title": "נגישות Native",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "מטרות מגע לפחות 44×44 ושמות מובחנים",
+        "Dynamic Type, Reduce Motion ומצב אסינכרוני ברור",
+        "Apple audit ב־iOS17+ לכותרת Native בלבד; ממצאי Web מתועדים בנפרד, ואין הכרזת VoiceOver/TalkBack מלאה"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift",
+        "web/mobile.css"
+      ],
+      "tests": [
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift",
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "A11Y-003",
+      "title": "בדיקה אנושית בטכנולוגיות מסייעות",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "בדיקת שימוש מלאה ב־TalkBack/VoiceOver, מקלדת ועזרים על מכשיר פיזי",
+        "בדיקות אוטומטיות אינן אישור אנושי"
+      ],
+      "status": {
+        "Android": "חסום",
+        "iOS": "חסום"
+      },
+      "implementation": [
+        "docs/MOBILE_TESTING_HE.md"
+      ],
+      "tests": [],
+      "evidence": [],
+      "dependencies": [
+        "מכשיר פיזי ובודק המשתמש בטכנולוגיה המסייעת אינם זמינים בסביבה"
+      ],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "PERF-001",
+      "title": "מדידת פתיחה, אינדקס וחיפוש",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "זמני פתיחה/אינדקס/100 שאילתות נמדדים לפני ואחרי באותה סביבה",
+        "אין פסק דין לפי מחשב חזק בלבד; CPU throttling מסומן כהדמיה; מיפוי מלא אינו נבנה לכל אות באינדקס"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "אומת"
+      },
+      "implementation": [
+        "web/mobile-core.js",
+        "web/mobile.js"
+      ],
+      "tests": [
+        "tests/mobile_integration_qa.py",
+        "qa/mobile-2026-11-08/performance-before-after.json"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "PERF-002",
+      "title": "עומס, זיכרון ו־CPU",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "100+ ניווטים/חיפושים חוזרים ומטמון אינדקס זהה; דיאלוגים/בחירה/גלילה חוזרים ללא מאזינים כפולים",
+        "PSS, CPU ו־XCTest metrics מדווחים עם גבולות הכיסוי; אין ייחוס מדדי app לכל תהליכי WK"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift"
+      ],
+      "tests": [
+        "scripts/run_android_emulator_qa.sh",
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "PERF-003",
+      "title": "תנאי זיכרון נמוך",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "בדיקת התאוששות מתהליך Web/renderer שנסגר ושימור נתונים",
+        "מדידת sustained low-memory/CPU על חומרות נוספות תתועד אם לא הורצה; אין טענת כיסוי מלא"
+      ],
+      "status": {
+        "Android": "מומש",
+        "iOS": "מומש"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "ios/ConsumerLawReader/ConsumerLawReaderApp.swift"
+      ],
+      "tests": [
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "2227c2effab0c52e87abad183a86f56f264997e4",
+          "run": 42819646591,
+          "job": 129841573382,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42819646591/job/129841573382",
+          "result": "PASS actual API26 constrained emulator online/offline",
+          "scope": "MemTotal1548780KB,1CPU, heap384MB; product/tests identical94. Requested1GB was raised by emulator and rejected at preflight. No physical device, actual OOM or whole-renderer PSS claim."
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "QA-001",
+      "title": "יחידה, DOM, אינטגרציה ורגרסיות",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "יחידה לנרמול/מיפוי/גיבוי/IDs/קישורים; DOM אמיתי ולא fixture מקוצר",
+        "לכל תיקון יש רגרסיה שיש בכוחה להיכשל במצב הקודם; רצף חיפוש→סעיף→הערה→חזרה"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "אומת"
+      },
+      "implementation": [
+        "tests/mobile_core_qa.js",
+        "tests/mobile_integration_qa.py",
+        "tests/topic_navigation_qa.py"
+      ],
+      "tests": [
+        "tests/mobile_core_qa.js",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        },
+        {
+          "commit": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+          "run": 42861539523,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42861539523",
+          "result": "FAIL final combined acceptance; completed PASS iPhone26.2/16 and iPad18.5, Print Close failure iPad26.2, integration lifecycle failure iPhone18.5",
+          "scope": "Exact failures/diagnostic branches in qa/mobile-2026-11-08/candidate-027-followup.json. UI18.5 and iPad window resize passed separately; no full candidate acceptance."
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "QA-002",
+      "title": "Android מותקן באמולטור",
+      "platforms": [
+        "Android"
+      ],
+      "acceptance": [
+        "API26/31/36: התקנה, שדרוג עותק בטא בזהות QA, תהליך חדש, offline, חיפוש, ניווט, גיבוי, שיתוף, Word והדפסה",
+        "API36 מתקין APK שנוצר מ־AAB; API26 עם ספק AOSP רשמי ותצורת בדיקה מתועדת, SELinux enforcing"
+      ],
+      "status": {
+        "Android": "אומת"
+      },
+      "implementation": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "scripts/run_android_emulator_qa.sh",
+        "scripts/configure_api26_webview.sh"
+      ],
+      "tests": [
+        ".github/workflows/ci.yml",
+        "scripts/collect_android_private_evidence.py",
+        "tests/test_android_evidence.py"
+      ],
+      "evidence": [
+        {
+          "commit": "4819aa83728358312b79834313e18ff92f2e1c74",
+          "run": 42806470326,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326",
+          "result": "PASS: Android build and API26/31/36 completed success",
+          "scope": "Actual online/offline1.6MB state ->1036/1060-byte system Bundle, real Activity recreation and full history/Back/Forward; renderer termination/recovery on31/36. Component only; combined PR gate still required. See qa/mobile-2026-11-08/android-state-cache-accepted.json"
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        },
+        {
+          "commit": "6d246d3397b04ae68333a4469ebaca74c921d483",
+          "run": 42873698707,
+          "job": 130032075341,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42873698707/job/130032075341",
+          "result": "completed PASS online and offline full native flow",
+          "scope": "Actual TYPE_INPUT_METHOD, native End/Delete and14 key events, settled native focus, WebView/input bounds and Back preserving query; API26/36 not inferred"
+        }
+      ],
+      "dependencies": [
+        "All3 API final integrated acceptance required; Android31 settled IME component passed6d246d3 online/offline. Original signed release identity remains external."
+      ],
+      "published": {
+        "Android": null
+      }
+    },
+    {
+      "id": "QA-003",
+      "title": "iPhone/iPad מורצים בסימולטור",
+      "platforms": [
+        "iOS"
+      ],
+      "acceptance": [
+        "iPhone26.2/iPad26.2/iPhone18.5/iPhone16.0 מריצים XCTest ו־XCUITest אמיתיים, כולל קבצים/שיתוף/סיבוב/חזרה/אייקון",
+        "אין ייחוס התקנת runtime לסיבה לחסימה לאחר שנרכש אוטומטית"
+      ],
+      "status": {
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "ios/ConsumerLawReaderTests/ReaderTests.swift",
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift",
+        "ios/scripts/acquire_minimum_runtime.py"
+      ],
+      "tests": [
+        ".github/workflows/ios-ci.yml"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+          "run": 42854077139,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+          "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
+          "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
+        },
+        {
+          "commit": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+          "run": 42861539523,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42861539523",
+          "result": "FAIL final combined acceptance; completed PASS iPhone26.2/16 and iPad18.5, Print Close failure iPad26.2, integration lifecycle failure iPhone18.5",
+          "scope": "Exact failures/diagnostic branches in qa/mobile-2026-11-08/candidate-027-followup.json. UI18.5 and iPad window resize passed separately; no full candidate acceptance."
+        },
+        {
+          "commit": "200d5b7c615e23986904823847e8ebf41683ef6d",
+          "run": 42874533215,
+          "job": 130034218067,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42874533215/job/130034218067",
+          "result": "completed PASS lifecycle7.847s and8 repeated native retries6.290s",
+          "scope": "Generation invalidation, no stale document marker, actual live reader globals and not-loading gate. Unique cause of027 ReferenceError is not claimed"
+        },
+        {
+          "commit": "c853d3ba3338eda89bcc09d68c0b2458b9806278",
+          "run": 42874102662,
+          "job": 130032722460,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42874102662/job/130032722460",
+          "result": "completed PASS full functional UI348.896s",
+          "scope": "Actual first system print-preview page, hittable single Close, enabled reader, file-picker cancellation, share dismissal, rotation and installed icon relaunch with query14. No DEBUG delegate; no actual system PDF-save claim"
+        }
+      ],
+      "dependencies": [
+        "Final6-profile acceptance with new9WK/policy tests, actual UI/windowing and XXXL; focused200/c853 do not replace it. Issue16 closes after combined PASS and merge."
+      ],
+      "published": {
+        "iOS": null
+      }
+    },
+    {
+      "id": "QA-004",
+      "title": "קלט עוין וגבולות",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "בדיקות URL, נתיבים, מסגרות, גשר זר, JSON זדוני/ענק/UTF-8 פגום, HTML בקלט והעתקה גדולה",
+        "הבדיקה מאמתת דחייה בלי מחיקת נתונים ובלי כשל Native"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "אומת"
+      },
+      "implementation": [
+        "tests/mobile_core_qa.js",
+        "tests/mobile_integration_qa.py",
+        "ios/ConsumerLawReaderTests/ReaderTests.swift"
+      ],
+      "tests": [
+        "scripts/mobile_security_audit.py",
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "CI-001",
+      "title": "כלים ידועים, דוחות ו־cleanup",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "Actions SHA וכלי Android/digests מקובעים; הפרדת debug/release/unsigned",
+        "fail-fast=false ובדיקות במטריצה עם max-parallel 2; לא פותחים ריצות זהות בזמן pending",
+        "זמני קצה, cleanup אמולטור/סימולטור, לוגים/צילום כשל/xcresult ו־retention מוגדרים"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "אומת"
+      },
+      "implementation": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/ios-ci.yml",
+        "scripts/fetch_tools.py"
+      ],
+      "tests": [
+        "scripts/mobile_security_audit.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "CI-002",
+      "title": "בנייה שחזורית ואימות חבילות",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "בנייה נקייה מונעת קבצי עריכה/פלט ישן; שתי בניות ושורשי מקור שונים נותנים אותו משאב proto",
+        "ZIP עם שמות UTF-8 תקינים; כל payload ה־AAB תואם APK והכלים נבדקים",
+        "manifest כולל sourceCommit/sourceTree/sourceDirty; merge-commit של PR מזוהה במפורש"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "scripts/build_android.py",
+        "scripts/build_android_bundle.py",
+        "scripts/android_build_inputs.py"
+      ],
+      "tests": [
+        "tests/test_reproducible_assets.py",
+        "tests/test_zip_asset_names.py"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "REL-001",
+      "title": "שימור זהויות וגרסאות",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "Android il.org.lawreader.consumer ו־iOS io.github.sargon17green.consumerlawreader נשמרים",
+        "1.3.9-dev/code17 ו־1.3.9/build17 עקביים; אין קידום build אחורה",
+        "הבדיקה מתייחסת ל־commit/tree המדויקים של התוצר"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "VERSION",
+        "android/AndroidManifest.xml",
+        "ios/project.yml"
+      ],
+      "tests": [
+        "scripts/verify_release.py"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "REL-002",
+      "title": "Android חתום לשדרוג ציבורי",
+      "platforms": [
+        "Android"
+      ],
+      "acceptance": [
+        "APK חתום במפתח ההיסטורי בלבד, חתימה/יישור/גיבוב ותוכן מאומתים לפני פרסום",
+        "אין החלפת latest.apk ב־Debug/unsigned ואין החלפת tags ישנים",
+        "שדרוג חתום ייבדק כשיש מפתח מורשה"
+      ],
+      "status": {
+        "Android": "חסום"
+      },
+      "implementation": [
+        "scripts/build_android.py",
+        "scripts/sync_latest_download.py",
+        "docs/STORE_PREPARATION_HE.md"
+      ],
+      "tests": [
+        "scripts/verify_release.py"
+      ],
+      "evidence": [],
+      "dependencies": [
+        "מפתח ההפצה הפרטי אינו זמין; תעודה היסטורית 2625ebe860cb0bfac105196b24aeedf3a948ce18c6f836478fd8ea38d0b937dc"
+      ],
+      "published": {
+        "Android": null
+      }
+    },
+    {
+      "id": "REL-003",
+      "title": "iOS Archive וחתימה רשמית",
+      "platforms": [
+        "iOS"
+      ],
+      "acceptance": [
+        "בניית סימולטור ו־device archive ללא חתימה נבנים ב־Xcode26.3",
+        "IPA/TestFlight רק לאחר Team/פרופיל/הרשאה/העלאה וקליטת Apple",
+        "אין הצגת .app של סימולטור כאפליקציה להתקנת iPhone"
+      ],
+      "status": {
+        "iOS": "חסום"
+      },
+      "implementation": [
+        "ios/scripts/archive_for_testflight.sh",
+        "ios/project.yml",
+        "IOS_TESTFLIGHT_HE.md"
+      ],
+      "tests": [
+        ".github/workflows/ios-ci.yml"
+      ],
+      "evidence": [],
+      "dependencies": [
+        "אין גישת חתימה מורשית ל־Apple Developer/App Store Connect בסביבה"
+      ],
+      "published": {
+        "iOS": null
+      }
+    },
+    {
+      "id": "REL-004",
+      "title": "קישור הורדה קבוע ואייקון מותקן",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "Android public latest.apk נשאר חתום עם SHA256 2772e3d8195de2d9a66edc8cdbc9e0940ac71f8cb55f1597dcc7c122120101af עד מהדורה תואמת",
+        "LAUNCHER/אייקון נפתחים בפועל; iOS UI פותח את האפליקציה מה־Home Screen",
+        "התקנת הטלפון של המשתמש עצמה דורשת גישה ואישור מערכת"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת"
+      },
+      "implementation": [
+        "android/AndroidManifest.xml",
+        "ios/project.yml",
+        "README.md"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java",
+        "ios/ConsumerLawReaderUITests/ReaderUITests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "REL-005",
+      "title": "ערוץ Web/PWA מוקדם",
+      "platforms": [
+        "Web"
+      ],
+      "acceptance": [
+        "פרסום reader/ מהמקור הנבדק, בלי החלפת alpha בשורש ובלי שינוי APK",
+        "HTTPS, זהות manifest יציבה, אייקונים, standalone, הוראות Safari/Chrome ומטמון",
+        "רק HTTP bytes/sourceCommit/deployment שהסתיימו מוכיחים פרסום"
+      ],
+      "status": {
+        "Web": "פורסם"
+      },
+      "implementation": [
+        ".github/workflows/deploy_web.yml",
+        "scripts/prepare_reader_site.py",
+        "scripts/verify_public_reader.py",
+        "scripts/build_web.py"
+      ],
+      "tests": [
+        "tests/test_reader_site.py",
+        "tests/test_public_reader.py",
+        "tests/test_web_pages.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "REL-006",
+      "title": "פרסום מדורג ועצמאי",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "ערוץ שעבר שערי בטיחות מפורסם בלי להמתין לפלטפורמה אחרת",
+        "כשלים אינם מוסתרים ו־Debug אינו מופץ כשדרוג מאושר",
+        "לאחר פרסום ממשיכים תיקונים/הרחבות; release רק אם מוסיף ערך שימושי"
+      ],
+      "status": {
+        "Android": "בפיתוח",
+        "iOS": "בפיתוח",
+        "Web": "בפיתוח"
+      },
+      "implementation": [
+        "RELEASE_PROCESS.md",
+        "RELEASE_HISTORY.md",
+        "IMPLEMENTATION_STATUS.md"
+      ],
+      "tests": [
+        "scripts/validate_project_docs.py"
+      ],
+      "evidence": [],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "STORE-001",
+      "title": "פרטיות, בעלות וחנויות",
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "acceptance": [
+        "מפרסם פרטי ולא ממשלתי; גילוי רשת ונתוני משתמש מדויק",
+        "metadata/support/privacy links מוכנים, ללא זיוף זכויות/אישור חנות/צילום פיזי",
+        "target36 ו־Xcode26 SDK תואמים הנחיות רשמיות שנבדקו; הצהרות בעל חשבון אינן נחתמות אוטומטית"
+      ],
+      "status": {
+        "Android": "מומש",
+        "iOS": "מומש"
+      },
+      "implementation": [
+        "docs/STORE_PREPARATION_HE.md",
+        "web/privacy.json",
+        "NOTICE_HE.md"
+      ],
+      "tests": [
+        "tests/test_web_pages.py"
+      ],
+      "evidence": [],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null
+      }
+    },
+    {
+      "id": "DOC-001",
+      "title": "מקור אמת עצמאי במאגר",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "README ו־12 מסמכי מוצר/ארכיטקטורה/מצב/backlog/testing/release/history/issues/decisions/external/handoff קיימים ומקושרים",
+        "כל דרישה כוללת ID, קבלה מדידה, פלטפורמה, מצב, קוד/בדיקה, ראיה/מגבלה וגרסת פרסום",
+        "אין תלות בשיחה או בזיכרון ואין סודות"
+      ],
+      "status": {
+        "Android": "מומש",
+        "iOS": "מומש",
+        "Web": "מומש"
+      },
+      "implementation": [
+        "PRODUCT_REQUIREMENTS.md",
+        "ARCHITECTURE.md",
+        "IMPLEMENTATION_STATUS.md",
+        "BACKLOG.md",
+        "TESTING.md",
+        "RELEASE_PROCESS.md",
+        "RELEASE_HISTORY.md",
+        "KNOWN_ISSUES.md",
+        "DECISIONS.md",
+        "EXTERNAL_ACTIONS.md",
+        "PROJECT_HANDOFF.md"
+      ],
+      "tests": [
+        "scripts/validate_project_docs.py"
+      ],
+      "evidence": [
+        {
+          "commit": "a06c91f8ff7b5d48b6470e88e891cb9bd9ead405",
+          "run": 42871114992,
+          "job": 130022342617,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42871114992/job/130022342617",
+          "result": "PASS12documents/63requirements, exact rendered catalog,52unit and35legal SHA/DOM",
+          "scope": "Checkpoint f1bbf53 plus validation workflow only; source validation, no native/publication acceptance"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "GOV-001",
+      "title": "עבודה מבוקרת ועצמאית",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "baseline016b3de; ענפים/commits/PRים ברורים; אין force-push או דריסת עבודה מקבילה",
+        "בדיקה משוחזרת→תיקון קטן→רגרסיה→ראיה",
+        "merge רק לאחר שערים רלוונטיים, לפי מדיניות המאגר; אין PASS ל־queued/in_progress"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "אומת"
+      },
+      "implementation": [
+        "PROJECT_HANDOFF.md",
+        "DECISIONS.md"
+      ],
+      "tests": [
+        "scripts/validate_project_docs.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "GOV-002",
+      "title": "גבולות וסיום בדיקות",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "אין שינוי משפטי/חשבונות/ענן/Analytics/סנכרון/תשלום או עבודה ידנית שניתנת לאוטומציה",
+        "אין חבילת Windows בלי קריאת התקן הקנוני; עדיפות ל־CI/Work",
+        "חסמים אנושיים אמיתיים בלבד מתועדים, כל ליקוי אוטומטי מהותי נשאר ב־backlog ולא נעלם"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "אומת"
+      },
+      "implementation": [
+        "EXTERNAL_ACTIONS.md",
+        "BACKLOG.md",
+        "PROJECT_HANDOFF.md"
+      ],
+      "tests": [
+        "scripts/validate_project_docs.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721601016,
+          "result": "PASS: all 4 iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721601016",
+          "scope": "iPhone26.2/iPhone18.5/iPad26.2/iPhone16.0; actual UI, no physical device or signed IPA claim"
+        },
+        {
+          "commit": "4ee85a379bcd9700125916133e1638a2fdd4f00a",
+          "run": 42721600913,
+          "job": 129517152088,
+          "result": "PASS: API31; API26 also passed; API36 full acceptance still failed at PDF",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42721600913/job/129517152088",
+          "scope": "API31 actual online/offline native flow on4ee; API26 job129517151932 also completed success; no full Android acceptance claim"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "GOV-003",
+      "title": "ביקורת חוזרת וחבילת תוצרים",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "בדיקת קוד ושערים מחדש, רגרסיות/קוד כפול/מרוצים/טיפול כשל/אובדן/ביצועים/נגישות",
+        "דוח שיפורים עם קבצים/בדיקה/result/commit, דוח סביבות, מטריצה, אבטחה, ביצועים, מועמדים וחסמים אמיתיים",
+        "לא עוצרים אחרי תכנון או בגלל CI ממתין"
+      ],
+      "status": {
+        "Android": "בפיתוח",
+        "iOS": "בפיתוח",
+        "Web": "בפיתוח"
+      },
+      "implementation": [
+        "docs/MOBILE_ENGINEERING_2026-11-08_HE.md",
+        "IMPLEMENTATION_STATUS.md",
+        "PROJECT_HANDOFF.md"
+      ],
+      "tests": [
+        "scripts/validate_project_docs.py"
+      ],
+      "evidence": [
+        {
+          "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+          "run": 42854077139,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42854077139",
+          "result": "PASS both legacy platform jobs: actual share Close/rotation/Home Screen relaunch/query14 plus stale-completion regression",
+          "scope": "iPhone16 and iPad18.5 only; all6-profile combined acceptance remains separate. See qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
+        }
+      ],
+      "dependencies": [],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": null
+      }
+    },
+    {
+      "id": "NAV-006",
+      "title": "יעדי חקיקת משנה מתחת לכפתור החזרה",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "יעד סעיף/חלק בתוספת מגיע לפחות10px מתחת לכפתור החזרה לאחר focus וגלילה",
+        "כל66 התקנות, גופנים18/24/28/48 וארבעה רוחבים: אפס יעדים מוסתרים; בדיקה משותפת גם במעטפות Native"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "אומת",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js"
+      ],
+      "tests": [
+        "tests/fixtures/reader_layout_probe.js",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        },
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913616,
+          "result": "PASS: all four existing iOS simulator jobs",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913616",
+          "scope": "Actual WKWebView navigation-target fixture; full-screen layout/rotation, not OS window resize"
+        }
+      ],
+      "dependencies": [
+        "Web פורסם; Android ו־iOS ניווט עברו706; NATIVE-003 window scaling הוא דרישה נפרדת"
+      ],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "PWA-001",
+      "title": "מוכנות עותק מקומי מלאה ומוצגת",
+      "platforms": [
+        "Web"
+      ],
+      "acceptance": [
+        "לוח התקנה מציג שמירה/מוכן/לא ניתן לאמת מתוך תשובת ServiceWorker השולט בלבד; כשל או60שניות לא נשארים כהצלחה",
+        "כל38 נכסי החובה קיימים: מחיקת CSS והוספת נכס זר אינן מוכנות אף שמספר רשומות המטמון נשאר38",
+        "reload, חיפוש עברי, מעבר14, פתיחה מחדש ושמירת העדפות עוברים כאשר הרשת מנותקת"
+      ],
+      "status": {
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js",
+        "scripts/build_web.py"
+      ],
+      "tests": [
+        "tests/pwa_offline_qa.py",
+        "tests/mobile_integration_qa.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        }
+      ],
+      "dependencies": [
+        "פורסם c3e9d9e אחרי CI והוכחת75HTTP; אין טענת התקנה פיזית"
+      ],
+      "published": {
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "CI-003",
+      "title": "אימות פרסום מדויק במסלול Pages הקיים",
+      "platforms": [
+        "Web"
+      ],
+      "acceptance": [
+        "אימות legacy מוגבל ל־GET בלי environment או pages:write; פריסת main ו־workflow-mode ממשיכה במסלול environment המוגן, בלי שינוי policy",
+        "כל נכסי reader כולל קובץ בעלות sourceCommit והקבצים הציבוריים הקודמים ו־APK נבדקים ב־HTTP200 ללא הפניה ו־SHA256 זהה",
+        "עד8 בקשות עצמאיות במקביל, מגבלות גודל וזמן, דוח חלקי וניסיון חוזר רק לקבצים שנכשלו"
+      ],
+      "status": {
+        "Web": "פורסם"
+      },
+      "implementation": [
+        ".github/workflows/deploy_web.yml",
+        "scripts/verify_public_reader.py"
+      ],
+      "tests": [
+        "tests/test_public_reader.py"
+      ],
+      "evidence": [
+        {
+          "commit": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+          "run": 42764913617,
+          "result": "PASS: all source/browser/build/Android26/31/36 jobs completed",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42764913617",
+          "scope": "47 unit, Node500, exact DOM/SHA35, real PWA offline,32axe scans, Android26/31/36 online/offline; API36 actual146-page PDFs and100navigation iterations. Not physical hardware."
+        }
+      ],
+      "dependencies": [
+        "אימות חי לאחר פרסום לפני מעבר למצב פורסם; אין שינוי הגנת branch/environment"
+      ],
+      "published": {
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "CI-004",
+      "title": "כיסוי קלטי build ו־WK fixture ב־iOS CI",
+      "platforms": [
+        "iOS"
+      ],
+      "acceptance": [
+        "מסנני push ו־pull_request כוללים אותם קלטי iOS/Web/מקור/metadata/תלויות/fixtures ובודקי iOS",
+        "שינוי כלי Android בלבד אינו מפעיל macOS ללא צורך; שינוי reader_layout_probe אוrequirements-qa אינו חומק מבדיקת iOS",
+        "כל קלט Python המיובא ב־build_web/verify_release וב־canonical_vendor כלול ברשימת תלויות מפורשת ומתועדת"
+      ],
+      "status": {
+        "iOS": "מומש"
+      },
+      "implementation": [
+        ".github/workflows/ios-ci.yml"
+      ],
+      "tests": [
+        "ios/ConsumerLawReaderTests/ReaderTests.swift",
+        "tests/fixtures/reader_layout_probe.js"
+      ],
+      "evidence": [],
+      "dependencies": [
+        "Final combined6-profile gate includes legacy iPad18.5, checksum-pinned XcodeGen2.46.0 and actual system accessibility XXXL/keyboard assertions. No separate event experiment for every path glob is claimed."
+      ],
+      "published": {
+        "iOS": null
+      }
+    },
+    {
+      "id": "SEARCH-005",
+      "title": "שחזור תוצאת חיפוש לאחר שינוי פריסה",
+      "platforms": [
+        "Android",
+        "iOS",
+        "Web"
+      ],
+      "acceptance": [
+        "לאחר חיפוש14, בחירת סעיף14, שינוי רוחב או גובה חלון וחזרה לתוצאות, אותה תוצאה נשארת נראית והשאילתה/תחום/מצב ההתאמה נשמרים",
+        "שינוי1032×1255→375×697,375×697→1032×1255,430×932→320×740 והקטנת גובה1032×1255→1032×650 עוברים ב־DOM מלא ללא רשת",
+        "כאשר הפריסה זהה נשמר offset בהפרש≤2px; חזרה נוספת אינה גורמת לקפיצה",
+        "בדיקת iPad Native משנה חלון מערכת בפועל ודורשת result.isHittable לפני tap שעלול לגלול אוטומטית"
+      ],
+      "status": {
+        "Android": "אומת",
+        "iOS": "מומש",
+        "Web": "פורסם"
+      },
+      "implementation": [
+        "web/mobile.js"
+      ],
+      "tests": [
+        "tests/search_state_qa.py",
+        "ios/ConsumerLawReaderUITests/ReaderWindowingUITests.swift"
+      ],
+      "evidence": [
+        {
+          "commit": "06e55335cd69601f6c1ea55e23ec073627dda777",
+          "run": 42777451011,
+          "result": "PASS Web scope:52unit,5search-layout sequences,35SHA/DOM,4widths/32axe,PWAoffline",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42777451011",
+          "scope": "Only the five completed source/browser jobs; overall run failed Android36. Public patch3 separately passed75HTTP."
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        }
+      ],
+      "dependencies": [
+        "Web published with actual HTTP proof; final Native candidate retains separate acceptance gates"
+      ],
+      "published": {
+        "Android": null,
+        "iOS": null,
+        "Web": {
+          "version": "1.3.9-dev · תיקון3",
+          "url": "https://sargon17-green.github.io/consumer-law-reader/reader/",
+          "sourceCommit": "cca785ed8b1f3d4c96bf25c0eb50e77b04899566",
+          "evidence": "qa/mobile-2026-11-08/public-web-patch3-http-verification.json"
+        }
+      }
+    },
+    {
+      "id": "DATA-003",
+      "title": "שמירת מצב Android גדול ללא חריגת Binder",
+      "platforms": [
+        "Android"
+      ],
+      "acceptance": [
+        "Actual WebView state exceeding1MB must not enter the system Bundle; saved Activity state stays below50KB",
+        "Atomic private cache retains complete history/index across actual Activity recreation and real Native Back/Forward",
+        "Strict101-char UUID+SHA reference,8MB bound, file digest/schema and exact OS/app/provider installation guard; missing/corrupt/old cache falls back to durable logical reading state",
+        "API26/31/36 online/offline native suites including SAF/PDF/renderer pass without extra permissions or debuggable changes"
+      ],
+      "status": {
+        "Android": "אומת"
+      },
+      "implementation": [
+        "android/src/il/org/lawreader/consumer/MainActivity.java",
+        "android/src/il/org/lawreader/consumer/WebViewStateCache.java"
+      ],
+      "tests": [
+        "android/qa/il/org/lawreader/consumer/qa/ReaderInstrumentation.java"
+      ],
+      "evidence": [
+        {
+          "commit": "06e55335cd69601f6c1ea55e23ec073627dda777",
+          "run": 42777451011,
+          "job": 129699683934,
+          "result": "FAIL reproduced:1204952-byte Activity state crashes reader",
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42777451011/job/129699683934",
+          "scope": "Before fix; native FATAL TransactionTooLargeException, not MediaProvider. New code compiles and52unit pass locally; no new native PASS yet"
+        },
+        {
+          "commit": "4819aa83728358312b79834313e18ff92f2e1c74",
+          "run": 42806470326,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326",
+          "result": "PASS: Android build and API26/31/36 completed success",
+          "scope": "Actual online/offline1.6MB state ->1036/1060-byte system Bundle, real Activity recreation and full history/Back/Forward; renderer termination/recovery on31/36. Component only; combined PR gate still required. See qa/mobile-2026-11-08/android-state-cache-accepted.json"
+        },
+        {
+          "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+          "run": 42817834059,
+          "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42817834059",
+          "result": "PASS all9 Linux/Android jobs completed",
+          "scope": "API26/31/36 online/offline actual native IME,1.6MB Chromium state ->1036–1200-byte ActivityBundle, real recreation/history/Back/Forward and digest/installation/8MB rejection. API31/36 actual renderer recovery; API36 actual146-page PDF and private exports independently verified. Full iOS acceptance not inferred; see qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+        }
+      ],
+      "dependencies": [
+        "Issue14 closure waits final combined14-gate acceptance before merge. Android94 adversarial/native regression passed. No new signed public APK."
+      ],
+      "published": {
+        "Android": null
+      }
+    }
+  ],
+  "integrationCandidateBranch": "fix/pastafari-date-android-20261028",
+  "candidateMeaning": "PR11 next combined candidate: accepted focused fixes integrated,9Linux/Android+6iOS completed PASS required; no new signed native publication",
+  "lastFullyAcceptedCandidate": "706a3bc19f7a75026ccb2bac614816e12c5f5293",
+  "componentAcceptance": {
+    "Android": {
+      "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+      "run": 42817834059,
+      "result": "PASS all9 Linux/Android jobs including API26/31/36 online/offline, real IME and adversarial cache",
+      "evidence": "qa/mobile-2026-11-08/acceptance-94cdf7d.json"
+    },
+    "iPad": {
+      "commit": "94cdf7d260372361919d9b3eca74393ee02cde6f",
+      "run": 42817834181,
+      "job": 129836408708,
+      "result": "PASS full iPad26.2 job including real window/menu/share/dismiss/visible selection/query; not all iOS acceptance",
+      "evidence": "qa/mobile-2026-11-08/ipad-window-94cdf7d.json"
+    },
+    "AndroidConstrained": {
+      "commit": "2227c2effab0c52e87abad183a86f56f264997e4",
+      "run": 42819646591,
+      "result": "PASS actual1.5GB/1CPU API26 online/offline; no1GB/OOM claim",
+      "evidence": "qa/mobile-2026-11-08/android-constrained-hardware.json"
+    },
+    "LegacyShareFixture": {
+      "commit": "4bc27af9cee6018008baf0cf37c82a06eec65473",
+      "run": 42854077139,
+      "result": "PASS iPhone16 and iPad18.5 selected completion regression and actual full functional UI; combined gate separate",
+      "evidence": "qa/mobile-2026-11-08/ios-legacy-share-component-accepted.json"
+    },
+    "iOSCompletePDF": {
+      "commit": "b91623549a235597f3005eb3100a72c274c0565b",
+      "run": 42856626665,
+      "result": "PASS full UIKit126pages and independent Ubuntu/Poppler verification42859574863",
+      "evidence": "qa/mobile-2026-11-08/ios-complete-pdf-component.json"
+    },
+    "iOSAccessibilityIME": {
+      "commit": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+      "run": 42861539523,
+      "job": 129988671238,
+      "result": "completed PASS actual system XXXL/full WK/UI and software keyboard bounds; final combined candidate still FAIL",
+      "evidence": "qa/mobile-2026-11-08/candidate-027-followup.json"
+    },
+    "androidIME": {
+      "commit": "6d246d3397b04ae68333a4469ebaca74c921d483",
+      "run": 42873698707,
+      "job": 130032075341,
+      "result": "completed PASS online and offline full native flow",
+      "evidence": "qa/mobile-2026-11-11/components-accepted.json"
+    },
+    "iosReadiness": {
+      "commit": "200d5b7c615e23986904823847e8ebf41683ef6d",
+      "run": 42874533215,
+      "job": 130034218067,
+      "result": "completed PASS lifecycle7.847s and8 repeated native retries6.290s",
+      "evidence": "qa/mobile-2026-11-11/components-accepted.json"
+    },
+    "ipadPrint": {
+      "commit": "c853d3ba3338eda89bcc09d68c0b2458b9806278",
+      "run": 42874102662,
+      "job": 130032722460,
+      "result": "completed PASS full functional UI348.896s",
+      "evidence": "qa/mobile-2026-11-11/components-accepted.json"
+    }
+  },
+  "lastCombinedCandidate": {
+    "head": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+    "tree": "c530ca59ea89d78b28bf5bb244e57ebc4bcc7276",
+    "testedPRMergeCommit": "0bf9297bba93aabb1ffa93f1d5d4e50fc3b9b863",
+    "result": "completed FAIL: Linux8/9PASS; iOS4/6PASS including actual system XXXL; Print Close26.2 and lifecycle18.5 fail",
+    "evidence": "qa/mobile-2026-11-08/candidate-027-followup.json"
+  },
+  "candidateBranch": "fix/pastafari-date-android-20261028",
+  "candidateResolution": "Resolve current PR11 head and exact tested checkout tree from GitHub; see qa/mobile-2026-11-11/components-accepted.json and PR body for immutable component evidence. Do not infer final acceptance from components."
+}

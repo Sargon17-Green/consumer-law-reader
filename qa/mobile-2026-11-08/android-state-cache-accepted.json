@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "sourceCommit": "4819aa83728358312b79834313e18ff92f2e1c74",
+  "tree": "573230afa0a1e4a8c87b5d8571b20820659de1d5",
+  "run": 42806470326,
+  "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326",
+  "result": "PASS: completed component build and all3 Android emulator jobs. Combined PR acceptance remains pending, not implied.",
+  "fixes": [
+    "Opaque Chromium Bundle is kept in bounded atomic private transient cache; system Bundle carries a101-character UUID:SHA reference only",
+    "Bounded generation-aware actual ReaderReady polling avoids premature failure after restored history or renderer recreation"
+  ],
+  "scenarios": [
+    {
+      "api": 26,
+      "job": 129797400988,
+      "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326/job/129797400988",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-10T11:20:28Z",
+      "completedAt": "2026-11-10T11:24:56Z",
+      "metrics": {
+        "rawWebStateBytes": [
+          "1617960",
+          "1617960"
+        ],
+        "boundedActivityStateBytes": [
+          "1036",
+          "1036"
+        ],
+        "activitySavedStateBytes": [
+          "764",
+          "764"
+        ],
+        "largeNativeState": [
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing cache rejected",
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing cache rejected"
+        ],
+        "rendererRecovery": [
+          "NOT TESTED: public renderer termination requires API29+; API26 ordinary lifecycle tests run above",
+          "NOT TESTED: public renderer termination requires API29+; API26 ordinary lifecycle tests run above"
+        ],
+        "PDF": [],
+        "QA_STATUS": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    {
+      "api": 31,
+      "job": 129797401061,
+      "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326/job/129797401061",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-10T11:20:29Z",
+      "completedAt": "2026-11-10T11:27:12Z",
+      "metrics": {
+        "rawWebStateBytes": [
+          "1615960",
+          "1615960"
+        ],
+        "boundedActivityStateBytes": [
+          "1036",
+          "1036"
+        ],
+        "activitySavedStateBytes": [
+          "764",
+          "764"
+        ],
+        "largeNativeState": [
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing cache rejected",
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing cache rejected"
+        ],
+        "rendererRecovery": [
+          "PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved",
+          "PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved"
+        ],
+        "PDF": [],
+        "QA_STATUS": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    {
+      "api": 36,
+      "job": 129797401074,
+      "url": "https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42806470326/job/129797401074",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-10T11:24:59Z",
+      "completedAt": "2026-11-10T11:30:07Z",
+      "metrics": {
+        "rawWebStateBytes": [
+          "1617964",
+          "1617964"
+        ],
+        "boundedActivityStateBytes": [
+          "1060",
+          "1060"
+        ],
+        "activitySavedStateBytes": [
+          "788",
+          "788"
+        ],
+        "largeNativeState": [
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing cache rejected",
+          "PASS: actual>1MB Chromium state -> atomic private reference<50KB -> actual Activity recreation -> same history/index and native Back/Forward; malformed/missing cache rejected"
+        ],
+        "rendererRecovery": [
+          "PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved",
+          "PASS: actual public renderer terminate -> native recovery alert -> new Activity/WebView -> actual Ready; font/section/search preserved"
+        ],
+        "PDF": [
+          "PASS: actual system Print -> Save as PDF -> SAF file; pages=146 bytes=1515150 sha256=6359374249d71126506706affe01cdad8b423313af9668e22f6e465c0966d9f7",
+          "PASS: actual system Print -> Save as PDF -> SAF file; pages=146 bytes=1515150 sha256=96bccce8b3ed143e035c56a0be8ac4d918438917c09fcb2f16f08bc281588351"
+        ],
+        "QA_STATUS": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 13758716394,
+      "name": "android-debug-not-for-upgrade",
+      "bytes": 10095436,
+      "sha256": "a984fd59d6c22342ea83dd9ec389fdc0efb3003fee5f77aa979a4c421a24b5f9"
+    },
+    {
+      "id": 13757809483,
+      "api": 26,
+      "bytes": 687841,
+      "sha256": "7f1a5699996436ba70984489d65d5fae030d2e914756e1bb99271007fea48ec4"
+    },
+    {
+      "id": 13760650622,
+      "api": 31,
+      "bytes": 1552241,
+      "sha256": "94de441141e1bce049a3aa3d414695e4a4de9d768b7359e82608a8d23effe243"
+    },
+    {
+      "id": 13760551174,
+      "api": 36,
+      "bytes": 4635434,
+      "sha256": "cc60828a9126c2601e9f13184c35f3c402c935056bb68387c23ed3616e2e3552",
+      "independentlyDownloadedAndHashVerified": true
+    }
+  ],
+  "limitations": [
+    "Emulators only; no physical-device or signed public upgrade claim",
+    "API26 uses AOSP WebView133 and a resource-only provider overlay with SELinux Enforcing; not an unmodified retail Android8 image",
+    "API31 WebView91.0.4472.114; API26/36 WebView133.0.6943.137",
+    "API26 public renderer termination is unavailable; ordinary Activity recreation is tested",
+    "Payload-digest, installation-identity and8MB read/write adversarial cases were added after this accepted component commit; await final combined CI before claiming their execution",
+    "API36 native PdfRenderer validates both online/offline PDFs; downloaded private PDF is the final offline export only; no tagged-PDF or physical-printer claim"
+  ]
+}

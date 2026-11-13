@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "sourceCommit": "4c3596a0d65f3eb01f56faf7d7507ff824894732",
+  "tree": "922e7d280f476cd317e49a2dcd23517675714885",
+  "run": 42810117955,
+  "job": 129809129367,
+  "result": "FAIL:360-second XCTest execution allowance exceeded; no accepted post-resize menu/share claim",
+  "artifact": 13763636437,
+  "artifactSha256": "6b52c9c4708808783111c85f811d0d093bd44c670516fb469e92ae9da2d65f84",
+  "independentlyDownloadedAndHashVerified": true,
+  "environment": {
+    "device": "iPad Pro13-inch M5 simulator",
+    "os": "iPadOS26.2",
+    "host": "macOS15.8.2",
+    "xcode": "26.3"
+  },
+  "observed": {
+    "initialSearch": "Opened and section14 selected before actual window gesture",
+    "originalWebFrame": [
+      0,
+      96,
+      1032,
+      1260
+    ],
+    "resizedWindowFrame": [
+      329,
+      218,
+      375,
+      825
+    ],
+    "resizedWebFrame": [
+      329,
+      292,
+      375,
+      741
+    ],
+    "resizedNativeMenuFrame": [
+      411,
+      238,
+      44,
+      44
+    ],
+    "resizedNativeShareFrame": [
+      469,
+      238,
+      44,
+      44
+    ],
+    "actualOsPointerGesture": true,
+    "nativeMenuAttemptStartedAtTestSeconds": 335.42,
+    "nativeMenuAttemptCompletedAfterAllowance": true,
+    "diagnosticCost": "Each native record used repeated debugDescription queries; three records consumed about55seconds each. Next test records actual frame values only and keeps real action assertions."
+  },
+  "files": {
+    "5A70C3F7-5FC5-41DF-8999-AD2C13CE540C.txt": {
+      "bytes": 3928,
+      "sha256": "4fdbb3bf90480a0bc5ac66456984a8412c670d72bda7a5a6427e2690a800eeb4"
+    },
+    "AE94C4F2-F1FB-4214-B916-16935157279B.png": {
+      "bytes": 4379259,
+      "sha256": "f9868fb20da622882388fe8d1b8637d0a9cc152f799dacedc8d9a330935688a7"
+    }
+  },
+  "limitations": [
+    "No PASS for post-resize native actions or selected-result visibility",
+    "Screenshot is actual simulator output, not physical device",
+    "WebContent unified log showed no matching processDidTerminate event in collected scope; absence is not proof of no possible process failure",
+    "New trial0d3ef3f keeps production corner-inset code unchanged; only evidence collection and native center-touch fixture change"
+  ]
+}

@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="il.org.lawreader.consumer.qa">
+  <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="36"/>
+  <application android:label="Consumer Law Reader QA" android:debuggable="true">
+    <activity android:name=".AttachmentReceiver" android:exported="true">
+      <intent-filter><action android:name="android.intent.action.VIEW"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="application/msword"/></intent-filter>
+    </activity>
+    <activity android:name=".ShareReceiver" android:label="Reader QA link receiver" android:exported="true">
+      <intent-filter><action android:name="android.intent.action.SEND"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="text/plain"/></intent-filter>
+    </activity>
+  </application>
+  <instrumentation android:name=".ReaderInstrumentation" android:targetPackage="il.org.lawreader.consumer" android:label="Actual WebView integration QA"/>
+</manifest>

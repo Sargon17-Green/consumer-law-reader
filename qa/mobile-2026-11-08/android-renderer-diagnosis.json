@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "sourceCommit": "c08a5816143de9a7369eaa955f9b4dabfbc12937",
+  "run": 42774300273,
+  "overallResult": "FAIL: evidence collection; both actual functional flows passed in process",
+  "jobs": [
+    {
+      "api": 31,
+      "job": 129689090682,
+      "webView": "91.0.4472.114",
+      "actualCurrentSection": "article_14",
+      "font": "24",
+      "functionalResult": "PASS: public terminate -> recovery alert -> replacement Activity/WebView -> Ready -> current article and offline index",
+      "exportResult": "FAIL: first absent optional file returned raw cat error text with zero exec-out status"
+    },
+    {
+      "api": 36,
+      "job": 129689090560,
+      "webView": "133",
+      "actualCurrentSection": "article_14",
+      "font": "24",
+      "functionalResult": "PASS: public terminate -> recovery alert -> replacement Activity/WebView -> Ready -> current article and offline index",
+      "exportResult": "FAIL: same collector problem"
+    }
+  ],
+  "artifact36": {
+    "id": 13743695948,
+    "sha256": "527f439a427e8190f1218771cd29d9134c2b08cf873fd5cfa4aa10fed6f46a77"
+  },
+  "collectorObserved": {
+    "qemu": "1",
+    "adbUid": "0",
+    "buildType": "userdebug",
+    "selinux": "Enforcing"
+  },
+  "nextFix": "Check shell-v2 stat exit and bounded expected size before raw exec-out read; validate magic/JSON/PDF SHA. Five permanent negative/round-trip unit tests. Actual search selection/query is added to the combined renderer flow.",
+  "limitations": [
+    "Not an overall passing run",
+    "No actual sustained-memory-pressure/OOM or physical hardware claim",
+    "The c08 isolated flow checked offline index but session.search was null; the stronger combined test exercises and restores an actual search query"
+  ]
+}

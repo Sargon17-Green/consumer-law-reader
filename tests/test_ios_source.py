@@ -18,9 +18,9 @@ class IOSNativeSourceQA(unittest.TestCase):
     def test_genuine_native_app_and_sandboxed_local_law(self):
         for token in ("@main", "struct ConsumerLawReaderApp: App",
                       "WKWebView", "loadFileURL", "allowingReadAccessTo",
-                      'subdirectory: "dist"', "NoRemoteLawResourcesV1"):
+                      'subdirectory: "dist"', "NoRemoteLawResourcesV2"):
             self.assertIn(token, SOURCE)
-        self.assertIn('url-filter":"^https?://', SOURCE)
+        self.assertIn("ReaderPolicy.contentRules", SOURCE)
 
     def test_native_ios_features(self):
         for token in ("UIActivityViewController", "UIPrintInteractionController",
@@ -35,7 +35,8 @@ class IOSNativeSourceQA(unittest.TestCase):
         self.assertNotIn("password =", SOURCE.lower())
         self.assertIn("pendingSettings", SOURCE)
         self.assertIn("confirmImport = true", SOURCE)
-        self.assertIn("key.startsWith('law-')", SOURCE)
+        self.assertIn("window.lawSettings.prepareImport", SOURCE)
+        self.assertIn("isTrustedMessage(message)", SOURCE)
 
     def test_dist_resource_folder_is_bundled(self):
         self.assertRegex(SPEC, r"- path: \.\./dist\s+type: folder\s+buildPhase: resources")

@@ -5,7 +5,8 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 : "$APPLE_TEAM_ID"
 : "$IOS_BUNDLE_ID"
 command -v xcodebuild >/dev/null || { echo "Install Xcode first." >&2; exit 2; }
-command -v xcodegen >/dev/null || { echo "Run: brew install xcodegen" >&2; exit 2; }
+command -v xcodegen >/dev/null || { echo "XcodeGen2.46.0 is required; use the checksum-pinned installation in .github/workflows/ios-ci.yml." >&2; exit 2; }
+[[ "$(xcodegen --version)" == 'Version: 2.46.0' ]] || { echo "Use XcodeGen2.46.0, matching the tested CI generator." >&2; exit 2; }
 cd "$ROOT"
 python3 -m pip install -r requirements-qa.txt
 python3 scripts/build_web.py

@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "asOf": "2026-11-10T18:24:00Z",
+  "candidate": {
+    "head": "027d46d0df95fb6e76ff833c3bb410bcd2bb3aed",
+    "tree": "c530ca59ea89d78b28bf5bb244e57ebc4bcc7276",
+    "testedPRMergeCommit": "0bf9297bba93aabb1ffa93f1d5d4e50fc3b9b863",
+    "sameTreeVerified": true,
+    "accepted": false
+  },
+  "linux": {
+    "run": 42861539480,
+    "result": "completed FAILURE;8 of9 jobs PASS",
+    "api26": "PASS",
+    "api31": "PASS",
+    "api36": {
+      "job": 129989394943,
+      "online": "PASS including full146-page system PDF and actual renderer recovery",
+      "offline": "FAIL at actual native software keyboard; sheet closed before typing",
+      "artifact": 13786815880,
+      "zipSHA256": "1d8107a0b36c7ea2ed5f4080b8063402f6de9a7a80d5261feae313001915c5e4",
+      "failureScreenshot": {
+        "file": "android-failure-at-assertion.png",
+        "bytes": 157043,
+        "sha256": "fd2bf91df274cc9556e006d14aa4b27f98b7310b17dd46591b10207713dbe5c8",
+        "meaning": "Exact assertion-time screenshot; final Android Home Screen image is not the failure screen"
+      },
+      "diagnosis": "Test cleared native editable text before touching cached AX bounds. Delayed search results can shrink bottom-anchored sheet; stale touch can hit backdrop. Product search change not yet justified."
+    }
+  },
+  "ios": {
+    "run": 42861539523,
+    "overall": "completed FAILURE;4of6 profiles PASS",
+    "profiles": [
+      {
+        "name": "iPhone26.2",
+        "job": 129988671239,
+        "result": "completed PASS"
+      },
+      {
+        "name": "iPad26.2",
+        "job": 129988670523,
+        "result": "completed FAIL in functional Print Close; all8 policy/WK, keyboard, header audit and separate actual window resize PASS"
+      },
+      {
+        "name": "iPhone18.5",
+        "job": 129988670957,
+        "result": "completed FAIL in integration lifecycle script ReferenceError lawMobile; actual functional UI and keyboard/header audit PASS"
+      },
+      {
+        "name": "iPad18.5",
+        "job": 129988671034,
+        "result": "completed PASS"
+      },
+      {
+        "name": "iPhone16",
+        "job": 129988671055,
+        "result": "completed PASS; actual software keyboard, sharing Close, installed icon relaunch and query14"
+      },
+      {
+        "name": "iPhone26.2 accessibility XXXL",
+        "job": 129988671238,
+        "result": "completed PASS; actual system accessibility-extra-extra-extra-large, all8 policy/WK tests, actual software keyboard bounds, header audit and complete functional UI"
+      }
+    ],
+    "ipadPrint": {
+      "artifact": 13787730646,
+      "zipSHA256": "601d76546ccab03ccf7eb593cbf6b61935aeeea17eea1ce6bce85d9d2f0f5dc5",
+      "actualCloseTap": {
+        "x": 361.5,
+        "y": 74
+      },
+      "closeBounds": {
+        "x": 343.5,
+        "y": 56,
+        "width": 36,
+        "height": 36
+      },
+      "conclusion": "Tap is geometrically correct. This does not prove readiness or root cause.",
+      "actualRecording": {
+        "file": "65D1EF41-59BF-49DA-A489-744AF76ADF71.mp4",
+        "durationSeconds": 183.29,
+        "inspectionCommit": "0608339e6173a3675ea59cbce70d157a1bcd028b",
+        "inspectionRun": 42870160225,
+        "inspectionJob": 130018963526,
+        "extractedFrameSHA256": "073c01af8a1e394561925c5fd9169402f7f1ad30603cea8574ac563bc6ec0af9",
+        "observed": "Actual system Print Options, rendered preview1of199, Close still visible. Frame extracted unresized from original simulator recording; not physical device."
+      }
+    },
+    "accessibilityXXXL": {
+      "job": 129988671238,
+      "systemSetting": "accessibility-extra-extra-extra-large",
+      "webReadingSize": "48px when no user preference",
+      "keyboardBounds": {
+        "x": 0,
+        "y": 583,
+        "width": 402,
+        "height": 233
+      },
+      "inputBounds": {
+        "x": 18,
+        "y": 422,
+        "width": 366,
+        "height": 54
+      },
+      "functionalSeconds": 274.357,
+      "artifact": 13789333018,
+      "bytes": 100335980,
+      "result": "PASS actual simulator; not physical device or blanket WCAG certification"
+    }
+  },
+  "experiments": [
+    {
+      "branch": "work/android-ime-focus-20261110",
+      "head": "85003da0b924869ebbb28203e3d3529e61b50b3a",
+      "run": 42868099970,
+      "result": "completed FAILURE: API26 and36PASS; API31FAIL at editable lookup in active IME window",
+      "lesson": "After real IME appears, active accessibility root may be keyboard; query app TYPE_APPLICATION window."
+    },
+    {
+      "branch": "work/android-ime-focus-20261110",
+      "head": "bfcb7e11f2d354c878984e9fa504085b41f5ff65",
+      "run": 42870233731,
+      "result": "completed FAILURE: API26/36 full online/offlinePASS; API31 native key input did not update field after ACTION_SET_TEXT clear. No product change; IME strength retained"
+    },
+    {
+      "branch": "work/ios-lifecycle-trace-20261110",
+      "head": "f522c224c78f4c8e196f1f7df1dc2ce67f9c80ee",
+      "run": 42870553619,
+      "result": "Diagnostic compile failure only: multi-statement async script helper required explicit return. Not product regression and no runtime acceptance."
+    },
+    {
+      "branch": "work/ios-system-pdf-save-20261110",
+      "head": "278d13e361af6e52f45b235ca356b73cdf157a63",
+      "run": 42870543669,
+      "result": "completed FAILURE overall: focused actual Print Close PASS on both iPhone26.2(115.276s)/iPad26.2(109.464s), each single native Close then enabled reader. Save-to-Files query failed because actual activity is Cell, not Button. Production DEBUG trace delegate was present in this component; it is not final acceptance."
+    },
+    {
+      "branch": "work/android-ime-native-edit-20261110",
+      "head": "94dabd542effbd797d829f2f0a59df8a02a2a415",
+      "run": 42871943171,
+      "result": "completed FAILURE. API31 online full native flow PASS incl key14/focus; offline Native Delete failed before empty-query assertion. No product change; original IME assertions retained."
+    },
+    {
+      "branch": "work/ios-lifecycle-trace-20261110",
+      "head": "475d9fadcfe8637cb31fa5d5598d471ec77e69b2",
+      "run": 42871844738,
+      "result": "completed PASS lifecycle7.796s. Trace did not reproduce original ReferenceError; not proof of its cause."
+    },
+    {
+      "branch": "work/android-ime-native-edit-20261110",
+      "head": "6d246d3397b04ae68333a4469ebaca74c921d483",
+      "run": 42873698707,
+      "result": "completed PASS online and offline full native flow"
+    },
+    {
+      "branch": "work/ios-files-cell-save-20261110",
+      "head": "060fbaca723a645bb115e896d15063813430ead1",
+      "run": 42873707617,
+      "result": "Completed observation test PASS, but arbitrary navigation-bar assertion was weak. This does NOT establish Files browser opening or actual file saved."
+    },
+    {
+      "branch": "work/ipad-print-ready-20261110",
+      "head": "c853d3ba3338eda89bcc09d68c0b2458b9806278",
+      "run": 42874102662,
+      "result": "completed PASS full functional UI348.896s"
+    },
+    {
+      "branch": "work/ios-readiness-generation-20261110",
+      "head": "200d5b7c615e23986904823847e8ebf41683ef6d",
+      "run": 42874533215,
+      "issue": 16,
+      "result": "completed PASS lifecycle7.847s and8 repeated native retries6.290s"
+    },
+    {
+      "branch": "work/ios-files-cell-save-20261110",
+      "head": "eab09e8321a03e81e8e09cfe8e7aee21e0762f5a",
+      "run": 42876796144,
+      "result": "Diagnostic compile FAIL only: XCUIApplication has no public bundleIdentifier property. Corrected with supported label; no product runtime failure or Files-save PASS."
+    }
+  ],
+  "gates": "Keep PR11 draft. Do not merge any candidate until essential completed checks pass on exact integrated tree. Diagnostic artifact decoding success is not app acceptance.",
+  "legal": {
+    "sha256": "de5240a877dd3830ec9ac80f8bc60bf001882b6e36e8615b991d7defcd8e2ed9",
+    "verifiedDate": "2026-10-28",
+    "changed": false
+  },
+  "public": {
+    "web": "Web/PWA preview3 remains live and75HTTP/SHA PASS42859574863",
+    "android": "v1.3.5-beta original signed APK unchanged",
+    "newNativeRelease": false
+  },
+  "recovery": "Local Work filesystem is available again11Nov; all material code/evidence also remains in GitHub. No Windows package or installation used.",
+  "preservedScreens": {
+    "android": "screens/android-api36-027-search-closed.png",
+    "ipad": "screens/ipad26-027-print-close-recording-frame.jpg",
+    "scope": "Original assertion image and unresized original simulator video frame now Git blobs; byte/SHA provenance in screens/README.md"
+  },
+  "checkpointValidation": {
+    "commit": "a06c91f8ff7b5d48b6470e88e891cb9bd9ead405",
+    "parent": "f1bbf5384a2f4f6d88667dd018140364683467a1",
+    "run": 42871114992,
+    "job": 130022342617,
+    "result": "completed SUCCESS",
+    "docs": 12,
+    "requirements": 63,
+    "pythonUnitTests": 52,
+    "legalSHAAndDOMChecks": 35,
+    "normalizedUTF16GeneratedCases": 500,
+    "dateFallback": "PASS raw/REST/Pages stale/malformed/DNS/offline/HTTP/timeout/partial-body/exact allowlist",
+    "artifact": 13789861776,
+    "scope": "Pure documentation/source validation; not native acceptance or publication"
+  },
+  "storePolicyRecheck": {
+    "date": "2026-11-10",
+    "androidTarget": 36,
+    "iOSMinimum": 16,
+    "Xcode": "26.3",
+    "sources": [
+      "https://support.google.com/googleplay/android-developer/answer/11926878?hl=en",
+      "https://developer.apple.com/news/upcoming-requirements/?id=04282026a",
+      "https://developer.apple.com/news/upcoming-requirements/?id=0992026a",
+      "https://support.google.com/googleplay/android-developer/answer/18265346?hl=en",
+      "https://developer.apple.com/app-store/review/guidelines/"
+    ],
+    "result": "Current target/SDK settings already satisfy retrieved submission minima; no store approval or account access is inferred."
+  },
+  "refreshedAsOf": "2026-11-11",
+  "followupEvidence": "qa/mobile-2026-11-11/components-accepted.json"
+}
