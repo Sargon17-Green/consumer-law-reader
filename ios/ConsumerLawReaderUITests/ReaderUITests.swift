@@ -394,6 +394,11 @@ final class ReaderUITests: XCTestCase {
         let shot=XCTAttachment(screenshot:app.screenshot());shot.name="Reader actual simulator UI";shot.lifetime = .keepAlways;add(shot)
         // Leave the app on its Home Screen, then launch through the installed icon.
         XCUIDevice.shared.press(.home);app.terminate()
+        // XCTest may report a successful terminate call before SpringBoard
+        // has fully retired the process. Do not race a new icon launch with
+        // the previous application's shutdown.
+        XCTAssertTrue(app.wait(for:.notRunning,timeout:30),
+                      "The prior app process must stop before Home Screen relaunch")
         let springboard=XCUIApplication(bundleIdentifier:"com.apple.springboard")
         let icons=springboard.icons.matching(NSPredicate(format:"label BEGINSWITH %@","חוק הגנת הצרכן"))
         var launcher:XCUIElement?
@@ -404,7 +409,18 @@ final class ReaderUITests: XCTestCase {
         }
         XCTAssertNotNil(launcher,"Installed native app must be reachable from its persistent Home Screen icon: "+springboard.debugDescription)
         launcher?.tap()
-        XCTAssertTrue(app.wait(for:.runningForeground,timeout:30))
+        let relaunched=app.wait(for:.runningForeground,timeout:30)
+        if !relaunched {
+            // Keep the real Home Screen icon launch as a strict acceptance
+            // requirement. Capture evidence rather than silently falling back
+            // to app.activate() or accepting a failed launch.
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Home Screen after native app icon relaunch failure"
+            shot.lifetime = .keepAlways
+            add(shot)
+            Swift.print("NATIVE_ICON_RELAUNCH_FAILED: appState=\(app.state.rawValue) springboardState=\(springboard.state.rawValue)")
+        }
+        XCTAssertTrue(relaunched,"Installed Home Screen icon must launch the actual app in foreground")
         XCTAssertTrue(menu.waitForExistence(timeout:60))
         XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in menu.isEnabled },object:nil)],timeout:60),.completed)
         openSearch()

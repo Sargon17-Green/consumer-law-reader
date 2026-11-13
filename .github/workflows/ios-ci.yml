@@ -21,24 +21,9 @@ on:
       - 'tests/fixtures/**'
       - 'tests/test_ios_source.py'
       - 'tests/test_web_pages.py'
+  # Protected main requires every iOS check on every PR. Do not path-filter PR events:
+  # omitted jobs are not successful checks, so unrelated PRs would be unmergeable.
   pull_request:
-    paths:
-      - '.github/workflows/ios-ci.yml'
-      - 'ios/**'
-      - 'original/**'
-      - 'web/**'
-      - 'scripts/build_web.py'
-      - 'scripts/bundled_assets.py'
-      - 'scripts/prepare_typed_sources.py'
-      - 'scripts/canonical_vendor/**'
-      - 'scripts/verify_release.py'
-      - 'typed-sources/**'
-      - 'metadata/**'
-      - 'VERSION'
-      - 'requirements-qa.txt'
-      - 'tests/fixtures/**'
-      - 'tests/test_ios_source.py'
-      - 'tests/test_web_pages.py'
   workflow_dispatch:
 
 concurrency:
