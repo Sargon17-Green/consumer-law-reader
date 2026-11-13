@@ -418,7 +418,7 @@ final class ReaderUITests: XCTestCase {
             shot.name="Home Screen after native app icon relaunch failure"
             shot.lifetime = .keepAlways
             add(shot)
-            print("NATIVE_ICON_RELAUNCH_FAILED: appState=\(app.state.rawValue) springboardState=\(springboard.state.rawValue)")
+            Swift.print("NATIVE_ICON_RELAUNCH_FAILED: appState=\(app.state.rawValue) springboardState=\(springboard.state.rawValue)")
         }
         XCTAssertTrue(relaunched,"Installed Home Screen icon must launch the actual app in foreground")
         XCTAssertTrue(menu.waitForExistence(timeout:60))
