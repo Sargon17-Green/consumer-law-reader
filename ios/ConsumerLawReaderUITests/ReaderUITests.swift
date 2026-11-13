@@ -341,7 +341,21 @@ final class ReaderUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(share.frame.height,44)
         share.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
         let activities=app.otherElements["ActivityListView"].firstMatch
-        XCTAssertTrue(activities.waitForExistence(timeout:8),"Actual system share must be presented")
+        // A remote system ShareSheet on iPad26.2 can require longer than the
+        // previous eight-second window: the log shows one AX lookup consuming
+        // over seven seconds. The independent cold/print/Files share tests
+        // all use 30 seconds. Keep one consistent threshold and preserve a
+        // screenshot plus AX tree if this genuinely never appears.
+        let systemShareAppeared=activities.waitForExistence(timeout:30)
+        if !systemShareAppeared {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(30000)))
+            tree.name="Full flow system Share missing AX after Print and Files"
+            tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Full flow system Share missing screen after Print and Files"
+            shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertTrue(systemShareAppeared,"Actual system share must be presented after Print and Files")
         let shareScreen=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
         shareScreen.name="Actual system share before dismissal";shareScreen.lifetime = .keepAlways;add(shareScreen)
         // The ActivityListView can exist before its Close becomes hittable.

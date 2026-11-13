@@ -2,6 +2,10 @@
 
 עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
+## checkpoint נוכחי — 13.11.2026, שלושה כשלים מאומתים מתצלומי מערכת
+
+[דוח 3aedcad מבוסס צילומי xcresult](qa/mobile-2026-11-13/share-remote-sheet-visual-triage-3aedcad.md): [מקור/Web/Android 43382168208](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43382168208) **9/9 PASS**, [iOS 43382168200](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43382168200) **3/6 PASS** (iPhone16/18.5/26.2-XXXL). iPhone26 מציג Files picker לבן בלי Cancel, iPad18 cold share יוצר remote container לא מאוכלס, iPad26 full share מתחיל להתפתח אך לא ניתן לו אותו זמן ה־AX של מבחני השיתוף הקצרים. התיקון הבא הוא QA בלבד: 8→30 שניות ל־`ActivityListView` ב־full, עם תמונת כשל ועץ AX; אין ויתור על אף דרישת תפקוד. שני כשלי הרכיבים הריקים עדיין פתוחים; אין לשנות את קוד המוצר בלי גורם שורש. **אין commit חדש בזמן CI**; 15/15 completed/success על אותו SHA, חתימה ואימות טקסט משפטי לפני מיזוג/שחרור.
+
 ## checkpoint עדכני — 13.11.2026, מגבלת זמן ב־iOS וסימולטור iPad26
 
 [דוח הממצאים והמשך](qa/mobile-2026-11-13/ios-runner-budget-and-install-preflight.md): קומיט `9995a85e` קיבל **9/9 PASS** ב־[Linux/Web/Android 43316834311](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43316834311), אך **1/6 PASS** ב־[iOS 43316834229](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43316834229). iPad18.5 עבר **את כל הבדיקות**, iPad26.2 נכשל ב־FrontBoard NotFound לפני XCTest, וארבע עבודות iPhone סומנו cancelled. מבחן הרצף המלא ב־iPhone18.5 עבר את תקרת 8 הדקות `executionTimeAllowance`; כמה עבודות התקרבו ל־30 דקות והופסקו. בתיקון הבא מוגדר תקציב CI של 55 דקות לכל פרופיל, 720 שניות למבחן הרצף המלא בלבד, ו־preflight של `simctl install/launch/terminate` בכל ששת הפרופילים. תנאי ההצלחה לא הוחלשו. אחרי commit **לא להזיז ראש PR #11 בזמן CI**; הכרעה רק לפי completed/log ו־9+6 PASS על אותו SHA/tree.
