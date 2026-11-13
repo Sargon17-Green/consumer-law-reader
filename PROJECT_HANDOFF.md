@@ -2,6 +2,10 @@
 
 עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
+## checkpoint עדכני — 13.11.2026, מגבלת זמן ב־iOS וסימולטור iPad26
+
+[דוח הממצאים והמשך](qa/mobile-2026-11-13/ios-runner-budget-and-install-preflight.md): קומיט `9995a85e` קיבל **9/9 PASS** ב־[Linux/Web/Android 43316834311](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43316834311), אך **1/6 PASS** ב־[iOS 43316834229](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43316834229). iPad18.5 עבר **את כל הבדיקות**, iPad26.2 נכשל ב־FrontBoard NotFound לפני XCTest, וארבע עבודות iPhone סומנו cancelled. מבחן הרצף המלא ב־iPhone18.5 עבר את תקרת 8 הדקות `executionTimeAllowance`; כמה עבודות התקרבו ל־30 דקות והופסקו. בתיקון הבא מוגדר תקציב CI של 55 דקות לכל פרופיל, 720 שניות למבחן הרצף המלא בלבד, ו־preflight של `simctl install/launch/terminate` בכל ששת הפרופילים. תנאי ההצלחה לא הוחלשו. אחרי commit **לא להזיז ראש PR #11 בזמן CI**; הכרעה רק לפי completed/log ו־9+6 PASS על אותו SHA/tree.
+
 ## checkpoint עדכני — 12.11.2026, פעולות מערכת מוכחות
 
 על `b41b3c40` הושלמו [Linux/Web/Android 43303378028](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43303378028) **9/9 success** ו־[iOS 43303378173](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43303378173) **1/6 success** (iPhone16). [דוח מלא לכל ארבעת רצפי השיתוף](qa/mobile-2026-11-12/b41-isolation-results-and-end-to-end-actions.md). קומיט התיקון הבא מבדיל בין `isHittable` לא־יציב של פקדי SwiftUI ומערכת Files, לבין **פעולה ממשית**: מקישים על Menu/Share בקואורדינטה המתועדת, מחייבים שפעולת Print/Restore או חלונית `ActivityListView` יופיעו, ושכפתור הסגירה יהיה לחיץ ויבצע סגירה אמיתית. זה אינו ויתור על סף קבלה; חלונית שלא נפתחת/נסגרת עדיין תיכשל. כשלי iPad Files Cancel ו־Window resize, או XXXL share dismissal, נשארים פתוחים אם חוזרים. אין להזיז ראש PR #11 בזמן CI, אין לפתוח ענפים ואין לפרסם native לפני 15/15 על אותו SHA וחתימה תקפה.

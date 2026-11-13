@@ -203,6 +203,11 @@ final class ReaderUITests: XCTestCase {
         },object:nil)],timeout:30),.completed,"Actual cold-launch share must close and restore the reader")
     }
     func testSearchNavigationSharingRotationAndRelaunch() {
+        // Full keyboard + repeated reading + print + Files + share + rotation
+        // + SpringBoard relaunch exceeds the previous 480s allowance on
+        // some real simulators. Allow measured UI work to finish; all
+        // functional assertions and other test limits remain unchanged.
+        executionTimeAllowance=720
         let app=XCUIApplication()
         app.launch()
         let menu=app.buttons.matching(identifier:"native-menu").firstMatch

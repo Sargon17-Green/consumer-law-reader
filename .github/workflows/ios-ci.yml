@@ -51,7 +51,7 @@ jobs:
   ios-simulator:
     name: ${{ matrix.family }} iOS ${{ matrix.os }} ${{ matrix.profile || '' }} ${{ matrix.os == '16.0' && '(runtime availability)' || '' }}
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 55
     strategy:
       fail-fast: false
       max-parallel: 2
@@ -169,14 +169,17 @@ jobs:
           fi
           xcrun simctl status_bar "$DEVICE" override --time '9:41'
           python3 ios/scripts/configure_simulator_runtime.py "$DEVICE" | tee "build/$LABEL-runtime.json"
-          if [[ "$OS" == '16.0' ]]; then
-            APP="build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app"
-            xcrun simctl install "$DEVICE" "$APP"
-            xcrun simctl get_app_container "$DEVICE" io.github.sargon17green.consumerlawreader app
-            xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
-            xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
-          fi
-          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 480 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+          # Fail early on the actual installed app, before XCTest launches its
+          # separate test runner. An iPad26.2 CI failure (FrontBoard NotFound)
+          # occurred during Xcode's implicit install/launch without running a
+          # single UI assertion. Keep this check for all device families, not
+          # just the legacy iPhone16 runtime.
+          APP="build/ios-derived/Build/Products/Debug-iphonesimulator/ConsumerLawReader.app"
+          xcrun simctl install "$DEVICE" "$APP"
+          xcrun simctl get_app_container "$DEVICE" io.github.sargon17green.consumerlawreader app
+          xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
+          xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
+          xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 720 -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |
