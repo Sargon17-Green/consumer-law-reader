@@ -137,6 +137,10 @@ final class ReaderUITests: XCTestCase {
             (sidebar.exists && sidebar.isHittable) || (general.exists && general.isHittable)
         },object:nil)],timeout:60)
         if ready != .completed {
+            // A menu item still present after the tap is a different failure
+            // from a visible Files picker without Cancel. Record the actual
+            // stage instead of assuming that the importer opened.
+            Swift.print("FILES_TRANSITION_FAILURE: restoreMenuItemStillExists=\(restore.exists)")
             let tree=XCTAttachment(string:String(app.debugDescription.prefix(25000)))
             tree.name="Isolated importer lacks actionable Cancel AX";tree.lifetime = .keepAlways;add(tree)
             let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
@@ -189,6 +193,10 @@ final class ReaderUITests: XCTestCase {
             (closeByLabel.exists && closeByLabel.isHittable))
         },object:nil)],timeout:45)
         if ready != .completed {
+            // A remote ShareSheet container can exist even while its controls
+            // never render. Capture this distinction for iOS simulator QA.
+            let remote=app.otherElements.matching(identifier:"ShareSheet.RemoteContainerView").firstMatch
+            Swift.print("FRESH_SHARE_FAILURE_STAGE: activityExists=\(activities.exists) remoteContainerExists=\(remote.exists)")
             let tree=XCTAttachment(string:String(app.debugDescription.prefix(18000)))
             tree.name="Fresh native share full AX before failed Close";tree.lifetime = .keepAlways;add(tree)
             let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
@@ -283,9 +291,22 @@ final class ReaderUITests: XCTestCase {
             }
             XCTAssertEqual(previewReady,.completed,"The actual system print preview must contain a real first document page")
         }
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
-            printCancel.exists && printCancel.isEnabled && printCancel.isHittable
-        },object:nil)],timeout:20),.completed,"The actual system Close must be ready")
+        let printCloseReady=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            guard printCancel.exists && printCancel.isEnabled else { return false }
+            let frame=printCancel.frame
+            // Do not request a hit point from an invalid or off-screen AX
+            // frame: XCTest can throw before reporting a useful assertion.
+            return frame.width>0 && frame.height>0 &&
+                   frame.intersects(app.frame) && printCancel.isHittable
+        },object:nil)],timeout:20)
+        if printCloseReady != .completed {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(18000)))
+            tree.name="System print Close missing or invalid AX frame";tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="System print Close missing or invalid hit point";shot.lifetime = .keepAlways;add(shot)
+            Swift.print("PRINT_CLOSE_FAILURE: exists=\(printCancel.exists) frame=\(printCancel.frame)")
+        }
+        XCTAssertEqual(printCloseReady,.completed,"Actual system Print Close must be enabled, in-frame and hittable")
         let printShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
         printShot.name="Actual system print preview before native Close";printShot.lifetime = .keepAlways;add(printShot)
         printCancel.tap()
@@ -418,6 +439,10 @@ final class ReaderUITests: XCTestCase {
             shot.name="Home Screen after native app icon relaunch failure"
             shot.lifetime = .keepAlways
             add(shot)
+            let springboardAX=XCTAttachment(string:String(springboard.debugDescription.prefix(18000)))
+            springboardAX.name="SpringBoard accessibility after actual icon relaunch failure"
+            springboardAX.lifetime = .keepAlways
+            add(springboardAX)
             Swift.print("NATIVE_ICON_RELAUNCH_FAILED: appState=\(app.state.rawValue) springboardState=\(springboard.state.rawValue)")
         }
         XCTAssertTrue(relaunched,"Installed Home Screen icon must launch the actual app in foreground")
