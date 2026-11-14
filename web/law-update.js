@@ -78,16 +78,21 @@
     const available = remote.published_revision_sequence_by_platform[channel] >=
                       remote.current_revision_sequence;
     if (detail) {
-      detail.textContent = available
+      const iso = remote.law_text_last_amended_on;
+      const date = iso.slice(8, 10) + '.' + iso.slice(5, 7) + '.' + iso.slice(0, 4);
+      const revision = ' מהדורת הנוסח המקומית: ' + local +
+                       '; המהדורה הנדרשת: ' + remote.current_revision_sequence +
+                       '; מועד השינוי: ' + date + '.';
+      detail.textContent = (available
         ? 'נמצא נוסח חוק מעודכן יותר מזה שמותקן כאן. חובה לעדכן כדי להסתמך על הנוסח העדכני.'
-        : 'נמצא שינוי בנוסח החוק, אך מהדורה תואמת למכשיר זה טרם פורסמה. אין להסתמך על הנוסח המותקן כנוסח עדכני.';
+        : 'נמצא שינוי בנוסח החוק, אך מהדורה תואמת למכשיר זה טרם פורסמה. אין להסתמך על הנוסח המותקן כנוסח עדכני.') + revision;
     }
     if (link) {
       // Remote JSON can never select a link or an executable download.
       link.href = channel === 'web'
         ? 'https://sargon17-green.github.io/consumer-law-reader/reader/' : RELEASES;
       link.textContent = channel === 'web'
-        ? 'פתיחת הקורא המעודכן' : 'בדיקת מהדורות מעודכנות ב־GitHub';
+        ? 'בדיקת מהדורה מעודכנת באתר' : 'בדיקת מהדורות מעודכנות ב־GitHub';
     }
     banner.hidden = false;
     return true;
