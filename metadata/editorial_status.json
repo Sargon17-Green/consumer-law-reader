@@ -11,5 +11,9 @@
   "metadata_complete_or_guaranteed": false,
   "metadata_scope": "הערות, הפניות, היסטוריה חקיקתית, שיוכי חקיקת משנה, פרטי צווים ומקורות",
   "historical_orders_pending": "אימות עובדתי של אי־ביטול אכרזות הפיקוח והצווים שהותקנו לפיהן",
-  "license_code": "MIT"
+  "license_code": "MIT",
+  "law_id": "israel-consumer-protection-law-1981",
+  "law_revision_sequence": 1,
+  "law_text_last_amended_on": "2026-09-30",
+  "next_scheduled_change_on": "2027-03-22"
 }
