@@ -18,16 +18,43 @@ final class ReaderUITests: XCTestCase {
         XCTAssertFalse(web.label.isEmpty)
         let webTop=web.frame.minY
         XCTAssertGreaterThan(webTop,menu.frame.maxY)
+        let share=app.buttons.matching(identifier:"native-share").firstMatch
+        XCTAssertTrue(share.waitForExistence(timeout:60))
+        // The actual first-party header starts where its native actions begin.
+        // iPadOS 26 has a *separate* system status/window-title area above it.
+        // Apple AX reports its title as a 630x15 hit region at y=6; that
+        // system-owned title must not be mistaken for an app button.
+        let actionTop=min(menu.frame.minY,share.frame.minY)
+        for control in [menu,share] {
+            XCTAssertGreaterThanOrEqual(control.frame.width,44,
+                "First-party header actions must have at least 44pt width")
+            XCTAssertGreaterThanOrEqual(control.frame.height,44,
+                "First-party header actions must have at least 44pt height")
+            XCTAssertGreaterThanOrEqual(control.frame.minY,actionTop-0.5)
+            XCTAssertLessThanOrEqual(control.frame.maxY,webTop+0.5)
+        }
         var findings=[[String:String]](),nativeFailures=[String]()
         try app.performAccessibilityAudit(for:[.contrast,.hitRegion,.sufficientElementDescription]) { issue in
             let element=issue.element
             let frame=element?.frame ?? .zero
-            let native=element != nil && frame.width>0 && frame.height>0 && frame.maxY<=webTop+0.5
-            let knownWeb=element != nil && frame.width>0 && frame.height>0 && frame.minY>=webTop-0.5
-            let scope=native ? "native header":knownWeb ? "web content":"unclassified"
-            findings.append(["scope":scope,"description":issue.compactDescription,"identifier":element?.identifier ?? "","frame":String(describing:frame)])
-            if !knownWeb { nativeFailures.append(scope+": "+issue.compactDescription) }
-            return true // Record every issue; fail below for the declared native scope.
+            let visible=element != nil && frame.width>0 && frame.height>0
+            let knownWeb=visible && frame.minY>=webTop-0.5
+            // Only fully separate iPadOS system chrome is out of app scope.
+            // Every unclassified or overlapping first-party region still
+            // fails as before; this does not waive actual header findings.
+            let systemChrome=visible && frame.maxY < actionTop-0.5
+            let native=visible && frame.maxY >= actionTop-0.5 &&
+                       frame.minY<webTop-0.5 && frame.maxY<=webTop+0.5
+            let scope=native ? "native header" : knownWeb ? "web content" :
+                      systemChrome ? "system chrome" : "unclassified"
+            findings.append(["scope":scope,"description":issue.compactDescription,
+                            "identifier":element?.identifier ?? "",
+                            "frame":String(describing:frame)])
+            if !knownWeb && !systemChrome {
+                nativeFailures.append(scope+": "+issue.compactDescription+
+                    " frame="+String(describing:frame))
+            }
+            return true // Record every issue; fail below for first-party scope.
         }
         let data=try JSONSerialization.data(withJSONObject:["scope":"Visible native header only; Web has separate axe scans","types":["contrast","hitRegion","sufficientElementDescription"],"findings":findings],options:[.prettyPrinted,.sortedKeys])
         let attachment=XCTAttachment(data:data,uniformTypeIdentifier:"public.json")
