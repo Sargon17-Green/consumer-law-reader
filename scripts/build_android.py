@@ -20,6 +20,17 @@ def run(*args):subprocess.run([str(a) for a in args],check=True,cwd=ROOT)
 if not android.exists() or not (sdk/'aapt2').exists():
     raise SystemExit('First run: python3 scripts/fetch_tools.py')
 run(sys.executable,ROOT/'scripts/build_web.py')
+# The canonical main endpoint is deliberately not published until protected
+# branch checks pass. Only QA's generated dist/ assets use this pinned snapshot;
+# product source web/law-update.js is never edited.
+QA_MANIFEST_REF='5b0e537420a1c9eb968a5d1a66af00f17d27f7c3'
+if QA_ISOLATED:
+    rendered=ROOT/'dist/law-update.js'
+    source_js=rendered.read_text(encoding='utf-8')
+    old='https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/main/metadata/law_update_manifest.json'
+    new='https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/'+QA_MANIFEST_REF+'/metadata/law_update_manifest.json'
+    if source_js.count(old)!=1:raise SystemExit('QA generated JS endpoint contract changed')
+    rendered.write_text(source_js.replace(old,new,1),encoding='utf-8')
 classes=BUILD/'classes';dex=BUILD/'dex'
 for p in [classes,dex]:
     if p.exists():shutil.rmtree(p)
@@ -54,6 +65,11 @@ if QA_ISOLATED:
     ):
         if source.count(old)!=1:raise SystemExit('QA instrumentation source contract changed: '+old)
         source=source.replace(old,new,1)
+    old_path='/Sargon17-Green/consumer-law-reader/main/metadata/law_update_manifest.json'
+    qa_path='/Sargon17-Green/consumer-law-reader/'+QA_MANIFEST_REF+'/metadata/law_update_manifest.json'
+    if source.count(old_path)!=2:
+        raise SystemExit('QA Java allowlist and logging path contract changed')
+    source=source.replace(old_path,qa_path)
     main.write_text(source,encoding='utf-8')
 run('java','-jar',TOOLS/'ecj.jar','-source','8','-target','8','-encoding','UTF-8','-warn:none','-classpath',android,'-d',classes,*sorted(java_sources.rglob('*.java')))
 run('java','-cp',sdk/'lib/d8.jar','com.android.tools.r8.D8','--min-api','26','--lib',android,'--output',dex,*sorted(classes.rglob('*.class')))
@@ -136,6 +152,8 @@ if QA_ISOLATED:
         'qaProviderAuthority':'il.org.lawreader.consumer.qa.attachments',
         'publicPackageUntouched':'il.org.lawreader.consumer',
         'signedWithDisposableDebugKey':True,
+        'qaManifestPinnedCommit':QA_MANIFEST_REF,
+        'qaOnlyFixedURL':True,
         'installDoesNotReplacePublicApp':True
     },indent=2))
 (ROOT/'evidence/apk-badging.txt').write_text(details)
