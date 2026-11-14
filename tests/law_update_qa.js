@@ -76,6 +76,10 @@ async function main() {
   assert.equal(await t.window.LawUpdate.check(),true);
   assert.equal(t.elements['law-update-banner'].hidden,false);
   assert.match(t.elements['law-update-detail'].textContent,/טרם פורסמה/);
+  assert.match(t.elements['law-update-detail'].textContent,/מהדורת הנוסח המקומית: 1/);
+  assert.match(t.elements['law-update-detail'].textContent,/המהדורה הנדרשת: 2/);
+  assert.match(t.elements['law-update-detail'].textContent,/14\.11\.2026/);
+  assert.match(t.elements['law-update-releases'].textContent,/בדיקת מהדורה מעודכנת באתר/);
   assert.equal(t.elements['law-update-releases'].href,'https://sargon17-green.github.io/consumer-law-reader/reader/');
   const cached=t.storage;
   const offline=browser(new Error('offline'),1,cached);
