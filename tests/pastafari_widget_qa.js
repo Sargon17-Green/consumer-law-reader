@@ -12,8 +12,8 @@ assert(match, 'Original Pastafarian widget missing');
 const script = match[1];
 const java = fs.readFileSync(path.join(root, 'android/src/il/org/lawreader/consumer/MainActivity.java'), 'utf8');
 
-// The Android network exception must match only the widget's three read-only
-// canonical endpoints. No wildcard host or general-purpose internet exception.
+// The Android network exception has the widget's three read-only endpoints
+// plus one exact GitHub law-version JSON endpoint. No wildcard or general web.
 const networkPolicy = java.match(/private static boolean isApprovedDateSource\(Uri uri\)([\s\S]*?)@Override public void onCreate/);
 assert(networkPolicy, 'Date-specific native allowlist missing');
 const allowlist = networkPolicy[1];
@@ -24,9 +24,10 @@ for (const host of ['raw.githubusercontent.com', 'api.github.com', 'sargon17-gre
 for (const endpoint of [
   '/Sargon17-Green/pastafari-calendar/main/docs/api/seer-now.json',
   '/repos/Sargon17-Green/pastafari-calendar/contents/docs/api/seer-now.json',
-  '/pastafari-calendar/api/seer-now.json'
+  '/pastafari-calendar/api/seer-now.json',
+  '/Sargon17-Green/consumer-law-reader/main/metadata/law_update_manifest.json'
 ]) assert(allowlist.includes('"' + endpoint + '".equals(path)'), 'Missing exact path: ' + endpoint);
-assert.equal((allowlist.match(/\.equals\(path\)/g) || []).length, 3);
+assert.equal((allowlist.match(/\.equals\(path\)/g) || []).length, 4);
 assert(allowlist.includes('uri.getPort() != -1'), 'Unexpected port must be blocked');
 assert(allowlist.includes('"https".equals(uri.getScheme())'), 'Only HTTPS permitted');
 assert(java.includes('if ("GET".equals(request.getMethod()) && isApprovedDateSource(uri)) return dateResponse(uri);'));
