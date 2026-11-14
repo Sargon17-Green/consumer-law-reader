@@ -63,6 +63,7 @@ jobs:
         run: |
           python tests/technical_smoke_134.py
           python tests/pwa_offline_qa.py
+          python tests/law_update_browser_qa.py
           python tests/search_state_qa.py
       - name: Save source verification evidence
         if: always()
