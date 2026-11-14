@@ -83,7 +83,9 @@ public final class MainActivity extends Activity {
             || ("api.github.com".equals(host)
                     && "/repos/Sargon17-Green/pastafari-calendar/contents/docs/api/seer-now.json".equals(path))
             || ("sargon17-green.github.io".equals(host)
-                    && "/pastafari-calendar/api/seer-now.json".equals(path));
+                    && "/pastafari-calendar/api/seer-now.json".equals(path))
+            || ("raw.githubusercontent.com".equals(host)
+                    && "/Sargon17-Green/consumer-law-reader/main/metadata/law_update_manifest.json".equals(path));
     }
 
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -186,6 +188,13 @@ public final class MainActivity extends Activity {
         boolean restored=false;
         if(history!=null)try{restored=web.restoreState(history)!=null;}catch(RuntimeException invalid){ /* Fall back to the durable logical session. */ }
         if(!restored)web.loadUrl(HOME);
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        // Startup is checked by mobile.js. Every later foreground return must
+        // check again, without reloading the bundled legal text.
+        if (web != null && ready) web.evaluateJavascript("window.LawUpdate && window.LawUpdate.check()", null);
     }
 
     private void awaitReaderReady(final WebView view,final long generation,final long deadline) {
