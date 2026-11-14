@@ -465,11 +465,20 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         controller.completionWithItemsHandler = { _, completed, _, error in
             Swift.print("QA_DIRECT_SHARE: completion completed=\(completed) error=\(error != nil)")
         }
-        if let popover = controller.popoverPresentationController {
-            popover.sourceView = webView
-            popover.sourceRect = CGRect(x: webView.bounds.midX,
-                                       y: webView.bounds.minY + 1,
-                                       width: 1, height: 1)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad presents sharing as a popover, dismissed by tapping
+            // outside. The UIKit A/B test verifies that actual behavior.
+            if let popover = controller.popoverPresentationController {
+                popover.sourceView = webView
+                popover.sourceRect = CGRect(x: webView.bounds.midX,
+                                           y: webView.bounds.minY + 1,
+                                           width: 1, height: 1)
+            }
+        } else {
+            // An unconditional sourceView turned even the iPhone share UI
+            // into a popover, which legitimately has no Close button.
+            // Match the standard iPhone sheet in this comparison.
+            controller.modalPresentationStyle = .pageSheet
         }
         Swift.print("QA_DIRECT_SHARE: presenting via UIKit")
         root.present(controller, animated: true) {
