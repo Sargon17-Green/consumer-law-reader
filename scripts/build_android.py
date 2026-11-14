@@ -24,7 +24,38 @@ classes=BUILD/'classes';dex=BUILD/'dex'
 for p in [classes,dex]:
     if p.exists():shutil.rmtree(p)
     p.mkdir()
-run('java','-jar',TOOLS/'ecj.jar','-source','8','-target','8','-encoding','UTF-8','-warn:none','-classpath',android,'-d',classes,*sorted((ROOT/'android/src').rglob('*.java')))
+java_sources=ROOT/'android/src'
+if QA_ISOLATED:
+    # Copy Java sources to a throwaway build path: QA telemetry must never be
+    # compiled into the public APK, nor mutate the checked-in product sources.
+    java_sources=BUILD/'qa-java-sources'
+    if java_sources.exists():shutil.rmtree(java_sources)
+    shutil.copytree(ROOT/'android/src',java_sources)
+    main=java_sources/'il/org/lawreader/consumer/MainActivity.java'
+    source=main.read_text(encoding='utf-8')
+    for old,new in (
+        ('if ("GET".equals(request.getMethod()) && isApprovedDateSource(uri)) return dateResponse(uri);',
+         '''if ("GET".equals(request.getMethod()) && isApprovedDateSource(uri)) {
+                        if ("raw.githubusercontent.com".equals(uri.getHost()) && "/Sargon17-Green/consumer-law-reader/main/metadata/law_update_manifest.json".equals(uri.getPath()))
+                            android.util.Log.i("LAW_QA_REVISION","REQUEST");
+                        return dateResponse(uri);
+                    }'''),
+        ('if("true".equals(result)){ready=true;return;}',
+         'if("true".equals(result)){ready=true;android.util.Log.i("LAW_QA_REVISION","READER_READY");return;}'),
+        ('return new WebResourceResponse("application/json","UTF-8",200,"OK",headers,new ByteArrayInputStream(bytes));',
+         '''if (uri.getPath()!=null && uri.getPath().endsWith("/metadata/law_update_manifest.json"))
+                android.util.Log.i("LAW_QA_REVISION","RESPONSE_200");
+            return new WebResourceResponse("application/json","UTF-8",200,"OK",headers,new ByteArrayInputStream(bytes));'''),
+        ('if (ready) web.evaluateJavascript("window.LawUpdate && window.LawUpdate.check()", null);',
+         '''if (ready) {
+                android.util.Log.i("LAW_QA_REVISION","RESUME_CHECK");
+                web.evaluateJavascript("window.LawUpdate && window.LawUpdate.check()", null);
+            }''')
+    ):
+        if source.count(old)!=1:raise SystemExit('QA instrumentation source contract changed: '+old)
+        source=source.replace(old,new,1)
+    main.write_text(source,encoding='utf-8')
+run('java','-jar',TOOLS/'ecj.jar','-source','8','-target','8','-encoding','UTF-8','-warn:none','-classpath',android,'-d',classes,*sorted(java_sources.rglob('*.java')))
 run('java','-cp',sdk/'lib/d8.jar','com.android.tools.r8.D8','--min-api','26','--lib',android,'--output',dex,*sorted(classes.rglob('*.class')))
 run(sdk/'aapt2','compile','--dir',ROOT/'android/res','-o',BUILD/'resources.zip')
 assets=BUILD/'assets'
