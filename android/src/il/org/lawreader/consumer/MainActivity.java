@@ -190,13 +190,6 @@ public final class MainActivity extends Activity {
         if(!restored)web.loadUrl(HOME);
     }
 
-    @Override protected void onResume() {
-        super.onResume();
-        // Startup is checked by mobile.js. Every later foreground return must
-        // check again, without reloading the bundled legal text.
-        if (web != null && ready) web.evaluateJavascript("window.LawUpdate && window.LawUpdate.check()", null);
-    }
-
     private void awaitReaderReady(final WebView view,final long generation,final long deadline) {
         if(web!=view||generation!=readyGeneration||isFinishing()||isDestroyed())return;
         // A restored history entry can finish before the replacement document
@@ -423,6 +416,13 @@ public final class MainActivity extends Activity {
         super.onSaveInstanceState(state);
     }
     @Override protected void onPause() { if(web!=null){web.evaluateJavascript("window.lawMobile?.saveSession()",null);web.onPause();}super.onPause(); }
-    @Override protected void onResume() { super.onResume();if(web!=null)web.onResume(); }
+    @Override protected void onResume() {
+        super.onResume();
+        if (web != null) {
+            web.onResume();
+            // The bundled JS handles cold starts; recheck after each resume.
+            if (ready) web.evaluateJavascript("window.LawUpdate && window.LawUpdate.check()", null);
+        }
+    }
     @Override protected void onDestroy() { readyGeneration++;if(Build.VERSION.SDK_INT>=33&&systemBack!=null)getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(systemBack);if(web!=null){web.removeJavascriptInterface("NativeLaw");web.destroy();}super.onDestroy(); }
 }
