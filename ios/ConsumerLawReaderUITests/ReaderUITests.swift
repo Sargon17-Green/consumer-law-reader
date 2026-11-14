@@ -137,6 +137,10 @@ final class ReaderUITests: XCTestCase {
             (sidebar.exists && sidebar.isHittable) || (general.exists && general.isHittable)
         },object:nil)],timeout:60)
         if ready != .completed {
+            // A menu item still present after the tap is a different failure
+            // from a visible Files picker without Cancel. Record the actual
+            // stage instead of assuming that the importer opened.
+            Swift.print("FILES_TRANSITION_FAILURE: restoreMenuItemStillExists=\(restore.exists)")
             let tree=XCTAttachment(string:String(app.debugDescription.prefix(25000)))
             tree.name="Isolated importer lacks actionable Cancel AX";tree.lifetime = .keepAlways;add(tree)
             let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
@@ -189,6 +193,10 @@ final class ReaderUITests: XCTestCase {
             (closeByLabel.exists && closeByLabel.isHittable))
         },object:nil)],timeout:45)
         if ready != .completed {
+            // A remote ShareSheet container can exist even while its controls
+            // never render. Capture this distinction for iOS simulator QA.
+            let remote=app.otherElements.matching(identifier:"ShareSheet.RemoteContainerView").firstMatch
+            Swift.print("FRESH_SHARE_FAILURE_STAGE: activityExists=\(activities.exists) remoteContainerExists=\(remote.exists)")
             let tree=XCTAttachment(string:String(app.debugDescription.prefix(18000)))
             tree.name="Fresh native share full AX before failed Close";tree.lifetime = .keepAlways;add(tree)
             let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
@@ -283,9 +291,60 @@ final class ReaderUITests: XCTestCase {
             }
             XCTAssertEqual(previewReady,.completed,"The actual system print preview must contain a real first document page")
         }
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
-            printCancel.exists && printCancel.isEnabled && printCancel.isHittable
-        },object:nil)],timeout:20),.completed,"The actual system Close must be ready")
+        let printCloseReady=XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            guard printCancel.exists && printCancel.isEnabled else { return false }
+            let frame=printCancel.frame
+            // Do not request a hit point from an invalid or off-screen AX
+            // frame: XCTest can throw before reporting a useful assertion.
+            return frame.width>0 && frame.height>0 &&
+                   frame.intersects(app.frame) && printCancel.isHittable
+        },object:nil)],timeout:20)
+        if printCloseReady != .completed {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(18000)))
+            tree.name="System print Close missing or invalid AX frame";tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="System print Close missing or invalid hit point";shot.lifetime = .keepAlways;add(shot)
+            // Failure-only diagnostic. A button may become hittable only
+            // after the waiter has already timed out; the fresh observation
+            // must NOT mask the failed acceptance result. In both cases,
+            // probe a real coordinate touch and record actual dismissal.
+            let cancelExists=printCancel.exists
+            let cancelEnabled=cancelExists && printCancel.isEnabled
+            let cancelFrame=cancelExists ? printCancel.frame : CGRect.null
+            let appFrame=app.frame
+            let center=CGPoint(x:cancelFrame.midX,y:cancelFrame.midY)
+            let centerInsideApp=cancelExists && cancelFrame.width>0 &&
+                                cancelFrame.height>0 && appFrame.contains(center)
+            let cancelHittable=centerInsideApp && printCancel.isHittable
+            Swift.print("PRINT_CLOSE_FAILURE: exists=\(cancelExists) enabled=\(cancelEnabled) hittable=\(cancelHittable) frame=\(cancelFrame) appFrame=\(appFrame)")
+            if cancelEnabled && centerInsideApp {
+                // Probe even when isHittable has changed to true AFTER the
+                // waiter failed. Anchor to the app instead of the element so
+                // this experiment tests a physical touch rather than AX tap.
+                Swift.print("PRINT_CLOSE_LATE_HIT_TEST: hittableAfterTimeout=\(cancelHittable)")
+                let touch=app.coordinate(withNormalizedOffset:CGVector(dx:0,dy:0))
+                    .withOffset(CGVector(dx:center.x-appFrame.minX,dy:center.y-appFrame.minY))
+                Swift.print("PRINT_CLOSE_COORDINATE_PROBE: start=(\(center.x),\(center.y))")
+                touch.tap()
+                let probeDismissed=XCTWaiter.wait(for:[
+                    XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+                        !printCancel.exists && menu.exists && menu.isEnabled
+                    },object:nil)
+                ],timeout:8) == .completed
+                Swift.print("PRINT_CLOSE_COORDINATE_PROBE: actualDismissal=\(probeDismissed)")
+                let postShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+                postShot.name="Print Cancel coordinate probe after touch"
+                postShot.lifetime = .keepAlways;add(postShot)
+                let postAX=XCTAttachment(string:String(app.debugDescription.prefix(18000)))
+                postAX.name="Print Cancel coordinate probe post-touch AX"
+                postAX.lifetime = .keepAlways;add(postAX)
+            } else {
+                Swift.print("PRINT_CLOSE_COORDINATE_PROBE: skipped (button disabled/missing or center outside app)")
+            }
+        }
+        // Deliberately fail even if the diagnostic coordinate touch worked.
+        // Acceptance requires a hittable system control BEFORE the touch.
+        XCTAssertEqual(printCloseReady,.completed,"Actual system Print Close must be enabled, in-frame and hittable")
         let printShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
         printShot.name="Actual system print preview before native Close";printShot.lifetime = .keepAlways;add(printShot)
         printCancel.tap()
@@ -418,6 +477,10 @@ final class ReaderUITests: XCTestCase {
             shot.name="Home Screen after native app icon relaunch failure"
             shot.lifetime = .keepAlways
             add(shot)
+            let springboardAX=XCTAttachment(string:String(springboard.debugDescription.prefix(18000)))
+            springboardAX.name="SpringBoard accessibility after actual icon relaunch failure"
+            springboardAX.lifetime = .keepAlways
+            add(springboardAX)
             Swift.print("NATIVE_ICON_RELAUNCH_FAILED: appState=\(app.state.rawValue) springboardState=\(springboard.state.rawValue)")
         }
         XCTAssertTrue(relaunched,"Installed Home Screen icon must launch the actual app in foreground")
