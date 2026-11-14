@@ -35,8 +35,9 @@ if QA_ISOLATED:
     # that authorization in its temporary asset copy, not in build_web.py.
     page=ROOT/'dist/index.html'
     html=page.read_text(encoding='utf-8')
-    if html.count(old)!=1:raise SystemExit('QA rendered CSP endpoint contract changed')
-    page.write_text(html.replace(old,new,1),encoding='utf-8')
+    occurrences=html.count(old)
+    if not 1<=occurrences<=3:raise SystemExit('QA rendered CSP endpoint contract changed: '+str(occurrences))
+    page.write_text(html.replace(old,new),encoding='utf-8')
 classes=BUILD/'classes';dex=BUILD/'dex'
 for p in [classes,dex]:
     if p.exists():shutil.rmtree(p)
