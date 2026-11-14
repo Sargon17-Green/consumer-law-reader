@@ -1,0 +1,56 @@
+name: Android law-update isolated QA APK
+
+on:
+  pull_request:
+    paths:
+      - scripts/build_android.py
+      - .github/workflows/android-law-qa-isolated.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-android-debug:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Fetch checksum-pinned Android build tools
+        run: python scripts/fetch_tools.py
+      - name: Build side-by-side QA APK, not the public application ID
+        run: python scripts/build_android.py --qa-isolated
+      - name: Fail closed on application-ID or provider-authority collision
+        shell: bash
+        run: |
+          python - <<'PY'
+          import glob,json,pathlib,sys
+          out=pathlib.Path('qa-isolated-build')
+          evidence=json.loads((out/'QA_ISOLATION_VERIFIED.json').read_text())
+          assert evidence['qaPackage']=='il.org.lawreader.consumer.qa'
+          assert evidence['qaProviderAuthority']=='il.org.lawreader.consumer.qa.attachments'
+          assert evidence['publicPackageUntouched']=='il.org.lawreader.consumer'
+          assert evidence['signedWithDisposableDebugKey'] is True
+          apks=list(out.glob('*_SIDE_BY_SIDE_QA.apk'))
+          assert len(apks)==1,apks
+          canonical=(pathlib.Path('android')/'AndroidManifest.xml').read_text()
+          assert 'package="il.org.lawreader.consumer"' in canonical
+          assert 'android:authorities="il.org.lawreader.consumer.attachments"' in canonical
+          print(json.dumps({'qa_apk':str(apks[0]),'qa_evidence':evidence},sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: consumer-law-android-side-by-side-qa
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            qa-isolated-build/*_SIDE_BY_SIDE_QA.apk
+            qa-isolated-build/*_SIDE_BY_SIDE_QA.apk.sha256.txt
+            qa-isolated-build/QA_ISOLATION_VERIFIED.json
