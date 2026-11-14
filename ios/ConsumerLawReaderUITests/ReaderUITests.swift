@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 
 final class ReaderUITests: XCTestCase {
     override func setUpWithError() throws {
@@ -203,10 +204,11 @@ final class ReaderUITests: XCTestCase {
         },object:nil)],timeout:30),.completed,"Actual cold-launch share must close and restore the reader")
     }
     func testQAUIKitDirectShareAfterColdLaunch() throws {
-        // Differential test only on iOS 26: the production SwiftUI presenter
-        // is independently tested by testNativeShareDirectlyAfterColdLaunch.
-        // Both paths share the same URL generation and real-system Close
-        // requirement, but run in fresh app processes on the same simulator.
+        // A/B uses the same URL and a fresh application process. The
+        // system has different legitimate dismissals: a Close button in an
+        // iPhone sheet versus an outside tap for an iPad popover.
+        // In both cases require real ShareSheet content, physical dismissal,
+        // and restored reader controls; do not count an empty shell as success.
         guard #available(iOS 26.0, *) else {
             throw XCTSkip("QA UIKit versus SwiftUI presentation A/B targets iOS 26")
         }
@@ -218,7 +220,69 @@ final class ReaderUITests: XCTestCase {
         modeShot.name = "UIKit-direct share mode before user action"
         modeShot.lifetime = .keepAlways
         add(modeShot)
-        verifyIsolatedNativeShare(app, phase: "uikit-direct-cold-launch")
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            // UIKit iPhone now uses a real sheet with native Close.
+            verifyIsolatedNativeShare(app, phase: "uikit-direct-cold-launch")
+        } else {
+            // UIKit iPad presents a native share popover, whose normal Close
+            // action is a tap outside, not a nonexistent Close button.
+            let share = app.buttons.matching(identifier: "native-share").firstMatch
+            let menu = app.buttons.matching(identifier: "native-menu").firstMatch
+            XCTAssertTrue(share.waitForExistence(timeout: 60))
+            XCTAssertTrue(share.isEnabled)
+            XCTAssertGreaterThanOrEqual(share.frame.width, 44)
+            XCTAssertGreaterThanOrEqual(share.frame.height, 44)
+            share.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            let activities = app.otherElements["ActivityListView"].firstMatch
+            XCTAssertTrue(activities.waitForExistence(timeout: 30),
+                          "Direct UIKit must display a real system ActivityListView")
+            let popover = app.popovers.firstMatch
+            XCTAssertTrue(popover.waitForExistence(timeout: 30),
+                          "The iPad system ShareSheet must be a visible popover")
+            let action = app.cells.matching(identifier: "actionGroupCell").firstMatch
+            let populated = XCTWaiter.wait(for: [
+                XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                    action.exists && action.frame.width > 0 &&
+                    action.frame.height > 0 && action.isHittable
+                }, object: nil)
+            ], timeout: 45)
+            if populated != .completed {
+                let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
+                ax.name = "iPad UIKit popover without actionable share content"
+                ax.lifetime = .keepAlways; add(ax)
+            }
+            XCTAssertEqual(populated, .completed,
+                           "System iPad popover must contain a real usable share action")
+            let before = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            before.name = "iPad native UIKit share popover before outside dismissal"
+            before.lifetime = .keepAlways; add(before)
+            let region = app.otherElements.matching(identifier: "PopoverDismissRegion").firstMatch
+            XCTAssertTrue(region.waitForExistence(timeout: 10),
+                          "System popover must expose its outside-dismiss region")
+            let bounds = app.frame
+            let outside = CGPoint(x: bounds.minX + 15, y: bounds.maxY - 80)
+            XCTAssertFalse(popover.frame.contains(outside),
+                           "Physical dismissal coordinate must be outside the popover")
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+                .withOffset(CGVector(dx: outside.x - bounds.minX,
+                                     dy: outside.y - bounds.minY)).tap()
+            let dismissed = XCTWaiter.wait(for: [
+                XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                    !activities.exists && !popover.exists &&
+                    menu.exists && menu.isEnabled
+                }, object: nil)
+            ], timeout: 30)
+            if dismissed != .completed {
+                let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
+                ax.name = "iPad UIKit popover failed real outside dismissal"
+                ax.lifetime = .keepAlways; add(ax)
+                let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+                shot.name = "iPad native UIKit popover after failed outside dismissal"
+                shot.lifetime = .keepAlways; add(shot)
+            }
+            XCTAssertEqual(dismissed, .completed,
+                           "Native iPad share popover must actually dismiss and restore reader")
+        }
     }
 
     func testSearchNavigationSharingRotationAndRelaunch() {
