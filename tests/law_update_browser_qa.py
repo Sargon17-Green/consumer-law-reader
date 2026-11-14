@@ -67,7 +67,7 @@ with sync_playwright() as pw:
     assert "חובה לעדכן את נוסח החוק" in page.locator("#law-update-banner").inner_text()
     assert "טרם פורסמה" in page.locator("#law-update-detail").inner_text()
     assert page.locator("#law-update-releases").get_attribute("href") == (
-        "https://github.com/Sargon17-Green/consumer-law-reader/releases"
+        "https://sargon17-green.github.io/consumer-law-reader/reader/"
     )
 
     # A previously confirmed obsolete local text must remain marked offline.
