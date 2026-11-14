@@ -304,8 +304,44 @@ final class ReaderUITests: XCTestCase {
             tree.name="System print Close missing or invalid AX frame";tree.lifetime = .keepAlways;add(tree)
             let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
             shot.name="System print Close missing or invalid hit point";shot.lifetime = .keepAlways;add(shot)
-            Swift.print("PRINT_CLOSE_FAILURE: exists=\(printCancel.exists) frame=\(printCancel.frame)")
+            // Preserve the strict isHittable assertion. This is a separate,
+            // failure-only diagnostic: the system Cancel may be visible in AX
+            // while XCTest claims no valid hit point. Probe a genuine screen
+            // coordinate and record whether the *system UI actually dismisses*.
+            let cancelExists=printCancel.exists
+            let cancelEnabled=cancelExists && printCancel.isEnabled
+            let cancelFrame=cancelExists ? printCancel.frame : CGRect.null
+            let appFrame=app.frame
+            let center=CGPoint(x:cancelFrame.midX,y:cancelFrame.midY)
+            let centerInsideApp=cancelExists && cancelFrame.width>0 &&
+                                cancelFrame.height>0 && appFrame.contains(center)
+            let cancelHittable=centerInsideApp && printCancel.isHittable
+            Swift.print("PRINT_CLOSE_FAILURE: exists=\(cancelExists) enabled=\(cancelEnabled) hittable=\(cancelHittable) frame=\(cancelFrame) appFrame=\(appFrame)")
+            if cancelEnabled && centerInsideApp && !cancelHittable {
+                // Anchor to the application, NOT to the non-hittable button:
+                // XCUIElement.tap() would reject the button before testing touch.
+                let touch=app.coordinate(withNormalizedOffset:CGVector(dx:0,dy:0))
+                    .withOffset(CGVector(dx:center.x-appFrame.minX,dy:center.y-appFrame.minY))
+                Swift.print("PRINT_CLOSE_COORDINATE_PROBE: start=(\(center.x),\(center.y))")
+                touch.tap()
+                let probeDismissed=XCTWaiter.wait(for:[
+                    XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+                        !printCancel.exists && menu.exists && menu.isEnabled
+                    },object:nil)
+                ],timeout:8) == .completed
+                Swift.print("PRINT_CLOSE_COORDINATE_PROBE: actualDismissal=\(probeDismissed)")
+                let postShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+                postShot.name="Print Cancel coordinate probe after touch"
+                postShot.lifetime = .keepAlways;add(postShot)
+                let postAX=XCTAttachment(string:String(app.debugDescription.prefix(18000)))
+                postAX.name="Print Cancel coordinate probe post-touch AX"
+                postAX.lifetime = .keepAlways;add(postAX)
+            } else {
+                Swift.print("PRINT_CLOSE_COORDINATE_PROBE: skipped (not visible/enabled or no valid center)")
+            }
         }
+        // Deliberately fail even if the diagnostic coordinate touch worked.
+        // Acceptance requires a hittable system control BEFORE the touch.
         XCTAssertEqual(printCloseReady,.completed,"Actual system Print Close must be enabled, in-frame and hittable")
         let printShot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
         printShot.name="Actual system print preview before native Close";printShot.lifetime = .keepAlways;add(printShot)
