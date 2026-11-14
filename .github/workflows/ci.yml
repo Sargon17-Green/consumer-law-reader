@@ -163,6 +163,35 @@ jobs:
           else:
               raise AssertionError('Debug identity could replace the public upgrade')
           PY
+      - name: Build independent law-update QA identity
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'qa/android-law-update-side-by-side-20261114' }}
+        run: |
+          python scripts/build_android.py --qa-isolated
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          out=Path('qa-isolated-build')
+          evidence=json.loads((out/'QA_ISOLATION_VERIFIED.json').read_text())
+          assert evidence['qaPackage']=='il.org.lawreader.consumer.qa'
+          assert evidence['qaProviderAuthority']=='il.org.lawreader.consumer.qa.attachments'
+          assert evidence['signedWithDisposableDebugKey'] is True
+          assert len(list(out.glob('*_SIDE_BY_SIDE_QA.apk')))==1
+          original=Path('android/AndroidManifest.xml').read_text()
+          assert 'package="il.org.lawreader.consumer"' in original
+          assert 'android:authorities="il.org.lawreader.consumer.attachments"' in original
+          print('PASS: parallel QA identity and release manifest invariant')
+          PY
+      - name: Upload independently installable Android QA package
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'qa/android-law-update-side-by-side-20261114' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: consumer-law-android-side-by-side-qa
+          if-no-files-found: error
+          path: |
+            qa-isolated-build/*_SIDE_BY_SIDE_QA.apk
+            qa-isolated-build/*_SIDE_BY_SIDE_QA.apk.sha256.txt
+            qa-isolated-build/QA_ISOLATION_VERIFIED.json
+          retention-days: 7
   android-emulator:
     needs: android-debug
     runs-on: ubuntu-24.04
