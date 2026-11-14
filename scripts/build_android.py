@@ -42,8 +42,8 @@ if QA_ISOLATED:
         ('android:name=".AttachmentProvider"', 'android:name="il.org.lawreader.consumer.AttachmentProvider"'),
         ('android:authorities="il.org.lawreader.consumer.attachments"',
          'android:authorities="il.org.lawreader.consumer.qa.attachments"'),
-        ('android:label="חוק הגנת הצרכן, התשמ&amp;quot;א–1981"',
-         'android:label="חוק הגנת הצרכן, התשמ&amp;quot;א–1981 QA"'),
+        ('android:label="חוק הגנת הצרכן, התשמ&quot;א–1981"',
+         'android:label="חוק הגנת הצרכן, התשמ&quot;א–1981 QA"'),
     ):
         if qa.count(old)!=1:raise SystemExit('Unexpected canonical Android manifest: '+old)
         qa=qa.replace(old,new,1)
