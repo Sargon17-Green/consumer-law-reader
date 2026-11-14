@@ -202,6 +202,25 @@ final class ReaderUITests: XCTestCase {
             !activities.exists && menu.exists && menu.isEnabled
         },object:nil)],timeout:30),.completed,"Actual cold-launch share must close and restore the reader")
     }
+    func testQAUIKitDirectShareAfterColdLaunch() throws {
+        // Differential test only on iOS 26: the production SwiftUI presenter
+        // is independently tested by testNativeShareDirectlyAfterColdLaunch.
+        // Both paths share the same URL generation and real-system Close
+        // requirement, but run in fresh app processes on the same simulator.
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("QA UIKit versus SwiftUI presentation A/B targets iOS 26")
+        }
+        let app = XCUIApplication()
+        app.launchArguments.append("-qaUIKitDirectShare")
+        app.launch()
+        defer { app.terminate() }
+        let modeShot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        modeShot.name = "UIKit-direct share mode before user action"
+        modeShot.lifetime = .keepAlways
+        add(modeShot)
+        verifyIsolatedNativeShare(app, phase: "uikit-direct-cold-launch")
+    }
+
     func testSearchNavigationSharingRotationAndRelaunch() {
         // Full keyboard + repeated reading + print + Files + share + rotation
         // + SpringBoard relaunch exceeds the previous 480s allowance on
