@@ -30,7 +30,7 @@ class LawUpdateContractTest(unittest.TestCase):
         self.assertEqual(live["revision_status"], "editor_approved")
         self.assertEqual(local["law_revision_sequence"], 1)
         self.assertEqual(live["current_revision_sequence"], local["law_revision_sequence"])
-        self.assertEqual(live["published_revision_sequence"], 1)
+        self.assertEqual(live["published_revision_sequence_by_platform"], {"android": 1, "ios": 0, "web": 1})
         self.assertEqual(local["law_text_last_amended_on"], "2026-09-30")
         self.assertEqual(live["law_text_last_amended_on"], local["law_text_last_amended_on"])
         self.assertEqual(local["law_text_last_verified_on"], "2026-10-28")
@@ -38,7 +38,8 @@ class LawUpdateContractTest(unittest.TestCase):
         self.assertEqual(live["next_scheduled_change_on"], "2027-03-22")
         self.assertEqual(live["next_scheduled_change_on"], local["next_scheduled_change_on"])
         self.assertGreaterEqual(live["current_revision_sequence"], 1)
-        self.assertLessEqual(live["published_revision_sequence"], live["current_revision_sequence"])
+        for available in live["published_revision_sequence_by_platform"].values():
+            self.assertLessEqual(available, live["current_revision_sequence"])
         self.assertNotEqual(local["law_text_last_amended_on"], local["law_text_last_verified_on"])
         self.assertGreater(live["next_scheduled_change_on"], live["law_text_last_verified_on"])
 
@@ -81,7 +82,7 @@ class LawUpdateContractTest(unittest.TestCase):
         self.assertNotIn("window.location =", source)
         self.assertIn("referrerPolicy: 'no-referrer'", source)
         self.assertIn("remote.current_revision_sequence", source)
-        self.assertIn("remote.published_revision_sequence", source)
+        self.assertIn("remote.published_revision_sequence_by_platform", source)
 
 
 if __name__ == "__main__":
