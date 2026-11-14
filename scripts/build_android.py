@@ -6,12 +6,14 @@ from android_build_inputs import fingerprints
 from bundled_assets import zip_members
 ROOT=Path(__file__).resolve().parents[1]
 VERSION=(ROOT/'VERSION').read_text().strip()
-DEBUG='--debug' in sys.argv
+QA_ISOLATED='--qa-isolated' in sys.argv
+DEBUG='--debug' in sys.argv or QA_ISOLATED
 UNSIGNED='--unsigned' in sys.argv
-if DEBUG and UNSIGNED:raise SystemExit('Select only one of --debug and --unsigned')
+if DEBUG and UNSIGNED:raise SystemExit('Select only one of --debug, --unsigned and --qa-isolated')
+if QA_ISOLATED and '--debug' in sys.argv:raise SystemExit('Use --qa-isolated alone; it implies disposable debug signing')
 TOOLS=Path(os.environ.get('LAW_ANDROID_TOOLS',str(ROOT/'.toolchain'))).resolve()
 BUILD=ROOT/'build';BUILD.mkdir(exist_ok=True)
-OUT=ROOT/('unsigned-build' if UNSIGNED else 'debug-build' if DEBUG else 'release');OUT.mkdir(exist_ok=True)
+OUT=ROOT/('qa-isolated-build' if QA_ISOLATED else 'unsigned-build' if UNSIGNED else 'debug-build' if DEBUG else 'release');OUT.mkdir(exist_ok=True)
 sdk=TOOLS/'build-tools-36.0.0/android-16'
 android=TOOLS/'platforms-android-36/android-36/android.jar'
 def run(*args):subprocess.run([str(a) for a in args],check=True,cwd=ROOT)
@@ -28,7 +30,26 @@ run(sdk/'aapt2','compile','--dir',ROOT/'android/res','-o',BUILD/'resources.zip')
 assets=BUILD/'assets'
 if assets.exists():shutil.rmtree(assets)
 shutil.copytree(ROOT/'dist',assets/'www')
-run(sdk/'aapt2','link','-I',android,'--manifest',ROOT/'android/AndroidManifest.xml','-A',assets,'-0','doc','-o',BUILD/'resource-package.apk',BUILD/'resources.zip')
+manifest=ROOT/'android/AndroidManifest.xml'
+if QA_ISOLATED:
+    # The public release identity and manifest must remain byte-for-byte intact.
+    # Android resolves absolute component classes from the original Java package.
+    original=manifest.read_text(encoding='utf-8')
+    qa=original
+    for old,new in (
+        ('package="il.org.lawreader.consumer"', 'package="il.org.lawreader.consumer.qa"'),
+        ('android:name=".MainActivity"', 'android:name="il.org.lawreader.consumer.MainActivity"'),
+        ('android:name=".AttachmentProvider"', 'android:name="il.org.lawreader.consumer.AttachmentProvider"'),
+        ('android:authorities="il.org.lawreader.consumer.attachments"',
+         'android:authorities="il.org.lawreader.consumer.qa.attachments"'),
+        ('android:label="חוק הגנת הצרכן, התשמ&amp;quot;א–1981"',
+         'android:label="חוק הגנת הצרכן, התשמ&amp;quot;א–1981 QA"'),
+    ):
+        if qa.count(old)!=1:raise SystemExit('Unexpected canonical Android manifest: '+old)
+        qa=qa.replace(old,new,1)
+    manifest=BUILD/'AndroidManifest.qa-isolated.xml'
+    manifest.write_text(qa,encoding='utf-8')
+run(sdk/'aapt2','link','-I',android,'--manifest',manifest,'-A',assets,'-0','doc','-o',BUILD/'resource-package.apk',BUILD/'resources.zip')
 # aapt2 emits UTF-8 asset names without the ZIP UTF-8 flag. Normalize before
 # Python writes the central directory, otherwise Hebrew names become mojibake.
 with zipfile.ZipFile(BUILD/'resource-package.apk','r') as source, zipfile.ZipFile(BUILD/'unsigned.apk','w') as z:
@@ -55,7 +76,7 @@ if DEBUG:
         '-alias','qa-debug','-keyalg','RSA','-keysize','2048','-validity','2',
         '-dname','CN=Temporary CI Test Build, O=Non Release, C=IL','-noprompt')
     alias='qa-debug';pass_argument='pass:qa-only-password'
-    apk=OUT/f'Consumer_Law_Reader_{VERSION}_DEBUG_NOT_FOR_UPGRADE.apk'
+    apk=OUT/f'Consumer_Law_Reader_{VERSION}_SIDE_BY_SIDE_QA.apk' if QA_ISOLATED else OUT/f'Consumer_Law_Reader_{VERSION}_DEBUG_NOT_FOR_UPGRADE.apk'
 else:
     signing=ROOT/'signing'
     key=signing/'law-reader-release.p12';password=signing/'key-password.txt'
@@ -68,9 +89,27 @@ verify=subprocess.check_output(['java','-jar',str(sdk/'lib/apksigner.jar'),'veri
 (ROOT/'evidence/apk-verification.txt').write_text(verify)
 run(sdk/'zipalign','-c','-p','4',apk)
 details=subprocess.check_output([str(sdk/'aapt'),'dump','badging',str(apk)],text=True)
+if QA_ISOLATED:
+    package_line=next((line for line in details.splitlines() if line.startswith('package: ')), '')
+    if "name='il.org.lawreader.consumer.qa'" not in package_line:
+        raise SystemExit('Refusing unsafe QA artifact with public package identity: '+package_line)
+    # Ensure the packaged content provider cannot collide with the release.
+    xmltree=subprocess.check_output([str(sdk/'aapt'),'dump','xmltree',str(apk),'AndroidManifest.xml'],text=True)
+    if 'il.org.lawreader.consumer.qa.attachments' not in xmltree:
+        raise SystemExit('QA content provider authority was not isolated')
+    if 'il.org.lawreader.consumer.attachments"' in xmltree:
+        raise SystemExit('Public provider authority leaked into isolated QA manifest')
+    (OUT/'QA_ISOLATION_VERIFIED.json').write_text(json.dumps({
+        'schema':1,'sourceManifestSHA256':hashlib.sha256((ROOT/'android/AndroidManifest.xml').read_bytes()).hexdigest(),
+        'qaPackage':'il.org.lawreader.consumer.qa',
+        'qaProviderAuthority':'il.org.lawreader.consumer.qa.attachments',
+        'publicPackageUntouched':'il.org.lawreader.consumer',
+        'signedWithDisposableDebugKey':True,
+        'installDoesNotReplacePublicApp':True
+    },indent=2))
 (ROOT/'evidence/apk-badging.txt').write_text(details)
 sha=hashlib.sha256(apk.read_bytes()).hexdigest()
 if DEBUG:
     (ROOT/'evidence/android-debug-inputs.json').write_text(json.dumps({'schema':1,'apkSHA256':sha,'inputs':fingerprints(ROOT)},indent=2))
 (OUT/(apk.name+'.sha256.txt')).write_text(sha+'  '+apk.name+'\n')
-print(json.dumps({'apk':str(apk),'bytes':apk.stat().st_size,'sha256':sha,'signature':'verified','min_sdk':26,'target_sdk':36}))
+print(json.dumps({'apk':str(apk),'bytes':apk.stat().st_size,'sha256':sha,'signature':'verified','min_sdk':26,'target_sdk':36,'qa_isolated':QA_ISOLATED}))
