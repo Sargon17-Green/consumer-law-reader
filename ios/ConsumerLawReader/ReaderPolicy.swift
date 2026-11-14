@@ -12,7 +12,9 @@ enum ReaderPolicy {
         guard url.scheme == "https", url.port == nil, url.user == nil, url.password == nil,
               url.fragment == nil, let host = url.host,
               let parts = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              datePaths[host] == parts.percentEncodedPath else { return false }
+              (datePaths[host] == parts.percentEncodedPath ||
+               (host == "raw.githubusercontent.com" &&
+                parts.percentEncodedPath == "/Sargon17-Green/consumer-law-reader/main/metadata/law_update_manifest.json")) else { return false }
         guard let query=parts.percentEncodedQuery else { return true }
         guard query.utf8.count<=64 else { return false }
         var seen=Set<String>()
@@ -42,7 +44,10 @@ enum ReaderPolicy {
 
     static var contentRules: String {
         var rules: [[String: Any]] = [["trigger": ["url-filter": "^https?://"], "action": ["type": "block"]]]
-        for (host, path) in datePaths.sorted(by: { $0.key < $1.key }) {
+        let permitted: [(String, String)] = datePaths.map { ($0.key, $0.value) } + [
+            ("raw.githubusercontent.com", "/Sargon17-Green/consumer-law-reader/main/metadata/law_update_manifest.json")
+        ]
+        for (host, path) in permitted.sorted(by: { $0.0 == $1.0 ? $0.1 < $1.1 : $0.0 < $1.0 }) {
             let base = "https://" + host + path
             let escaped = base.replacingOccurrences(of: ".", with: "\\.")
             // WebKit's content-blocker regex subset does not support counted repeats.
