@@ -69,6 +69,13 @@ with sync_playwright() as pw:
     assert page.locator("#law-update-releases").get_attribute("href") == (
         "https://sargon17-green.github.io/consumer-law-reader/reader/"
     )
+    # Notice must remain in the visible viewport even for a resumed user
+    # halfway through the document, not only at the very top of the law.
+    page.evaluate("window.scrollTo(0, 3000)")
+    notice_rect = page.locator("#law-update-banner").bounding_box()
+    assert notice_rect is not None
+    assert notice_rect["y"] >= 60, notice_rect
+    assert notice_rect["y"] + notice_rect["height"] <= 812 - 60, notice_rect
 
     # A previously confirmed obsolete local text must remain marked offline.
     state["offline"] = True
