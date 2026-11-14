@@ -371,3 +371,11 @@ html.m-contrast-dark footer,html.m-contrast-dark footer *{color:#ffe869!importan
 html.m-contrast-blue footer,html.m-contrast-blue footer *{color:#000!important;background-color:transparent!important}
 
 @media print{:is(#frame,.m-sheet-body) .m-table-scroll>table.m-data-table{width:100%!important;min-width:0;max-width:100%!important;table-layout:fixed!important}:is(#frame,.m-sheet-body) .m-table-scroll :is(th,td){overflow-wrap:anywhere!important}}
+
+/* The stale-law notice is prominent only if GitHub confirms a newer revision. */
+.law-update-banner{max-width:900px;margin:0 auto 12px;padding:16px 18px;background:#fff8e8;color:#352613;border:2px solid #946200;border-radius:8px;font:16px/1.65 Arial,sans-serif;direction:rtl;text-align:right}
+.law-update-banner[hidden]{display:none!important}
+.law-update-banner strong{display:block;font-size:18px}
+.law-update-banner p{margin:6px 0 8px}
+.law-update-banner a{color:#08496f;text-decoration:underline}
+@media print{.law-update-banner{display:none!important}}
