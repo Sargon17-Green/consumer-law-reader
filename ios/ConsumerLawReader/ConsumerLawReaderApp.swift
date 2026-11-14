@@ -447,6 +447,37 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         if let failure { showError("השיתוף לא הושלם: " + failure) }
     }
 
+    #if DEBUG
+    // Deliberately isolated A/B experiment for XCTest. Only an explicit
+    // launch argument selects direct UIKit presentation. Release builds
+    // compile out this route and retain the existing SwiftUI sheet.
+    private func presentUIKitShareForQA(_ items: [Any]) {
+        guard let window = webView.window,
+              let root = window.rootViewController else {
+            Swift.print("QA_DIRECT_SHARE: no attached window/root")
+            return
+        }
+        guard root.presentedViewController == nil else {
+            Swift.print("QA_DIRECT_SHARE: root already presenting")
+            return
+        }
+        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        controller.completionWithItemsHandler = { _, completed, _, error in
+            Swift.print("QA_DIRECT_SHARE: completion completed=\(completed) error=\(error != nil)")
+        }
+        if let popover = controller.popoverPresentationController {
+            popover.sourceView = webView
+            popover.sourceRect = CGRect(x: webView.bounds.midX,
+                                       y: webView.bounds.minY + 1,
+                                       width: 1, height: 1)
+        }
+        Swift.print("QA_DIRECT_SHARE: presenting via UIKit")
+        root.present(controller, animated: true) {
+            Swift.print("QA_DIRECT_SHARE: UIKit presentation callback")
+        }
+    }
+    #endif
+
     func shareCurrentSection() {
         guard ready, !working else { return }
         let script = """
@@ -467,6 +498,12 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
                       var parts = URLComponents(string: Self.publicURL) else { return }
                 parts.fragment = target
                 guard let url = parts.url else { return }
+                #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("-qaUIKitDirectShare") {
+                    self.presentUIKitShareForQA([url])
+                    return
+                }
+                #endif
                 self.sharing = SharePayload(items: [url])
             }
         }
