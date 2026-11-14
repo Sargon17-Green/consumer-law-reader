@@ -31,6 +31,12 @@ if QA_ISOLATED:
     new='https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/'+QA_MANIFEST_REF+'/metadata/law_update_manifest.json'
     if source_js.count(old)!=1:raise SystemExit('QA generated JS endpoint contract changed')
     rendered.write_text(source_js.replace(old,new,1),encoding='utf-8')
+    # The generated HTML CSP pins the same full endpoint; QA must patch
+    # that authorization in its temporary asset copy, not in build_web.py.
+    page=ROOT/'dist/index.html'
+    html=page.read_text(encoding='utf-8')
+    if html.count(old)!=1:raise SystemExit('QA rendered CSP endpoint contract changed')
+    page.write_text(html.replace(old,new,1),encoding='utf-8')
 classes=BUILD/'classes';dex=BUILD/'dex'
 for p in [classes,dex]:
     if p.exists():shutil.rmtree(p)
