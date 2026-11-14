@@ -23,9 +23,14 @@
       value.revision_status === 'editor_approved' &&
       Number.isSafeInteger(value.current_revision_sequence) &&
       value.current_revision_sequence >= 1 && value.current_revision_sequence <= 1000000 &&
-      Number.isSafeInteger(value.published_revision_sequence) &&
-      value.published_revision_sequence >= 1 &&
-      value.published_revision_sequence <= value.current_revision_sequence &&
+      value.published_revision_sequence_by_platform !== null &&
+      typeof value.published_revision_sequence_by_platform === 'object' &&
+      !Array.isArray(value.published_revision_sequence_by_platform) &&
+      ['android', 'ios', 'web'].every(platform => {
+        const available = value.published_revision_sequence_by_platform[platform];
+        return Number.isSafeInteger(available) && available >= 0 &&
+               available <= value.current_revision_sequence;
+      }) &&
       isoDate(value.law_text_last_amended_on) &&
       isoDate(value.law_text_last_verified_on) &&
       (value.next_scheduled_change_on === null || isoDate(value.next_scheduled_change_on));
@@ -55,20 +60,34 @@
     }
   }
 
+  function platform() {
+    // iOS supplies both the WK message bridge and a NativeLaw compatibility
+    // bridge. Test the WK identity first so it is not mistaken for Android.
+    if (root.webkit?.messageHandlers?.lawReader) return 'ios';
+    if (root.NativeLaw) return 'android';
+    return 'web';
+  }
+
   function drawNotice(remote, local) {
     const banner = document.getElementById('law-update-banner');
     if (!banner || local === null || !validManifest(remote) ||
         remote.current_revision_sequence <= local) return false;
     const detail = document.getElementById('law-update-detail');
     const link = document.getElementById('law-update-releases');
+    const channel = platform();
+    const available = remote.published_revision_sequence_by_platform[channel] >=
+                      remote.current_revision_sequence;
     if (detail) {
-      detail.textContent = remote.published_revision_sequence >= remote.current_revision_sequence
-        ? 'נמצא נוסח חוק מעודכן יותר מזה שמותקן כאן. כדי להסתמך על הנוסח העדכני, יש להתקין מהדורה חדשה.'
-        : 'נמצא שינוי בנוסח החוק, אך מהדורה תואמת טרם פורסמה. אין להסתמך על הנוסח המותקן כנוסח עדכני.';
+      detail.textContent = available
+        ? 'נמצא נוסח חוק מעודכן יותר מזה שמותקן כאן. חובה לעדכן כדי להסתמך על הנוסח העדכני.'
+        : 'נמצא שינוי בנוסח החוק, אך מהדורה תואמת למכשיר זה טרם פורסמה. אין להסתמך על הנוסח המותקן כנוסח עדכני.';
     }
     if (link) {
-      link.href = RELEASES; // Never trust an executable/download URL from remote JSON.
-      link.textContent = 'בדיקת מהדורות מעודכנות ב־GitHub';
+      // Remote JSON can never select a link or an executable download.
+      link.href = channel === 'web'
+        ? 'https://sargon17-green.github.io/consumer-law-reader/reader/' : RELEASES;
+      link.textContent = channel === 'web'
+        ? 'פתיחת הקורא המעודכן' : 'בדיקת מהדורות מעודכנות ב־GitHub';
     }
     banner.hidden = false;
     return true;
