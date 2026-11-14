@@ -387,7 +387,31 @@ final class ReaderUITests: XCTestCase {
         let closeShare=(closeByID.exists && closeByID.isHittable) ? closeByID : closeByLabel
         Swift.print("NATIVE_SHARE_CLOSE: label=\(closeShare.label) identifier=\(closeShare.identifier) frame=\(closeShare.frame)")
         closeShare.tap()
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !activities.exists },object:nil)],timeout:20),.completed,"Native sharing must be dismissed before rotation and relaunch")
+        // iPadOS remote ShareSheet AX proxies can remain "exists" even after
+        // the sheet is gone. Test the actual user-visible post-dismissal action:
+        // opening the underlying *native* app Menu must work, its real action
+        // must be visible, and that Menu must close before rotation. A live
+        // overlay intercepts the tap and fails this stronger functional gate.
+        openNativeMenu()
+        let homeAction=app.buttons.matching(identifier:"חזרה לתחילת החוק").firstMatch
+        let restored=homeAction.waitForExistence(timeout:20)
+        if !restored {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(25000)))
+            tree.name="Share dismissal blocked actual native actions AX"
+            tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Share dismissal blocked actual native actions screen"
+            shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertTrue(restored,
+            "Native ShareSheet must dismiss and allow a physical Menu tap exposing an actual reader action")
+        let webAfterShare=app.webViews.firstMatch
+        XCTAssertTrue(webAfterShare.waitForExistence(timeout:15))
+        webAfterShare.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.6)).tap()
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            !homeAction.exists && menu.exists && menu.isEnabled
+        },object:nil)],timeout:20),.completed,
+            "Native Menu must dismiss and return control to the law reader before rotation")
         XCUIDevice.shared.orientation = .landscapeLeft
         XCTAssertTrue(search.waitForExistence(timeout:10))
         XCUIDevice.shared.orientation = .portrait
