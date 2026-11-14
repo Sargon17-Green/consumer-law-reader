@@ -51,8 +51,7 @@ final class ReaderUITests: XCTestCase {
                             "identifier":element?.identifier ?? "",
                             "frame":String(describing:frame)])
             if !knownWeb && !systemChrome {
-                nativeFailures.append(scope+": "+issue.compactDescription+
-                    " frame="+String(describing:frame))
+                nativeFailures.append(scope + ": " + issue.compactDescription + " frame=" + String(describing: frame))
             }
             return true // Record every issue; fail below for first-party scope.
         }
