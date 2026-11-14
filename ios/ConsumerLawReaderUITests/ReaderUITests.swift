@@ -304,10 +304,10 @@ final class ReaderUITests: XCTestCase {
             tree.name="System print Close missing or invalid AX frame";tree.lifetime = .keepAlways;add(tree)
             let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
             shot.name="System print Close missing or invalid hit point";shot.lifetime = .keepAlways;add(shot)
-            // Preserve the strict isHittable assertion. This is a separate,
-            // failure-only diagnostic: the system Cancel may be visible in AX
-            // while XCTest claims no valid hit point. Probe a genuine screen
-            // coordinate and record whether the *system UI actually dismisses*.
+            // Failure-only diagnostic. A button may become hittable only
+            // after the waiter has already timed out; the fresh observation
+            // must NOT mask the failed acceptance result. In both cases,
+            // probe a real coordinate touch and record actual dismissal.
             let cancelExists=printCancel.exists
             let cancelEnabled=cancelExists && printCancel.isEnabled
             let cancelFrame=cancelExists ? printCancel.frame : CGRect.null
@@ -317,9 +317,11 @@ final class ReaderUITests: XCTestCase {
                                 cancelFrame.height>0 && appFrame.contains(center)
             let cancelHittable=centerInsideApp && printCancel.isHittable
             Swift.print("PRINT_CLOSE_FAILURE: exists=\(cancelExists) enabled=\(cancelEnabled) hittable=\(cancelHittable) frame=\(cancelFrame) appFrame=\(appFrame)")
-            if cancelEnabled && centerInsideApp && !cancelHittable {
-                // Anchor to the application, NOT to the non-hittable button:
-                // XCUIElement.tap() would reject the button before testing touch.
+            if cancelEnabled && centerInsideApp {
+                // Probe even when isHittable has changed to true AFTER the
+                // waiter failed. Anchor to the app instead of the element so
+                // this experiment tests a physical touch rather than AX tap.
+                Swift.print("PRINT_CLOSE_LATE_HIT_TEST: hittableAfterTimeout=\(cancelHittable)")
                 let touch=app.coordinate(withNormalizedOffset:CGVector(dx:0,dy:0))
                     .withOffset(CGVector(dx:center.x-appFrame.minX,dy:center.y-appFrame.minY))
                 Swift.print("PRINT_CLOSE_COORDINATE_PROBE: start=(\(center.x),\(center.y))")
@@ -337,7 +339,7 @@ final class ReaderUITests: XCTestCase {
                 postAX.name="Print Cancel coordinate probe post-touch AX"
                 postAX.lifetime = .keepAlways;add(postAX)
             } else {
-                Swift.print("PRINT_CLOSE_COORDINATE_PROBE: skipped (not visible/enabled or no valid center)")
+                Swift.print("PRINT_CLOSE_COORDINATE_PROBE: skipped (button disabled/missing or center outside app)")
             }
         }
         // Deliberately fail even if the diagnostic coordinate touch worked.
