@@ -11,10 +11,11 @@ const base = {
   law_text_last_amended_on: '2026-09-30',
   law_text_last_verified_on: '2026-10-28',
   next_scheduled_change_on: '2027-03-22',
-  published_revision_sequence: 1, revision_status: 'editor_approved'
+  published_revision_sequence_by_platform: {android:1,ios:0,web:1},
+  revision_status: 'editor_approved'
 };
 
-function browser(remote, local = 1, storage = new Map()) {
+function browser(remote, local = 1, storage = new Map(), channel = 'web') {
   const elements = {
     'law-editorial-status': { textContent: JSON.stringify({law_id: LAW, law_revision_sequence: local}) },
     'law-update-banner': { hidden: true },
@@ -41,6 +42,11 @@ function browser(remote, local = 1, storage = new Map()) {
     setTimeout, clearTimeout,
     addEventListener: (name, handler) => {winEvents[name] = handler;}
   };
+  if (channel === 'android') window.NativeLaw = {};
+  if (channel === 'ios') {
+    window.NativeLaw = {}; // iOS has a compatibility bridge too.
+    window.webkit = {messageHandlers: {lawReader: {}}};
+  }
   vm.runInNewContext(SOURCE, {window, AbortController, console});
   return {window, elements, storage, requests,
           visibility: () => {document.visibilityState = 'visible'; docEvents.visibilitychange();},
@@ -64,28 +70,44 @@ async function main() {
   await t.window.LawUpdate.check();
   assert.equal(t.elements['law-update-banner'].hidden,true,'scheduled date in the past is not an approved new text');
 
-  const newer={...base,current_revision_sequence:2,law_text_last_amended_on:'2026-11-14',published_revision_sequence:1};
+  const newer={...base,current_revision_sequence:2,law_text_last_amended_on:'2026-11-14',
+    published_revision_sequence_by_platform:{android:1,ios:0,web:1}};
   t=browser(newer);
   assert.equal(await t.window.LawUpdate.check(),true);
   assert.equal(t.elements['law-update-banner'].hidden,false);
   assert.match(t.elements['law-update-detail'].textContent,/טרם פורסמה/);
-  assert.equal(t.elements['law-update-releases'].href,'https://github.com/Sargon17-Green/consumer-law-reader/releases');
+  assert.equal(t.elements['law-update-releases'].href,'https://sargon17-green.github.io/consumer-law-reader/reader/');
   const cached=t.storage;
   const offline=browser(new Error('offline'),1,cached);
   await offline.window.LawUpdate.check();
   assert.equal(offline.elements['law-update-banner'].hidden,false,'a confirmed stale copy stays flagged offline');
 
-  t=browser({...newer,published_revision_sequence:2,malicious_download:'javascript:alert(1)'});
+  t=browser({...newer,published_revision_sequence_by_platform:{android:2,ios:0,web:2},malicious_download:'javascript:alert(1)'});
   await t.window.LawUpdate.check();
-  assert.match(t.elements['law-update-detail'].textContent,/יש להתקין מהדורה חדשה/);
-  assert.equal(t.elements['law-update-releases'].href,'https://github.com/Sargon17-Green/consumer-law-reader/releases');
+  assert.match(t.elements['law-update-detail'].textContent,/חובה לעדכן/);
+  assert.equal(t.elements['law-update-releases'].href,'https://sargon17-green.github.io/consumer-law-reader/reader/');
+
+
+  // A new Android APK can be published while the iOS binary is not.
+  const platformManifest = {...newer,
+    published_revision_sequence_by_platform:{android:2,ios:0,web:2}};
+  let platformTest=browser(platformManifest,1,new Map(),'android');
+  await platformTest.window.LawUpdate.check();
+  assert.match(platformTest.elements['law-update-detail'].textContent,/חובה לעדכן/);
+  assert.equal(platformTest.elements['law-update-releases'].href,
+               'https://github.com/Sargon17-Green/consumer-law-reader/releases');
+  platformTest=browser(platformManifest,1,new Map(),'ios');
+  await platformTest.window.LawUpdate.check();
+  assert.match(platformTest.elements['law-update-detail'].textContent,/למכשיר זה טרם פורסמה/);
+  assert.equal(platformTest.elements['law-update-releases'].href,
+               'https://github.com/Sargon17-Green/consumer-law-reader/releases');
 
   for (const bad of [
     {...base,schema_version:2},
     {...base,law_id:'other-law'},
     {...base,revision_status:'draft'},
     {...base,current_revision_sequence:1.5},
-    {...base,published_revision_sequence:2},
+    {...base,published_revision_sequence_by_platform:{android:2,ios:0,web:1}},
     {...base,law_text_last_amended_on:'2026-02-30'},
     {...base,next_scheduled_change_on:'2027-02-29'}
   ]) {
@@ -95,7 +117,7 @@ async function main() {
     assert.equal(t.elements['law-update-banner'].hidden,true,'invalid manifest cannot trigger update');
   }
 
-  t=browser({...newer,published_revision_sequence:2},2);
+  t=browser({...newer,published_revision_sequence_by_platform:{android:2,ios:0,web:2}},2);
   await t.window.LawUpdate.check();
   assert.equal(t.elements['law-update-banner'].hidden,true,'installed current revision requires no update');
   t=browser(newer);
