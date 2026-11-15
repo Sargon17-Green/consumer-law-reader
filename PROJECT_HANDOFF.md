@@ -1,5 +1,17 @@
 # המשך עבודה עצמאי — חוק הגנת הצרכן
 
+## checkpoint מחייב — 16.11.2026: מנגנון עדכוני חוק מוזג ופורסם באתר
+
+- [PR #28](https://github.com/Sargon17-Green/consumer-law-reader/pull/28) פרסם תחילה ב־`main` את `metadata/law_update_manifest.json` בלבד, אחרי 15/15 בדיקות. HTTPS עצמאי החזיר 200, 473 בתים ו־SHA-256 `d3a2d37518cb3556674f5c11fff1117a040438f1ef7bd111d1cf2d186211a635`. מקור התאריכים הוא הצהרת עורך, לא הזנה אוטומטית ממאגר חקיקה רשמי.
+- [PR #24](https://github.com/Sargon17-Green/consumer-law-reader/pull/24), ראש `5b0e537420a1c9eb968a5d1a66af00f17d27f7c3`, עבר **15/15 completed/success על אותו SHA** לאחר rerun ממוקד, ומוזג ב־`ae494547ba998a94070293d9914530144d6cf0bb`. נוסח החקיקה ב־`original/` לא שונה. הבדיקה בפתיחה ובחזרה מ־background קוראת metadata בלבד ומראה אזהרה על מהדורה מאושרת גבוהה יותר; אין עדכון אוטומטי של הנוסח.
+- [פרסום Web/PWA בפועל, Actions #43774661018](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/43774661018): **build+deploy completed/success**, אימות HTTP של **76 קבצים** עבר, **36 קבצים קיימים** מחוץ ל־`reader/` נשמרו, והקובץ `reader/law-update.js` נוסף. [האתר הציבורי](https://sargon17-green.github.io/consumer-law-reader/reader/) מכיל כעת את המנגנון. בדיקת PWA לא־מקוונת עברה.
+- בניסויי Android פיזיים מבודדים אומתו קריאת GitHub 200 (פתיחה וחזרה) והצגת אזהרה מדומה מה־DOM תוך שמירת נוסח החוק. **ה־APK הציבורי החתום האחרון נשאר v1.3.5-beta**; אין חתימה/Release חדש עבור קוד 1.3.9-dev. iOS עדיין ללא IPA חתום/TestFlight, ומניפסט הפרסום מציין `ios:0`.
+- נותרת **אי־יציבות בחלונות Files/ShareSheet של iOS** למרות שער 15/15 יחיד שהושג ב־PR #24; אין להסיק שהכשל נפתר בכל הרצות. [PR #30](https://github.com/Sargon17-Green/consumer-law-reader/pull/30) בודק לחיצות תפקודיות לאחר סגירת שיתוף, [PR #31](https://github.com/Sargon17-Green/consumer-law-reader/pull/31) מאבחן אירועי UIKit ו־[PR #32](https://github.com/Sargon17-Green/consumer-law-reader/pull/32) נשאר Draft כי 13/15 בלבד. לפני Release חדש נדרשת בדיקה של CI על `main`, זהות נוסח/קבצים, מקור חתימה והרצה פיזית מתאימה.
+
+**כל checkpoint מתחת לכותרת זו הוא היסטורי**, לרבות הוראות המתייחסות ל־PR11 ול־SHA ישנים; אין להתייחס אליו כסטטוס העדכני.
+
+
+
 עודכן ב־11.11.2026. הפרויקט הוא **Sargon17-Green/consumer-law-reader**: Android WebView, SwiftUI/WKWebView ל־iPhone/iPad וממשק Web/PWA משותף. המטרה היא לפרסם ערוץ בשל מוקדם ולהמשיך בפיתוח, בלי תלות בשיחה. אין לערבב עם אפליקציית לוח השנה.
 
 ## checkpoint נוכחי — 13.11.2026, שלושה כשלים מאומתים מתצלומי מערכת
