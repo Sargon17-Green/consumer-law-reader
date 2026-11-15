@@ -170,6 +170,14 @@ jobs:
         run: |
           if [[ -n "${QA_DEVICE:-}" ]]; then
             xcrun simctl io "$QA_DEVICE" screenshot "build/$QA_LABEL-simulator.png" || true
+            # Only this diagnostic PR logs print/share event ordering. The
+            # simulator unified log is separate from the xcodebuild text log.
+            xcrun simctl spawn "$QA_DEVICE" log show --style compact --last 35m \
+              --predicate 'process == "ConsumerLawReader" AND eventMessage CONTAINS "PRINT_SHARE_QA"' \
+              > "build/$QA_LABEL-print-share-timeline.log" 2>&1 || true
+            echo "=== PRINT_SHARE_QA_EVENT_TIMELINE $QA_LABEL ==="
+            grep -F 'PRINT_SHARE_QA' "build/$QA_LABEL-print-share-timeline.log" | tail -80 || true
+            echo "=== PRINT_SHARE_QA_EVENT_TIMELINE_END ==="
             if [[ -d "build/$QA_LABEL-tests.xcresult" ]]; then
               xcrun xcresulttool export attachments --path "build/$QA_LABEL-tests.xcresult" --output-path "build/$QA_LABEL-attachments" || true
             fi
@@ -192,6 +200,7 @@ jobs:
             build/ConsumerLawReader-unsigned.xcarchive
             build/*-simulator.png
             build/*-tests.log
+            build/*-print-share-timeline.log
             build/*-runtime.json
             build/*-size-before.txt
             build/*-size-actual.txt
