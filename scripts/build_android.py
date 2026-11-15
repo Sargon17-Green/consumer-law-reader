@@ -84,7 +84,7 @@ if QA_ISOLATED:
     if source.count(debug_anchor)!=1:
         raise SystemExit('Cannot locate isolated WebView debugging insertion point')
     source=source.replace(debug_anchor,
-        '        WebView.setWebContentsDebuggingEnabled(true);\\n'+debug_anchor,1)
+        '        WebView.setWebContentsDebuggingEnabled(true);\n'+debug_anchor,1)
     main.write_text(source,encoding='utf-8')
 run('java','-jar',TOOLS/'ecj.jar','-source','8','-target','8','-encoding','UTF-8','-warn:none','-classpath',android,'-d',classes,*sorted(java_sources.rglob('*.java')))
 run('java','-cp',sdk/'lib/d8.jar','com.android.tools.r8.D8','--min-api','26','--lib',android,'--output',dex,*sorted(classes.rglob('*.class')))
