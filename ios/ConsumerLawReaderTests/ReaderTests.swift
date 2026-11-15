@@ -56,6 +56,20 @@ final class ReaderPolicyTests: XCTestCase {
                 XCTAssertFalse(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string: bad))), bad)
             }
         }
+        // A single exact data-only GitHub endpoint is allowed for detecting
+        // later law revisions; any sibling/path/query variant remains blocked.
+        let lawUpdate="https://raw.githubusercontent.com/Sargon17-Green/consumer-law-reader/main/metadata/law_update_manifest.json"
+        XCTAssertTrue(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string:lawUpdate))))
+        XCTAssertTrue(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string:lawUpdate+"?_t=1763151000000"))))
+        for bad in [
+            lawUpdate+"?ref=other", lawUpdate+"?_t=%31",
+            lawUpdate+"?_t=1&_t=2", lawUpdate+"/extra",
+            lawUpdate.replacingOccurrences(of:"metadata/",with:"admin/"),
+            lawUpdate.replacingOccurrences(of:"https:",with:"http:"),
+            lawUpdate.replacingOccurrences(of:"raw.githubusercontent.com",with:"raw.githubusercontent.com.evil.example")
+        ] {
+            XCTAssertFalse(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string:bad))), bad)
+        }
         XCTAssertTrue(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string:"https://api.github.com/repos/Sargon17-Green/pastafari-calendar/contents/docs/api/seer-now.json?ref=main&_t=123"))))
         XCTAssertFalse(ReaderPolicy.isDateURL(try XCTUnwrap(URL(string:"https:opaque?x=1"))))
         let website=URL(fileURLWithPath:"/app/dist/index.html")

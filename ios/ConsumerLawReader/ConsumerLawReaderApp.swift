@@ -97,7 +97,8 @@ struct ReaderScreen: View {
             if requested { chooseBackup = true; reader.requestFileImport = false }
         }
         .onChange(of: scenePhase) { phase in
-            if phase != .active { reader.persistReadingState() }
+            if phase == .active { reader.checkLawUpdate() }
+            else { reader.persistReadingState() }
         }
         .sheet(item: $reader.sharing, onDismiss: { reader.cleanTemporaryExport() }) { share in
             ActivitySheet(items: share.items) { failure in
@@ -323,6 +324,12 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         guard ready else { return }
         let scale = UIFont.preferredFont(forTextStyle: .body).pointSize / 17.0
         webView.evaluateJavaScript("window.lawMobile?.setSystemFontScale(" + String(Double(scale)) + ")") { _, _ in }
+    }
+
+    func checkLawUpdate() {
+        // No law text is downloaded here; only approved revision metadata is
+        // requested by the bundled JavaScript, with offline-safe fallback.
+        webView.evaluateJavaScript("window.LawUpdate && window.LawUpdate.check()") { _, _ in }
     }
 
     func persistReadingState() {

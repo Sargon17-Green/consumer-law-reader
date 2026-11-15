@@ -83,7 +83,9 @@ public final class MainActivity extends Activity {
             || ("api.github.com".equals(host)
                     && "/repos/Sargon17-Green/pastafari-calendar/contents/docs/api/seer-now.json".equals(path))
             || ("sargon17-green.github.io".equals(host)
-                    && "/pastafari-calendar/api/seer-now.json".equals(path));
+                    && "/pastafari-calendar/api/seer-now.json".equals(path))
+            || ("raw.githubusercontent.com".equals(host)
+                    && "/Sargon17-Green/consumer-law-reader/main/metadata/law_update_manifest.json".equals(path));
     }
 
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -414,6 +416,13 @@ public final class MainActivity extends Activity {
         super.onSaveInstanceState(state);
     }
     @Override protected void onPause() { if(web!=null){web.evaluateJavascript("window.lawMobile?.saveSession()",null);web.onPause();}super.onPause(); }
-    @Override protected void onResume() { super.onResume();if(web!=null)web.onResume(); }
+    @Override protected void onResume() {
+        super.onResume();
+        if (web != null) {
+            web.onResume();
+            // The bundled JS handles cold starts; recheck after each resume.
+            if (ready) web.evaluateJavascript("window.LawUpdate && window.LawUpdate.check()", null);
+        }
+    }
     @Override protected void onDestroy() { readyGeneration++;if(Build.VERSION.SDK_INT>=33&&systemBack!=null)getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(systemBack);if(web!=null){web.removeJavascriptInterface("NativeLaw");web.destroy();}super.onDestroy(); }
 }
