@@ -77,6 +77,14 @@ if QA_ISOLATED:
     if source.count(old_path)!=2:
         raise SystemExit('QA Java allowlist and logging path contract changed')
     source=source.replace(old_path,qa_path)
+    # QA only: allow a single loopback ADB DevTools session to assert the
+    # actual rendered legal text and synthetic update-warning banner.
+    # This is NEVER compiled into the original release Java sources.
+    debug_anchor='        web = new WebView(this);'
+    if source.count(debug_anchor)!=1:
+        raise SystemExit('Cannot locate isolated WebView debugging insertion point')
+    source=source.replace(debug_anchor,
+        '        WebView.setWebContentsDebuggingEnabled(true);\\n'+debug_anchor,1)
     main.write_text(source,encoding='utf-8')
 run('java','-jar',TOOLS/'ecj.jar','-source','8','-target','8','-encoding','UTF-8','-warn:none','-classpath',android,'-d',classes,*sorted(java_sources.rglob('*.java')))
 run('java','-cp',sdk/'lib/d8.jar','com.android.tools.r8.D8','--min-api','26','--lib',android,'--output',dex,*sorted(classes.rglob('*.class')))
@@ -161,6 +169,7 @@ if QA_ISOLATED:
         'signedWithDisposableDebugKey':True,
         'qaManifestPinnedCommit':QA_MANIFEST_REF,
         'qaOnlyFixedURL':True,
+        'qaWebViewRemoteDebuggingEnabled':True,
         'installDoesNotReplacePublicApp':True
     },indent=2))
 (ROOT/'evidence/apk-badging.txt').write_text(details)
