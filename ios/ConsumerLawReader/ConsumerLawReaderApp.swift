@@ -179,7 +179,7 @@ private final class WeakLawBridge: NSObject, WKScriptMessageHandler {
 }
 
 @MainActor
-final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate {
+final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate, UIPrintInteractionControllerDelegate {
     @Published var ready = false
     @Published var loadFailed = false
     @Published var sharing: SharePayload?
@@ -188,6 +188,13 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     @Published var importPreview = ""
     @Published var working = false
     @Published var requestFileImport = false
+
+    // A print completion callback is not the same as UIKit dismissing its
+    // options UI. Do not offer another native modal until both have happened.
+    private var printPending = false
+    private var printCompletionReceived = false
+    private var printOptionsDismissed = false
+    private var printFailure: Error?
 
     let webView: WKWebView
     private let scriptHandler = WeakLawBridge()
@@ -477,19 +484,29 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
             showError("אפשרות ההדפסה אינה זמינה במכשיר הזה.")
             return
         }
-        guard ready, !working else { return }
+        guard ready, !working, !printPending else { return }
         let controller = UIPrintInteractionController.shared
         let info = UIPrintInfo(dictionary: nil)
         info.outputType = .general
         info.jobName = "חוק הגנת הצרכן"
         controller.printInfo = info
         controller.printFormatter = webView.viewPrintFormatter()
+        controller.delegate = self
+        printPending = true
+        printCompletionReceived = false
+        printOptionsDismissed = false
+        printFailure = nil
         working = true
         let completion: UIPrintInteractionController.CompletionHandler = { [weak self] controller, _, error in
-            Task { @MainActor in
-                controller.printFormatter = nil
-                self?.working = false
-                if error != nil { self?.showError("לא ניתן להשלים את פעולת ההדפסה.") }
+            Task { @MainActor [weak self] in
+                guard let self, self.printPending else { return }
+                self.printCompletionReceived = true
+                self.printFailure = error
+                #if DEBUG
+                NSLog("PRINT_GATE_QA completion optionsDismissed=%d error=%d",
+                      self.printOptionsDismissed ? 1 : 0, error == nil ? 0 : 1)
+                #endif
+                self.finishPrintAfterDismissal(controller)
             }
         }
         let presented: Bool
@@ -499,10 +516,39 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
             presented = controller.present(animated: true, completionHandler: completion)
         }
         if !presented {
+            printPending = false
+            printFailure = nil
+            controller.delegate = nil
             controller.printFormatter = nil
             working = false
             showError("לא ניתן לפתוח את אפשרויות ההדפסה.")
         }
+    }
+
+    func printInteractionControllerDidDismissPrinterOptions(_ controller: UIPrintInteractionController) {
+        guard printPending else { return }
+        printOptionsDismissed = true
+        #if DEBUG
+        NSLog("PRINT_GATE_QA didDismiss completionReceived=%d",
+              printCompletionReceived ? 1 : 0)
+        #endif
+        finishPrintAfterDismissal(controller)
+    }
+
+    private func finishPrintAfterDismissal(_ controller: UIPrintInteractionController) {
+        // Never treat either UIKit callback alone as proof that the sheet and
+        // any print job have finished. Shared printing UI stays serialized.
+        guard printPending, printCompletionReceived, printOptionsDismissed else { return }
+        let failure = printFailure
+        printPending = false
+        printFailure = nil
+        controller.delegate = nil
+        controller.printFormatter = nil
+        working = false
+        #if DEBUG
+        NSLog("PRINT_GATE_QA actionControlsEnabled")
+        #endif
+        if failure != nil { showError("לא ניתן להשלים את פעולת ההדפסה.") }
     }
 
     func goHome() {
