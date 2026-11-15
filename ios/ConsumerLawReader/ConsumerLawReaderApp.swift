@@ -156,12 +156,12 @@ private struct ActivitySheet: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
         #if DEBUG
-        Swift.print("PRINT_SHARE_QA_ACTIVITY_MAKE t=\(ProcessInfo.processInfo.systemUptime)")
+        NSLog("PRINT_SHARE_QA_ACTIVITY_MAKE t=\(ProcessInfo.processInfo.systemUptime)")
         #endif
         let controller=UIActivityViewController(activityItems: items, applicationActivities: nil)
         controller.completionWithItemsHandler = { _, _, _, error in
             #if DEBUG
-            Swift.print("PRINT_SHARE_QA_ACTIVITY_COMPLETION t=\(ProcessInfo.processInfo.systemUptime) error=\(error != nil)")
+            NSLog("PRINT_SHARE_QA_ACTIVITY_COMPLETION t=\(ProcessInfo.processInfo.systemUptime) error=\(error != nil)")
             #endif
             let failure=error?.localizedDescription
             Task { @MainActor in onComplete(failure) }
@@ -455,7 +455,7 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
 
     func shareCurrentSection() {
         #if DEBUG
-        Swift.print("PRINT_SHARE_QA_SHARE_REQUEST t=\(ProcessInfo.processInfo.systemUptime) ready=\(ready) working=\(working)")
+        NSLog("PRINT_SHARE_QA_SHARE_REQUEST t=\(ProcessInfo.processInfo.systemUptime) ready=\(ready) working=\(working)")
         #endif
         guard ready, !working else { return }
         let script = """
@@ -477,7 +477,7 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
                 parts.fragment = target
                 guard let url = parts.url else { return }
                 #if DEBUG
-                Swift.print("PRINT_SHARE_QA_SHARE_SET t=\(ProcessInfo.processInfo.systemUptime)")
+                NSLog("PRINT_SHARE_QA_SHARE_SET t=\(ProcessInfo.processInfo.systemUptime)")
                 #endif
                 self.sharing = SharePayload(items: [url])
             }
@@ -498,13 +498,13 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         controller.printFormatter = webView.viewPrintFormatter()
         #if DEBUG
         controller.delegate = self
-        Swift.print("PRINT_SHARE_QA_PRINT_PRESENT_REQUEST t=\(ProcessInfo.processInfo.systemUptime)")
+        NSLog("PRINT_SHARE_QA_PRINT_PRESENT_REQUEST t=\(ProcessInfo.processInfo.systemUptime)")
         #endif
         working = true
         let completion: UIPrintInteractionController.CompletionHandler = { [weak self] controller, _, error in
             Task { @MainActor in
                 #if DEBUG
-                Swift.print("PRINT_SHARE_QA_PRINT_COMPLETION t=\(ProcessInfo.processInfo.systemUptime) error=\(error != nil)")
+                NSLog("PRINT_SHARE_QA_PRINT_COMPLETION t=\(ProcessInfo.processInfo.systemUptime) error=\(error != nil)")
                 #endif
                 controller.printFormatter = nil
                 self?.working = false
@@ -528,17 +528,17 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     // alter print state or user-visible behavior; diagnostic Draft PR only.
     func printInteractionControllerDidPresentPrinterOptions(_ controller: UIPrintInteractionController) {
         #if DEBUG
-        Swift.print("PRINT_SHARE_QA_PRINT_DID_PRESENT t=\(ProcessInfo.processInfo.systemUptime)")
+        NSLog("PRINT_SHARE_QA_PRINT_DID_PRESENT t=\(ProcessInfo.processInfo.systemUptime)")
         #endif
     }
     func printInteractionControllerWillDismissPrinterOptions(_ controller: UIPrintInteractionController) {
         #if DEBUG
-        Swift.print("PRINT_SHARE_QA_PRINT_WILL_DISMISS t=\(ProcessInfo.processInfo.systemUptime) working=\(working)")
+        NSLog("PRINT_SHARE_QA_PRINT_WILL_DISMISS t=\(ProcessInfo.processInfo.systemUptime) working=\(working)")
         #endif
     }
     func printInteractionControllerDidDismissPrinterOptions(_ controller: UIPrintInteractionController) {
         #if DEBUG
-        Swift.print("PRINT_SHARE_QA_PRINT_DID_DISMISS t=\(ProcessInfo.processInfo.systemUptime) working=\(working)")
+        NSLog("PRINT_SHARE_QA_PRINT_DID_DISMISS t=\(ProcessInfo.processInfo.systemUptime) working=\(working)")
         #endif
     }
 
