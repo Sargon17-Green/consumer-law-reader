@@ -1,5 +1,15 @@
 # תקלות ידועות ומגבלות כיסוי
 
+## סטטוס עדכני — 16.11.2026
+
+**חסם פרסום המניפסט נפתר:** PR #28 ו־PR #24 מוזגו ל־`main`, ומנגנון העדכונים פורסם ב־Web/PWA. מקור החוק לא שונה; Android ציבורי עדיין v1.3.5-beta ו־iOS אינו מופץ באופן חתום.
+
+**בעיה לא־יציבה שנותרה:** סגירת חלונות מערכת iOS — Files picker ללא `Cancel` לחיץ בחלק מההרצות, ו־ShareSheet שנותר בעץ הנגישות של XCTest אחרי לחיצת `Close`. בתרחישים מסוימים צילומי מסך הראו חלון שיתוף ריק ממש, ולכן אין להסיק תמיד שמדובר רק בפרוקסי AX שהתיישן. מעבר 15/15 אחד של PR #24 אינו פותר את הבעיה באופן מוכח. [Issue #17](https://github.com/Sargon17-Green/consumer-law-reader/issues/17), [QA #30](https://github.com/Sargon17-Green/consumer-law-reader/pull/30), [QA #31](https://github.com/Sargon17-Green/consumer-law-reader/pull/31), [Draft #32](https://github.com/Sargon17-Green/consumer-law-reader/pull/32). אין לעקוף את דרישת ביטול Files או לשחרר תיקון iOS לא מוכח.
+
+**חסם הפצה נפרד:** אין אישור נוכחי למפתח חתימה מקורי Android, Team/Profile/ASC של Apple או IPA/TestFlight. המיזוג אינו מחליף את ה־APK הציבורי הקיים. כל רישום מתחת לסעיף זה מתאר ממצאים היסטוריים.
+
+
+
 עודכן ב־11.11.2026. [מצב](IMPLEMENTATION_STATUS.md), [BACKLOG](BACKLOG.md).
 
 **הבהרת מצב לאחר קבלת 11.11:** [דו"ח חדש](qa/mobile-2026-11-11/completed-acceptance-triage-20261111.md) מוכיח source/Android 9/9 success מול iOS 3/6 success. נותרו שלושה כשלי UI מדויקים: XL/XXXL print-preview, iPhone18.5 שחזור מ־Files, iPad18.5 Close בשיתוף. אין PASS מאוחד. בניגוד לנתון ההיסטורי בטבלה מטה, Save-to-Files *נבדק בהצלחה בנפרד* ב־iPhone26.2 ב־[run42968670868](https://github.com/Sargon17-Green/consumer-law-reader/actions/runs/42968670868), כולל PDF מקומי 136 עמודים וקובץ חדש. עדיין לא נבדקו מדפסת פיזית, כל מערכות iOS או נגישות Tagged PDF.
