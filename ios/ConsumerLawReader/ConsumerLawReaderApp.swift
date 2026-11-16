@@ -58,6 +58,9 @@ struct ReaderScreen: View {
                         reader.exportSettings()
                     }
                     Button("שחזור הגדרות מקובץ", systemImage: "square.and.arrow.down.on.square") {
+                        #if DEBUG
+                        NSLog("FILES_QA_MENU_ACTION t=\(ProcessInfo.processInfo.systemUptime)")
+                        #endif
                         chooseBackup = true
                     }
                     Button("חזרה לתחילת החוק", systemImage: "house") {
@@ -93,6 +96,11 @@ struct ReaderScreen: View {
         }
         .environment(\.layoutDirection, .rightToLeft)
         .onChange(of: dynamicTypeSize) { _ in reader.applyDynamicType() }
+        .onChange(of: chooseBackup) { isRequested in
+            #if DEBUG
+            NSLog("FILES_QA_BINDING_STATE t=\(ProcessInfo.processInfo.systemUptime) requested=\(isRequested)")
+            #endif
+        }
         .onChange(of: reader.requestFileImport) { requested in
             if requested { chooseBackup = true; reader.requestFileImport = false }
         }
@@ -109,6 +117,9 @@ struct ReaderScreen: View {
             allowedContentTypes: [.json],
             allowsMultipleSelection: false
         ) { result in
+            #if DEBUG
+            NSLog("FILES_QA_IMPORT_COMPLETION t=\(ProcessInfo.processInfo.systemUptime)")
+            #endif
             reader.importBackup(result: result)
         }
         .confirmationDialog(
