@@ -37,6 +37,27 @@ def adb(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     )
 
 
+def installed_packages() -> set[str]:
+    """Query the package manager without treating a missing package as an ADB error.
+
+    Unlike 'pm path <missing>', 'pm list packages' has a successful exit
+    status when the requested app is absent. Require the core Android package
+    so a broken/empty response cannot silently pass the isolation gate.
+    """
+    result = adb("shell", "pm", "list", "packages", "--user", "0")
+    packages = {
+        line[len("package:"):].strip()
+        for line in result.stdout.splitlines()
+        if line.startswith("package:")
+    }
+    if "android" not in packages:
+        raise AssertionError(
+            "Package manager did not report the core android package; "
+            "cannot verify QA isolation"
+        )
+    return packages
+
+
 def marker_snapshot() -> tuple[dict[str, int], str]:
     raw = adb("logcat", "-d", "-v", "brief", "-s",
               "LAW_QA_REVISION:I", "*:S").stdout
@@ -77,8 +98,12 @@ def main() -> None:
     assert hashlib.sha256(apk.read_bytes()).hexdigest() == (
         ROOT / "qa-isolated-build" / (apk.name + ".sha256.txt")
     ).read_text().split()[0]
-    assert not adb("shell", "pm", "path", PUBLIC_PACKAGE).stdout.strip(), (
+    before = installed_packages()
+    assert PUBLIC_PACKAGE not in before, (
         "Refuse to use an emulator with the public app installed"
+    )
+    assert QA_PACKAGE not in before, (
+        "Refuse to use an emulator with a preinstalled QA app"
     )
     (OUT / "apk-sha256.txt").write_text(hashlib.sha256(apk.read_bytes()).hexdigest())
     installed = False
@@ -111,12 +136,9 @@ def main() -> None:
     finally:
         if installed:
             adb("uninstall", QA_PACKAGE, check=False)
-        report["qaUninstalled"] = not bool(
-            adb("shell", "pm", "path", QA_PACKAGE, check=False).stdout.strip()
-        )
-        report["publicPackageStillAbsent"] = not bool(
-            adb("shell", "pm", "path", PUBLIC_PACKAGE, check=False).stdout.strip()
-        )
+        after = installed_packages()
+        report["qaUninstalled"] = QA_PACKAGE not in after
+        report["publicPackageStillAbsent"] = PUBLIC_PACKAGE not in after
         (OUT / "result.json").write_text(
             json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
