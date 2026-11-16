@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - scripts/build_android.py
+      - scripts/qa_android_live_manifest_emulator.py
       - .github/workflows/android-law-qa-isolated.yml
   workflow_dispatch:
 
@@ -58,3 +59,47 @@ jobs:
             qa-isolated-build/*_SIDE_BY_SIDE_QA.apk
             qa-isolated-build/*_SIDE_BY_SIDE_QA.apk.sha256.txt
             qa-isolated-build/QA_ISOLATION_VERIFIED.json
+
+  emulator-live-manifest:
+    needs: isolated-android-debug
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: consumer-law-android-canonical-manifest-qa
+          path: qa-isolated-build
+      - name: Check isolated test and artifact before boot
+        run: |
+          python3 -m py_compile scripts/qa_android_live_manifest_emulator.py
+          test "$(find qa-isolated-build -maxdepth 1 -name '*_SIDE_BY_SIDE_QA.apk' | wc -l)" -eq 1
+          test -s qa-isolated-build/QA_ISOLATION_VERIFIED.json
+      - name: Enable KVM on the disposable hosted runner
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install only QA APK and verify live canonical cold/resume network
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          ram-size: 2048M
+          heap-size: 256M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: python3 scripts/qa_android_live_manifest_emulator.py
+      - name: Preserve separate canonical-manifest emulator evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: consumer-law-android-canonical-manifest-emulator-evidence
+          path: evidence/law-update-emulator/
+          if-no-files-found: warn
+          retention-days: 7
