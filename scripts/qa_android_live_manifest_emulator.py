@@ -43,7 +43,7 @@ def marker_snapshot() -> tuple[dict[str, int], str]:
     counts = {name: 0 for name in MARKERS}
     for line in raw.splitlines():
         # Count only tagged QA Java events; never infer 200 from a URL or text.
-        match = re.search(r"\\bLAW_QA_REVISION\\s*:\\s*(REQUEST|RESPONSE_200|READER_READY|RESUME_CHECK)\\b", line)
+        match = re.search(r"LAW_QA_REVISION(?:\(\s*\d+\))?\s*:\s*(REQUEST|RESPONSE_200|READER_READY|RESUME_CHECK)(?:\s|$)", line)
         if match:
             counts[match.group(1)] += 1
     return counts, raw
