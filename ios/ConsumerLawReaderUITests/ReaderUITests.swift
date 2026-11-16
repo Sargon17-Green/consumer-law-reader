@@ -37,6 +37,36 @@ final class ReaderUITests: XCTestCase {
         XCTAssertTrue(nativeFailures.isEmpty,nativeFailures.joined(separator:"; "))
         print("NATIVE_ACCESSIBILITY_AUDIT: nativeFailures=\(nativeFailures.count) totalRecorded=\(findings.count)")
     }
+    // A remote ActivityListView accessibility proxy may survive dismissal.
+    // Require a real physical tap into our app and a visible native Menu action.
+    // An intervening system sheet prevents this user interaction and fails.
+    private func assertReaderReachableAfterSystemShare(_ app: XCUIApplication,
+                                                      phase: String) {
+        let menu=app.buttons.matching(identifier:"native-menu").firstMatch
+        let home=app.buttons.matching(identifier:"חזרה לתחילת החוק").firstMatch
+        XCTAssertTrue(menu.waitForExistence(timeout:30),
+                      "Reader's native Menu must exist after Share: "+phase)
+        menu.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
+        let responsive=home.waitForExistence(timeout:25)
+        if !responsive {
+            let snapshot=String(app.debugDescription.prefix(22000))
+            Swift.print("POST_SHARE_NATIVE_ACTION_FAILED "+phase+" "+snapshot)
+            let tree=XCTAttachment(string:snapshot)
+            tree.name="System Share may still block native app actions "+phase
+            tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Native reader after Share Close "+phase
+            shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertTrue(responsive,"Share must dismiss and physically reveal a real Menu action: "+phase)
+        let web=app.webViews.firstMatch
+        XCTAssertTrue(web.waitForExistence(timeout:20))
+        web.coordinate(withNormalizedOffset:CGVector(dx:0.50,dy:0.60)).tap()
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            !home.exists && menu.exists && menu.isEnabled
+        },object:nil)],timeout:20),.completed,
+            "Menu must dismiss and restore reader controls: "+phase)
+    }
     // An independent control: distinguish a broken cold-launch share from
     // a state-transition failure after Print + Files + keyboard interaction.
     // This test complements, never replaces, the full sequential UI test.
@@ -79,10 +109,7 @@ final class ReaderUITests: XCTestCase {
         let close=(closeID.exists && closeID.isHittable) ? closeID : closeLabel
         print("SHARE_ISOLATION_CLOSE_" + phase + ": " + close.label + ", id=" + close.identifier)
         close.tap()
-        let menu=app.buttons.matching(identifier:"native-menu").firstMatch
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
-            !activities.exists && menu.exists && menu.isEnabled
-        },object:nil)],timeout:30),.completed,"Native share must really dismiss: " + phase)
+        assertReaderReachableAfterSystemShare(app,phase:phase)
     }
 
     func testNativeShareAfterPrintWithoutFileImporter() {
@@ -137,7 +164,12 @@ final class ReaderUITests: XCTestCase {
             (sidebar.exists && sidebar.isHittable) || (general.exists && general.isHittable)
         },object:nil)],timeout:60)
         if ready != .completed {
-            let tree=XCTAttachment(string:String(app.debugDescription.prefix(25000)))
+            let details=String(app.debugDescription.prefix(25000))
+            // The text is valuable in the job's plain CI log even if the
+            // large .xcresult bundle cannot be retrieved by an auditor.
+            Swift.print("FILES_CANCEL_AX_SNAPSHOT_START "+details)
+            Swift.print("FILES_CANCEL_AX_SNAPSHOT_END")
+            let tree=XCTAttachment(string:details)
             tree.name="Isolated importer lacks actionable Cancel AX";tree.lifetime = .keepAlways;add(tree)
             let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
             shot.name="Isolated importer lacks actionable Cancel UI";shot.lifetime = .keepAlways;add(shot)
@@ -198,9 +230,7 @@ final class ReaderUITests: XCTestCase {
         let close=(closeByID.exists && closeByID.isHittable) ? closeByID : closeByLabel
         print("FRESH_SHARE_CONTROL: label=\(close.label) identifier=\(close.identifier) frame=\(close.frame)")
         close.tap()
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
-            !activities.exists && menu.exists && menu.isEnabled
-        },object:nil)],timeout:30),.completed,"Actual cold-launch share must close and restore the reader")
+        assertReaderReachableAfterSystemShare(app,phase:"direct-cold-start")
     }
     func testSearchNavigationSharingRotationAndRelaunch() {
         // Full keyboard + repeated reading + print + Files + share + rotation
@@ -387,7 +417,31 @@ final class ReaderUITests: XCTestCase {
         let closeShare=(closeByID.exists && closeByID.isHittable) ? closeByID : closeByLabel
         Swift.print("NATIVE_SHARE_CLOSE: label=\(closeShare.label) identifier=\(closeShare.identifier) frame=\(closeShare.frame)")
         closeShare.tap()
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in !activities.exists },object:nil)],timeout:20),.completed,"Native sharing must be dismissed before rotation and relaunch")
+        // iPadOS remote ShareSheet AX proxies can remain "exists" even after
+        // the sheet is gone. Test the actual user-visible post-dismissal action:
+        // opening the underlying *native* app Menu must work, its real action
+        // must be visible, and that Menu must close before rotation. A live
+        // overlay intercepts the tap and fails this stronger functional gate.
+        openNativeMenu()
+        let homeAction=app.buttons.matching(identifier:"חזרה לתחילת החוק").firstMatch
+        let restored=homeAction.waitForExistence(timeout:20)
+        if !restored {
+            let tree=XCTAttachment(string:String(app.debugDescription.prefix(25000)))
+            tree.name="Share dismissal blocked actual native actions AX"
+            tree.lifetime = .keepAlways;add(tree)
+            let shot=XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name="Share dismissal blocked actual native actions screen"
+            shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertTrue(restored,
+            "Native ShareSheet must dismiss and allow a physical Menu tap exposing an actual reader action")
+        let webAfterShare=app.webViews.firstMatch
+        XCTAssertTrue(webAfterShare.waitForExistence(timeout:15))
+        webAfterShare.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.6)).tap()
+        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+            !homeAction.exists && menu.exists && menu.isEnabled
+        },object:nil)],timeout:20),.completed,
+            "Native Menu must dismiss and return control to the law reader before rotation")
         XCUIDevice.shared.orientation = .landscapeLeft
         XCTAssertTrue(search.waitForExistence(timeout:10))
         XCUIDevice.shared.orientation = .portrait
