@@ -58,6 +58,9 @@ struct ReaderScreen: View {
                         reader.exportSettings()
                     }
                     Button("שחזור הגדרות מקובץ", systemImage: "square.and.arrow.down.on.square") {
+                        #if DEBUG
+                        NSLog("FILES_QA_MENU_ACTION t=\(ProcessInfo.processInfo.systemUptime)")
+                        #endif
                         chooseBackup = true
                     }
                     Button("חזרה לתחילת החוק", systemImage: "house") {
@@ -93,6 +96,11 @@ struct ReaderScreen: View {
         }
         .environment(\.layoutDirection, .rightToLeft)
         .onChange(of: dynamicTypeSize) { _ in reader.applyDynamicType() }
+        .onChange(of: chooseBackup) { isRequested in
+            #if DEBUG
+            NSLog("FILES_QA_BINDING_STATE t=\(ProcessInfo.processInfo.systemUptime) requested=\(isRequested)")
+            #endif
+        }
         .onChange(of: reader.requestFileImport) { requested in
             if requested { chooseBackup = true; reader.requestFileImport = false }
         }
@@ -110,6 +118,9 @@ struct ReaderScreen: View {
             allowedContentTypes: [.json],
             allowsMultipleSelection: false
         ) { result in
+            #if DEBUG
+            NSLog("FILES_QA_IMPORT_COMPLETION t=\(ProcessInfo.processInfo.systemUptime)")
+            #endif
             reader.importBackup(result: result)
         }
         .confirmationDialog(
@@ -156,8 +167,14 @@ private struct ActivitySheet: UIViewControllerRepresentable {
     let onComplete: @MainActor (String?) -> Void
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
+        #if DEBUG
+        NSLog("PRINT_SHARE_QA_ACTIVITY_MAKE t=\(ProcessInfo.processInfo.systemUptime)")
+        #endif
         let controller=UIActivityViewController(activityItems: items, applicationActivities: nil)
         controller.completionWithItemsHandler = { _, _, _, error in
+            #if DEBUG
+            NSLog("PRINT_SHARE_QA_ACTIVITY_COMPLETION t=\(ProcessInfo.processInfo.systemUptime) error=\(error != nil)")
+            #endif
             let failure=error?.localizedDescription
             Task { @MainActor in onComplete(failure) }
         }
@@ -180,7 +197,7 @@ private final class WeakLawBridge: NSObject, WKScriptMessageHandler {
 }
 
 @MainActor
-final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate {
+final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate, UIPrintInteractionControllerDelegate {
     @Published var ready = false
     @Published var loadFailed = false
     @Published var sharing: SharePayload?
@@ -455,6 +472,9 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     }
 
     func shareCurrentSection() {
+        #if DEBUG
+        NSLog("PRINT_SHARE_QA_SHARE_REQUEST t=\(ProcessInfo.processInfo.systemUptime) ready=\(ready) working=\(working)")
+        #endif
         guard ready, !working else { return }
         let script = """
         (() => {
@@ -474,6 +494,9 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
                       var parts = URLComponents(string: Self.publicURL) else { return }
                 parts.fragment = target
                 guard let url = parts.url else { return }
+                #if DEBUG
+                NSLog("PRINT_SHARE_QA_SHARE_SET t=\(ProcessInfo.processInfo.systemUptime)")
+                #endif
                 self.sharing = SharePayload(items: [url])
             }
         }
@@ -491,9 +514,16 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
         info.jobName = "חוק הגנת הצרכן"
         controller.printInfo = info
         controller.printFormatter = webView.viewPrintFormatter()
+        #if DEBUG
+        controller.delegate = self
+        NSLog("PRINT_SHARE_QA_PRINT_PRESENT_REQUEST t=\(ProcessInfo.processInfo.systemUptime)")
+        #endif
         working = true
         let completion: UIPrintInteractionController.CompletionHandler = { [weak self] controller, _, error in
             Task { @MainActor in
+                #if DEBUG
+                NSLog("PRINT_SHARE_QA_PRINT_COMPLETION t=\(ProcessInfo.processInfo.systemUptime) error=\(error != nil)")
+                #endif
                 controller.printFormatter = nil
                 self?.working = false
                 if error != nil { self?.showError("לא ניתן להשלים את פעולת ההדפסה.") }
@@ -510,6 +540,24 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
             working = false
             showError("לא ניתן לפתוח את אפשרויות ההדפסה.")
         }
+    }
+
+    // Read-only presentation timing probes. These delegate callbacks do not
+    // alter print state or user-visible behavior; diagnostic Draft PR only.
+    func printInteractionControllerDidPresentPrinterOptions(_ controller: UIPrintInteractionController) {
+        #if DEBUG
+        NSLog("PRINT_SHARE_QA_PRINT_DID_PRESENT t=\(ProcessInfo.processInfo.systemUptime)")
+        #endif
+    }
+    func printInteractionControllerWillDismissPrinterOptions(_ controller: UIPrintInteractionController) {
+        #if DEBUG
+        NSLog("PRINT_SHARE_QA_PRINT_WILL_DISMISS t=\(ProcessInfo.processInfo.systemUptime) working=\(working)")
+        #endif
+    }
+    func printInteractionControllerDidDismissPrinterOptions(_ controller: UIPrintInteractionController) {
+        #if DEBUG
+        NSLog("PRINT_SHARE_QA_PRINT_DID_DISMISS t=\(ProcessInfo.processInfo.systemUptime) working=\(working)")
+        #endif
     }
 
     func goHome() {
