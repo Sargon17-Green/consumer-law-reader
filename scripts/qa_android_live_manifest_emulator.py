@@ -24,7 +24,12 @@ MANIFEST = (
     "https://raw.githubusercontent.com/Sargon17-Green/"
     "consumer-law-reader/main/metadata/law_update_manifest.json"
 )
-MARKERS = ("REQUEST", "RESPONSE_200", "READER_READY", "RESUME_CHECK")
+# Positive markers are emitted by the throwaway Java source and WebView console only.
+# The tests do not permit success by searching URLs or HTML bytes in logcat.
+MARKERS = (
+    "REQUEST", "RESPONSE_200", "READER_READY", "RESUME_CHECK",
+    "LEGAL_TEXT_READY", "NO_FALSE_UPDATE_BANNER",
+)
 
 
 def adb(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -60,11 +65,16 @@ def installed_packages() -> set[str]:
 
 def marker_snapshot() -> tuple[dict[str, int], str]:
     raw = adb("logcat", "-d", "-v", "brief", "-s",
-              "LAW_QA_REVISION:I", "*:S").stdout
+              "LAW_QA_REVISION:I", "LAW_QA_DOM:I", "*:S").stdout
     counts = {name: 0 for name in MARKERS}
     for line in raw.splitlines():
         # Count only tagged QA Java events; never infer 200 from a URL or text.
-        match = re.search(r"LAW_QA_REVISION(?:\(\s*\d+\))?\s*:\s*(REQUEST|RESPONSE_200|READER_READY|RESUME_CHECK)(?:\s|$)", line)
+        match = re.search(
+            r"LAW_QA_(?:REVISION|DOM)(?:\(\s*\d+\))?\s*:\s*"
+            r"(REQUEST|RESPONSE_200|READER_READY|RESUME_CHECK|"
+            r"LEGAL_TEXT_READY|NO_FALSE_UPDATE_BANNER)(?:\s|$)",
+            line,
+        )
         if match:
             counts[match.group(1)] += 1
     return counts, raw
@@ -121,7 +131,8 @@ def main() -> None:
         adb("logcat", "-c")
         adb("shell", "am", "start", "-n", ACTIVITY)
         report["cold"] = await_events(
-            "cold", ("READER_READY", "REQUEST", "RESPONSE_200")
+            "cold", ("READER_READY", "REQUEST", "RESPONSE_200",
+                     "LEGAL_TEXT_READY", "NO_FALSE_UPDATE_BANNER")
         )
         # Clear only the QA emulator logcat buffer between phases. This
         # avoids invalid deltas from Android's ring-buffer rotation.
