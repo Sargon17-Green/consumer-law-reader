@@ -50,8 +50,28 @@ if QA_ISOLATED:
                             android.util.Log.i("LAW_QA_REVISION","REQUEST");
                         return dateResponse(uri);
                     }'''),
+        ('web.setWebChromeClient(new WebChromeClient());',
+         '''web.setWebChromeClient(new WebChromeClient() {
+                @Override public boolean onConsoleMessage(android.webkit.ConsoleMessage message) {
+                    String line = message.message();
+                    if (line != null && line.startsWith("LAW_QA_DOM:"))
+                        android.util.Log.i("LAW_QA_DOM", line.substring("LAW_QA_DOM:".length()));
+                    return super.onConsoleMessage(message);
+                }
+            });'''),
         ('if("true".equals(result)){ready=true;return;}',
-         'if("true".equals(result)){ready=true;android.util.Log.i("LAW_QA_REVISION","READER_READY");return;}'),
+         '''if("true".equals(result)){
+                ready=true;
+                android.util.Log.i("LAW_QA_REVISION","READER_READY");
+                // QA-only evidence from the actual bundled document, not from the wrapper title.
+                view.evaluateJavascript(
+                    "(function(){var root=document.getElementById('frame');var title=document.getElementById('law_name');var articles=document.querySelectorAll('#frame table.article[id]');var editorial=document.getElementById('law-editorial-status');var ok=!!(root&&title&&articles.length>=5&&editorial&&window.lawMobile&&document.documentElement.dataset.lawReady==='true');console.log('LAW_QA_DOM:'+(ok?'LEGAL_TEXT_READY':'LEGAL_TEXT_MISSING'));})()",null);
+                // Wait for the actual asynchronous metadata check before testing the banner.
+                // The independent native RESPONSE_200 marker is still mandatory in CI.
+                view.evaluateJavascript(
+                    "(function(){if(!window.LawUpdate||!window.LawUpdate.check){console.log('LAW_QA_DOM:REVISION_CHECK_MISSING');return;}window.LawUpdate.check().then(function(){var b=document.getElementById('law-update-banner');var local=window.LawUpdate.localRevision();var ok=!!(b&&b.hidden&&local===1);console.log('LAW_QA_DOM:'+(ok?'NO_FALSE_UPDATE_BANNER':'UNEXPECTED_UPDATE_BANNER'));},function(){console.log('LAW_QA_DOM:REVISION_CHECK_ERROR');});})()",null);
+                return;
+            }'''),
         ('return new WebResourceResponse("application/json","UTF-8",200,"OK",headers,new ByteArrayInputStream(bytes));',
          '''if (uri.getPath()!=null && uri.getPath().endsWith("/metadata/law_update_manifest.json"))
                 android.util.Log.i("LAW_QA_REVISION","RESPONSE_200");
@@ -64,6 +84,8 @@ if QA_ISOLATED:
     ):
         if source.count(old)!=1:raise SystemExit('QA instrumentation source contract changed: '+old)
         source=source.replace(old,new,1)
+    # All DOM probes below are compiled into copied QA Java sources only.
+    # The original Android Java, its HTTPS allowlist and the legal text are untouched.
     # Instrument without changing the canonical Java HTTPS allowlist.
     assert source.count('/Sargon17-Green/consumer-law-reader/main/metadata/law_update_manifest.json')==2
     # QA only: allow a single loopback ADB DevTools session to assert the
