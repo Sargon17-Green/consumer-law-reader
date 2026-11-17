@@ -66,11 +66,17 @@ if QA_ISOLATED:
                 // QA-only evidence from the actual bundled document, not from the wrapper title.
                 view.evaluateJavascript(
                     "(function(){var root=document.getElementById('frame');var title=document.getElementById('law_name');var articles=document.querySelectorAll('#frame table.article[id]');var editorial=document.getElementById('law-editorial-status');var ok=!!(root&&title&&articles.length>=5&&editorial&&window.lawMobile&&document.documentElement.dataset.lawReady==='true');console.log('LAW_QA_DOM:'+(ok?'LEGAL_TEXT_READY':'LEGAL_TEXT_MISSING'));})()",null);
-                // Wait for the actual asynchronous metadata check before testing the banner.
-                // The independent native RESPONSE_200 marker is still mandatory in CI.
-                view.evaluateJavascript(
-                    "(function(){if(!window.LawUpdate||!window.LawUpdate.check){console.log('LAW_QA_DOM:REVISION_CHECK_MISSING');return;}window.LawUpdate.check().then(function(){var b=document.getElementById('law-update-banner');var local=window.LawUpdate.localRevision();var ok=!!(b&&b.hidden&&local===1);console.log('LAW_QA_DOM:'+(ok?'NO_FALSE_UPDATE_BANNER':'UNEXPECTED_UPDATE_BANNER'));},function(){console.log('LAW_QA_DOM:REVISION_CHECK_ERROR');});})()",null);
+                // The update-banner assertion is attached to the successful
+                // original JS manifest check in the throwaway QA web asset.
+                // Do not invoke LawUpdate.check() a second time from Java.
                 return;
+            }'''),
+        ('if(connection.getResponseCode()!=200)return missing();',
+         '''int statusCode = connection.getResponseCode();
+            if (statusCode != 200) {
+                if (uri.getPath()!=null && uri.getPath().endsWith("/metadata/law_update_manifest.json"))
+                    android.util.Log.i("LAW_QA_REVISION","HTTP_STATUS_"+statusCode);
+                return missing();
             }'''),
         ('return new WebResourceResponse("application/json","UTF-8",200,"OK",headers,new ByteArrayInputStream(bytes));',
          '''if (uri.getPath()!=null && uri.getPath().endsWith("/metadata/law_update_manifest.json"))
@@ -103,6 +109,24 @@ run(sdk/'aapt2','compile','--dir',ROOT/'android/res','-o',BUILD/'resources.zip')
 assets=BUILD/'assets'
 if assets.exists():shutil.rmtree(assets)
 shutil.copytree(ROOT/'dist',assets/'www')
+if QA_ISOLATED:
+    # Attach assertion to the existing successful manifest processing path.
+    # The original web source and dist content manifest remain unchanged;
+    # only the disposable APK's asset copy is instrumented.
+    qa_update_asset=assets/'www'/'law-update.js'
+    qa_update_js=qa_update_asset.read_text(encoding='utf-8')
+    original_return='        return drawNotice(newest, local);'
+    qa_return='''        const shown = drawNotice(newest, local);
+        const banner = document.getElementById('law-update-banner');
+        const qaOK = local === 1 && newest.current_revision_sequence === 1 &&
+                     !shown && banner && banner.hidden === true;
+        console.log('LAW_QA_DOM:' +
+                    (qaOK ? 'NO_FALSE_UPDATE_BANNER' : 'UNEXPECTED_UPDATE_BANNER'));
+        return shown;'''
+    if qa_update_js.count(original_return)!=1:
+        raise SystemExit('QA original manifest-success path contract changed')
+    qa_update_js=qa_update_js.replace(original_return,qa_return,1)
+    qa_update_asset.write_text(qa_update_js,encoding='utf-8')
 manifest=ROOT/'android/AndroidManifest.xml'
 if QA_ISOLATED:
     # The public release identity and manifest must remain byte-for-byte intact.
