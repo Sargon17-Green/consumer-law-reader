@@ -199,6 +199,36 @@ final class ReaderIntegrationTests: XCTestCase {
             try await Task.sleep(nanoseconds:100_000_000)
         }
         XCTAssertEqual(reader.webView.backForwardList.currentItem?.url.fragment,"article_3")
+        // Record observed events in the live WebContent document, without
+        // altering history/scrolling or relaxing the native acceptance gate.
+        _ = try await script(reader,"""
+        (() => {
+          const trace = [];
+          window.__qaBackScrollTrace = trace;
+          const add = kind => {
+            if (trace.length >= 96) return;
+            const scrollRoot = document.scrollingElement;
+            trace.push({t:Date.now(),kind,hash:location.hash,scrollY:scrollY,
+              domScrollTop:scrollRoot?.scrollTop ?? null,
+              domScrollHeight:scrollRoot?.scrollHeight ?? null,
+              domClientHeight:scrollRoot?.clientHeight ?? null,
+              stateScroll:history.state?.lawPoint?.scroll ?? null,
+              visibility:document.visibilityState});
+          };
+          add('armed');
+          for (const kind of ['popstate','hashchange','scroll','pageshow','pagehide']) {
+            window.addEventListener(kind,() => {
+              add(kind);
+              if(kind === 'popstate') {
+                for (const ms of [0,60,150,300,600,1200,2500,4000]) {
+                  window.setTimeout(() => add('after-popstate-'+ms),ms);
+                }
+              }
+            },{passive:true});
+          }
+          return true;
+        })()
+        """)
         let beforeBack = try await script(reader,"JSON.stringify({hash:location.hash,scroll:scrollY,state:history.state,length:history.length})")
         print("NATIVE_BACK_BEFORE: \(beforeBack)")
         reader.webView.goBack()
@@ -214,6 +244,10 @@ final class ReaderIntegrationTests: XCTestCase {
         }
         let afterBack = try await script(reader,"JSON.stringify({hash:location.hash,scroll:scrollY,state:history.state,length:history.length})")
         print("NATIVE_BACK_AFTER: \(afterBack)")
+        let trace = try await script(reader,"JSON.stringify(window.__qaBackScrollTrace || [])") as? String
+        print("NATIVE_BACK_SCROLL_TRACE: \(trace ?? "unavailable")")
+        let nativeScroll = reader.webView.scrollView
+        print("NATIVE_BACK_SCROLL_NATIVE: offsetY=\(nativeScroll.contentOffset.y) contentHeight=\(nativeScroll.contentSize.height) viewportHeight=\(nativeScroll.bounds.height) isDragging=\(nativeScroll.isDragging) isDecelerating=\(nativeScroll.isDecelerating)")
         backPosition = try await script(reader,"scrollY") as? Double
         XCTAssertEqual(backPosition ?? -1000,savedPosition ?? -2000,accuracy:3)
         let backHash = try await script(reader,"location.hash") as? String
