@@ -141,7 +141,8 @@ def main() -> None:
         adb("logcat", "-c")
         adb("shell", "am", "start", "-n", ACTIVITY)
         report["resume"] = await_events(
-            "resume", ("RESUME_CHECK", "REQUEST", "RESPONSE_200")
+            "resume", ("RESUME_CHECK", "REQUEST", "RESPONSE_200",
+                       "NO_FALSE_UPDATE_BANNER")
         )
         report["result"] = "PASS"
     finally:
