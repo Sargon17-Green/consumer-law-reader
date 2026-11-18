@@ -208,8 +208,10 @@ final class ReaderUITests: XCTestCase {
         // iPhone sheet with Close or a native popover. Choose acceptance by
         // observed system presentation, not the expected device family.
         // Both must contain actual share controls and really dismiss.
-        guard #available(iOS 26.0, *) else {
-            throw XCTSkip("QA UIKit versus SwiftUI presentation A/B targets iOS 26")
+        // Include iOS 18.5: a visually blank native ShareSheet was observed
+        // on that OS, without preceding Print or Files actions.
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("QA UIKit versus SwiftUI share A/B requires iOS 18+")
         }
         let app = XCUIApplication()
         app.launchArguments.append("-qaUIKitDirectShare")
@@ -218,7 +220,23 @@ final class ReaderUITests: XCTestCase {
         let share = app.buttons.matching(identifier: "native-share").firstMatch
         let menu = app.buttons.matching(identifier: "native-menu").firstMatch
         XCTAssertTrue(share.waitForExistence(timeout: 60))
-        XCTAssertTrue(share.isEnabled)
+        // Equal readiness gate to the existing SwiftUI control test. An
+        // existing-but-disabled button is not evidence of a UIKit failure.
+        let controlsReady = XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                share.exists && share.isEnabled && menu.exists && menu.isEnabled
+            }, object: nil)
+        ], timeout: 60)
+        if controlsReady != .completed {
+            let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
+            ax.name = "Direct UIKit share launch controls never became ready"
+            ax.lifetime = .keepAlways; add(ax)
+            let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            image.name = "Direct UIKit initial controls unavailable"
+            image.lifetime = .keepAlways; add(image)
+        }
+        XCTAssertEqual(controlsReady, .completed,
+                       "Direct UIKit comparison requires a fully loaded and enabled native reader")
         XCTAssertGreaterThanOrEqual(share.frame.width, 44)
         XCTAssertGreaterThanOrEqual(share.frame.height, 44)
         share.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
