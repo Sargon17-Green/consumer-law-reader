@@ -167,6 +167,12 @@ final class ReaderUITests: XCTestCase {
     }
 
     func testNativeShareDirectlyAfterColdLaunch() {
+        verifySwiftUIColdLaunchShare()
+    }
+
+    // The strict legacy control is reused by QA repeated trials so the
+    // compared methods perform precisely the same physical UI assertions.
+    private func verifySwiftUIColdLaunchShare() {
         let app=XCUIApplication()
         app.launch()
         defer { app.terminate() }
@@ -204,6 +210,10 @@ final class ReaderUITests: XCTestCase {
         },object:nil)],timeout:30),.completed,"Actual cold-launch share must close and restore the reader")
     }
     func testQAUIKitDirectShareAfterColdLaunch() throws {
+        try verifyUIKitColdLaunchShare()
+    }
+
+    private func verifyUIKitColdLaunchShare() throws {
         // UIKit may adapt the same UIActivityViewController to either an
         // iPhone sheet with Close or a native popover. Choose acceptance by
         // observed system presentation, not the expected device family.
@@ -326,6 +336,30 @@ final class ReaderUITests: XCTestCase {
             ], timeout: 30), .completed,
                            "Native sheet must physically close and restore reader")
         }
+    }
+
+    // Three total fresh-launch trials per route per iOS 18+ simulator:
+    // the original individual tests plus these two paired tests. No automatic
+    // retry in a trial, no weakened native Close/action assertions, no
+    // production code change. Alternate A/B order in the final paired trial.
+    func testQAShareRepeatABSwiftUIFirst() throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("Share A/B repeat trials require iOS 18+")
+        }
+        print("QA_SHARE_AB_TRIAL: repeat=2 order=SwiftUI-UIKit")
+        verifySwiftUIColdLaunchShare()
+        try verifyUIKitColdLaunchShare()
+        print("QA_SHARE_AB_TRIAL_PASS: repeat=2 order=SwiftUI-UIKit")
+    }
+
+    func testQAShareRepeatABUIKitFirst() throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("Share A/B repeat trials require iOS 18+")
+        }
+        print("QA_SHARE_AB_TRIAL: repeat=3 order=UIKit-SwiftUI")
+        try verifyUIKitColdLaunchShare()
+        verifySwiftUIColdLaunchShare()
+        print("QA_SHARE_AB_TRIAL_PASS: repeat=3 order=UIKit-SwiftUI")
     }
 
     func testSearchNavigationSharingRotationAndRelaunch() {
