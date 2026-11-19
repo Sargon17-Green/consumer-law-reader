@@ -223,7 +223,17 @@ final class ReaderUITests: XCTestCase {
         try verifyUIKitColdLaunchShare()
     }
 
-    private func verifyUIKitColdLaunchShare() throws {
+    // Independent diagnostic: compare the historical near-screen-edge
+    // outside tap against a point safely inside the native dismiss region.
+    // The existing A/B test and its strict first-tap acceptance remain intact.
+    func testQAUIKitInteriorOutsideTapAfterColdLaunch() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Interior-vs-edge native popover gesture diagnostic targets iOS 26+")
+        }
+        try verifyUIKitColdLaunchShare(useInteriorOutsideTap: true)
+    }
+
+    private func verifyUIKitColdLaunchShare(useInteriorOutsideTap: Bool = false) throws {
         // UIKit may adapt the same UIActivityViewController to either an
         // iPhone sheet with Close or a native popover. Choose acceptance by
         // observed system presentation, not the expected device family.
@@ -290,14 +300,28 @@ final class ReaderUITests: XCTestCase {
             image.name = "Direct UIKit native popover with actionable content"
             image.lifetime = .keepAlways; add(image)
             let bounds = app.frame
-            let candidates = [
+            // Preserve the existing acceptance path verbatim. Only the
+            // separately named QA geometry test gets the interior candidates.
+            let historicalCandidates = [
                 CGPoint(x: bounds.minX + 15, y: bounds.minY + 150),
                 CGPoint(x: bounds.maxX - 15, y: bounds.minY + 150),
                 CGPoint(x: bounds.minX + 15, y: bounds.maxY - 80),
                 CGPoint(x: bounds.maxX - 15, y: bounds.maxY - 80)
             ]
+            let interiorCandidates = [
+                CGPoint(x: bounds.midX, y: popover.frame.minY - 60),
+                CGPoint(x: popover.frame.minX - 60, y: popover.frame.midY),
+                CGPoint(x: popover.frame.maxX + 60, y: popover.frame.midY),
+                CGPoint(x: bounds.midX, y: popover.frame.maxY + 60)
+            ]
+            let candidates = useInteriorOutsideTap ? interiorCandidates : historicalCandidates
+            let safeBounds = bounds.insetBy(dx: 45, dy: 70)
+            let enlargedPopover = popover.frame.insetBy(dx: -20, dy: -20)
             guard let outside = candidates.first(where: {
-                bounds.contains($0) && !popover.frame.contains($0)
+                bounds.contains($0) && !popover.frame.contains($0) &&
+                (!useInteriorOutsideTap || (
+                    safeBounds.contains($0) && region.frame.contains($0) &&
+                    !enlargedPopover.contains($0)))
             }) else {
                 XCTFail("No safe outside coordinate available to dismiss native popover")
                 return
@@ -305,7 +329,7 @@ final class ReaderUITests: XCTestCase {
             // Report exactly which physical coordinate XCTest tapped.
             // Do not issue a second tap or substitute a gesture on failure:
             // doing so would conceal a real, first-attempt modal defect.
-            print("QA_SHARE_OUTSIDE_TAP: x=\(outside.x) y=\(outside.y) popoverFrame=\(popover.frame) appFrame=\(bounds)")
+            print("QA_SHARE_OUTSIDE_TAP: strategy=\(useInteriorOutsideTap ? "interior" : "edge") x=\(outside.x) y=\(outside.y) popoverFrame=\(popover.frame) appFrame=\(bounds) dismissRegion=\(region.frame)")
             app.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
                 .withOffset(CGVector(dx: outside.x - bounds.minX,
                                      dy: outside.y - bounds.minY)).tap()
