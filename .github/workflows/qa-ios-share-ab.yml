@@ -149,8 +149,9 @@ jobs:
           xcrun simctl get_app_container "$DEVICE" io.github.sargon17green.consumerlawreader app
           xcrun simctl launch "$DEVICE" io.github.sargon17green.consumerlawreader
           xcrun simctl terminate "$DEVICE" io.github.sargon17green.consumerlawreader
-          # Only the strictly physical SwiftUI/UIKit share checks:
-          # 3 fresh launches per route. Failures remain red, not auto-retried.
+          # Strict native SwiftUI/UIKit share checks: three paired trials per route.
+          # The separate iOS 26+ interior-vs-edge popover tap diagnostic is additive.
+          # Failures remain red; never retry inside a testcase.
           xcodebuild -project ios/ConsumerLawReader.xcodeproj -scheme ConsumerLawReader -destination "platform=iOS Simulator,id=$DEVICE" \
             -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 \
             -test-timeouts-enabled YES -default-test-execution-time-allowance 180 -maximum-test-execution-time-allowance 720 \
@@ -158,6 +159,7 @@ jobs:
             -only-testing:ConsumerLawReaderUITests/ReaderUITests/testQAUIKitDirectShareAfterColdLaunch \
             -only-testing:ConsumerLawReaderUITests/ReaderUITests/testQAShareRepeatABSwiftUIFirst \
             -only-testing:ConsumerLawReaderUITests/ReaderUITests/testQAShareRepeatABUIKitFirst \
+            -only-testing:ConsumerLawReaderUITests/ReaderUITests/testQAUIKitInteriorOutsideTapAfterColdLaunch \
             -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
