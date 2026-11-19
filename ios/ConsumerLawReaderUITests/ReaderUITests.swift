@@ -205,9 +205,19 @@ final class ReaderUITests: XCTestCase {
         let close=(closeByID.exists && closeByID.isHittable) ? closeByID : closeByLabel
         print("FRESH_SHARE_CONTROL: label=\(close.label) identifier=\(close.identifier) frame=\(close.frame)")
         close.tap()
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+        let dismissed = XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
             !activities.exists && menu.exists && menu.isEnabled
-        },object:nil)],timeout:30),.completed,"Actual cold-launch share must close and restore the reader")
+        },object:nil)],timeout:30)
+        if dismissed != .completed {
+            print("QA_SHARE_DISMISSAL_FAILURE: route=SwiftUI phase=cold-close activityExists=\(activities.exists) menuExists=\(menu.exists) menuEnabled=\(menu.isEnabled)")
+            let tree = XCTAttachment(string:String(app.debugDescription.prefix(25000)))
+            tree.name = "SwiftUI Close tapped but ShareSheet or header not restored AX"
+            tree.lifetime = .keepAlways;add(tree)
+            let shot = XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name = "SwiftUI Close tapped but ShareSheet or header not restored screen"
+            shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertEqual(dismissed,.completed,"Actual cold-launch share must close and restore the reader")
     }
     func testQAUIKitDirectShareAfterColdLaunch() throws {
         try verifyUIKitColdLaunchShare()
@@ -292,6 +302,10 @@ final class ReaderUITests: XCTestCase {
                 XCTFail("No safe outside coordinate available to dismiss native popover")
                 return
             }
+            // Report exactly which physical coordinate XCTest tapped.
+            // Do not issue a second tap or substitute a gesture on failure:
+            // doing so would conceal a real, first-attempt modal defect.
+            print("QA_SHARE_OUTSIDE_TAP: x=\(outside.x) y=\(outside.y) popoverFrame=\(popover.frame) appFrame=\(bounds)")
             app.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
                 .withOffset(CGVector(dx: outside.x - bounds.minX,
                                      dy: outside.y - bounds.minY)).tap()
@@ -302,9 +316,13 @@ final class ReaderUITests: XCTestCase {
                 }, object: nil)
             ], timeout: 30)
             if dismissed != .completed {
+                print("QA_SHARE_DISMISSAL_FAILURE: route=UIKit phase=outside-tap activityExists=\(activities.exists) popoverExists=\(popover.exists) menuExists=\(menu.exists) menuEnabled=\(menu.isEnabled)")
                 let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
-                ax.name = "Native popover failed physical outside-tap dismissal"
+                ax.name = "Native popover failed physical outside-tap dismissal AX"
                 ax.lifetime = .keepAlways; add(ax)
+                let shot = XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+                shot.name = "Native popover after failed physical outside-tap dismissal screen"
+                shot.lifetime = .keepAlways; add(shot)
             }
             XCTAssertEqual(dismissed, .completed,
                            "Native popover must physically dismiss and restore reader")
@@ -321,19 +339,33 @@ final class ReaderUITests: XCTestCase {
                 }, object: nil)
             ], timeout: 45)
             if ready != .completed {
+                print("QA_SHARE_PRESENTATION_FAILURE: route=UIKit phase=sheet-no-close activityExists=\(activities.exists) closeIDExists=\(closeID.exists) closeLabelExists=\(closeLabel.exists)")
                 let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
-                ax.name = "Direct UIKit sheet without a hittable native Close"
+                ax.name = "Direct UIKit sheet without a hittable native Close AX"
                 ax.lifetime = .keepAlways; add(ax)
+                let shot = XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+                shot.name = "Direct UIKit sheet without a hittable native Close screen"
+                shot.lifetime = .keepAlways; add(shot)
             }
             XCTAssertEqual(ready, .completed,
                            "Native system sheet must have an actual hittable Close")
             let close = (closeID.exists && closeID.isHittable) ? closeID : closeLabel
             close.tap()
-            XCTAssertEqual(XCTWaiter.wait(for: [
+            let dismissed = XCTWaiter.wait(for: [
                 XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
                     !activities.exists && menu.exists && menu.isEnabled
                 }, object: nil)
-            ], timeout: 30), .completed,
+            ], timeout: 30)
+            if dismissed != .completed {
+                print("QA_SHARE_DISMISSAL_FAILURE: route=UIKit phase=sheet-close activityExists=\(activities.exists) menuExists=\(menu.exists) menuEnabled=\(menu.isEnabled)")
+                let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
+                ax.name = "Direct UIKit sheet failed physical close AX"
+                ax.lifetime = .keepAlways; add(ax)
+                let shot = XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+                shot.name = "Direct UIKit sheet after failed physical close screen"
+                shot.lifetime = .keepAlways; add(shot)
+            }
+            XCTAssertEqual(dismissed, .completed,
                            "Native sheet must physically close and restore reader")
         }
     }
