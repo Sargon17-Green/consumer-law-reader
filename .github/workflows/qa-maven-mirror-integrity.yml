@@ -1,0 +1,55 @@
+name: QA pinned ECJ mirror integrity
+
+# Diagnostic for this CI-only PR: verify live mirror bytes, never mutate lock or release.
+on:
+  push:
+    branches: [qa/android-toolchain-rate-limit-retry-20261119]
+    paths:
+      - '.github/workflows/qa-maven-mirror-integrity.yml'
+      - 'scripts/android_toolchain.lock.json'
+      - 'scripts/fetch_tools.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: qa-maven-mirror-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mirror-sha256:
+    name: Verify real Maven mirror against pinned ECJ SHA-256
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Download real mirror artifact and verify pinned digest
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          from urllib.request import urlopen
+
+          lock = json.loads(Path('scripts/android_toolchain.lock.json').read_text())
+          package, = [item for item in lock['packages'] if item['file'] == 'ecj.jar']
+          mirror, = package['fallback_urls']
+          assert mirror.startswith('https://maven-central.storage-download.googleapis.com/maven2/')
+          expected = package['sha256']
+          digest = hashlib.sha256()
+          length = 0
+          with urlopen(mirror, timeout=90) as response:
+              assert response.status == 200, f'Unexpected mirror HTTP {response.status}'
+              while chunk := response.read(1048576):
+                  digest.update(chunk)
+                  length += len(chunk)
+          assert length > 0, 'Mirror returned an empty artifact'
+          assert digest.hexdigest() == expected, (
+              f'FAIL-CLOSED: wrong real mirror bytes expected={expected} actual={digest.hexdigest()}'
+          )
+          print('VERIFIED_REAL_LOCKED_MIRROR ecj.jar bytes=' + str(length)
+                + ' sha256=' + digest.hexdigest())
+          PY
