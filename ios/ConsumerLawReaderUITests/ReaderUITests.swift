@@ -230,7 +230,30 @@ final class ReaderUITests: XCTestCase {
         guard #available(iOS 26.0, *) else {
             throw XCTSkip("Interior-vs-edge native popover gesture diagnostic targets iOS 26+")
         }
+        Swift.print("QA_SHARE_GEOMETRY_TRIAL: strategy=interior repeat=1")
         try verifyUIKitColdLaunchShare(useInteriorOutsideTap: true)
+        Swift.print("QA_SHARE_GEOMETRY_PASS: strategy=interior repeat=1")
+    }
+
+    // Add two independently verified fresh launches, rather than silently
+    // retrying a failed outside tap. 3 edge and 3 interior attempts per iOS
+    // 26 simulator profile can now be compared without weakening either gate.
+    func testQAUIKitInteriorOutsideTapRepeatTwo() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Interior gesture repetition targets iOS 26+")
+        }
+        Swift.print("QA_SHARE_GEOMETRY_TRIAL: strategy=interior repeat=2")
+        try verifyUIKitColdLaunchShare(useInteriorOutsideTap: true)
+        Swift.print("QA_SHARE_GEOMETRY_PASS: strategy=interior repeat=2")
+    }
+
+    func testQAUIKitInteriorOutsideTapRepeatThree() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Interior gesture repetition targets iOS 26+")
+        }
+        Swift.print("QA_SHARE_GEOMETRY_TRIAL: strategy=interior repeat=3")
+        try verifyUIKitColdLaunchShare(useInteriorOutsideTap: true)
+        Swift.print("QA_SHARE_GEOMETRY_PASS: strategy=interior repeat=3")
     }
 
     private func verifyUIKitColdLaunchShare(useInteriorOutsideTap: Bool = false) throws {
