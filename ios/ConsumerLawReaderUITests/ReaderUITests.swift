@@ -174,6 +174,9 @@ final class ReaderUITests: XCTestCase {
     // compared methods perform precisely the same physical UI assertions.
     private func verifySwiftUIColdLaunchShare() {
         let app=XCUIApplication()
+        // Opt in to native app-process lifecycle traces for each strict
+        // SwiftUI cold launch. The production UI and assertions are unchanged.
+        app.launchArguments.append("-qaTraceNativeShare")
         app.launch()
         defer { app.terminate() }
         let menu=app.buttons.matching(identifier:"native-menu").firstMatch
