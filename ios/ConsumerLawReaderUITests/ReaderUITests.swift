@@ -271,6 +271,7 @@ final class ReaderUITests: XCTestCase {
         }
         let app = XCUIApplication()
         app.launchArguments.append("-qaUIKitDirectShare")
+        app.launchArguments.append("-qaTraceNativeShare")
         app.launch()
         defer { app.terminate() }
         let share = app.buttons.matching(identifier: "native-share").firstMatch
