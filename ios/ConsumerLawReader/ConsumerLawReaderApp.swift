@@ -24,7 +24,9 @@ struct SharePayload: Identifiable {
 // contents or user data. Release builds do not compile this helper.
 private func qaShareTrace(_ event: String) {
     guard ProcessInfo.processInfo.arguments.contains("-qaTraceNativeShare") else { return }
-    Swift.print("QA_SHARE_LIFECYCLE: \(event)")
+    // Unified simulator logs survive process termination and are retrievable
+    // after XCTests. The app's stdout is not reliably forwarded to xcodebuild.
+    NSLog("QA_SHARE_LIFECYCLE: %@", event)
 }
 #endif
 
