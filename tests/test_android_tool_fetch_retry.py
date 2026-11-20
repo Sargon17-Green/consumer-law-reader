@@ -103,5 +103,76 @@ class AndroidToolchainRetryTests(unittest.TestCase):
                 open_mock.assert_not_called()
 
 
+    def test_primary_404_uses_only_explicit_locked_fallback(self):
+        data = b"immutable locked compiler"
+        primary = item_for(data)
+        fallback_url = "https://mirror.example.invalid/locked-test.bin"
+        primary["fallback_urls"] = [fallback_url]
+        with tempfile.TemporaryDirectory() as root:
+            with patch.object(fetch_module, "TOOLS", Path(root)), \
+                 patch.object(fetch_module, "urlopen",
+                              side_effect=[http_error(404), io.BytesIO(data)]) as open_mock, \
+                 patch.object(fetch_module.time, "sleep") as sleep_mock:
+                fetch_module.fetch(primary)
+                self.assertEqual(open_mock.call_count, 2)
+                self.assertEqual(open_mock.call_args_list[0].args[0], primary["url"])
+                self.assertEqual(open_mock.call_args_list[1].args[0], fallback_url)
+                sleep_mock.assert_not_called()
+            self.assertEqual((Path(root) / primary["file"]).read_bytes(), data)
+            self.assertFalse((Path(root) / "locked-test.bin.partial").exists())
+
+    def test_primary_404_without_fallback_fails_immediately(self):
+        with tempfile.TemporaryDirectory() as root:
+            with patch.object(fetch_module, "TOOLS", Path(root)), \
+                 patch.object(fetch_module, "urlopen", side_effect=http_error(404)) as open_mock, \
+                 patch.object(fetch_module.time, "sleep") as sleep_mock:
+                with self.assertRaises(HTTPError):
+                    fetch_module.fetch(item_for(b"correct"))
+                self.assertEqual(open_mock.call_count, 1)
+                sleep_mock.assert_not_called()
+            self.assertFalse((Path(root) / "locked-test.bin.partial").exists())
+
+    def test_primary_429_exhaustion_then_verified_locked_fallback(self):
+        data = b"verified fallback bytes"
+        item = item_for(data)
+        fallback_url = "https://mirror.example.invalid/locked-test.bin"
+        item["fallback_urls"] = [fallback_url]
+        with tempfile.TemporaryDirectory() as root:
+            with patch.object(fetch_module, "TOOLS", Path(root)), \
+                 patch.object(fetch_module, "urlopen", side_effect=[
+                     *[http_error(429) for _ in range(fetch_module.MAX_ATTEMPTS)],
+                     io.BytesIO(data)]) as open_mock, \
+                 patch.object(fetch_module.time, "sleep") as sleep_mock:
+                fetch_module.fetch(item)
+                self.assertEqual(open_mock.call_count, fetch_module.MAX_ATTEMPTS + 1)
+                self.assertEqual(sleep_mock.call_count, fetch_module.MAX_ATTEMPTS - 1)
+                self.assertEqual(open_mock.call_args_list[-1].args[0], fallback_url)
+            self.assertEqual((Path(root) / "locked-test.bin").read_bytes(), data)
+
+    def test_fallback_wrong_digest_is_rejected_and_not_cached(self):
+        item = item_for(b"original canonical bytes")
+        item["fallback_urls"] = ["https://mirror.example.invalid/locked-test.bin"]
+        with tempfile.TemporaryDirectory() as root:
+            with patch.object(fetch_module, "TOOLS", Path(root)), \
+                 patch.object(fetch_module, "urlopen", side_effect=[
+                     http_error(404), io.BytesIO(b"wrong bytes")]) as open_mock:
+                with self.assertRaisesRegex(ValueError, "digest mismatch"):
+                    fetch_module.fetch(item)
+                self.assertEqual(open_mock.call_count, 2)
+            self.assertFalse((Path(root) / "locked-test.bin").exists())
+            self.assertFalse((Path(root) / "locked-test.bin.partial").exists())
+
+    def test_fallback_does_not_bypass_forbidden_response(self):
+        item = item_for(b"correct")
+        item["fallback_urls"] = ["https://mirror.example.invalid/locked-test.bin"]
+        with tempfile.TemporaryDirectory() as root:
+            with patch.object(fetch_module, "TOOLS", Path(root)), \
+                 patch.object(fetch_module, "urlopen", side_effect=http_error(403)) as open_mock:
+                with self.assertRaises(HTTPError):
+                    fetch_module.fetch(item)
+                self.assertEqual(open_mock.call_count, 1)
+            self.assertFalse((Path(root) / "locked-test.bin.partial").exists())
+
+
 if __name__ == "__main__":
     unittest.main()
