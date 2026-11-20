@@ -180,6 +180,11 @@ jobs:
             else
               echo "QA_SHARE_LIFECYCLE_FILE_UNAVAILABLE" > "build/$QA_LABEL-share-lifecycle.log"
             fi
+            # Summarize only events emitted by the opt-in QA app, retaining
+            # the original trace for correlation with strict XCTest failures.
+            python3 ios/scripts/summarize_share_lifecycle.py \
+              "build/$QA_LABEL-share-lifecycle.log" \
+              "build/$QA_LABEL-share-lifecycle-summary.json"
             xcrun simctl shutdown "$QA_DEVICE" || true
           fi
       - name: Save build report and unsigned simulator binary for QA
@@ -195,6 +200,7 @@ jobs:
             build/*-simulator.png
             build/*-tests.log
             build/*-share-lifecycle.log
+            build/*-share-lifecycle-summary.json
             build/*-runtime.json
             build/*-size-before.txt
             build/*-size-actual.txt
