@@ -19,6 +19,15 @@ struct SharePayload: Identifiable {
     let items: [Any]
 }
 
+#if DEBUG
+// Opt-in QA-only lifecycle evidence. Never record shared URLs, article
+// contents or user data. Release builds do not compile this helper.
+private func qaShareTrace(_ event: String) {
+    guard ProcessInfo.processInfo.arguments.contains("-qaTraceNativeShare") else { return }
+    Swift.print("QA_SHARE_LIFECYCLE: \(event)")
+}
+#endif
+
 struct ReaderNotice: Identifiable {
     let id = UUID()
     let message: String
@@ -99,8 +108,16 @@ struct ReaderScreen: View {
         .onChange(of: scenePhase) { phase in
             if phase != .active { reader.persistReadingState() }
         }
-        .sheet(item: $reader.sharing, onDismiss: { reader.cleanTemporaryExport() }) { share in
+        .sheet(item: $reader.sharing, onDismiss: {
+            #if DEBUG
+            qaShareTrace("swiftui-onDismiss")
+            #endif
+            reader.cleanTemporaryExport()
+        }) { share in
             ActivitySheet(items: share.items) { failure in
+                #if DEBUG
+                qaShareTrace("swiftui-wrapper-completion-received failure=\(failure != nil)")
+                #endif
                 reader.finishSharing(share.id, failure: failure)
             }
         }
@@ -155,11 +172,20 @@ private struct ActivitySheet: UIViewControllerRepresentable {
     let onComplete: @MainActor (String?) -> Void
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
+        #if DEBUG
+        qaShareTrace("representable-make-activity-view-controller")
+        #endif
         let controller=UIActivityViewController(activityItems: items, applicationActivities: nil)
-        controller.completionWithItemsHandler = { _, _, _, error in
+        controller.completionWithItemsHandler = { _, completed, _, error in
+            #if DEBUG
+            qaShareTrace("activity-completion-callback completed=\(completed) failure=\(error != nil)")
+            #endif
             let failure=error?.localizedDescription
             Task { @MainActor in onComplete(failure) }
         }
+        #if DEBUG
+        qaShareTrace("representable-return-activity-view-controller")
+        #endif
         return controller
     }
 
@@ -442,8 +468,14 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     func finishSharing(_ id: UUID, failure: String?) {
         // UIKit completion includes cancellation. Clear the matching SwiftUI
         // presentation too; a delayed callback must not close a newer share.
+        #if DEBUG
+        qaShareTrace("reader-finishSharing-received active=\(sharing != nil) matches=\(sharing?.id == id) failure=\(failure != nil)")
+        #endif
         guard sharing?.id == id else { return }
         sharing = nil
+        #if DEBUG
+        qaShareTrace("reader-finishSharing-cleared")
+        #endif
         if let failure { showError("השיתוף לא הושלם: " + failure) }
     }
 
@@ -513,7 +545,13 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
                     return
                 }
                 #endif
+                #if DEBUG
+                qaShareTrace("reader-assign-share-payload")
+                #endif
                 self.sharing = SharePayload(items: [url])
+                #if DEBUG
+                qaShareTrace("reader-share-payload-assigned")
+                #endif
             }
         }
     }
