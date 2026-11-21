@@ -22,6 +22,9 @@ TAP = re.compile(
     r"x=(?P<x>-?\d+(?:\.\d+)?) y=(?P<y>-?\d+(?:\.\d+)?)"
 )
 MARKER = re.compile(r"QA_SHARE_DISMISSAL_FAILURE: route=(SwiftUI|UIKit) phase=([\w-]+)")
+# xcodebuild emits one of these terminal markers after executing XCTest.
+# Explicit failure is authoritative even if individual test cases weren't parsed.
+TERMINAL = re.compile(r"(?:^|\s)\*\* TEST (SUCCEEDED|FAILED) \*\*\s*$")
 
 
 def classify(message: str) -> str:
@@ -47,12 +50,17 @@ def classify(message: str) -> str:
 def summarize(raw: str | None) -> dict:
     if raw is None:
         return {"schema": 1, "status": "unavailable", "verdict": "unknown",
+                "xcodebuild_result": "unobserved",
                 "counts": {"passed": 0, "failed": 0, "skipped": 0, "incomplete": 0},
                 "failure_categories": {}, "tests": [],
                 "caution": "No XCTest log available; absence is not a pass."}
     tests = []
     active = None
+    terminal_results = set()
     for line in raw.splitlines():
+        terminal = TERMINAL.search(line)
+        if terminal:
+            terminal_results.add(terminal.group(1))
         event = CASE.search(line)
         if event:
             suite, name, state = event.group("suite", "name", "state")
@@ -93,10 +101,15 @@ def summarize(raw: str | None) -> dict:
                     "route": marker.group(1), "phase": marker.group(2)})
     counts = Counter(t["outcome"] for t in tests)
     cats = Counter(e["category"] for t in tests for e in t["errors"])
+    xcodebuild_result = ("failed" if "FAILED" in terminal_results else
+                         "succeeded" if "SUCCEEDED" in terminal_results else "unobserved")
+    verdict = ("fail" if counts["failed"] or xcodebuild_result == "failed" else
+               "pass" if counts["passed"] and not counts["incomplete"] else "unknown")
     return {
         "schema": 1,
         "status": "ok" if tests and not counts["incomplete"] else ("partial" if tests else "empty"),
-        "verdict": "fail" if counts["failed"] else ("pass" if tests and not counts["incomplete"] else "unknown"),
+        "verdict": verdict,
+        "xcodebuild_result": xcodebuild_result,
         "counts": {k: counts[k] for k in ("passed", "failed", "skipped", "incomplete")},
         "failure_categories": dict(sorted(cats.items())),
         "tests": tests,
