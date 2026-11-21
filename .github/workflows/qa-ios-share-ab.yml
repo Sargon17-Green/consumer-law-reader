@@ -166,7 +166,7 @@ jobs:
             -only-testing:ConsumerLawReaderUITests/ReaderUITests/testQAUIKitInteriorOutsideTapAfterColdLaunch \
             -only-testing:ConsumerLawReaderUITests/ReaderUITests/testQAUIKitInteriorOutsideTapRepeatTwo \
             -only-testing:ConsumerLawReaderUITests/ReaderUITests/testQAUIKitInteriorOutsideTapRepeatThree \
-            -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test | tee "build/$LABEL-tests.log"
+            -derivedDataPath build/ios-derived -resultBundlePath "build/$LABEL-tests.xcresult" CODE_SIGNING_ALLOWED=NO test 2>&1 | tee "build/$LABEL-tests.log"
       - name: Collect simulator evidence and shut it down after success or failure
         if: always()
         run: |
