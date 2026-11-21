@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 
 final class ReaderUITests: XCTestCase {
     override func setUpWithError() throws {
@@ -166,7 +167,16 @@ final class ReaderUITests: XCTestCase {
     }
 
     func testNativeShareDirectlyAfterColdLaunch() {
+        verifySwiftUIColdLaunchShare()
+    }
+
+    // The strict legacy control is reused by QA repeated trials so the
+    // compared methods perform precisely the same physical UI assertions.
+    private func verifySwiftUIColdLaunchShare() {
         let app=XCUIApplication()
+        // Opt in to native app-process lifecycle traces for each strict
+        // SwiftUI cold launch. The production UI and assertions are unchanged.
+        app.launchArguments.append("-qaTraceNativeShare")
         app.launch()
         defer { app.terminate() }
         let menu=app.buttons.matching(identifier:"native-menu").firstMatch
@@ -198,10 +208,259 @@ final class ReaderUITests: XCTestCase {
         let close=(closeByID.exists && closeByID.isHittable) ? closeByID : closeByLabel
         print("FRESH_SHARE_CONTROL: label=\(close.label) identifier=\(close.identifier) frame=\(close.frame)")
         close.tap()
-        XCTAssertEqual(XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
+        let dismissed = XCTWaiter.wait(for:[XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in
             !activities.exists && menu.exists && menu.isEnabled
-        },object:nil)],timeout:30),.completed,"Actual cold-launch share must close and restore the reader")
+        },object:nil)],timeout:30)
+        if dismissed != .completed {
+            print("QA_SHARE_DISMISSAL_FAILURE: route=SwiftUI phase=cold-close activityExists=\(activities.exists) menuExists=\(menu.exists) menuEnabled=\(menu.isEnabled)")
+            let tree = XCTAttachment(string:String(app.debugDescription.prefix(25000)))
+            tree.name = "SwiftUI Close tapped but ShareSheet or header not restored AX"
+            tree.lifetime = .keepAlways;add(tree)
+            let shot = XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+            shot.name = "SwiftUI Close tapped but ShareSheet or header not restored screen"
+            shot.lifetime = .keepAlways;add(shot)
+        }
+        XCTAssertEqual(dismissed,.completed,"Actual cold-launch share must close and restore the reader")
     }
+    func testQAUIKitDirectShareAfterColdLaunch() throws {
+        try verifyUIKitColdLaunchShare()
+    }
+
+    // One independent fresh launch, same strict share UI/dismissal oracles.
+    // The ONLY changed variable from the direct-UIKit URL control is that
+    // the identical link is shared as a String rather than URL item.
+    func testQAUIKitStringPayloadAfterColdLaunch() throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("UIKit payload comparison requires iOS 18+")
+        }
+        Swift.print("QA_SHARE_PAYLOAD_TRIAL: kind=string route=UIKit")
+        try verifyUIKitColdLaunchShare(useStringPayload: true)
+        Swift.print("QA_SHARE_PAYLOAD_PASS: kind=string route=UIKit")
+    }
+
+    // Independent diagnostic: compare the historical near-screen-edge
+    // outside tap against a point safely inside the native dismiss region.
+    // The existing A/B test and its strict first-tap acceptance remain intact.
+    func testQAUIKitInteriorOutsideTapAfterColdLaunch() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Interior-vs-edge native popover gesture diagnostic targets iOS 26+")
+        }
+        Swift.print("QA_SHARE_GEOMETRY_TRIAL: strategy=interior repeat=1")
+        try verifyUIKitColdLaunchShare(useInteriorOutsideTap: true)
+        Swift.print("QA_SHARE_GEOMETRY_PASS: strategy=interior repeat=1")
+    }
+
+    // Add two independently verified fresh launches, rather than silently
+    // retrying a failed outside tap. 3 edge and 3 interior attempts per iOS
+    // 26 simulator profile can now be compared without weakening either gate.
+    func testQAUIKitInteriorOutsideTapRepeatTwo() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Interior gesture repetition targets iOS 26+")
+        }
+        Swift.print("QA_SHARE_GEOMETRY_TRIAL: strategy=interior repeat=2")
+        try verifyUIKitColdLaunchShare(useInteriorOutsideTap: true)
+        Swift.print("QA_SHARE_GEOMETRY_PASS: strategy=interior repeat=2")
+    }
+
+    func testQAUIKitInteriorOutsideTapRepeatThree() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Interior gesture repetition targets iOS 26+")
+        }
+        Swift.print("QA_SHARE_GEOMETRY_TRIAL: strategy=interior repeat=3")
+        try verifyUIKitColdLaunchShare(useInteriorOutsideTap: true)
+        Swift.print("QA_SHARE_GEOMETRY_PASS: strategy=interior repeat=3")
+    }
+
+    private func verifyUIKitColdLaunchShare(
+        useInteriorOutsideTap: Bool = false,
+        useStringPayload: Bool = false
+    ) throws {
+        // UIKit may adapt the same UIActivityViewController to either an
+        // iPhone sheet with Close or a native popover. Choose acceptance by
+        // observed system presentation, not the expected device family.
+        // Both must contain actual share controls and really dismiss.
+        // Include iOS 18.5: a visually blank native ShareSheet was observed
+        // on that OS, without preceding Print or Files actions.
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("QA UIKit versus SwiftUI share A/B requires iOS 18+")
+        }
+        let app = XCUIApplication()
+        app.launchArguments.append("-qaUIKitDirectShare")
+        if useStringPayload { app.launchArguments.append("-qaUIKitStringPayload") }
+        app.launchArguments.append("-qaTraceNativeShare")
+        app.launch()
+        defer { app.terminate() }
+        let share = app.buttons.matching(identifier: "native-share").firstMatch
+        let menu = app.buttons.matching(identifier: "native-menu").firstMatch
+        XCTAssertTrue(share.waitForExistence(timeout: 60))
+        // Equal readiness gate to the existing SwiftUI control test. An
+        // existing-but-disabled button is not evidence of a UIKit failure.
+        let controlsReady = XCTWaiter.wait(for: [
+            XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                share.exists && share.isEnabled && menu.exists && menu.isEnabled
+            }, object: nil)
+        ], timeout: 60)
+        if controlsReady != .completed {
+            let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
+            ax.name = "Direct UIKit share launch controls never became ready"
+            ax.lifetime = .keepAlways; add(ax)
+            let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            image.name = "Direct UIKit initial controls unavailable"
+            image.lifetime = .keepAlways; add(image)
+        }
+        XCTAssertEqual(controlsReady, .completed,
+                       "Direct UIKit comparison requires a fully loaded and enabled native reader")
+        XCTAssertGreaterThanOrEqual(share.frame.width, 44)
+        XCTAssertGreaterThanOrEqual(share.frame.height, 44)
+        share.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let activities = app.otherElements["ActivityListView"].firstMatch
+        XCTAssertTrue(activities.waitForExistence(timeout: 30),
+                      "Direct UIKit must present a real system ActivityListView")
+        let popover = app.popovers.firstMatch
+        if popover.waitForExistence(timeout: 5) {
+            Swift.print("QA_DIRECT_SHARE_PRESENTATION: native-popover")
+            let action = app.cells.matching(identifier: "actionGroupCell").firstMatch
+            let populated = XCTWaiter.wait(for: [
+                XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                    action.exists && action.frame.width > 0 &&
+                    action.frame.height > 0 && action.isHittable
+                }, object: nil)
+            ], timeout: 45)
+            if populated != .completed {
+                let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
+                ax.name = "Direct UIKit popover without actionable share content"
+                ax.lifetime = .keepAlways; add(ax)
+                let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+                image.name = "Direct UIKit popover missing share actions"
+                image.lifetime = .keepAlways; add(image)
+            }
+            XCTAssertEqual(populated, .completed,
+                           "Native popover must contain a usable real share action")
+            let region = app.otherElements.matching(identifier: "PopoverDismissRegion").firstMatch
+            XCTAssertTrue(region.waitForExistence(timeout: 10),
+                          "Native popover must provide an outside-dismiss region")
+            let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            image.name = "Direct UIKit native popover with actionable content"
+            image.lifetime = .keepAlways; add(image)
+            let bounds = app.frame
+            // Preserve the existing acceptance path verbatim. Only the
+            // separately named QA geometry test gets the interior candidates.
+            let historicalCandidates = [
+                CGPoint(x: bounds.minX + 15, y: bounds.minY + 150),
+                CGPoint(x: bounds.maxX - 15, y: bounds.minY + 150),
+                CGPoint(x: bounds.minX + 15, y: bounds.maxY - 80),
+                CGPoint(x: bounds.maxX - 15, y: bounds.maxY - 80)
+            ]
+            let interiorCandidates = [
+                CGPoint(x: bounds.midX, y: popover.frame.minY - 60),
+                CGPoint(x: popover.frame.minX - 60, y: popover.frame.midY),
+                CGPoint(x: popover.frame.maxX + 60, y: popover.frame.midY),
+                CGPoint(x: bounds.midX, y: popover.frame.maxY + 60)
+            ]
+            let candidates = useInteriorOutsideTap ? interiorCandidates : historicalCandidates
+            let safeBounds = bounds.insetBy(dx: 45, dy: 70)
+            let enlargedPopover = popover.frame.insetBy(dx: -20, dy: -20)
+            guard let outside = candidates.first(where: {
+                bounds.contains($0) && !popover.frame.contains($0) &&
+                (!useInteriorOutsideTap || (
+                    safeBounds.contains($0) && region.frame.contains($0) &&
+                    !enlargedPopover.contains($0)))
+            }) else {
+                XCTFail("No safe outside coordinate available to dismiss native popover")
+                return
+            }
+            // Report exactly which physical coordinate XCTest tapped.
+            // Do not issue a second tap or substitute a gesture on failure:
+            // doing so would conceal a real, first-attempt modal defect.
+            print("QA_SHARE_OUTSIDE_TAP: strategy=\(useInteriorOutsideTap ? "interior" : "edge") x=\(outside.x) y=\(outside.y) popoverFrame=\(popover.frame) appFrame=\(bounds) dismissRegion=\(region.frame)")
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+                .withOffset(CGVector(dx: outside.x - bounds.minX,
+                                     dy: outside.y - bounds.minY)).tap()
+            let dismissed = XCTWaiter.wait(for: [
+                XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                    !activities.exists && !popover.exists &&
+                    menu.exists && menu.isEnabled
+                }, object: nil)
+            ], timeout: 30)
+            if dismissed != .completed {
+                print("QA_SHARE_DISMISSAL_FAILURE: route=UIKit phase=outside-tap activityExists=\(activities.exists) popoverExists=\(popover.exists) menuExists=\(menu.exists) menuEnabled=\(menu.isEnabled)")
+                let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
+                ax.name = "Native popover failed physical outside-tap dismissal AX"
+                ax.lifetime = .keepAlways; add(ax)
+                let shot = XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+                shot.name = "Native popover after failed physical outside-tap dismissal screen"
+                shot.lifetime = .keepAlways; add(shot)
+            }
+            XCTAssertEqual(dismissed, .completed,
+                           "Native popover must physically dismiss and restore reader")
+        } else {
+            Swift.print("QA_DIRECT_SHARE_PRESENTATION: native-sheet")
+            let closeID = app.buttons.matching(identifier: "header.closeButton").firstMatch
+            let closeLabel = app.buttons.matching(NSPredicate(
+                format: "label IN %@", ["Close", "Cancel", "סגירה", "סגור", "ביטול"]
+            )).firstMatch
+            let ready = XCTWaiter.wait(for: [
+                XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                    activities.exists && ((closeID.exists && closeID.isHittable) ||
+                                          (closeLabel.exists && closeLabel.isHittable))
+                }, object: nil)
+            ], timeout: 45)
+            if ready != .completed {
+                print("QA_SHARE_PRESENTATION_FAILURE: route=UIKit phase=sheet-no-close activityExists=\(activities.exists) closeIDExists=\(closeID.exists) closeLabelExists=\(closeLabel.exists)")
+                let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
+                ax.name = "Direct UIKit sheet without a hittable native Close AX"
+                ax.lifetime = .keepAlways; add(ax)
+                let shot = XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+                shot.name = "Direct UIKit sheet without a hittable native Close screen"
+                shot.lifetime = .keepAlways; add(shot)
+            }
+            XCTAssertEqual(ready, .completed,
+                           "Native system sheet must have an actual hittable Close")
+            let close = (closeID.exists && closeID.isHittable) ? closeID : closeLabel
+            close.tap()
+            let dismissed = XCTWaiter.wait(for: [
+                XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                    !activities.exists && menu.exists && menu.isEnabled
+                }, object: nil)
+            ], timeout: 30)
+            if dismissed != .completed {
+                print("QA_SHARE_DISMISSAL_FAILURE: route=UIKit phase=sheet-close activityExists=\(activities.exists) menuExists=\(menu.exists) menuEnabled=\(menu.isEnabled)")
+                let ax = XCTAttachment(string: String(app.debugDescription.prefix(25000)))
+                ax.name = "Direct UIKit sheet failed physical close AX"
+                ax.lifetime = .keepAlways; add(ax)
+                let shot = XCTAttachment(screenshot:XCUIScreen.main.screenshot())
+                shot.name = "Direct UIKit sheet after failed physical close screen"
+                shot.lifetime = .keepAlways; add(shot)
+            }
+            XCTAssertEqual(dismissed, .completed,
+                           "Native sheet must physically close and restore reader")
+        }
+    }
+
+    // Three total fresh-launch trials per route per iOS 18+ simulator:
+    // the original individual tests plus these two paired tests. No automatic
+    // retry in a trial, no weakened native Close/action assertions, no
+    // production code change. Alternate A/B order in the final paired trial.
+    func testQAShareRepeatABSwiftUIFirst() throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("Share A/B repeat trials require iOS 18+")
+        }
+        print("QA_SHARE_AB_TRIAL: repeat=2 order=SwiftUI-UIKit")
+        verifySwiftUIColdLaunchShare()
+        try verifyUIKitColdLaunchShare()
+        print("QA_SHARE_AB_TRIAL_PASS: repeat=2 order=SwiftUI-UIKit")
+    }
+
+    func testQAShareRepeatABUIKitFirst() throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("Share A/B repeat trials require iOS 18+")
+        }
+        print("QA_SHARE_AB_TRIAL: repeat=3 order=UIKit-SwiftUI")
+        try verifyUIKitColdLaunchShare()
+        verifySwiftUIColdLaunchShare()
+        print("QA_SHARE_AB_TRIAL_PASS: repeat=3 order=UIKit-SwiftUI")
+    }
+
     func testSearchNavigationSharingRotationAndRelaunch() {
         // Full keyboard + repeated reading + print + Files + share + rotation
         // + SpringBoard relaunch exceeds the previous 480s allowance on

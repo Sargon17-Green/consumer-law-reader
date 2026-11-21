@@ -19,6 +19,29 @@ struct SharePayload: Identifiable {
     let items: [Any]
 }
 
+#if DEBUG
+// Opt-in QA-only lifecycle evidence. Never record shared URLs, article
+// contents or user data. Release builds do not compile this helper.
+private func qaShareTrace(_ event: String) {
+    guard ProcessInfo.processInfo.arguments.contains("-qaTraceNativeShare") else { return }
+    // Keep a minimal, app-owned QA trace for collection via the sandbox
+    // container after XCTest. No system-wide log scraping is required.
+    // Event strings are fixed diagnostics, never shared URLs or document text.
+    NSLog("QA_SHARE_LIFECYCLE: %@", event)
+    guard let cache = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return }
+    let path = cache.appendingPathComponent("qa-native-share-lifecycle.log")
+    let timestamp = String(format: "%.3f", Date().timeIntervalSince1970)
+    guard let bytes = ("\(timestamp) pid=\(ProcessInfo.processInfo.processIdentifier) \(event)\n").data(using: .utf8) else { return }
+    if !FileManager.default.fileExists(atPath: path.path) {
+        _ = FileManager.default.createFile(atPath: path.path, contents: bytes)
+    } else if let file = try? FileHandle(forWritingTo: path) {
+        defer { file.closeFile() }
+        file.seekToEndOfFile()
+        file.write(bytes)
+    }
+}
+#endif
+
 struct ReaderNotice: Identifiable {
     let id = UUID()
     let message: String
@@ -100,8 +123,16 @@ struct ReaderScreen: View {
             if phase == .active { reader.checkLawUpdate() }
             else { reader.persistReadingState() }
         }
-        .sheet(item: $reader.sharing, onDismiss: { reader.cleanTemporaryExport() }) { share in
+        .sheet(item: $reader.sharing, onDismiss: {
+            #if DEBUG
+            qaShareTrace("swiftui-onDismiss")
+            #endif
+            reader.cleanTemporaryExport()
+        }) { share in
             ActivitySheet(items: share.items) { failure in
+                #if DEBUG
+                qaShareTrace("swiftui-wrapper-completion-received failure=\(failure != nil)")
+                #endif
                 reader.finishSharing(share.id, failure: failure)
             }
         }
@@ -156,11 +187,20 @@ private struct ActivitySheet: UIViewControllerRepresentable {
     let onComplete: @MainActor (String?) -> Void
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
+        #if DEBUG
+        qaShareTrace("representable-make-activity-view-controller")
+        #endif
         let controller=UIActivityViewController(activityItems: items, applicationActivities: nil)
-        controller.completionWithItemsHandler = { _, _, _, error in
+        controller.completionWithItemsHandler = { _, completed, _, error in
+            #if DEBUG
+            qaShareTrace("activity-completion-callback completed=\(completed) failure=\(error != nil)")
+            #endif
             let failure=error?.localizedDescription
             Task { @MainActor in onComplete(failure) }
         }
+        #if DEBUG
+        qaShareTrace("representable-return-activity-view-controller")
+        #endif
         return controller
     }
 
@@ -449,12 +489,68 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
     func finishSharing(_ id: UUID, failure: String?) {
         // UIKit completion includes cancellation. Clear the matching SwiftUI
         // presentation too; a delayed callback must not close a newer share.
+        #if DEBUG
+        qaShareTrace("reader-finishSharing-received active=\(sharing != nil) matches=\(sharing?.id == id) failure=\(failure != nil)")
+        #endif
         guard sharing?.id == id else { return }
         sharing = nil
+        #if DEBUG
+        qaShareTrace("reader-finishSharing-cleared")
+        #endif
         if let failure { showError("השיתוף לא הושלם: " + failure) }
     }
 
+    #if DEBUG
+    // Deliberately isolated A/B experiment for XCTest. Only an explicit
+    // launch argument selects direct UIKit presentation. Release builds
+    // compile out this route and retain the existing SwiftUI sheet.
+    private func presentUIKitShareForQA(_ items: [Any]) {
+        qaShareTrace("direct-uikit-presentation-requested")
+        guard let window = webView.window,
+              let root = window.rootViewController else {
+            Swift.print("QA_DIRECT_SHARE: no attached window/root")
+            qaShareTrace("direct-uikit-no-root")
+            return
+        }
+        guard root.presentedViewController == nil else {
+            Swift.print("QA_DIRECT_SHARE: root already presenting")
+            qaShareTrace("direct-uikit-root-busy")
+            return
+        }
+        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        qaShareTrace("direct-uikit-controller-created")
+        controller.completionWithItemsHandler = { _, completed, _, error in
+            Swift.print("QA_DIRECT_SHARE: completion completed=\(completed) error=\(error != nil)")
+            qaShareTrace("direct-uikit-completion completed=\(completed) failure=\(error != nil)")
+        }
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad presents sharing as a popover, dismissed by tapping
+            // outside. The UIKit A/B test verifies that actual behavior.
+            if let popover = controller.popoverPresentationController {
+                popover.sourceView = webView
+                popover.sourceRect = CGRect(x: webView.bounds.midX,
+                                           y: webView.bounds.minY + 1,
+                                           width: 1, height: 1)
+            }
+        } else {
+            // An unconditional sourceView turned even the iPhone share UI
+            // into a popover, which legitimately has no Close button.
+            // Match the standard iPhone sheet in this comparison.
+            controller.modalPresentationStyle = .pageSheet
+        }
+        Swift.print("QA_DIRECT_SHARE: presenting via UIKit")
+        qaShareTrace("direct-uikit-present-called")
+        root.present(controller, animated: true) {
+            Swift.print("QA_DIRECT_SHARE: UIKit presentation callback")
+            qaShareTrace("direct-uikit-presentation-completed")
+        }
+    }
+    #endif
+
     func shareCurrentSection() {
+        #if DEBUG
+        qaShareTrace("reader-share-action-enter ready=\(ready) working=\(working)")
+        #endif
         guard ready, !working else { return }
         let script = """
         (() => {
@@ -474,7 +570,27 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
                       var parts = URLComponents(string: Self.publicURL) else { return }
                 parts.fragment = target
                 guard let url = parts.url else { return }
+                #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("-qaUIKitDirectShare") {
+                    // Compare item-provider behavior without touching Release.
+                    // Both paths present through the same UIKit controller.
+                    if ProcessInfo.processInfo.arguments.contains("-qaUIKitStringPayload") {
+                        qaShareTrace("direct-uikit-payload-string")
+                        self.presentUIKitShareForQA([url.absoluteString])
+                    } else {
+                        qaShareTrace("direct-uikit-payload-url")
+                        self.presentUIKitShareForQA([url])
+                    }
+                    return
+                }
+                #endif
+                #if DEBUG
+                qaShareTrace("reader-assign-share-payload")
+                #endif
                 self.sharing = SharePayload(items: [url])
+                #if DEBUG
+                qaShareTrace("reader-share-payload-assigned")
+                #endif
             }
         }
     }
