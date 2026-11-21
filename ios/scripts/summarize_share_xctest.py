@@ -103,8 +103,11 @@ def summarize(raw: str | None) -> dict:
     cats = Counter(e["category"] for t in tests for e in t["errors"])
     xcodebuild_result = ("failed" if "FAILED" in terminal_results else
                          "succeeded" if "SUCCEEDED" in terminal_results else "unobserved")
+    # A partially captured log can contain passing test cases but no final
+    # xcodebuild result. Never certify such an incomplete CI record.
     verdict = ("fail" if counts["failed"] or xcodebuild_result == "failed" else
-               "pass" if counts["passed"] and not counts["incomplete"] else "unknown")
+               "pass" if xcodebuild_result == "succeeded" and counts["passed"]
+               and not counts["incomplete"] else "unknown")
     return {
         "schema": 1,
         "status": "ok" if tests and not counts["incomplete"] else ("partial" if tests else "empty"),
