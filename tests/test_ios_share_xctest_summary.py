@@ -57,9 +57,19 @@ class ShareXCTestSummaryTests(unittest.TestCase):
     def test_pass_and_skip_do_not_turn_into_failures(self):
         a, b = "testQAUIKitDirectShareAfterColdLaunch", "testQAUIKitInteriorOutsideTapRepeatTwo"
         report = MODULE.summarize("\n".join([started(a), ended(a, "passed"),
-                                              started(b), ended(b, "skipped")]))
+                                              started(b), ended(b, "skipped"),
+                                              "** TEST SUCCEEDED **"]))
         self.assertEqual(report["verdict"], "pass")
         self.assertEqual(report["counts"], {"passed": 1, "failed": 0, "skipped": 1, "incomplete": 0})
+
+    def test_truncated_log_with_passed_tests_is_not_accepted(self):
+        name = "testQAUIKitDirectShareAfterColdLaunch"
+        raw = "\n".join([started(name), ended(name, "passed")])
+        report = MODULE.summarize(raw)
+        self.assertEqual(report["counts"]["passed"], 1)
+        self.assertEqual(report["status"], "ok")
+        self.assertEqual(report["xcodebuild_result"], "unobserved")
+        self.assertEqual(report["verdict"], "unknown")
 
     def test_missing_and_empty_logs_are_never_pass(self):
         self.assertEqual(MODULE.summarize(None)["status"], "unavailable")
