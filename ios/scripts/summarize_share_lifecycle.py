@@ -22,7 +22,7 @@ def summarize(raw: str) -> dict:
     """Return a structured summary without copying event parameters or URLs."""
     if raw.strip() == UNAVAILABLE:
         return {
-            "schema": 1, "status": "unavailable", "parsed_lines": 0,
+            "schema": 2, "status": "unavailable", "parsed_lines": 0,
             "unparsed_lines": 0, "processes": [], "by_route": {},
             "caution": "No app-owned lifecycle evidence was captured."
         }
@@ -43,10 +43,14 @@ def summarize(raw: str) -> dict:
     aggregate = {
         "swiftui": {"processes": 0, "controller_created": 0,
                     "presentation_callback": 0, "completion_observed": 0,
-                    "completion_not_recorded": 0},
+                    "completion_not_recorded": 0,
+                    "swiftui_on_dismiss_observed": 0,
+                    "native_activity_callback_observed": 0},
         "direct-uikit": {"processes": 0, "controller_created": 0,
                          "presentation_callback": 0, "completion_observed": 0,
-                         "completion_not_recorded": 0},
+                         "completion_not_recorded": 0,
+                         "swiftui_on_dismiss_observed": 0,
+                         "native_activity_callback_observed": 0},
     }
     for pid, observations in groups.items():
         observations.sort()
@@ -57,14 +61,23 @@ def summarize(raw: str) -> dict:
                    else "representable-return-activity-view-controller" in names)
         presented = ("direct-uikit-presentation-completed" in names
                      if route == "direct-uikit" else False)
-        completion = ("direct-uikit-completion" in names if route == "direct-uikit"
-                      else "swiftui-onDismiss" in names)
+        # The SwiftUI sheet onDismiss event is not the native
+        # UIActivityViewController completionWithItemsHandler callback.
+        # They may arrive in either order, so record both independently.
+        swiftui_on_dismiss = route == "swiftui" and "swiftui-onDismiss" in names
+        native_activity_callback = (
+            "direct-uikit-completion" in names if route == "direct-uikit"
+            else "activity-completion-callback" in names
+        )
+        completion = native_activity_callback
         row = aggregate[route]
         row["processes"] += 1
         row["controller_created"] += int(created)
         row["presentation_callback"] += int(presented)
         row["completion_observed"] += int(completion)
         row["completion_not_recorded"] += int(not completion)
+        row["swiftui_on_dismiss_observed"] += int(swiftui_on_dismiss)
+        row["native_activity_callback_observed"] += int(native_activity_callback)
         processes.append({
             "pid": int(pid),
             "route": route,
@@ -75,21 +88,25 @@ def summarize(raw: str) -> dict:
             "recorded_event_count": len(observations),
             "controller_created": created,
             "presentation_callback_observed": presented if route == "direct-uikit" else None,
-            "dismissal_or_completion_observed": completion,
-            "completion_marker_not_recorded": not completion,
+            # These are app-level observations, not proof of physically
+            # dismissed native UI; strict XCTest owns that acceptance gate.
+            "swiftui_on_dismiss_observed": swiftui_on_dismiss if route == "swiftui" else None,
+            "native_activity_callback_observed": native_activity_callback,
+            "completion_marker_not_recorded": not native_activity_callback,
         })
     processes.sort(key=lambda p: (p["first_event_utc"], p["pid"]))
     return {
-        "schema": 1,
+        "schema": 2,
         "status": "partial" if malformed else ("ok" if groups else "empty"),
         "parsed_lines": sum(len(v) for v in groups.values()),
         "unparsed_lines": malformed,
         "by_route": aggregate,
         "processes": processes,
         "caution": (
-            "Absence of an app callback does not independently prove the "
-            "cause of a ShareSheet failure; correlate with strict XCTest "
-            "assertions, screenshots and accessibility hierarchy."
+            "SwiftUI onDismiss and native activity completion are distinct "
+            "observations; neither proves successful physical dismissal. "
+            "Missing events do not identify root cause. Correlate with "
+            "strict XCTest assertions, screenshots and accessibility AX."
         ),
     }
 

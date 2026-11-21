@@ -27,7 +27,8 @@ class ShareLifecycleSummaryTests(unittest.TestCase):
         self.assertEqual(report["status"], "ok")
         self.assertEqual(report["by_route"]["swiftui"]["controller_created"], 1)
         self.assertEqual(report["by_route"]["swiftui"]["completion_not_recorded"], 1)
-        self.assertFalse(report["processes"][0]["dismissal_or_completion_observed"])
+        self.assertFalse(report["processes"][0]["native_activity_callback_observed"])
+        self.assertFalse(report["processes"][0]["swiftui_on_dismiss_observed"])
 
     def test_swiftui_real_dismissal_is_counted_once(self):
         raw = "\n".join([
@@ -39,6 +40,32 @@ class ShareLifecycleSummaryTests(unittest.TestCase):
         report = MODULE.summarize(raw)
         self.assertEqual(report["by_route"]["swiftui"]["completion_observed"], 1)
         self.assertEqual(report["by_route"]["swiftui"]["completion_not_recorded"], 0)
+        self.assertEqual(report["by_route"]["swiftui"]["swiftui_on_dismiss_observed"], 1)
+        self.assertEqual(report["by_route"]["swiftui"]["native_activity_callback_observed"], 1)
+
+    def test_swiftui_on_dismiss_without_native_callback_is_not_completion(self):
+        raw = "\n".join([
+            entry(105, 1795203170.0, "representable-return-activity-view-controller"),
+            entry(105, 1795203171.0, "swiftui-onDismiss"),
+        ])
+        report = MODULE.summarize(raw)
+        self.assertEqual(report["schema"], 2)
+        self.assertEqual(report["by_route"]["swiftui"]["completion_observed"], 0)
+        self.assertEqual(report["by_route"]["swiftui"]["completion_not_recorded"], 1)
+        self.assertEqual(report["by_route"]["swiftui"]["swiftui_on_dismiss_observed"], 1)
+        self.assertFalse(report["processes"][0]["native_activity_callback_observed"])
+        self.assertTrue(report["processes"][0]["swiftui_on_dismiss_observed"])
+
+    def test_native_activity_callback_without_swiftui_on_dismiss_is_distinct(self):
+        raw = "\n".join([
+            entry(106, 1795203180.0, "representable-return-activity-view-controller"),
+            entry(106, 1795203181.0, "activity-completion-callback completed=false failure=false"),
+        ])
+        report = MODULE.summarize(raw)
+        self.assertEqual(report["by_route"]["swiftui"]["completion_observed"], 1)
+        self.assertEqual(report["by_route"]["swiftui"]["swiftui_on_dismiss_observed"], 0)
+        self.assertTrue(report["processes"][0]["native_activity_callback_observed"])
+        self.assertFalse(report["processes"][0]["swiftui_on_dismiss_observed"])
 
     def test_uikit_presentation_callback_is_not_completion(self):
         raw = "\n".join([
