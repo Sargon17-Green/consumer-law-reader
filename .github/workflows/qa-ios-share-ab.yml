@@ -9,6 +9,8 @@ on:
       - '.github/workflows/qa-ios-share-ab.yml'
       - 'ios/ConsumerLawReader/ConsumerLawReaderApp.swift'
       - 'ios/ConsumerLawReaderUITests/ReaderUITests.swift'
+      - 'ios/scripts/summarize_share_lifecycle.py'
+      - 'tests/test_ios_share_lifecycle_summary.py'
       - 'ios/ConsumerLawReaderTests/**'
       - 'ios/project.yml'
       - 'scripts/build_web.py'
