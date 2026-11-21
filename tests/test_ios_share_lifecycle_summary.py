@@ -89,6 +89,21 @@ class ShareLifecycleSummaryTests(unittest.TestCase):
         self.assertEqual(report["by_route"]["direct-uikit"]["completion_observed"], 1)
         self.assertFalse(report["processes"][0]["completion_marker_not_recorded"])
 
+    def test_direct_uikit_payload_kind_is_observed_not_assumed(self):
+        raw = "\n".join([
+            entry(301, 1795203162.0, "direct-uikit-payload-string"),
+            entry(301, 1795203163.0, "direct-uikit-controller-created"),
+            entry(302, 1795203164.0, "direct-uikit-payload-url"),
+            entry(302, 1795203165.0, "direct-uikit-controller-created"),
+            entry(303, 1795203166.0, "direct-uikit-controller-created"),
+        ])
+        report = MODULE.summarize(raw)
+        by_pid = {p["pid"]: p for p in report["processes"]}
+        self.assertEqual(by_pid[301]["payload_kind"], "string")
+        self.assertEqual(by_pid[302]["payload_kind"], "url")
+        self.assertIsNone(by_pid[303]["payload_kind"])
+        self.assertEqual(report["by_route"]["direct-uikit"]["processes"], 3)
+
     def test_missing_trace_is_not_misreported_as_success(self):
         report = MODULE.summarize("QA_SHARE_LIFECYCLE_FILE_UNAVAILABLE\n")
         self.assertEqual(report["status"], "unavailable")

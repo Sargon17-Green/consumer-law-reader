@@ -226,6 +226,18 @@ final class ReaderUITests: XCTestCase {
         try verifyUIKitColdLaunchShare()
     }
 
+    // One independent fresh launch, same strict share UI/dismissal oracles.
+    // The ONLY changed variable from the direct-UIKit URL control is that
+    // the identical link is shared as a String rather than URL item.
+    func testQAUIKitStringPayloadAfterColdLaunch() throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("UIKit payload comparison requires iOS 18+")
+        }
+        Swift.print("QA_SHARE_PAYLOAD_TRIAL: kind=string route=UIKit")
+        try verifyUIKitColdLaunchShare(useStringPayload: true)
+        Swift.print("QA_SHARE_PAYLOAD_PASS: kind=string route=UIKit")
+    }
+
     // Independent diagnostic: compare the historical near-screen-edge
     // outside tap against a point safely inside the native dismiss region.
     // The existing A/B test and its strict first-tap acceptance remain intact.
@@ -259,7 +271,10 @@ final class ReaderUITests: XCTestCase {
         Swift.print("QA_SHARE_GEOMETRY_PASS: strategy=interior repeat=3")
     }
 
-    private func verifyUIKitColdLaunchShare(useInteriorOutsideTap: Bool = false) throws {
+    private func verifyUIKitColdLaunchShare(
+        useInteriorOutsideTap: Bool = false,
+        useStringPayload: Bool = false
+    ) throws {
         // UIKit may adapt the same UIActivityViewController to either an
         // iPhone sheet with Close or a native popover. Choose acceptance by
         // observed system presentation, not the expected device family.
@@ -271,6 +286,7 @@ final class ReaderUITests: XCTestCase {
         }
         let app = XCUIApplication()
         app.launchArguments.append("-qaUIKitDirectShare")
+        if useStringPayload { app.launchArguments.append("-qaUIKitStringPayload") }
         app.launchArguments.append("-qaTraceNativeShare")
         app.launch()
         defer { app.terminate() }

@@ -81,6 +81,10 @@ def summarize(raw: str) -> dict:
         processes.append({
             "pid": int(pid),
             "route": route,
+            "payload_kind": (
+                "string" if "direct-uikit-payload-string" in names else
+                "url" if "direct-uikit-payload-url" in names else None
+            ),
             "first_event_utc": datetime.fromtimestamp(
                 observations[0][0], tz=timezone.utc
             ).isoformat(timespec="milliseconds"),

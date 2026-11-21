@@ -42,7 +42,9 @@ def classify(message: str) -> str:
         return "native_close_unavailable"
     if "usable real share action" in lower or "share actions" in lower:
         return "native_share_action_unavailable"
-    if "activitylistview must appear" in lower or "actual system share container must appear" in lower:
+    if ("activitylistview must appear" in lower or
+            "actual system share container must appear" in lower or
+            "must present a real system activitylistview" in lower):
         return "native_share_container_unavailable"
     return "other_assertion"
 

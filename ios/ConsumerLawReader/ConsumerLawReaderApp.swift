@@ -565,7 +565,15 @@ final class OfflineLawReader: NSObject, ObservableObject, WKNavigationDelegate, 
                 guard let url = parts.url else { return }
                 #if DEBUG
                 if ProcessInfo.processInfo.arguments.contains("-qaUIKitDirectShare") {
-                    self.presentUIKitShareForQA([url])
+                    // Compare item-provider behavior without touching Release.
+                    // Both paths present through the same UIKit controller.
+                    if ProcessInfo.processInfo.arguments.contains("-qaUIKitStringPayload") {
+                        qaShareTrace("direct-uikit-payload-string")
+                        self.presentUIKitShareForQA([url.absoluteString])
+                    } else {
+                        qaShareTrace("direct-uikit-payload-url")
+                        self.presentUIKitShareForQA([url])
+                    }
                     return
                 }
                 #endif

@@ -39,6 +39,16 @@ class ShareXCTestSummaryTests(unittest.TestCase):
         self.assertEqual(result["tests"][0]["errors"][0]["source_line"], 378)
         self.assertNotIn("SECRET_URL", str(result))
 
+    def test_real_direct_uikit_activity_list_failure_is_classified(self):
+        name = "testQAUIKitInteriorOutsideTapRepeatThree"
+        raw = "\n".join([started(name), failure(name, 301,
+            "XCTAssertTrue failed - Direct UIKit must present a real system ActivityListView"),
+            ended(name, "failed"), "** TEST FAILED **"])
+        report = MODULE.summarize(raw)
+        self.assertEqual(report["verdict"], "fail")
+        self.assertEqual(report["failure_categories"],
+                         {"native_share_container_unavailable": 1})
+
     def test_ax_snapshot_interruption_is_not_claimed_as_blank_share(self):
         name = "testQAShareRepeatABUIKitFirst"
         report = MODULE.summarize("\n".join([started(name), failure(name, 309,
