@@ -67,6 +67,34 @@ class ShareXCTestSummaryTests(unittest.TestCase):
         self.assertEqual(MODULE.summarize("")["status"], "empty")
         self.assertEqual(MODULE.summarize("")["verdict"], "unknown")
 
+    def test_all_skipped_does_not_count_as_test_pass(self):
+        name = "testQAUIKitInteriorOutsideTapRepeatTwo"
+        report = MODULE.summarize("\n".join([started(name), ended(name, "skipped"),
+                                                   "** TEST SUCCEEDED **"]))
+        self.assertEqual(report["counts"]["passed"], 0)
+        self.assertEqual(report["counts"]["skipped"], 1)
+        self.assertEqual(report["xcodebuild_result"], "succeeded")
+        self.assertEqual(report["verdict"], "unknown")
+
+    def test_xcodebuild_failure_cannot_be_overridden_by_parsed_pass(self):
+        name = "testQAUIKitDirectShareAfterColdLaunch"
+        report = MODULE.summarize("\n".join([started(name), ended(name, "passed"),
+                                                   "** TEST FAILED **"]))
+        self.assertEqual(report["counts"]["failed"], 0)
+        self.assertEqual(report["xcodebuild_result"], "failed")
+        self.assertEqual(report["verdict"], "fail")
+
+    def test_xcodebuild_failure_without_test_events_is_not_unknown_or_pass(self):
+        report = MODULE.summarize("2026-11-21T07:04:54Z ** TEST FAILED **\n")
+        self.assertEqual(report["status"], "empty")
+        self.assertEqual(report["xcodebuild_result"], "failed")
+        self.assertEqual(report["verdict"], "fail")
+
+    def test_explicit_success_without_any_executed_test_is_not_a_pass(self):
+        report = MODULE.summarize("** TEST SUCCEEDED **\n")
+        self.assertEqual(report["xcodebuild_result"], "succeeded")
+        self.assertEqual(report["verdict"], "unknown")
+
     def test_interrupted_or_retried_test_is_not_silently_accepted(self):
         name = "testQAShareRepeatABSwiftUIFirst"
         report = MODULE.summarize(started(name) + "\n")
