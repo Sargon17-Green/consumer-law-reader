@@ -11,6 +11,8 @@ on:
       - 'ios/ConsumerLawReaderUITests/ReaderUITests.swift'
       - 'ios/scripts/summarize_share_lifecycle.py'
       - 'tests/test_ios_share_lifecycle_summary.py'
+      - 'ios/scripts/summarize_share_xctest.py'
+      - 'tests/test_ios_share_xctest_summary.py'
       - 'ios/ConsumerLawReaderTests/**'
       - 'ios/project.yml'
       - 'scripts/build_web.py'
@@ -189,6 +191,21 @@ jobs:
               "build/$QA_LABEL-share-lifecycle-summary.json"
             xcrun simctl shutdown "$QA_DEVICE" || true
           fi
+      - name: Summarize actual XCTest results without modifying any assertion
+        if: always()
+        run: |
+          mkdir -p build
+          shopt -s nullglob
+          files=(build/*-tests.log)
+          if (( ${#files[@]} == 0 )); then
+            python3 ios/scripts/summarize_share_xctest.py \
+              build/missing-tests.log build/missing-xctest-summary.json
+          else
+            for log in "${files[@]}"; do
+              python3 ios/scripts/summarize_share_xctest.py \
+                "$log" "${log%-tests.log}-xctest-summary.json"
+            done
+          fi
       - name: Save build report and unsigned simulator binary for QA
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
@@ -203,6 +220,7 @@ jobs:
             build/*-tests.log
             build/*-share-lifecycle.log
             build/*-share-lifecycle-summary.json
+            build/*-xctest-summary.json
             build/*-runtime.json
             build/*-size-before.txt
             build/*-size-actual.txt
